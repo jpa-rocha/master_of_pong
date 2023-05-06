@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  frontend:
+    image: frontend
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - 3000:3000
+    # depends_on:
+    #   - backend
+    # restart: on-failure
+    # networks:
+    #   - nirvana
+    # volumes:
+     
+
+# networks:
+#   inception:
+#     name: nirvana
+#     driver: bridge
