@@ -14,7 +14,7 @@ def build_image(image_name, dockerfile_path):
         subprocess.run(["docker", "build", "-t", image_name, "."])
         print(f"Image '{image_name}' created.")
 
-
+original_dir = os.getcwd()
 # Paths to Dockerfiles
 
 f_image_name = "dev_frontend:latest"
@@ -24,4 +24,5 @@ b_dockerfile_path = "backend/dev/.devcontainer/"
 
 
 build_image(f_image_name, f_dockerfile_path)
+os.chdir(original_dir)
 build_image(b_image_name, b_dockerfile_path)

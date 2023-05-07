@@ -11,7 +11,6 @@ def create_folder(folder_path):
 def create_container(container_name, project_path):
     # Check if the container exists
     result = subprocess.run(["docker", "inspect", container_name], capture_output=True)
-    
     if result.returncode == 0:
         print(f"Container '{container_name}' already exists.")
     else:
@@ -34,6 +33,13 @@ f_container_name = "frontend_base"
 f_project_path = "frontend/dev"
 b_container_name = "backend_base"
 b_project_path = "backend/dev"
+
 create_container(f_container_name, f_project_path)
+image_name = "dev_frontend:latest"
+command = f"docker stop $(docker ps -q --filter ancestor={image_name})"
+subprocess.run(command, shell=True)
+
 os.chdir(original_dir)
 create_container(b_container_name, b_project_path)
+image_name = "dev_backend:latest"
+subprocess.run(command, shell=True)
