@@ -1,7 +1,7 @@
-FROM node:latest
+ARG BASE_FRONTEND_IMAGE_NAME
+ARG BASE_FRONTEND_IMAGE_TAG
 
-RUN npm install -g typescript
-RUN npm install -g create-react-app
+FROM ${BASE_FRONTEND_IMAGE_NAME}:${BASE_FRONTEND_IMAGE_TAG}
 
 WORKDIR /app
 
