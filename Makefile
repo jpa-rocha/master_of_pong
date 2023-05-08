@@ -6,6 +6,6 @@ start_up:
 
 # Copies app folders into prodution container and runs docker compose up
 run:
-	$(RUN_SCRIPT)create_images.py;
 	$(RUN_SCRIPT)setup.py;
+	$(RUN_SCRIPT)create_images.py;
 	docker compose up;

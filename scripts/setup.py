@@ -1,13 +1,25 @@
 import os
 
-def create_env_file(frontend_image_name, backend_image_name, db_image_name, image_tag, env_file_path):
+def create_env_file(env_file_path):
     variables = {
-        "BASE_FRONTEND_IMAGE_NAME": frontend_image_name,
-        "BASE_BACKEND_IMAGE_NAME": backend_image_name,
-        "BASE_DB_IMAGE_NAME": db_image_name,
-        "BASE_FRONTEND_IMAGE_TAG": image_tag,
-        "BASE_BACKEND_IMAGE_TAG": image_tag,
-        "BASE_DB_IMAGE_TAG": image_tag,
+        "BASE_FRONTEND_IMAGE_NAME": 'dev_frontend',
+        "BASE_BACKEND_IMAGE_NAME": 'dev_backend',
+        "BASE_DB_IMAGE_NAME": 'dev_db',
+        "BASE_FRONTEND_IMAGE_TAG": 'latest',
+        "BASE_BACKEND_IMAGE_TAG": 'latest',
+        "BASE_DB_IMAGE_TAG": 'latest',
+        "BASE_FRONTEND_IMAGE": "dev_frontend:latest",
+        "BASE_BACKEND_IMAGE": "dev_backend:latest",
+        "BASE_DB_IMAGE": "dev_db:latest",
+		"FRONTEND_FOLDER_PATH": "./frontend/dev/app" ,
+		"BACKEND_FOLDER_PATH": "./backend/dev/app",
+		"DB_FOLDER_PATH" : "./db/dev/app",
+        "FRONTEND_PROJECT_PATH" : "frontend/dev",
+		"BACKEND_PROJECT_PATH" : "backend/dev",
+        "DB_PROJECT_PATH" : "db/dev",
+        "FRONTEND_DOCKERFILE_PATH" : "frontend/dev/.devcontainer/",
+		"BACKEND_DOCKERFILE_PATH" : "backend/dev/.devcontainer/",
+        "DB_DOCKERFILE_PATH" : "db/dev/.devcontainer"
     }
 
     if os.path.exists(env_file_path):
@@ -23,8 +35,4 @@ def create_env_file(frontend_image_name, backend_image_name, db_image_name, imag
 
 if __name__ == '__main__':
     env_file_path = './.env'
-    frontend_image_name = 'dev_frontend'
-    backend_image_name = 'dev_backend'
-    db_image_name = 'dev_db'
-    image_tag = 'latest'
-    create_env_file(frontend_image_name, backend_image_name, db_image_name, image_tag, env_file_path)
+    create_env_file(env_file_path)

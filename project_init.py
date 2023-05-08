@@ -8,6 +8,6 @@ images_path = "scripts/create_images.py"
 container_path = "scripts/create_dev_containers.py"
 setup_path = "scripts/setup.py"
 
+call_python_script(setup_path)
 call_python_script(images_path)
 call_python_script(container_path)
-call_python_script(setup_path)

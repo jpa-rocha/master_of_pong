@@ -42,4 +42,5 @@ subprocess.run(command, shell=True)
 os.chdir(original_dir)
 create_container(b_container_name, b_project_path)
 image_name = "dev_backend:latest"
+command = f"docker stop $(docker ps -q --filter ancestor={image_name})"
 subprocess.run(command, shell=True)
