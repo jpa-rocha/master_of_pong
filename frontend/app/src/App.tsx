@@ -28,59 +28,134 @@ const theme = createTheme({
  */
 
 const App: React.FunctionComponent = () => {
+	
   return (
-    <Container
-      sx={{ backgroundColor: "grey.A700", height: "100vh", width: "100vw" }}
-    >
-      {/*     <Box  sx={{backgroundColor: "grey.A700", height: "100vh", width: "100vw" }}> */}
-      <AppBar
-        position="fixed"
-        style={{ backgroundColor: "#09090C", height: "10vh" }}
-      >
-        <Toolbar>
-          <Grid container justifyContent="center" alignItems="center">
-            <Grid item xs={12} sm={4} md={4}>
-              <Button variant="contained">Main</Button>
-            </Grid>
-            <Grid item xs={12} sm={4} md={4}>
-              <h2>Master of Pong</h2>
-            </Grid>
-            <Grid item xs={12} sm={4} md={4}>
-              <Button variant="contained"> Login </Button>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
+	<Box sx={{ display: 'flex', flexDirection: 'column',  alignItems: 'center', justifyContent: 'center', height: '100vh',
+		margin:0, padding:0}}
+	>
+	<Grid container>
 
-      <Box sx={{ flexGrow: 1, backgroundColor: "#3f50b5", height: "80vh" }}>
-        {/*   <Grid container>
-          <Grid item> */}
+{/* 	This is navigation */}
+	  <Grid item xs={12} >
+		 <Box > 
+			<AppBar position="fixed"
+ 					style={{ backgroundColor: "#09090C", height:'6vh' }}>
+  				<Toolbar>
+					<Grid container justifyContent="center" alignItems="center">
+	  					<Grid item xs={4} >
+						  <Button variant="contained"
+                				sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)',
+                  						color: '#FFFFFF'}}>
+							Main
+              			</Button>
+	  					</Grid>
+	  				<Grid item xs={4} >
+						<h2>Master of Pong</h2>
+	  				</Grid>
+	  				<Grid item xs={4} >
+					  	<Button variant="contained"
+                		sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)',
+                  			color: '#FFFFFF'}}>
+                			Login
+              			</Button>
+	  				</Grid>
+					</Grid>
+  				</Toolbar>
+			</AppBar>
+		</Box> 
+	  </Grid>
+
+{/* This is main */}
+	  <Grid item xs={12} >
+		
+		<Box sx={{
+        flexGrow: 1,  height: "100vh", width: "100vw", margin:0, padding:0,
+        background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)'
+      }}
+	  >
         <p>hello</p>
-        {/*  </Grid>
-        </Grid> */}
-      </Box>
+		</Box>
+	  </Grid>
 
-      <AppBar
-        position="fixed"
-        style={{ backgroundColor: "#09090C", height: "10vh" }}
-        sx={{ top: "auto", bottom: 0 }}
-      >
-        <Toolbar>
-          <Grid
-            container
-            spacing={12}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Grid item md={12}>
-              <p>Footer</p>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-      {/*      </Box> */}
-    </Container>
+
+
+
+{/* This is footer */}
+	  <Grid item xs={12}>
+	<Box > 
+			<AppBar position="fixed"
+  				style={{ backgroundColor: "#09090C",  height:'6vh'}}
+  				sx={{ top: "auto", bottom: 0 }}>
+  				<Toolbar>
+					<Grid container spacing={12} justifyContent="center" alignItems="center">
+	  					<Grid item md={12}>
+							<p>Footer</p>
+	  					</Grid>
+					</Grid>
+  				</Toolbar>
+			</AppBar>
+	</Box> 
+	  </Grid>
+
+
+	</Grid>
+  </Box>
+
   );
 };
 
+
+
 export default App;
+
+
+
+{/* <Container
+sx={{ backgroundColor: "grey.A700", height: "100vh", width: "100vw" }}
+>
+<AppBar
+  position="fixed"
+  style={{ backgroundColor: "#09090C", height: "10vh" }}
+>
+  <Toolbar>
+	<Grid container justifyContent="center" alignItems="center">
+	  <Grid item xs={12} sm={4} md={4}>
+		<Button variant="contained">Main</Button>
+	  </Grid>
+	  <Grid item xs={12} sm={4} md={4}>
+		<h2>Master of Pong</h2>
+	  </Grid>
+	  <Grid item xs={12} sm={4} md={4}>
+		<Button variant="contained"> Login </Button>
+	  </Grid>
+	</Grid>
+  </Toolbar>
+</AppBar>
+
+<Box sx={{ flexGrow: 1, backgroundColor: "#3f50b5", height: "80vh" }}>
+
+  <p>hello</p>
+
+</Box>
+
+<AppBar
+  position="fixed"
+  style={{ backgroundColor: "#09090C", height: "10vh" }}
+  sx={{ top: "auto", bottom: 0 }}
+>
+  <Toolbar>
+	<Grid
+	  container
+	  spacing={12}
+	  justifyContent="center"
+	  alignItems="center"
+	>
+	  <Grid item md={12}>
+		<p>Footer</p>
+	  </Grid>
+	</Grid>
+  </Toolbar>
+</AppBar>
+
+</Container>
+); */}
