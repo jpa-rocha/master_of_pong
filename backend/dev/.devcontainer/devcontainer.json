@@ -26,6 +26,7 @@
 			
 		}
 	},
+	// "postCreateCommand": "npm install",
 	"postStartCommand": "nest new . -p npm",
 	"workspaceFolder": "/workspaces/master_of_pong/backend/dev/app"
 }
