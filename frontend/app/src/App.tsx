@@ -3,13 +3,16 @@ import "./styles/App.css";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import Grid from "@mui/material/Grid";
-import { Toolbar, AppBar, TextField } from "@mui/material";
+import { Toolbar, AppBar, TextField, createStyles } from "@mui/material";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
+import logo from "../src/images/logo.png"
+import calm from "../src/images/CalmScorpion.gif"
 
-/* import { createTheme } from '@mui/material/styles';
+/* import { createTheme, Theme } from '@mui/material/styles';
+import { makeStyles } from '@mui/styles'; */
 
-const theme = createTheme({
+/*const theme = createTheme({
   palette: {
     primary: {
       light: '#757ce8',
@@ -24,8 +27,17 @@ const theme = createTheme({
       contrastText: '#000',
     },
   },
-});
- */
+}); */
+
+/* const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		logo: {
+			maxWidth: 40,
+			marginRight: '10px'
+		}
+	})
+); */
+
 
 const App: React.FunctionComponent = () => {
 	
@@ -42,17 +54,23 @@ const App: React.FunctionComponent = () => {
  					style={{ backgroundColor: "#09090C", height:'6vh' }}>
   				<Toolbar>
 					<Grid container justifyContent="center" alignItems="center">
-	  					<Grid item xs={4} >
+					<Grid item xs={3} >
+					
+						 <Box  component="img" alt="Logo" src={logo} sx={{height: 57}}>
+						 </Box>
+						 
+	  					</Grid>
+	  					<Grid item xs={3} >
 						  <Button variant="contained"
                 				sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)',
                   						color: '#FFFFFF'}}>
 							Main
               			</Button>
 	  					</Grid>
-	  				<Grid item xs={4} >
+	  				<Grid item xs={3} >
 						<h2>Master of Pong</h2>
 	  				</Grid>
-	  				<Grid item xs={4} >
+	  				<Grid item xs={3} >
 					  	<Button variant="contained"
                 		sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)',
                   			color: '#FFFFFF'}}>
@@ -67,13 +85,17 @@ const App: React.FunctionComponent = () => {
 
 {/* This is main */}
 	  <Grid item xs={12} >
-		
 		<Box sx={{
         flexGrow: 1,  height: "100vh", width: "100vw", margin:0, padding:0,
         background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)'
       }}
 	  >
-        <p>hello</p>
+		<Box display="flex" justifyContent="center" alignItems="center"
+			sx={{height:"100vh"}}>
+        		<img src={calm} alt="calmScorpion" 
+				style={{ objectFit:"cover", width:"100%", height:"100%", opacity:"0.4"}}></img>
+		</Box>
+
 		</Box>
 	  </Grid>
 
