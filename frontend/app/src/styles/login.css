@@ -1,0 +1,58 @@
+
+body{
+	background-color: #082e48;
+	min-height: 100%;
+}
+
+.container{
+	width: 100%;
+}
+
+#form 
+{
+    position: absolute;
+    overflow: hidden;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100%;
+    width: 500px;
+	padding: 40px;
+}
+
+.form-item{
+	padding: 10px;
+}
+
+input[type='text'], 
+input[type='password']
+{
+	border: 1px solid #adabab;
+	border-radius: 2px;
+	font-size: 16px;
+	padding: 10px;
+	width: 100%;
+	background-color: #031a2a;
+}
+
+::placeholder{
+	color: #fff;
+}
+
+.button
+{
+	border: 1px solid #adabab;
+	border-radius: 2px;
+	font-size: 16px;
+	padding: 10px;
+	width: 100%;
+	background-color: #007acc;
+	color: #fff;
+}
+
+.button:hover 
+{
+  opacity: 0.5;
+}
+
+
