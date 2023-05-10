@@ -91,8 +91,6 @@ const App: React.FunctionComponent = () => {
 				</Grid>
 
 
-
-
 				{/* This is footer */}
 				<Grid item xs={12}>
 					<Box > 
@@ -110,7 +108,7 @@ const App: React.FunctionComponent = () => {
 					</Box> 
 				</Grid>
 
-
+				
 			</Grid>
 		</Box>
 	);
