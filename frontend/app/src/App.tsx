@@ -49,7 +49,7 @@ const App: React.FunctionComponent = () => {
 				{/* This is navigation */}
 				<Grid item xs={12} >
 					<Box> 
-						<AppBar position="fixed" style={{ backgroundColor: "#09090C", height:'6vh' }}>
+						<AppBar position="fixed" style={{ backgroundColor: "#09090C", height:'6vh', minHeight: "70px" }}>
 							<Toolbar>
 								<Grid container justifyContent="center" alignItems="center">
 									
@@ -95,7 +95,7 @@ const App: React.FunctionComponent = () => {
 				<Grid item xs={12}>
 					<Box > 
 						<AppBar position="fixed"
-							style={{ backgroundColor: "#09090C",  height:'6vh'}}
+							style={{ backgroundColor: "#09090C",  height:'6vh', minHeight: "50px" }}
 							sx={{ top: "auto", bottom: 0 }}>
 							<Toolbar>
 								<Grid container spacing={12} justifyContent="center" alignItems="center">
