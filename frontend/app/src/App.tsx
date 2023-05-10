@@ -52,23 +52,23 @@ const App: React.FunctionComponent = () => {
 						<AppBar position="fixed" style={{ backgroundColor: "#09090C", height:'6vh' }}>
 							<Toolbar>
 								<Grid container justifyContent="center" alignItems="center">
-
-									<Grid item xs={3} >
-										<Box  component="img" alt="Logo" src={logo} sx={{height: 57}}></Box>
-									</Grid>
-
-									<Grid item xs={3} >
+									
+									<Grid item xs={3} textAlign="left">
 										<Button variant="contained"
 											sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
 											Main
 										</Button>
 									</Grid>
 
-									<Grid item xs={3} >
-										<h2>Master of Pong</h2>
+									<Grid item xs={6} textAlign="center">
+										<Box  component="img" alt="Logo" src={logo} sx={{height: 70}}></Box>
 									</Grid>
 
-									<Grid item xs={3} >
+									{/* <Grid item xs={3}textAlign="left">
+										<h2>Master of Pong</h2>
+									</Grid> */}
+
+									<Grid item xs={3} textAlign="right">
 										<Button variant="contained"
 											sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
 											Login
@@ -101,7 +101,7 @@ const App: React.FunctionComponent = () => {
 							sx={{ top: "auto", bottom: 0 }}>
 							<Toolbar>
 								<Grid container spacing={12} justifyContent="center" alignItems="center">
-									<Grid item md={12}>
+									<Grid item md={12} textAlign="center">
 									<p>Footer</p>
 									</Grid>
 								</Grid>
