@@ -2,6 +2,9 @@ import React from 'react';
 import '../styles/login.css'
 
 
+/* 
+This is the Login Page */
+
 const Login: React.FunctionComponent = () => {
   return (
 
