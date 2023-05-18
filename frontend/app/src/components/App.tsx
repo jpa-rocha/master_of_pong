@@ -4,12 +4,13 @@ import { Grid, Box } from "@mui/material";
 import calm from "../images/CalmScorpion.gif"
 import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
-
+/* import { Routes, Route} from "react-router-dom"; */
+/* import Login from "./Login"; */
 
 /* This is the Landing Page */
 
 const App: React.FunctionComponent = () => {
-	
+
 
 	return (
 		
@@ -37,9 +38,11 @@ const App: React.FunctionComponent = () => {
 				<Grid item xs={12}>
 					<Footer></Footer>
 				</Grid>
-
-				
 			</Grid>
+
+	{/* 		<Routes>
+				<Route path="/login" element={<Login/>}  />
+			</Routes> */}
 		</Box>
 	);
 };
