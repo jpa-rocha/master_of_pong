@@ -4,8 +4,8 @@ import { Grid, Box } from "@mui/material";
 import calm from "../images/CalmScorpion.gif"
 import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
-/* import { Routes, Route} from "react-router-dom"; */
-/* import Login from "./Login"; */
+import Login from "./Login";
+import { Routes, Route } from "react-router-dom";
 
 /* This is the Landing Page */
 
@@ -40,9 +40,10 @@ const App: React.FunctionComponent = () => {
 				</Grid>
 			</Grid>
 
-	{/* 		<Routes>
+
+			<Routes>
 				<Route path="/login" element={<Login/>}  />
-			</Routes> */}
+			</Routes>
 		</Box>
 	);
 };
