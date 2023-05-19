@@ -4,14 +4,17 @@ import App from './components/App';
 import { BrowserRouter } from "react-router-dom";
 
 
+// @ts-ignore
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
+	<React.StrictMode>
 	<BrowserRouter>
-		<App />
-	</BrowserRouter>
+		 <App />
+	   </BrowserRouter> 
+	 </React.StrictMode>
 );
 
 
