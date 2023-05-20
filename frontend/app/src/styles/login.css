@@ -1,6 +1,15 @@
 
+
+:root {
+	--body-color:#082e48;
+    --border-color: #007acc;
+    --input-color: #1a4057;
+	--btn-border-color: #adabab;
+	--color: #fff;
+}
+
 body{
-	background-color: #082e48;
+	background-color: var(--body-color);
 	min-height: 100%;
 }
 
@@ -27,28 +36,28 @@ body{
 input[type='text'], 
 input[type='password']
 {
-	border: 1px solid #007acc;
+	border: 1px solid var(--border-color);
 	border-radius: 2px;
 	font-size: 16px;
 	padding: 10px;
 	width: 90%;
-	background-color: #1a4057;
+	background-color: var(--input-color);
 }
 
 ::placeholder{
-	color: #fff;
+	color: var(--color);
 	opacity: 0.7;
 }
 
 .button
 {
-	border: 1px solid #adabab;
+	border: 1px solid var(--btn-border-color);
 	border-radius: 2px;
 	font-size: 16px;
 	padding: 10px;
 	width: 95%;
-	background-color: #007acc;
-	color: #fff;
+	background-color: var(--border-color);
+	color: var(--color);
 	opacity: 0.7;
 	text-transform: uppercase;
 }
@@ -60,9 +69,9 @@ input[type='password']
 
 .form-item a
 {
-	color: #fff;
+	color: var(--color);
 }
 
 .form-item p{
-	color: #fff;
+	color: var(--color);
 }
