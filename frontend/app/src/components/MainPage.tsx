@@ -1,7 +1,7 @@
 import React from "react";
 import "../styles/App.css";
 import {Grid, Box} from "@mui/material";
-import calm from "../images/CalmScorpion.gif";
+import angry from "../images/AngryScorpion.gif";
 import NavBarMainPage from "./NavBarMainPage";
 import Footer from "./Footer";
 
@@ -23,7 +23,7 @@ const MainPage: React.FunctionComponent = () => {
 		<Grid item xs={12} >
 			<Box sx={{ flexGrow: 1, background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)' }}>
 				<Box display="flex" justifyContent="center" alignItems="center" sx={{height:"100vh"}}>
-					<img src={calm} alt="calmScorpion" style={{ objectFit:"cover", width:"100%", height:"100%", opacity:"0.4"}}></img>
+					<img src={angry} alt="calmScorpion" style={{ objectFit:"cover", width:"100%", height:"100%", opacity:"0.4"}}></img>
 				</Box>
 			</Box>	
 		</Grid>
