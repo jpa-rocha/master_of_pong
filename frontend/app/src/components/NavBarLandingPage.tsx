@@ -1,29 +1,25 @@
 import { AppBar, Toolbar, Box, Grid, Button } from '@mui/material';
 import logo from "../images/logo.png";
 import { useNavigate} from 'react-router-dom';
-/* import { useEffect, useState } from 'react'; */
+
 
 /* This is the Navigation Section for the Landing Page */
 const NavBarLandingPage = () => {
 
-	/* const [bgColor, setBgColor] = useState<string>('#ffc800');
 
-	useEffect( () => {
-		document.body.style.background = bgColor;
-	}, [bgColor]);
-
-	const changeColor = (bgColor:string) =>{
-		setBgColor(bgColor);
-	  };
-
- */
 	const navigate = useNavigate();
 
 	function handleClick(e: React.FormEvent) {
 		e.preventDefault();
 		navigate('/login');
-	  }; 
+	  };
 
+	  function handleClick2(e: React.FormEvent) {
+		e.preventDefault();
+		navigate('/home');
+	  }; 
+	
+	
   return (
 	
 		<Box> 
@@ -32,7 +28,7 @@ const NavBarLandingPage = () => {
 					<Grid container justifyContent="center" alignItems="center">
 						
 						<Grid item xs={3} textAlign="left">
-							<Button variant="contained" 
+							<Button variant="contained" onClick={handleClick2}
 								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
 								Main
 							</Button>
