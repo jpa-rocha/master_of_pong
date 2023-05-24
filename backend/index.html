@@ -58,14 +58,13 @@
         padding: 10px;
         border-radius: 5px;
       }
-
       .message.sent {
         background-color: #e6f7ff;
         align-self: flex-end;
+        text-align: right;
       }
-
       .message.received {
-        background-color: #f2f2f2;
+        background-color: #eaa8a8;
         align-self: flex-start;
       }
     
@@ -108,11 +107,19 @@
       });
 
       socket.on("chat message", function (data) {
-        if (data.id === socket.id) {
-          return;
-        }
         var item = document.createElement("li");
-        item.textContent = (data.nickname || "unknown") + ": " + data.message;
+        var message = document.createElement("div");
+        message.textContent = data.message;
+        message.classList.add("message");
+        if (data.id === socket.id) {
+          message.classList.add("sent");
+        } else {
+          message.classList.add("received");
+          var sender = document.createElement("span");
+          sender.textContent = (data.nickname || "unknown") + ": ";
+          message.insertBefore(sender, message.firstChild);
+        }
+        item.appendChild(message);
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
