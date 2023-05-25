@@ -4,6 +4,7 @@ import {Grid, Box} from "@mui/material";
 import angry from "../images/AngryScorpion.gif";
 import NavBarMainPage from "./NavBarMainPage";
 import Footer from "./Footer";
+import { ClientRequest } from "http";
 
 
 /* This is the Main Page after User Login */
@@ -33,7 +34,6 @@ const MainPage: React.FunctionComponent = () => {
 		<Grid item xs={12}>
 				<Footer></Footer>
 		</Grid>
-
 	</Grid>
 	</Box>
   );
