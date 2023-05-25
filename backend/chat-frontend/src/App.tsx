@@ -31,7 +31,6 @@ function App() {
   return (
     <>
       {" "}
-      <ul id="messages"></ul>
       <MessageInput send={sendMessage} />
       <Message messages={messages} />
     </>
