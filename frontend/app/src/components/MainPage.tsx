@@ -4,11 +4,20 @@ import {Grid, Box} from "@mui/material";
 import angry from "../images/AngryScorpion.gif";
 import NavBarMainPage from "./NavBarMainPage";
 import Footer from "./Footer";
+import { ClientRequest } from "http";
 
 
 /* This is the Main Page after User Login */
 
 const MainPage: React.FunctionComponent = () => {
+	const [data, setData] = React.useState(null);
+	React.useEffect(() => {
+    fetch('https://api.intra.42.fr/v2/accreditations')
+      .then(response => response.json())
+      .then(json => setData(json))
+      .catch(error => console.error(error));
+  }, []);
+  console.log(data)
   return (
 	<Box sx={{ display: 'flex', flexDirection: 'column',  alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
 	<Grid container>
@@ -33,7 +42,6 @@ const MainPage: React.FunctionComponent = () => {
 		<Grid item xs={12}>
 				<Footer></Footer>
 		</Grid>
-
 	</Grid>
 	</Box>
   );
