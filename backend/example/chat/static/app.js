@@ -1,0 +1,155 @@
+const socket = io('http://localhost:3000');
+const msgBox = document.getElementById('exampleFormControlTextarea1');
+const msgCont = document.getElementById('data-container');
+const email = document.getElementById('email');
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+let raf;
+
+function roundedRect(ctx, x, y, width, height, radius) {
+	ctx.beginPath();
+	ctx.moveTo(x, y + radius);
+	ctx.arcTo(x, y + height, x + radius, y + height, radius);
+	ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+	ctx.arcTo(x + width, y, x + width - radius, y, radius);
+	ctx.arcTo(x, y, x, y + radius, radius);
+	ctx.fill();
+}
+
+const ball = {
+	x: 400,
+	y: 250,
+	radius: 8,
+	vx: 4,
+	vy: 2,
+	colour: "rgb(0, 150, 150)",
+	draw() {
+		ctx.fillStyle = this.colour;
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+		ctx.fill();
+		ball.x += ball.vx;
+		ball.y += ball.vy;
+		if (ball.y + ball.vy > canvas.height || ball.y + ball.vy < 0) {
+			ball.vy = -ball.vy;
+		}
+		if (ball.x + ball.vx > canvas.width || ball.x + ball.vx < 0) {
+			ball.vx = -ball.vx;
+		}
+	},
+};
+
+const p1 = {
+	pos_x: 778,
+	pos_y: 25,
+	x: 12,
+	y: 60,
+	radius: 5,
+	colour: "rgb(200, 0, 0)",
+	draw() {
+		ctx.fillStyle = this.colour;
+		roundedRect(ctx, this.pos_x, this.pos_y, this.x, this.y, this.radius);	
+	},
+};
+
+const p2 = {
+	pos_x: 10,
+	pos_y: 250,
+	x: 12,
+	y: 60,
+	radius: 5,
+	colour: "rgb(200, 0, 200)",
+	draw() {
+		ctx.fillStyle = this.colour;
+		roundedRect(ctx, this.pos_x, this.pos_y, this.x, this.y, this.radius);	
+	},
+};
+
+function draw() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	p1.draw();
+	p2.draw();
+	ball.draw();
+	raf = window.requestAnimationFrame(draw);
+}
+
+// canvas.addEventListener("mouseover", (e) => {
+// 	raf = window.requestAnimationFrame(draw);
+// });
+
+// canvas.addEventListener("mouseout", (e) => {
+// 	window.cancelAnimationFrame(raf);
+// });
+
+canvas.addEventListener("keydown", function(event) {
+	if (event.key === 'ArrowDown')
+	{
+		p1.pos_y += 10;
+		if (p1.pos_y > canvas.height - p1.y)
+			p1.pos_y = canvas.height - p1.y;
+	}
+	if (event.key === 'ArrowUp')
+	{
+		p1.pos_y -= 10;
+		if (p1.pos_y < 0)
+			p1.pos_y = 0;
+	}
+	if (event.key === 's')
+	{
+		p2.pos_y += 10;
+		if (p2.pos_y > canvas.height - p2.y)
+			p2.pos_y = canvas.height - p2.y;
+	}
+	if (event.key === 'w')
+	{
+		p2.pos_y -= 10;
+		if (p2.pos_y < 0)
+			p2.pos_y = 0;
+	}
+});
+
+//get old messages from the server
+const messages = [];
+function getMessages() {
+  fetch('http://localhost:3000/api/chat')
+    .then((response) => response.json())
+    .then((data) => {
+      loadDate(data);
+      data.forEach((el) => {
+        messages.push(el);
+      });
+    })
+    .catch((err) => console.error(err));
+}
+getMessages();
+
+//When a user press the enter key,send message.
+msgBox.addEventListener('keydown', (e) => {
+  if (e.keyCode === 13) {
+    sendMessage({ email: email.value, text: e.target.value });
+    e.target.value = '';
+  }
+});
+
+//Display messages to the users
+function loadDate(data) {
+  let messages = '';
+  data.map((message) => {
+    messages += ` <li class="bg-primary p-2 rounded mb-2 text-light">
+       <span class="fw-bolder">${message.email}</span>
+       ${message.text}
+     </li>`;
+  });
+  msgCont.innerHTML = messages;
+}
+
+//socket.io
+//emit sendMessage event to send message
+function sendMessage(message) {
+  socket.emit('sendMessage', message);
+}
+//Listen to recMessage event to get the messages sent by users
+socket.on('recMessage', (message) => {
+  messages.push(message);
+  loadDate(messages);
+});
