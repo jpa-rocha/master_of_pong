@@ -23,8 +23,8 @@ const NavBarLandingPage = () => {
 		// API call and authorization, whats the next step,
 		// it should redirect to MainPage but should the user name be gotten there?
 		// Or should it redirect to an intermediary page? that just stores the user in the db?
-		const apiURL = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-21777d9ab5dd446dbc857420566faa413fd62652c1e6699de8ad7a306587ba4d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fmain&response_type=code"
 	
+		const apiURL = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-057fa291fc9b6e02cb609dfe90635d46e4de7c42653568c172a449ab5256b75d&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fmain&response_type=code"
 		window.location.href = apiURL; 
 	};
 
