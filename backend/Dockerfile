@@ -5,9 +5,9 @@ RUN npm install -g @nestjs/cli
 
 WORKDIR /app
 
-COPY ./example/ .
+COPY ./example/chat .
 
-WORKDIR /app/example/chat
+WORKDIR /app/chat
 RUN ls
 RUN npm install
 

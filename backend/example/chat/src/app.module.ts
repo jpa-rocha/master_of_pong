@@ -10,7 +10,7 @@ import { AppGateway } from './app.gateway';
 	TypeOrmModule.forRoot({
 		type: 'postgres',
 		host: 'localhost',
-		username: 'admin',
+		username: 'chat1',
 		password: 'masterofpong',
 		database: 'chat',
 		entities: [Chat],
