@@ -1,6 +1,7 @@
 import { Controller, Render, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Chat } from './chat.entity';
+import { Game } from './game.entity';
 
 @Controller()
 export class AppController {
@@ -16,5 +17,11 @@ export class AppController {
   async Chat(@Res() res) {
     const messages = await this.appService.getMessages();
     res.json(messages);
+  }
+
+  @Get('/api/pos')
+  async Game(@Res() res) {
+    const pos = 200;
+    res.json(pos);
   }
 }

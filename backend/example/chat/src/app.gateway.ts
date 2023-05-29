@@ -27,6 +27,11 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 		this.server.emit('recMessage', payload);
 	}
 
+	@SubscribeMessage('sendEvent')
+	async handleSendEvent(client: Socket, data: unknown): Promise<void> {
+		//console.log(data);
+	}
+
 	afterInit(server: Server) {
 		console.log(server);
 		//Do stuffs

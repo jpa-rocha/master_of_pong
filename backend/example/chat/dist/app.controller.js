@@ -26,6 +26,10 @@ let AppController = class AppController {
         const messages = await this.appService.getMessages();
         res.json(messages);
     }
+    async Game(res) {
+        const pos = 200;
+        res.json(pos);
+    }
 };
 __decorate([
     (0, common_1.Get)('/chat'),
@@ -41,6 +45,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "Chat", null);
+__decorate([
+    (0, common_1.Get)('/api/pos'),
+    __param(0, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "Game", null);
 AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])

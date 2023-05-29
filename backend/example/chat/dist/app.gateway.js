@@ -22,6 +22,8 @@ let AppGateway = class AppGateway {
         await this.appService.createMessage(payload);
         this.server.emit('recMessage', payload);
     }
+    async handleSendEvent(client, data) {
+    }
     afterInit(server) {
         console.log(server);
     }
@@ -42,6 +44,12 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, chat_entity_1.Chat]),
     __metadata("design:returntype", Promise)
 ], AppGateway.prototype, "handleSendMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('sendEvent'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], AppGateway.prototype, "handleSendEvent", null);
 AppGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {

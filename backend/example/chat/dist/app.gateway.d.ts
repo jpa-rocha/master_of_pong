@@ -7,6 +7,7 @@ export declare class AppGateway implements OnGatewayInit, OnGatewayConnection, O
     constructor(appService: AppService);
     server: Server;
     handleSendMessage(client: Socket, payload: Chat): Promise<void>;
+    handleSendEvent(client: Socket, data: unknown): Promise<void>;
     afterInit(server: Server): void;
     handleDisconnect(client: Socket): void;
     handleConnection(client: Socket, ...args: any[]): void;
