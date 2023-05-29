@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import MessageInput from "./MessageInput";
 import Message from "./Messages";
-import Username from "./Username";
-import { Chatname } from "./Username";
 import "./App.css";
 
 // const socket = io("http://localhost:8001");
@@ -11,9 +9,10 @@ import "./App.css";
 function App() {
   const [socket, setSocket] = useState<Socket>();
   const [messages, setMessages] = useState<string[]>([]);
+  const [username, setUsername] = useState<string>("");
 
   const sendMessage = (message: string) => {
-    socket?.emit("message", (Chatname || "unknown")+ ": " + message);
+    socket?.emit("message", message);
   };
 
   const handleNewMessage = (newMessage: string) => {
@@ -32,6 +31,24 @@ function App() {
     };
   }, [handleNewMessage]);
 
+  // useEffect(() => {
+  //   socket?.on("message", handleNewMessage);
+  //   return () => {
+  //     socket?.off("message", handleNewMessage);
+  //   };
+  // }, [handleNewMessage]);
+
+  /*   
+    // Use connected with ID
+    useEffect(() => {
+    socket?.on("user connected", (userId: string) => {
+      setMessages([...messages, `User ${userId} connected`]);
+    });
+    socket?.on("user disconnected", (userId: string) => {
+      setMessages([...messages, `User ${userId} disconnected`]);
+    });
+  }, [messages]); */
+
   useEffect(() => {
     socket?.on("user connected", () => {
       setMessages([...messages, `User connected`]);
@@ -43,7 +60,6 @@ function App() {
 
   return (
     <>
-      <Username />
       <MessageInput send={sendMessage} />
       <Message messages={messages} />
     </>

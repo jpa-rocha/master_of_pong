@@ -5,6 +5,8 @@ const email = document.getElementById('email');
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 let raf;
+let pressed_down;
+let pressed_up;
 
 function roundedRect(ctx, x, y, width, height, radius) {
 	ctx.beginPath();
@@ -15,6 +17,17 @@ function roundedRect(ctx, x, y, width, height, radius) {
 	ctx.arcTo(x, y, x, y + radius, radius);
 	ctx.fill();
 }
+
+// function getPos() {
+// 	try {
+// 		let response = fetch('http://localhost:3000/api/pos')
+// 		// response = response.json();
+// 	}
+//     catch (err) {
+// 		console.error(err);
+// 	}
+// 	return 200;
+// };
 
 const ball = {
 	x: 400,
@@ -39,7 +52,7 @@ const ball = {
 	},
 };
 
-const p1 = {
+const player = {
 	pos_x: 778,
 	pos_y: 25,
 	x: 12,
@@ -52,13 +65,13 @@ const p1 = {
 	},
 };
 
-const p2 = {
+const opponent = {
 	pos_x: 10,
 	pos_y: 250,
 	x: 12,
 	y: 60,
 	radius: 5,
-	colour: "rgb(200, 0, 200)",
+	colour: "rgb(200, 0, 150)",
 	draw() {
 		ctx.fillStyle = this.colour;
 		roundedRect(ctx, this.pos_x, this.pos_y, this.x, this.y, this.radius);	
@@ -66,46 +79,38 @@ const p2 = {
 };
 
 function draw() {
+	if (pressed_down) {
+		player.pos_y += 3;
+		if (player.pos_y > canvas.height - player.y)
+			player.pos_y = canvas.height - player.y;
+		sendEvent({ pos: player.pos_y });
+	}
+	if (pressed_up) {
+		player.pos_y -= 3;
+		if (player.pos_y < 0)
+			player.pos_y = 0;
+		sendEvent({ pos: player.pos_y });
+	}
+	// opponent.pos_y = getPos();
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	p1.draw();
-	p2.draw();
+	player.draw();
+	opponent.draw();
 	ball.draw();
 	raf = window.requestAnimationFrame(draw);
 }
 
-// canvas.addEventListener("mouseover", (e) => {
-// 	raf = window.requestAnimationFrame(draw);
-// });
-
-// canvas.addEventListener("mouseout", (e) => {
-// 	window.cancelAnimationFrame(raf);
-// });
-
 canvas.addEventListener("keydown", function(event) {
 	if (event.key === 'ArrowDown')
-	{
-		p1.pos_y += 10;
-		if (p1.pos_y > canvas.height - p1.y)
-			p1.pos_y = canvas.height - p1.y;
-	}
+		pressed_down = 1;
 	if (event.key === 'ArrowUp')
-	{
-		p1.pos_y -= 10;
-		if (p1.pos_y < 0)
-			p1.pos_y = 0;
-	}
-	if (event.key === 's')
-	{
-		p2.pos_y += 10;
-		if (p2.pos_y > canvas.height - p2.y)
-			p2.pos_y = canvas.height - p2.y;
-	}
-	if (event.key === 'w')
-	{
-		p2.pos_y -= 10;
-		if (p2.pos_y < 0)
-			p2.pos_y = 0;
-	}
+		pressed_up = 1;
+});
+
+canvas.addEventListener("keyup", function(event) {
+	if (event.key === 'ArrowDown')
+		pressed_down = 0;
+	if (event.key === 'ArrowUp')
+		pressed_up = 0;
 });
 
 //get old messages from the server
@@ -143,6 +148,9 @@ function loadDate(data) {
   msgCont.innerHTML = messages;
 }
 
+function sendEvent(event) {
+  socket.emit('sendEvent', event);
+}
 //socket.io
 //emit sendMessage event to send message
 function sendMessage(message) {

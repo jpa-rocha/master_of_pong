@@ -6,4 +6,5 @@ export declare class AppController {
         message: string;
     };
     Chat(res: any): Promise<void>;
+    Game(res: any): Promise<void>;
 }
