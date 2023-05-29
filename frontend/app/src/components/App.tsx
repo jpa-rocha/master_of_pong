@@ -13,8 +13,8 @@ const theme = createTheme({
 	typography: {
 		fontFamily: 'Neucha', 
 	}
-  });
-  
+});
+
 
 /* This is the Landing Page */
 
