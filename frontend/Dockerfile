@@ -1,11 +1,11 @@
-ARG BASE_FRONTEND_IMAGE_NAME
-ARG BASE_FRONTEND_IMAGE_TAG
-
-FROM ${BASE_FRONTEND_IMAGE_NAME}:${BASE_FRONTEND_IMAGE_TAG}
+FROM node:20
 
 WORKDIR /app
 
-COPY ./dev/app .
+COPY ./app .
+
+RUN npm install --silent
+RUN npm install react-scripts@3.4.1 -g --silent
 
 EXPOSE 3000
 
