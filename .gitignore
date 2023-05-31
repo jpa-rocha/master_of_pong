@@ -1,3 +1,4 @@
 node_modules
 frontend/vendor
 .bundle
+.env
