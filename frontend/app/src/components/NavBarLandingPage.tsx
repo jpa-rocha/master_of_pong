@@ -63,7 +63,7 @@ const NavBarLandingPage = () => {
 
 						<Grid item xs={3} textAlign="left">
 							<Button variant="contained" onClick={handleClick2}
-								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
+								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Main
 							</Button>
 						</Grid>
@@ -73,7 +73,7 @@ const NavBarLandingPage = () => {
 						<Grid item xs={3} textAlign="right">
 						{/* <Link to="/login">  */}
 							<Button variant="contained"  onClick={handleSubmit}/* component={Link}  to="/login" */
-								sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
+								sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Login
 							</Button>
 							{/*  </Link>  */}
