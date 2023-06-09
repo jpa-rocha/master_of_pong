@@ -1,35 +1,35 @@
+import { Injectable } from '@nestjs/common';
+import { runInThisContext } from 'vm';
+
+@Injectable()
 export class Player {
-  public x: number;
-  public y: number;
+  public pos: { x: number; y: number };
   public height: number;
   public width: number;
   public speed: number;
 
-  constructor(
-    x: number,
-    y: number,
-    height: number,
-    width: number,
-    speed: number,
-  ) {
-    this.x = x;
-    this.y = y;
-    this.height = height;
-    this.width = width;
-    this.speed = speed;
+  constructor() {
+    this.pos = { x: 10, y: 250 };
+    this.height = 100;
+    this.width = 20;
+    this.speed = 10;
   }
 
-  public init(
+  public setValues(
     x: number,
     y: number,
     height: number,
     width: number,
     speed: number,
   ): void {
-    this.x = x;
-    this.y = y;
+    this.pos.x = x;
+    this.pos.y = y;
     this.height = height;
     this.width = width;
     this.speed = speed;
+  }
+
+  public resetPos(height: number) {
+    this.pos.y = (height - this.height) / 2;
   }
 }
