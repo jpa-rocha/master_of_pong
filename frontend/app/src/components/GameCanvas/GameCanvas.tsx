@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import io, { Socket } from "socket.io-client"
+import GetOverHere from '../../sounds/getOverHere.mp3'
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -10,6 +11,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [paddlePosition, setPaddlePosition] = useState<number>(250);
   const [botPosition, setBotPosition] = useState<number>(250);
   const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
+  const [ultimate, setUlitimate] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
 
@@ -48,11 +50,24 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         console.error('Failed to start the game:', error);
       }
     };
+
+    const ultScorpion = async () => {
+      try {
+        const sound = new Audio(GetOverHere);
+        sound.play();
+        await axios.post('/game/ultScorpion');
+        console.log('ultScorpion');
+      } catch (error) {
+        console.error('Failed to use scorpion ability:', error);
+      }
+    };
   
     if (event.key === 'ArrowUp') {
       moveUp();
     } else if (event.key === 'ArrowDown') {
       moveDown();
+    } else if (event.key === 'z') {
+      ultScorpion();
     }
   }, []);
 
@@ -68,10 +83,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   useEffect(() => {
     if (socket.current) {
       socket.current.on('gameUpdate', (event: any) => {
-        const { paddle, bot, ball } = event;
+        const { paddle, bot, ball, ultimate } = event;
         setPaddlePosition(paddle);
         setBallPosition(ball);
         setBotPosition(bot);
+        setUlitimate(ultimate);
       });
     }
   }, []);  
@@ -99,9 +115,20 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
+
+        if (ultimate) {
+          // Draw a line between two points
+          ctx.beginPath();
+          ctx.moveTo(30, paddlePosition + 50); // Move to the first point
+          ctx.lineTo(ballPosition.x, ballPosition.y); // Draw a line to the second point
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.closePath();
+        }
       }
     }
-  }, [paddlePosition, ballPosition, botPosition]);
+  }, [paddlePosition, ballPosition, botPosition, ultimate]);
 
 
 

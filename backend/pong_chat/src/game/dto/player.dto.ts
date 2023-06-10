@@ -7,12 +7,14 @@ export class Player {
   public height: number;
   public width: number;
   public speed: number;
+  public getOverHere: boolean;
 
   constructor() {
     this.pos = { x: 10, y: 250 };
     this.height = 100;
     this.width = 20;
     this.speed = 10;
+    this.getOverHere = false;
   }
 
   public setValues(

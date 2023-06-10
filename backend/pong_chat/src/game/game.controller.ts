@@ -24,4 +24,9 @@ export class GameController {
   moveDown() {
     this.gameService.moveDown();
   }
+
+  @Post('ultScorpion')
+  ultScorpion() {
+    this.gameService.ultScorpion();
+  }
 }
