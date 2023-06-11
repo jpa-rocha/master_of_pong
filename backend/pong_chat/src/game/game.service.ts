@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { Map } from './dto/map.dto';
 import { Player } from './dto/player.dto';
-import { max } from 'rxjs';
 
 @Injectable()
 export class GameService {
@@ -16,40 +15,58 @@ export class GameService {
     @Inject('Player2') private readonly player2: Player,
   ) {}
 
-  startMovingBall(): void {
+  startGame(): void {
+    if (this.map.gameStarted == true) {
+      console.log('The game was already started');
+      return;
+    }
+
+    // Starting game and initializing the players
     this.map.gameStarted = true;
-    // TODO handle taking the player parameters from the frontend
     this.player1.setValues(10, 250, 100, 20, 10);
     this.player2.setValues(770, 250, 100, 20, 1);
 
+    // Calls the moveBall function on intervals
     if (this.ballTimer || this.botTimer) return;
     this.ballTimer = setInterval(() => {
       this.moveBall();
     }, 10);
 
+    // Calls the moveBot function on intervals
     this.botTimer = setInterval(() => {
       this.moveBot();
     }, 1);
   }
 
-  stopMovingBall(): void {
-    this.map.stopGame();
+  stopGame(): void {
+    if (this.map.gameStarted == false) {
+      console.log('Can not end the game, it has not started yet');
+      return;
+    }
+
+    // Reset player, ball and score
+    this.map.default();
     this.player1.resetPos(this.map.Height);
     this.player2.resetPos(this.map.Height);
 
+    // Stops calling the moveBall function
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
       this.ballTimer = null;
     }
+
+    // Stops calling the moveBot function
     if (this.botTimer) {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
+
     this.gameGateway.server.emit('gameUpdate', {
       paddle: this.player1.pos.y,
       bot: this.player2.pos.y,
       ball: this.map.ballPos,
       ultimate: this.player1.getOverHere,
+      score: this.map.score,
     });
   }
 
@@ -58,11 +75,13 @@ export class GameService {
 
     this.player1.pos.y -= this.player1.speed;
     if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+
     this.gameGateway.server.emit('gameUpdate', {
       paddle: this.player1.pos.y,
       bot: this.player2.pos.y,
       ball: this.map.ballPos,
       ultimate: this.player1.getOverHere,
+      score: this.map.score,
     });
   }
 
@@ -72,11 +91,13 @@ export class GameService {
     this.player1.pos.y += this.player1.speed;
     if (this.player1.pos.y > this.map.Height - this.player1.height)
       this.player1.pos.y = this.map.Height - this.player1.height;
+
     this.gameGateway.server.emit('gameUpdate', {
       paddle: this.player1.pos.y,
       bot: this.player2.pos.y,
       ball: this.map.ballPos,
       ultimate: this.player1.getOverHere,
+      score: this.map.score,
     });
   }
 
@@ -85,7 +106,7 @@ export class GameService {
   }
 
   private moveBot(): void {
-    //if (this.map.gameStarted == false) return;
+    if (this.map.gameStarted == false) return;
 
     if (this.map.ballPos.y > this.player2.pos.y + this.player2.height / 2)
       this.player2.pos.y += this.player2.speed;
@@ -95,18 +116,20 @@ export class GameService {
     if (this.player2.pos.y < 0) this.player2.pos.y = 0;
     if (this.player2.pos.y > this.map.Height - this.player2.height)
       this.player2.pos.y = this.map.Height - this.player2.height;
+
     this.gameGateway.server.emit('gameUpdate', {
       paddle: this.player1.pos.y,
       bot: this.player2.pos.y,
       ball: this.map.ballPos,
       ultimate: this.player1.getOverHere,
+      score: this.map.score,
     });
   }
 
   private moveBall(): void {
     if (this.map.gameStarted == false) return;
 
-    // TODO implement Get Over Here (changes the velocity to go to the center of the player)
+    // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {
       const speed = Math.sqrt(
         this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
@@ -125,24 +148,26 @@ export class GameService {
       this.map.ballVel = targetVector;
     }
 
+    // Ball movement implementation
     this.map.ballPos.x += this.map.ballVel.x;
     this.map.ballPos.y += this.map.ballVel.y;
 
     // Ball interaction with walls
     if (this.map.ballPos.x >= this.map.Width || this.map.ballPos.x <= 0) {
+      if (this.map.ballPos.x >= this.map.Width) this.map.score.p1 += 1;
+      if (this.map.ballPos.x <= 0) this.map.score.p2 += 1;
+      if (this.map.score.p1 == 11 || this.map.score.p2 == 11) this.stopGame();
       this.map.ballPos.x = this.map.Width / 2;
       this.map.ballPos.y = this.map.Height / 2;
-      this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y = 1;
+      this.map.ballVel.x = 5;
     }
 
     if (this.map.ballPos.y >= this.map.Height || this.map.ballPos.y <= 0) {
       this.map.ballVel.y = this.map.ballVel.y * -1;
     }
 
-    // Ball interaction with paddles
-
-    // interaction with player 1
+    // Ball interaction with player 1
     if (
       this.map.ballVel.x <= 0 &&
       this.map.ballPos.x >= this.player1.pos.x &&
@@ -162,7 +187,7 @@ export class GameService {
       this.player1.getOverHere = false;
     }
 
-    // interaction with player 2
+    // Ball interaction with player 2
     if (
       this.map.ballVel.x >= 0 &&
       this.map.ballPos.x >= this.player2.pos.x &&
@@ -186,6 +211,7 @@ export class GameService {
       bot: this.player2.pos.y,
       ball: this.map.ballPos,
       ultimate: this.player1.getOverHere,
+      score: this.map.score,
     });
   }
 }

@@ -7,12 +7,12 @@ export class GameController {
 
   @Post('start')
   startGame() {
-    this.gameService.startMovingBall();
+    this.gameService.startGame();
   }
 
   @Post('stop')
   stopGame() {
-    this.gameService.stopMovingBall();
+    this.gameService.stopGame();
   }
 
   @Post('move/up')

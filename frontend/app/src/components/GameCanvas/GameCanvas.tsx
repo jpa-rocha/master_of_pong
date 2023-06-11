@@ -12,6 +12,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [botPosition, setBotPosition] = useState<number>(250);
   const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
+  const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
 
@@ -38,7 +39,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         await axios.post('/game/move/up');
         console.log('moveUp');
       } catch (error) {
-        console.error('Failed to start the game:', error);
+        console.error('Failed to move the paddle up:', error);
       }
     };
   
@@ -47,16 +48,16 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         await axios.post('/game/move/down');
         console.log('moveDown');
       } catch (error) {
-        console.error('Failed to start the game:', error);
+        console.error('Failed to move the paddle down:', error);
       }
     };
 
     const ultScorpion = async () => {
       try {
-        const sound = new Audio(GetOverHere);
-        sound.play();
         await axios.post('/game/ultScorpion');
         console.log('ultScorpion');
+        const sound = new Audio(GetOverHere);
+        sound.play();
       } catch (error) {
         console.error('Failed to use scorpion ability:', error);
       }
@@ -83,11 +84,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   useEffect(() => {
     if (socket.current) {
       socket.current.on('gameUpdate', (event: any) => {
-        const { paddle, bot, ball, ultimate } = event;
+        const { paddle, bot, ball, ultimate, score } = event;
         setPaddlePosition(paddle);
         setBallPosition(ball);
         setBotPosition(bot);
         setUlitimate(ultimate);
+        setScore(score);
       });
     }
   }, []);  
@@ -105,17 +107,20 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
+        // Draw paddles
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'white';
         ctx.fillRect(10, paddlePosition, 20, 100);
         ctx.fillRect(770, botPosition, 20, 100);
 
+        // Draw the ball
         ctx.beginPath();
         ctx.arc(ballPosition.x, ballPosition.y, 10, 0, Math.PI * 2);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
 
+        // Draw the line to the ball, when scorpion ability is used
         if (ultimate) {
           // Draw a line between two points
           ctx.beginPath();
@@ -126,9 +131,16 @@ const GameComponent: React.FC<GameComponentProps> = () => {
           ctx.stroke();
           ctx.closePath();
         }
+
+        // Draw score
+        ctx.font = '24px Arial';
+        ctx.fillStyle = 'white';
+        ctx.fillText(`${score.p1}`, canvas.width / 2 - 50, 30);
+        ctx.fillText(` - `, canvas.width / 2, 30);
+        ctx.fillText(`${score.p2}`, canvas.width / 2 + 50, 30);
       }
     }
-  }, [paddlePosition, ballPosition, botPosition, ultimate]);
+  }, [paddlePosition, ballPosition, botPosition, ultimate, score]);
 
 
 
@@ -136,14 +148,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     <div>
       <canvas ref={canvasRef} width={800} height={600} style={{ backgroundColor: 'black' }}></canvas>
       <div>
-        Paddle Position: {paddlePosition}
+        <button onClick={handleStartGame}>
+          Start Game
+        </button>
+        <button onClick={handleStopGame}>
+          Stop Game
+        </button>
       </div>
-      <button onClick={handleStartGame}>
-        Start Game
-      </button>
-      <button onClick={handleStopGame}>
-        Stop Game
-      </button>
     </div>
   );
 };
