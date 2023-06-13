@@ -8,6 +8,9 @@ export class GameService {
   private ballTimer: NodeJS.Timeout | null = null;
   private botTimer: NodeJS.Timeout | null = null;
 
+  private moveUpTimer: NodeJS.Timeout | null = null;
+  private moveDownTimer: NodeJS.Timeout | null = null;
+
   constructor(
     private readonly gameGateway: GameGateway,
     @Inject('Map') private readonly map: Map,
@@ -25,6 +28,10 @@ export class GameService {
     this.map.gameStarted = true;
     this.player1.setValues(10, 250, 100, 20, 10);
     this.player2.setValues(770, 250, 100, 20, 1);
+
+    this.gameGateway.server.emit('winnerUpdate', {
+      winner: '',
+    });
 
     // Calls the moveBall function on intervals
     if (this.ballTimer || this.botTimer) return;
@@ -44,11 +51,6 @@ export class GameService {
       return;
     }
 
-    // Reset player, ball and score
-    this.map.default();
-    this.player1.resetPos(this.map.Height);
-    this.player2.resetPos(this.map.Height);
-
     // Stops calling the moveBall function
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
@@ -61,11 +63,30 @@ export class GameService {
       this.botTimer = null;
     }
 
-    this.gameGateway.server.emit('gameUpdate', {
-      paddle: this.player1.pos.y,
-      bot: this.player2.pos.y,
+    if (this.map.score.p1 == 11) {
+      this.gameGateway.server.emit('winnerUpdate', {
+        winner: 'Player1 wins',
+      });
+    } else if (this.map.score.p2 == 11) {
+      this.gameGateway.server.emit('winnerUpdate', {
+        winner: 'Player2 wins',
+      });
+    }
+
+    // Reset player, ball and score
+    this.map.default();
+    this.player1.resetPos(this.map.Height);
+    this.player2.resetPos(this.map.Height);
+    this.gameGateway.server.emit('player1Update', {
+      player1: this.player1.pos.y,
+    });
+    this.gameGateway.server.emit('player2Update', {
+      player2: this.player2.pos.y,
+    });
+    this.gameGateway.server.emit('ballUpdate', {
       ball: this.map.ballPos,
-      ultimate: this.player1.getOverHere,
+    });
+    this.gameGateway.server.emit('scoreUpdate', {
       score: this.map.score,
     });
   }
@@ -76,12 +97,8 @@ export class GameService {
     this.player1.pos.y -= this.player1.speed;
     if (this.player1.pos.y < 0) this.player1.pos.y = 0;
 
-    this.gameGateway.server.emit('gameUpdate', {
-      paddle: this.player1.pos.y,
-      bot: this.player2.pos.y,
-      ball: this.map.ballPos,
-      ultimate: this.player1.getOverHere,
-      score: this.map.score,
+    this.gameGateway.server.emit('player1Update', {
+      player1: this.player1.pos.y,
     });
   }
 
@@ -92,12 +109,8 @@ export class GameService {
     if (this.player1.pos.y > this.map.Height - this.player1.height)
       this.player1.pos.y = this.map.Height - this.player1.height;
 
-    this.gameGateway.server.emit('gameUpdate', {
-      paddle: this.player1.pos.y,
-      bot: this.player2.pos.y,
-      ball: this.map.ballPos,
-      ultimate: this.player1.getOverHere,
-      score: this.map.score,
+    this.gameGateway.server.emit('player1Update', {
+      player1: this.player1.pos.y,
     });
   }
 
@@ -117,12 +130,8 @@ export class GameService {
     if (this.player2.pos.y > this.map.Height - this.player2.height)
       this.player2.pos.y = this.map.Height - this.player2.height;
 
-    this.gameGateway.server.emit('gameUpdate', {
-      paddle: this.player1.pos.y,
-      bot: this.player2.pos.y,
-      ball: this.map.ballPos,
-      ultimate: this.player1.getOverHere,
-      score: this.map.score,
+    this.gameGateway.server.emit('player2Update', {
+      player2: this.player2.pos.y,
     });
   }
 
@@ -206,12 +215,14 @@ export class GameService {
       this.map.ballVel.y += change;
     }
 
-    this.gameGateway.server.emit('gameUpdate', {
-      paddle: this.player1.pos.y,
-      bot: this.player2.pos.y,
+    this.gameGateway.server.emit('ballUpdate', {
       ball: this.map.ballPos,
-      ultimate: this.player1.getOverHere,
+    });
+    this.gameGateway.server.emit('scoreUpdate', {
       score: this.map.score,
+    });
+    this.gameGateway.server.emit('ultimateUpdate', {
+      ultimate: this.player1.getOverHere,
     });
   }
 }

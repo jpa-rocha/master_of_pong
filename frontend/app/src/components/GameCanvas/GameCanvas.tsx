@@ -8,11 +8,13 @@ axios.defaults.baseURL = 'http://localhost:3333';
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
-  const [paddlePosition, setPaddlePosition] = useState<number>(250);
-  const [botPosition, setBotPosition] = useState<number>(250);
+  const [player1Position, setPlayer1Position] = useState<number>(250);
+  const [player2Position, setPlayer2Position] = useState<number>(250);
   const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
-  const [ultimate, setUlitimate] = useState<boolean>(false);
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
+  const [ultimate, setUlitimate] = useState<boolean>(false);
+  const [winner, setWinner] = useState<string>("");
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
 
@@ -56,8 +58,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       try {
         await axios.post('/game/ultScorpion');
         console.log('ultScorpion');
-        const sound = new Audio(GetOverHere);
-        sound.play();
       } catch (error) {
         console.error('Failed to use scorpion ability:', error);
       }
@@ -68,6 +68,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     } else if (event.key === 'ArrowDown') {
       moveDown();
     } else if (event.key === 'z') {
+      const sound = new Audio(GetOverHere);
+      sound.play();
       ultScorpion();
     }
   }, []);
@@ -83,13 +85,29 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
   useEffect(() => {
     if (socket.current) {
-      socket.current.on('gameUpdate', (event: any) => {
-        const { paddle, bot, ball, ultimate, score } = event;
-        setPaddlePosition(paddle);
+      socket.current.on('ballUpdate', (event: any) => {
+        const { ball } = event;
         setBallPosition(ball);
-        setBotPosition(bot);
-        setUlitimate(ultimate);
+      });
+      socket.current.on('scoreUpdate', (event: any) => {
+        const { score } = event;
         setScore(score);
+      });
+      socket.current.on('player1Update', (event: any) => {
+        const { player1 } = event;
+        setPlayer1Position(player1);
+      });
+      socket.current.on('player2Update', (event: any) => {
+        const { player2 } = event;
+        setPlayer2Position(player2);
+      });
+      socket.current.on('ultimateUpdate', (event: any) => {
+        const { ultimate } = event;
+        setUlitimate(ultimate);
+      });
+      socket.current.on('winnerUpdate', (event: any) => {
+        const { winner } = event;
+        setWinner(winner);
       });
     }
   }, []);  
@@ -110,8 +128,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         // Draw paddles
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'white';
-        ctx.fillRect(10, paddlePosition, 20, 100);
-        ctx.fillRect(770, botPosition, 20, 100);
+        ctx.fillRect(10, player1Position, 20, 100);
+        ctx.fillRect(770, player2Position, 20, 100);
 
         // Draw the ball
         ctx.beginPath();
@@ -124,7 +142,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         if (ultimate) {
           // Draw a line between two points
           ctx.beginPath();
-          ctx.moveTo(30, paddlePosition + 50); // Move to the first point
+          ctx.moveTo(30, player1Position + 50); // Move to the first point
           ctx.lineTo(ballPosition.x, ballPosition.y); // Draw a line to the second point
           ctx.strokeStyle = 'white';
           ctx.lineWidth = 3;
@@ -135,12 +153,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         // Draw score
         ctx.font = '24px Arial';
         ctx.fillStyle = 'white';
-        ctx.fillText(`${score.p1}`, canvas.width / 2 - 50, 30);
-        ctx.fillText(` - `, canvas.width / 2, 30);
-        ctx.fillText(`${score.p2}`, canvas.width / 2 + 50, 30);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
+        ctx.font = '40px Arial';
+        ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
       }
     }
-  }, [paddlePosition, ballPosition, botPosition, ultimate, score]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner]);
 
 
 
@@ -150,9 +170,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       <div>
         <button onClick={handleStartGame}>
           Start Game
-        </button>
-        <button onClick={handleStopGame}>
-          Stop Game
         </button>
       </div>
     </div>
