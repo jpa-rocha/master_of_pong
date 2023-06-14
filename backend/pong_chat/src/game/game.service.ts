@@ -226,12 +226,10 @@ export class GameService {
   ): boolean {
     const y_pos =
       this.map.ballPos.y +
-      Math.sqrt(this.map.ballSize - (line_x - this.map.ballPos.x) ** 2);
+      Math.sqrt(this.map.ballSize**2 - (line_x - this.map.ballPos.x)**2);
     const y_neg =
       this.map.ballPos.y -
-      Math.sqrt(this.map.ballSize - (line_x - this.map.ballPos.x) ** 2);
-    console.log('max : ' + line_y.max);
-    console.log('min : ' + line_y.min);
+      Math.sqrt(this.map.ballSize**2 - (line_x - this.map.ballPos.x)**2);
     if (y_pos < line_y.max && y_pos > line_y.min) return true;
     if (y_neg < line_y.max && y_neg > line_y.min) return true;
     return false;
@@ -290,7 +288,6 @@ export class GameService {
     ) {
       this.map.ballVel.y = this.map.ballVel.y * -1;
     }
-
     // Ball interaction with player 1
     if (
       this.map.ballVel.x <= 0 &&
