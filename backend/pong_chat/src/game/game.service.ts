@@ -176,20 +176,65 @@ export class GameService {
     });
   }
 
+  // private ball_line_interaction(
+  //   line_start: { x: number; y: number },
+  //   line_end: { x: number; y: number },
+  // ): boolean {
+  //   const lineDirection = {
+  //     x: line_end.x - line_start.x,
+  //     y: line_end.y - line_start.y,
+  //   };
+
+  //   const lineToBallVec = {
+  //     x: this.map.ballPos.x - line_start.x,
+  //     y: this.map.ballPos.y - line_start.y,
+  //   };
+
+  //   const lineLength = Math.sqrt(lineDirection.x ** 2 + lineDirection.y ** 2);
+  //   const projection =
+  //     (lineToBallVec.x * lineDirection.x + lineToBallVec.y * lineDirection.y) /
+  //     lineLength ** 2;
+
+  //   const closestPoint = {
+  //     x: line_start.x + projection * lineDirection.x,
+  //     y: line_start.y + projection * lineDirection.y,
+  //   };
+
+  //   if (closestPoint.y >= line_start.y && closestPoint.y <= line_end.y) {
+  //     const distance = Math.sqrt(
+  //       (this.map.ballPos.x - closestPoint.x) ** 2 +
+  //         (this.map.ballPos.y - closestPoint.y) ** 2,
+  //     );
+  //     if (distance <= this.map.ballSize) {
+  //       const dot =
+  //         (closestPoint.x - line_start.x) * lineDirection.x +
+  //         (closestPoint.y - line_start.y) * lineDirection.y;
+  //       if (dot >= 0 && dot <= lineLength ** 2) return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // function(line_x_coord, line_y_max, line_y_min, circle_x_coord, circle_y_coord, circle_radius) {
+  //   y = sqrt(circle_radius - sq(line_x_coord - circle_x_coord)) + circle_y_coord
+  //   if (y < line_y_max && y > line_y_min)
+  //       intersect
+
   private ball_line_interaction(
-    line_start: { x: number; y: number },
-    line_end: { x: number; y: number },
+    line_x: number,
+    line_y: { max: number; min: number },
   ): boolean {
-    const distance: number = Math.abs(
-      (line_end.y - line_start.y) * this.map.ballPos.x -
-        (line_end.x - line_start.x) * this.map.ballPos.y +
-        line_end.x * line_start.y -
-        (line_end.y * line_start.x) /
-          Math.sqrt(
-            (line_end.y - line_start.y) ** 2 + (line_end.x - line_start.x) ** 2,
-          ),
-    );
-    return distance <= this.map.ballSize + 1000;
+    const y_pos =
+      this.map.ballPos.y +
+      Math.sqrt(this.map.ballSize - (line_x - this.map.ballPos.x) ** 2);
+    const y_neg =
+      this.map.ballPos.y -
+      Math.sqrt(this.map.ballSize - (line_x - this.map.ballPos.x) ** 2);
+    console.log('max : ' + line_y.max);
+    console.log('min : ' + line_y.min);
+    if (y_pos < line_y.max && y_pos > line_y.min) return true;
+    if (y_neg < line_y.max && y_neg > line_y.min) return true;
+    return false;
   }
 
   private moveBall(): void {
@@ -239,37 +284,24 @@ export class GameService {
       this.map.ballVel.x = 5;
     }
 
-    console.log('ballSize: ' + this.map.ballSize);
     if (
       this.map.ballPos.y + this.map.ballSize >= this.map.Height ||
       this.map.ballPos.y - this.map.ballSize <= 0
     ) {
       this.map.ballVel.y = this.map.ballVel.y * -1;
     }
-    // if (
-    //   this.ball_line_interaction({ x: 0, y: 0 }, { x: this.map.Width, y: 0 }) ||
-    // this.ball_line_interaction(
-    //   { x: 0, y: this.map.Height },
-    //   { x: this.map.Width, y: this.map.Height },
-    // )
-    // ) {
-    //   this.map.ballVel.y = this.map.ballVel.y * -1;
-    // }
 
     // Ball interaction with player 1
     if (
       this.map.ballVel.x <= 0 &&
-      // this.ball_line_interaction(
-      //   { x: this.player1.pos.x + this.player1.width, y: this.player1.pos.y },
-      //   {
-      //     x: this.player1.pos.x + this.player1.width,
-      //     y: this.player1.pos.y + this.player1.height,
-      //   },
-      // )
-      this.map.ballPos.x >= this.player1.pos.x &&
-      this.map.ballPos.x <= this.player1.pos.x + this.player1.width &&
-      this.map.ballPos.y >= this.player1.pos.y &&
-      this.map.ballPos.y <= this.player1.pos.y + this.player1.height
+      this.ball_line_interaction(this.player1.pos.x + this.player1.width, {
+        max: this.player1.pos.y + this.player1.height,
+        min: this.player1.pos.y,
+      })
+      // this.map.ballPos.x >= this.player1.pos.x &&
+      // this.map.ballPos.x <= this.player1.pos.x + this.player1.width &&
+      // this.map.ballPos.y >= this.player1.pos.y &&
+      // this.map.ballPos.y <= this.player1.pos.y + this.player1.height
     ) {
       const maxChange = 0.5;
       let change =

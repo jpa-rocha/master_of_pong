@@ -237,7 +237,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         // Draw the ball
         ctx.beginPath();
         ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = 'blue';
         ctx.fill();
         ctx.closePath();
 
