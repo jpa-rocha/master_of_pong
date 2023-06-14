@@ -1,37 +1,72 @@
 version: '3.9'
 
 services:
-  
+
+  db:
+    image: postgres:15.3
+    container_name: db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRESS_DATABASE: $(POSTGRESS_DATABASE)
+    volumes:
+       - db_volume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: on-failure
+
   backend:
     image: backend
-    build:
-      context: ./backend
-      args:
-        - BASE_BACKEND_IMAGE_NAME=${BASE_FRONTEND_IMAGE_NAME}
-        - BASE_BACKEND_IMAGE_TAG=${BASE_FRONTEND_IMAGE_TAG}
+    build: ./backend/
     container_name: backend
+    depends_on:
+      - db
+    restart: on-failure
+    networks:
+      - master_of_pong
     ports:
-      - 4000:4000
-  
+      - "4242:4242"
+    volumes:
+    #    - ./backend/example/chat:/backend
+      - type: bind
+        source: ./backend/example/chat
+        target: /backend
+
   frontend:
     image: frontend
-    build:
-      context: ./frontend
-      args:
-        - BASE_FRONTEND_IMAGE_NAME=${BASE_FRONTEND_IMAGE_NAME}
-        - BASE_FRONTEND_IMAGE_TAG=${BASE_FRONTEND_IMAGE_TAG}
+    build: ./frontend/
     container_name: frontend
-    ports:
-      - 3000:3000
     depends_on:
-      - backend
-    # restart: on-failure
-    # networks:
-    #   - nirvana
-    # volumes:
-     
+      - db
+    restart: on-failure
+    networks:
+      - master_of_pong
+    ports:
+      - "3000:3000"
+    volumes:
+    # - ./frontend/app:/frontend
+      - type: bind
+        source: ./frontend/app
+        target: /frontend
+volumes:
+    db_volume:
+      driver: local
 
-# networks:
-#   inception:
-#     name: nirvana
-#     driver: bridge
+    frontend_vol:
+      name: "frontend_vol"
+      driver_opts:
+        - type: bind
+        - source: ./frontend/app
+        - target: /frontend
+
+    backend_vol:
+      name: "backend_vol"
+      driver_opts:
+        type: none
+        o: bind
+        device: ./backend/example/chat
+
+networks:
+  master_of_pong:
+    name: master_of_pong
+    driver: bridge

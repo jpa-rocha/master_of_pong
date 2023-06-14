@@ -17,15 +17,15 @@ const NavBarLandingPage = () => {
 		/*  TODO: instead of navigate('/main), we need 42 API : */
 
 		/* const apiURL = `https://api.intra.42.fr/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&response_type=code`;
-		window.location.href = apiURL; 
-		
+		window.location.href = apiURL;
+
 		*/
 		// API call and authorization, whats the next step,
 		// it should redirect to MainPage but should the user name be gotten there?
 		// Or should it redirect to an intermediary page? that just stores the user in the db?
-	
+
 		const apiURL = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-057fa291fc9b6e02cb609dfe90635d46e4de7c42653568c172a449ab5256b75d&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fmain&response_type=code"
-		window.location.href = apiURL; 
+		window.location.href = apiURL;
 	};
 
 	function handleClick(e: React.FormEvent) {
@@ -51,19 +51,19 @@ const NavBarLandingPage = () => {
 	  function handleClick2(e: React.FormEvent) {
 		e.preventDefault();
 		navigate('/home');
-	  }; 
-	
-	
+	  };
+
+
   return (
-	
-		<Box> 
+
+		<Box>
 			<AppBar position="fixed" style={{ backgroundColor: "#09090C", height:'6vh', minHeight: "70px" }}>
 				<Toolbar>
 					<Grid container justifyContent="center" alignItems="center">
-						
+
 						<Grid item xs={3} textAlign="left">
 							<Button variant="contained" onClick={handleClick2}
-								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
+								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Main
 							</Button>
 						</Grid>
@@ -73,7 +73,7 @@ const NavBarLandingPage = () => {
 						<Grid item xs={3} textAlign="right">
 						{/* <Link to="/login">  */}
 							<Button variant="contained"  onClick={handleSubmit}/* component={Link}  to="/login" */
-								sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000'}}>
+								sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Login
 							</Button>
 							{/*  </Link>  */}
@@ -82,7 +82,7 @@ const NavBarLandingPage = () => {
 				</Toolbar>
 			</AppBar>
 
-		</Box> 
+		</Box>
   )
 }
 

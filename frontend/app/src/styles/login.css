@@ -75,3 +75,7 @@ input[type='password']
 .form-item p{
 	color: var(--color);
 }
+
+::placeholder {
+	color: #000000;
+  }

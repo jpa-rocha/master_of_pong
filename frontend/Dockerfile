@@ -1,12 +1,9 @@
-ARG BASE_FRONTEND_IMAGE_NAME
-ARG BASE_FRONTEND_IMAGE_TAG
+FROM node:20
 
-FROM ${BASE_FRONTEND_IMAGE_NAME}:${BASE_FRONTEND_IMAGE_TAG}
 
-WORKDIR /app
-
-COPY ./dev/app .
-
+# RUN npm install --silent
+# RUN npm install react-scripts@3.4.1 -g --silent
+WORKDIR /frontend
 EXPOSE 3000
 
 CMD ["npm", "start"]
