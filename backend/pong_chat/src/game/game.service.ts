@@ -117,23 +117,22 @@ export class GameService {
 
   moveUp(): void {
     if (this.map.gameStarted == false) return;
+    this.pressUp = 1;
+  }
 
-    this.player1.pos.y -= this.player1.speed;
-    if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-
-    this.gameGateway.server.emit('player1Update', {
-      player1: this.player1.pos.y,
-    });
+  stopUp(): void {
+    if (this.map.gameStarted == false) return;
+    this.pressUp = 0;
   }
 
   moveDown(): void {
     if (this.map.gameStarted == false) return;
-	this.pressDown = 1;
+    this.pressDown = 1;
   }
 
   stopDown(): void {
     if (this.map.gameStarted == false) return;
-	this.pressDown = 0;
+    this.pressDown = 0;
   }
 
   ultScorpion(): void {
@@ -196,15 +195,15 @@ export class GameService {
   private moveBall(): void {
     if (this.map.gameStarted == false) return;
 
-	if (this.pressUp == 1) {
-		this.player1.pos.y -= this.player1.speed;
-    	if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-	}
-	if (this.pressDown == 1) {
-		this.player1.pos.y += this.player1.speed;
-		if (this.player1.pos.y > this.map.Height - this.player1.height)
-			this.player1.pos.y = this.map.Height - this.player1.height;
-	}
+    if (this.pressUp == 1) {
+      this.player1.pos.y -= this.player1.speed;
+      if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+    }
+    if (this.pressDown == 1) {
+      this.player1.pos.y += this.player1.speed;
+      if (this.player1.pos.y > this.map.Height - this.player1.height)
+        this.player1.pos.y = this.map.Height - this.player1.height;
+    }
     // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {
       const speed = Math.sqrt(
@@ -302,9 +301,9 @@ export class GameService {
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
     }
-	this.gameGateway.server.emit('player1Update', {
-		  player1: this.player1.pos.y,
-	});
+    this.gameGateway.server.emit('player1Update', {
+      player1: this.player1.pos.y,
+    });
     this.gameGateway.server.emit('ballUpdate', {
       ball: this.map.ballPos,
     });

@@ -40,6 +40,18 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   };
 
   const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    // const moveUp = async () => {
+    //   try {
+    //     await axios.post('/game/move/up/disable');
+    //     console.log('moveUpDisable');
+    //   } catch (error) {
+    //     console.error('Failed to stop moving the paddle up:', error);
+    //   }
+    // };
+  
+    // if (event.key === 'ArrowUp') {
+    //   moveUp();
+    // }
 	const stopPressUp = async () => {
 		try {
 		  await axios.post('/game/move/stopup');
@@ -140,20 +152,20 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     }
   }, []);
 
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    const moveUp = async () => {
-      try {
-        await axios.post('/game/move/up/disable');
-        console.log('moveUpDisable');
-      } catch (error) {
-        console.error('Failed to stop moving the paddle up:', error);
-      }
-    };
+  // const handleKeyUp = useCallback((event: KeyboardEvent) => {
+  //   const moveUp = async () => {
+  //     try {
+  //       await axios.post('/game/move/up/disable');
+  //       console.log('moveUpDisable');
+  //     } catch (error) {
+  //       console.error('Failed to stop moving the paddle up:', error);
+  //     }
+  //   };
   
-    if (event.key === 'ArrowUp') {
-      moveUp();
-    }
-  }, []);
+  //   if (event.key === 'ArrowUp') {
+  //     moveUp();
+  //   }
+  // }, []);
 
   useEffect(() => {
     socket.current = io('http://localhost:8002');
