@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import io, { Socket } from "socket.io-client"
 import GetOverHere from '../../sounds/getOverHere.mp3'
+import SoundGrenade from '../../sounds/Sound_Grenade.mp3'
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -14,6 +15,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [winner, setWinner] = useState<string>("");
+  const [ballSize, setBallSize] = useState<number>(10);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
@@ -38,8 +40,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const moveUp = async () => {
       try {
-        await axios.post('/game/move/up');
-        console.log('moveUp');
+        await axios.post('/game/move/up/enable');
+        console.log('moveUpEnable');
       } catch (error) {
         console.error('Failed to move the paddle up:', error);
       }
@@ -62,6 +64,33 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         console.error('Failed to use scorpion ability:', error);
       }
     };
+
+    const soundGrenade = async () => {
+      try {
+        await axios.post('/game/ability/soundgrenade');
+        console.log('soundGrenade');
+      } catch (error) {
+        console.error('Failed to use soundGrenade ability:', error);
+      }
+    };
+
+    const BallSize = async () => {
+      try {
+        await axios.post('/game/ability/ballsize');
+        console.log('BallSize');
+      } catch (error) {
+        console.error('Failed to use BallSize ability:', error);
+      }
+    };
+
+    const ballReset = async () => {
+      try {
+        await axios.post('/game/ability/ballreset');
+        console.log('ballreset');
+      } catch (error) {
+        console.error('Failed to use ballreset ability:', error);
+      }
+    };
   
     if (event.key === 'ArrowUp') {
       moveUp();
@@ -71,6 +100,27 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       const sound = new Audio(GetOverHere);
       sound.play();
       ultScorpion();
+    } else if (event.key === 'x') {
+      soundGrenade();
+    } else if (event.key === 'c') {
+      BallSize();
+    } else if (event.key === 'r') {
+      ballReset();
+    }
+  }, []);
+
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    const moveUp = async () => {
+      try {
+        await axios.post('/game/move/up/disable');
+        console.log('moveUpDisable');
+      } catch (error) {
+        console.error('Failed to stop moving the paddle up:', error);
+      }
+    };
+  
+    if (event.key === 'ArrowUp') {
+      moveUp();
     }
   }, []);
 
@@ -109,16 +159,26 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         const { winner } = event;
         setWinner(winner);
       });
+      socket.current.on('SoundGrenade', (event: any) => {
+        const sound = new Audio(SoundGrenade);
+        sound.play();
+      });
+      socket.current.on('BallSize', (event: any) => {
+        const { ballSize } = event;
+        setBallSize(ballSize)
+      });
     }
   }, []);  
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleKeyDown]);
+  }, [handleKeyDown, handleKeyUp]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,7 +193,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
         // Draw the ball
         ctx.beginPath();
-        ctx.arc(ballPosition.x, ballPosition.y, 10, 0, Math.PI * 2);
+        ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.closePath();
@@ -160,7 +220,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize]);
 
 
 

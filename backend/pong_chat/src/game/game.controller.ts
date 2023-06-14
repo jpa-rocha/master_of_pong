@@ -15,8 +15,13 @@ export class GameController {
     this.gameService.stopGame();
   }
 
-  @Post('move/up')
-  moveUp() {
+  @Post('move/up/enable')
+  moveUpEnable() {
+    this.gameService.moveUp();
+  }
+
+  @Post('move/up/disable')
+  moveUpDisable() {
     this.gameService.moveUp();
   }
 
@@ -28,5 +33,20 @@ export class GameController {
   @Post('ultScorpion')
   ultScorpion() {
     this.gameService.ultScorpion();
+  }
+
+  @Post('ability/soundgrenade')
+  SoundGrenade() {
+    this.gameService.SoundGrenade();
+  }
+
+  @Post('ability/ballsize')
+  BallSize() {
+    this.gameService.BallSize();
+  }
+
+  @Post('ability/ballreset')
+  ballReset() {
+    this.gameService.ballReset();
   }
 }

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { Map } from './dto/map.dto';
 import { Player } from './dto/player.dto';
+import { ECDH } from 'crypto';
 
 @Injectable()
 export class GameService {
@@ -91,12 +92,29 @@ export class GameService {
     });
   }
 
+  moveUpEnable(): void {
+    // if (this.map.gameStarted == false) return;
+    // this.player1.pos.y -= this.player1.speed;
+    // if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+    // this.gameGateway.server.emit('player1Update', {
+    //   player1: this.player1.pos.y,
+    // });
+    if (this.moveUpTimer) return;
+    this.moveUpTimer = setInterval(() => {
+      this.moveUp();
+    }, 0.1);
+  }
+
+  moveUpDisable(): void {
+    if (this.moveUpTimer) {
+      clearInterval(this.moveUpTimer);
+      this.moveUpTimer = null;
+    }
+  }
+
   moveUp(): void {
-    if (this.map.gameStarted == false) return;
-
-    this.player1.pos.y -= this.player1.speed;
+    this.player1.pos.y -= 10;
     if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-
     this.gameGateway.server.emit('player1Update', {
       player1: this.player1.pos.y,
     });
@@ -118,6 +136,26 @@ export class GameService {
     this.player1.getOverHere = true;
   }
 
+  SoundGrenade(): void {
+    this.gameGateway.server.emit('SoundGrenade', {
+      player2: this.player2.pos.y,
+    });
+  }
+
+  BallSize(): void {
+    this.map.ballSize *= 2;
+    this.gameGateway.server.emit('BallSize', {
+      ballSize: this.map.ballSize,
+    });
+  }
+
+  ballReset(): void {
+    this.map.ballSize = 10;
+    this.gameGateway.server.emit('BallSize', {
+      ballSize: this.map.ballSize,
+    });
+  }
+
   private moveBot(): void {
     if (this.map.gameStarted == false) return;
 
@@ -133,6 +171,22 @@ export class GameService {
     this.gameGateway.server.emit('player2Update', {
       player2: this.player2.pos.y,
     });
+  }
+
+  private ball_line_interaction(
+    line_start: { x: number; y: number },
+    line_end: { x: number; y: number },
+  ): boolean {
+    const distance: number = Math.abs(
+      (line_end.y - line_start.y) * this.map.ballPos.x -
+        (line_end.x - line_start.x) * this.map.ballPos.y +
+        line_end.x * line_start.y -
+        (line_end.y * line_start.x) /
+          Math.sqrt(
+            (line_end.y - line_start.y) ** 2 + (line_end.x - line_start.x) ** 2,
+          ),
+    );
+    return distance <= this.map.ballSize + 1000;
   }
 
   private moveBall(): void {
@@ -162,6 +216,7 @@ export class GameService {
     this.map.ballPos.y += this.map.ballVel.y;
 
     // Ball interaction with walls
+
     if (this.map.ballPos.x >= this.map.Width || this.map.ballPos.x <= 0) {
       if (this.map.ballPos.x >= this.map.Width) this.map.score.p1 += 1;
       if (this.map.ballPos.x <= 0) this.map.score.p2 += 1;
@@ -172,13 +227,33 @@ export class GameService {
       this.map.ballVel.x = 5;
     }
 
-    if (this.map.ballPos.y >= this.map.Height || this.map.ballPos.y <= 0) {
+    console.log('ballSize: ' + this.map.ballSize);
+    if (
+      this.map.ballPos.y + this.map.ballSize >= this.map.Height ||
+      this.map.ballPos.y - this.map.ballSize <= 0
+    ) {
       this.map.ballVel.y = this.map.ballVel.y * -1;
     }
+    // if (
+    //   this.ball_line_interaction({ x: 0, y: 0 }, { x: this.map.Width, y: 0 }) ||
+    // this.ball_line_interaction(
+    //   { x: 0, y: this.map.Height },
+    //   { x: this.map.Width, y: this.map.Height },
+    // )
+    // ) {
+    //   this.map.ballVel.y = this.map.ballVel.y * -1;
+    // }
 
     // Ball interaction with player 1
     if (
       this.map.ballVel.x <= 0 &&
+      // this.ball_line_interaction(
+      //   { x: this.player1.pos.x + this.player1.width, y: this.player1.pos.y },
+      //   {
+      //     x: this.player1.pos.x + this.player1.width,
+      //     y: this.player1.pos.y + this.player1.height,
+      //   },
+      // )
       this.map.ballPos.x >= this.player1.pos.x &&
       this.map.ballPos.x <= this.player1.pos.x + this.player1.width &&
       this.map.ballPos.y >= this.player1.pos.y &&
