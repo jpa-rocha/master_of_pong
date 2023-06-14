@@ -15,6 +15,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [winner, setWinner] = useState<string>("");
+  var arrowdown = 0;
+  var arrowup = 0;
   const [ballSize, setBallSize] = useState<number>(10);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -36,6 +38,33 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       console.error('Failed to stop the game:', error);
     }
   };
+
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+	const stopPressUp = async () => {
+		try {
+		  await axios.post('/game/move/stopup');
+		  console.log('stopMoveUp');
+		} catch (error) {
+		  console.error('Failed to stop moving the paddle up:', error);
+		}
+	  };
+	const stopPressDown = async () => {
+		try {
+			await axios.post('/game/move/stopdown');
+			console.log('stopMoveDown');
+		} catch (error) {
+			console.error('Failed to stop moving the paddle down:', error);
+		}
+	};
+	if (event.key === 'ArrowUp') {
+		stopPressUp();
+		arrowup = 0;
+	}
+	if (event.key === 'ArrowDown') {
+		stopPressDown();
+		arrowdown = 0;
+	}
+  }, []);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const moveUp = async () => {
@@ -92,10 +121,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       }
     };
   
-    if (event.key === 'ArrowUp') {
-      moveUp();
-    } else if (event.key === 'ArrowDown') {
-      moveDown();
+    if (event.key === 'ArrowUp' && arrowup == 0) {
+		arrowup = 1;
+    	moveUp();
+    } else if (event.key === 'ArrowDown' && arrowdown == 0) {
+		arrowdown = 1;
+    	moveDown();
     } else if (event.key === 'z') {
       const sound = new Audio(GetOverHere);
       sound.play();

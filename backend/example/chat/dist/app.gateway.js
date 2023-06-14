@@ -17,12 +17,28 @@ const chat_entity_1 = require("./chat.entity");
 let AppGateway = class AppGateway {
     constructor(appService) {
         this.appService = appService;
+        this.arrowDown = 0;
+        this.arrowUp = 0;
+        this.pos_x = 778;
+        this.pos_y = 25;
     }
     async handleSendMessage(client, payload) {
         await this.appService.createMessage(payload);
         this.server.emit('recMessage', payload);
     }
     async handleSendEvent(client, data) {
+    }
+    keyDownEvent(client, payload) {
+        if (payload === 'ArrowDown')
+            this.arrowDown = 1;
+        if (payload === 'ArrowUp')
+            this.arrowUp = 1;
+    }
+    keyUpEvent(client, payload) {
+        if (payload === 'ArrowDown')
+            this.arrowDown = 0;
+        if (payload === 'ArrowUp')
+            this.arrowUp = 0;
     }
     afterInit(server) {
         console.log(server);
@@ -50,6 +66,18 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", Promise)
 ], AppGateway.prototype, "handleSendEvent", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('keydown'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:returntype", void 0)
+], AppGateway.prototype, "keyDownEvent", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('keyup'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:returntype", void 0)
+], AppGateway.prototype, "keyUpEvent", null);
 AppGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {

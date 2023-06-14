@@ -101,9 +101,15 @@ function draw() {
 
 canvas.addEventListener("keydown", function(event) {
 	if (event.key === 'ArrowDown')
+	{
+		socket.emit('keydown', 'ArrowDown');
 		pressed_down = 1;
+	}
 	if (event.key === 'ArrowUp')
+	{
+		socket.emit('keydown', 'ArrowUp');
 		pressed_up = 1;
+	}
 });
 
 canvas.addEventListener("keyup", function(event) {

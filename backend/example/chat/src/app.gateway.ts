@@ -17,6 +17,10 @@ import { Chat } from './chat.entity';
 export class AppGateway
 implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+	arrowDown = 0;
+	arrowUp = 0;
+	pos_x = 778;
+	pos_y = 25;
 	constructor(private appService: AppService) {}
 
 	@WebSocketServer() server: Server;
@@ -30,6 +34,22 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 	@SubscribeMessage('sendEvent')
 	async handleSendEvent(client: Socket, data: unknown): Promise<void> {
 		//console.log(data);
+	}
+
+	@SubscribeMessage('keydown')
+	keyDownEvent(client: Socket, payload: String) {
+		if (payload === 'ArrowDown')
+			this.arrowDown = 1;
+		if (payload === 'ArrowUp')
+			this.arrowUp = 1;
+	}
+
+	@SubscribeMessage('keyup')
+	keyUpEvent(client: Socket, payload: String) {
+		if (payload === 'ArrowDown')
+			this.arrowDown = 0;
+		if (payload === 'ArrowUp')
+			this.arrowUp = 0;
 	}
 
 	afterInit(server: Server) {

@@ -25,6 +25,16 @@ export class GameController {
     this.gameService.moveUp();
   }
 
+  @Post('move/stopup')
+  stopUp() {
+    this.gameService.stopUp();
+  }
+
+  @Post('move/stopdown')
+  stopDown() {
+    this.gameService.stopDown();
+  }
+
   @Post('move/down')
   moveDown() {
     this.gameService.moveDown();
