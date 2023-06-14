@@ -11,6 +11,9 @@ export class GameService {
   private moveUpTimer: NodeJS.Timeout | null = null;
   private moveDownTimer: NodeJS.Timeout | null = null;
 
+  private pressUp = 0;
+  private pressDown = 0;
+
   constructor(
     private readonly gameGateway: GameGateway,
     @Inject('Map') private readonly map: Map,
@@ -26,7 +29,7 @@ export class GameService {
 
     // Starting game and initializing the players
     this.map.gameStarted = true;
-    this.player1.setValues(10, 250, 100, 20, 10);
+    this.player1.setValues(10, 250, 100, 20, 5);
     this.player2.setValues(770, 250, 100, 20, 1);
 
     this.gameGateway.server.emit('winnerUpdate', {
@@ -93,25 +96,22 @@ export class GameService {
 
   moveUp(): void {
     if (this.map.gameStarted == false) return;
+	this.pressUp = 1;
+  }
 
-    this.player1.pos.y -= this.player1.speed;
-    if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-
-    this.gameGateway.server.emit('player1Update', {
-      player1: this.player1.pos.y,
-    });
+  stopUp(): void {
+	if (this.map.gameStarted == false) return;
+	this.pressUp = 0;
   }
 
   moveDown(): void {
     if (this.map.gameStarted == false) return;
+	this.pressDown = 1;
+  }
 
-    this.player1.pos.y += this.player1.speed;
-    if (this.player1.pos.y > this.map.Height - this.player1.height)
-      this.player1.pos.y = this.map.Height - this.player1.height;
-
-    this.gameGateway.server.emit('player1Update', {
-      player1: this.player1.pos.y,
-    });
+  stopDown(): void {
+    if (this.map.gameStarted == false) return;
+	this.pressDown = 0;
   }
 
   ultScorpion(): void {
@@ -138,6 +138,15 @@ export class GameService {
   private moveBall(): void {
     if (this.map.gameStarted == false) return;
 
+	if (this.pressUp == 1) {
+		this.player1.pos.y -= this.player1.speed;
+    	if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+	}
+	if (this.pressDown == 1) {
+		this.player1.pos.y += this.player1.speed;
+		if (this.player1.pos.y > this.map.Height - this.player1.height)
+			this.player1.pos.y = this.map.Height - this.player1.height;
+	}
     // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {
       const speed = Math.sqrt(
@@ -214,7 +223,9 @@ export class GameService {
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
     }
-
+	this.gameGateway.server.emit('player1Update', {
+		  player1: this.player1.pos.y,
+	});
     this.gameGateway.server.emit('ballUpdate', {
       ball: this.map.ballPos,
     });
