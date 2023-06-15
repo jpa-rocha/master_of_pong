@@ -18,93 +18,96 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [winner, setWinner] = useState<string>("");
   var arrowdown = 0;
   var arrowup = 0;
-  var isGameStarted = 0;
+  const [isGameStarted, setGameStarted] = useState<boolean>(false);
   const [ballSize, setBallSize] = useState<number>(10);
-
+  
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
-
-
+  
+  
   const handleStartGame = async () => {
-    isGameStarted = 1;
-    try {
-      await axios.post('/game/start');
+	  try {
+		  await axios.post('/game/start');
     } catch (error) {
       console.error('Failed to start the game:', error);
     }
   };
-
+  
   const handleStopGame = async () => {
     try {
-      await axios.post('/game/stop');
+		await axios.post('/game/stop');
     } catch (error) {
-      console.error('Failed to stop the game:', error);
+		console.error('Failed to stop the game:', error);
     }
-  };
+};
 
-  function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number) {
-    ctx.beginPath();
+function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number, clear: boolean = false) {
+    if (clear)
+	ctx.fillStyle='rgba(0,0,0,0)';
+	ctx.beginPath();
     ctx.moveTo(button.coordinates.x, button.coordinates.y + radius);
     ctx.arcTo(button.coordinates.x, button.coordinates.y + button.size.y, button.coordinates.x + radius, button.coordinates.y + button.size.y, radius);
     ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y + button.size.y, button.coordinates.x + button.size.x, button.coordinates.y + button.size.y - radius, radius);
     ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y, button.coordinates.x + button.size.x - radius, button.coordinates.y, radius);
     ctx.arcTo(button.coordinates.x, button.coordinates.y, button.coordinates.x, button.coordinates.y + radius, radius);
     ctx.fill();
-  };
+};
 
-  function drawButton(ctx: CanvasRenderingContext2D, button: Button, selected: boolean = false) {
-    ctx.font = '40px Arial'; //ITC Zapf Chancery
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'white';
-    roundedRect(ctx, button, 15);
-    if (!button.isFocused && !button.selected && !selected) {
-      ctx.globalAlpha=.25;
-      ctx.fillStyle="black";
-      roundedRect(ctx, button, 15);
-      ctx.globalAlpha=1;
-    }
-    ctx.font = '28px Arial';
-    ctx.fillStyle = 'red';
-    ctx.fillText(button.getName(), button.coordinates.x + button.size.x / 2, button.coordinates.y + button.size.y / 2);
-    if (selected && !button.selected) {
-      ctx.globalAlpha=.4;
-      ctx.fillStyle="black";
-      roundedRect(ctx, button, 15);
-      ctx.globalAlpha=1;
-    }
-  };
+const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: boolean = false) => {
+  ctx.fillStyle = 'rgb(41, 37, 37)';
+  ctx.fillRect(button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'white';
+  roundedRect(ctx, button, 20);
+  if (!button.isFocused && !button.selected && !selected) {
+	ctx.globalAlpha=.25;
+	ctx.fillStyle="black";
+	roundedRect(ctx, button, 20);
+	ctx.globalAlpha=1;
+  }
+  ctx.font = '25px Arial';
+  ctx.fillStyle = 'red';
+  ctx.fillText(button.getName(), button.coordinates.x + button.size.x / 2, button.coordinates.y + button.size.y / 2);
+  if (selected && !button.selected) {
+	ctx.globalAlpha=.4;
+	ctx.fillStyle="black";
+	roundedRect(ctx, button, 20);
+	ctx.globalAlpha=1;
+  }
+}, []);
 
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    // const moveUp = async () => {
-    //   try {
-    //     await axios.post('/game/move/up/disable');
-    //     console.log('moveUpDisable');
+
+const handleKeyUp = useCallback((event: KeyboardEvent) => {
+	// const moveUp = async () => {
+		//   try {
+			//     await axios.post('/game/move/up/disable');
+			//     console.log('moveUpDisable');
     //   } catch (error) {
     //     console.error('Failed to stop moving the paddle up:', error);
     //   }
     // };
-  
+	
     // if (event.key === 'ArrowUp') {
-    //   moveUp();
-    // }
-	const stopPressUp = async () => {
-		try {
-		  await axios.post('/game/move/stopup');
-		  console.log('stopMoveUp');
-		} catch (error) {
-		  console.error('Failed to stop moving the paddle up:', error);
-		}
-	  };
-	const stopPressDown = async () => {
-		try {
-			await axios.post('/game/move/stopdown');
-			console.log('stopMoveDown');
-		} catch (error) {
-			console.error('Failed to stop moving the paddle down:', error);
-		}
-	};
-	if (event.key === 'ArrowUp') {
+		//   moveUp();
+		// }
+		const stopPressUp = async () => {
+			try {
+				await axios.post('/game/move/stopup');
+				console.log('stopMoveUp');
+			} catch (error) {
+				console.error('Failed to stop moving the paddle up:', error);
+			}
+		};
+		const stopPressDown = async () => {
+			try {
+				await axios.post('/game/move/stopdown');
+				console.log('stopMoveDown');
+			} catch (error) {
+				console.error('Failed to stop moving the paddle down:', error);
+			}
+		};
+		if (event.key === 'ArrowUp') {
 		stopPressUp();
 		arrowup = 0;
 	}
@@ -112,131 +115,131 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		stopPressDown();
 		arrowdown = 0;
 	}
-  }, []);
+}, []);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const moveUp = async () => {
-      try {
-        await axios.post('/game/move/up/enable');
-        console.log('moveUpEnable');
-      } catch (error) {
-        console.error('Failed to move the paddle up:', error);
-      }
+const handleKeyDown = useCallback((event: KeyboardEvent) => {
+	const moveUp = async () => {
+		try {
+			await axios.post('/game/move/up/enable');
+			console.log('moveUpEnable');
+		} catch (error) {
+			console.error('Failed to move the paddle up:', error);
+		}
     };
-  
+	
     const moveDown = async () => {
-      try {
-        await axios.post('/game/move/down');
+		try {
+			await axios.post('/game/move/down');
         console.log('moveDown');
-      } catch (error) {
-        console.error('Failed to move the paddle down:', error);
-      }
-    };
+	} catch (error) {
+		console.error('Failed to move the paddle down:', error);
+	}
+};
 
-    const ultScorpion = async () => {
-      try {
-        await axios.post('/game/ultScorpion');
+const ultScorpion = async () => {
+	try {
+		await axios.post('/game/ultScorpion');
         console.log('ultScorpion');
-      } catch (error) {
-        console.error('Failed to use scorpion ability:', error);
+	} catch (error) {
+		console.error('Failed to use scorpion ability:', error);
       }
     };
 
     const soundGrenade = async () => {
-      try {
-        await axios.post('/game/ability/soundgrenade');
-        console.log('soundGrenade');
-      } catch (error) {
-        console.error('Failed to use soundGrenade ability:', error);
-      }
+		try {
+			await axios.post('/game/ability/soundgrenade');
+			console.log('soundGrenade');
+		} catch (error) {
+			console.error('Failed to use soundGrenade ability:', error);
+		}
     };
-
+	
     const BallSize = async () => {
-      try {
-        await axios.post('/game/ability/ballsize');
-        console.log('BallSize');
-      } catch (error) {
-        console.error('Failed to use BallSize ability:', error);
-      }
+		try {
+			await axios.post('/game/ability/ballsize');
+			console.log('BallSize');
+		} catch (error) {
+			console.error('Failed to use BallSize ability:', error);
+		}
     };
-
+	
     const ballReset = async () => {
-      try {
-        await axios.post('/game/ability/ballreset');
-        console.log('ballreset');
-      } catch (error) {
-        console.error('Failed to use ballreset ability:', error);
-      }
+		try {
+			await axios.post('/game/ability/ballreset');
+			console.log('ballreset');
+		} catch (error) {
+			console.error('Failed to use ballreset ability:', error);
+		}
     };
-
+	
     const ballSpeed = async () => {
-      try {
-        await axios.post('/game/ability/ballspeed');
-        console.log('ballspeed');
-      } catch (error) {
+		try {
+			await axios.post('/game/ability/ballspeed');
+			console.log('ballspeed');
+		} catch (error) {
         console.error('Failed to use ballspeed ability:', error);
-      }
-    };
-  
-    if (event.key === 'ArrowUp' && arrowup == 0) {
-		arrowup = 1;
+	}
+};
+
+if (event.key === 'ArrowUp' && arrowup === 0) {
+	arrowup = 1;
     	moveUp();
-    } else if (event.key === 'ArrowDown' && arrowdown == 0) {
+    } else if (event.key === 'ArrowDown' && arrowdown === 0) {
 		arrowdown = 1;
     	moveDown();
     } else if (event.key === 'z') {
-      const sound = new Audio(GetOverHere);
-      sound.play();
-      ultScorpion();
+		const sound = new Audio(GetOverHere);
+		sound.play();
+		ultScorpion();
     } else if (event.key === 'x') {
-      soundGrenade();
+		soundGrenade();
     } else if (event.key === 'c') {
-      BallSize();
+		BallSize();
     } else if (event.key === 'r') {
-      ballReset();
+		ballReset();
     } else if (event.key === 'v') {
-      ballReset();
+		ballReset();
     }
-  }, []);
+}, []);
 
-  // const handleKeyUp = useCallback((event: KeyboardEvent) => {
-  //   const moveUp = async () => {
-  //     try {
-  //       await axios.post('/game/move/up/disable');
-  //       console.log('moveUpDisable');
-  //     } catch (error) {
-  //       console.error('Failed to stop moving the paddle up:', error);
-  //     }
-  //   };
-  
-  //   if (event.key === 'ArrowUp') {
-  //     moveUp();
+// const handleKeyUp = useCallback((event: KeyboardEvent) => {
+	//   const moveUp = async () => {
+		//     try {
+			//       await axios.post('/game/move/up/disable');
+			//       console.log('moveUpDisable');
+			//     } catch (error) {
+				//       console.error('Failed to stop moving the paddle up:', error);
+				//     }
+				//   };
+				
+				//   if (event.key === 'ArrowUp') {
+					//     moveUp();
   //   }
   // }, []);
-
+  
   useEffect(() => {
-    socket.current = io('http://localhost:8002');
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-      }
+	  socket.current = io('http://localhost:8002');
+	  return () => {
+		  if (socket.current) {
+			  socket.current.disconnect();
+			}
     };
   }, []);
-
+  
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on('ballUpdate', (event: any) => {
-        const { ball } = event;
-        setBallPosition(ball);
-      });
-      socket.current.on('scoreUpdate', (event: any) => {
-        const { score } = event;
+	  if (socket.current) {
+		  socket.current.on('ballUpdate', (event: any) => {
+			  const { ball } = event;
+			  setBallPosition(ball);
+			});
+			socket.current.on('scoreUpdate', (event: any) => {
+				const { score } = event;
         setScore(score);
-      });
-      socket.current.on('player1Update', (event: any) => {
-        const { player1 } = event;
+	});
+	socket.current.on('player1Update', (event: any) => {
+		const { player1 } = event;
         setPlayer1Position(player1);
-      });
+	});
       socket.current.on('player2Update', (event: any) => {
         const { player2 } = event;
         setPlayer2Position(player2);
@@ -276,110 +279,91 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
       var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
       var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
-      var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong];
+	  var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
+      var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
       const ctx = canvas.getContext('2d');
+	  var selected_gamemode = false;
+	  console.log(isGameStarted);
       if (ctx) {
-        var selected_gamemode = false;
-        var mousefocus = 0;
-        canvas.addEventListener("click", (e) => {
-          var mouseX = e.clientX - canvas.offsetLeft;
-          var mouseY = e.clientY - canvas.offsetTop;
-          for (var index in buttons) {
-            if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-              if (selected_gamemode) {
-                if (buttons[index].selected) {
-                  buttons[index].selected = false;
-                  selected_gamemode = false;
-                }
-                else {
-                  for (var button in buttons) {
-                    if (buttons[button].selected) {
-                      buttons[button].selected = false;
-                      buttons[index].selected = true;
-                    }
-                  }
-                }
-              }
-              else {
-                selected_gamemode = true;
-                buttons[index].selected = true;
-              }
-              for (var toDraw in buttons) {
-                drawButton(ctx, buttons[toDraw], selected_gamemode);
-              }
-              console.log("result: " + selected_gamemode);
-              return;
-            }
-          }
-        });
-        canvas.addEventListener("mouseover", (e) => {
-          mousefocus = 1;
-        });
-        canvas.addEventListener("mouseout", (e) => {
-          mousefocus = 0;
-        });
-        canvas.addEventListener("mousemove", (e) => {
-          if (!mousefocus)
-            return;
-          var mouseX = e.clientX - canvas.offsetLeft;
-          var mouseY = e.clientY - canvas.offsetTop;
-          // console.log("x: " + mouseX + "y: " + mouseY);
-          for (var index in buttons) {
-            if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-              buttons[index].isFocused = true;
-            } 
-            else
-              buttons[index].isFocused = false;
-            drawButton(ctx, buttons[index], selected_gamemode);
-          }
-          // if (mouseX > 30 && mouseX < 230 && mouseY > 70 && mouseY < 120) {
-          //   //drawButton(ctx, );
-          // }
-          // else if (notdarkened) {
-          //   ctx.globalAlpha=.25;
-          //   ctx.fillStyle="black";
-          //   ctx.fillRect(30, 70, 200, 50);
-          //   notdarkened = 0;
-          // }
-            // mouse x coord e.clientX;
-            // mouse y coord e.clientY;
-        });
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgb(41, 37, 37)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = '40px Arial'; //ITC Zapf Chancery
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`Gamemode`, canvas.width / 2, 30);
-        ctx.fillText(`Paddle`, canvas.width / 2, 180);
-        ctx.fillText(`Character`, canvas.width / 2, 330);
-        for (var index in buttons) {
-          drawButton(ctx, buttons[index]);
-        };
-
-
-        // ctx.fillStyle = 'white';
-        // roundedRect(ctx, 30, 70, 200, 50, 10);
-        // //ctx.fillRect(30, 70, 200, 50);
-        // ctx.fillRect(300, 70, 200, 50);
-        // ctx.fillRect(570, 70, 200, 50);
-        
-        // ctx.globalAlpha=.25;
-        // ctx.fillStyle="black";
-        // ctx.fillRect(30, 70, 200, 50);
-        // ctx.fillRect(300, 70, 200, 50);
-        // ctx.fillRect(570, 70, 200, 50);
-        // ctx.globalAlpha=1;
-        // ctx.font = '27px Arial';
-        // ctx.fillStyle = 'red';
-        // ctx.textAlign = 'center';
-        // ctx.textBaseline = 'middle';
-        // ctx.fillText(`Singleplayer`, 130, 100);
-        // ctx.fillText(`Master Of Pong`, canvas.width / 2, 100);
-        // ctx.fillText(`Regular Pong`, 670, 100);
+		  if (!isGameStarted) {
+			canvas.addEventListener("mousemove", (e) => {
+			if (isGameStarted)
+				return;
+			var mouseX = e.clientX - canvas.offsetLeft;
+			var mouseY = e.clientY - canvas.offsetTop;
+			for (var index in buttons) {
+				if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+				buttons[index].isFocused = true;
+				drawButton(ctx, buttons[index], selected_gamemode);
+				}
+				else if (buttons[index].isFocused === true) {
+					buttons[index].isFocused = false;
+					drawButton(ctx, buttons[index], selected_gamemode);
+				}
+			}
+			});
+			canvas.addEventListener("click", (e) => {
+				if (isGameStarted)
+					return;
+				var mouseX = e.clientX - canvas.offsetLeft;
+				var mouseY = e.clientY - canvas.offsetTop;
+				for (var index in buttons) {
+					console.log(buttons[index].getName());
+					if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+						if (buttons[index].getName() === 'Start Game') {
+							if (selected_gamemode) {
+								handleStartGame();
+								setGameStarted(true);
+								break;
+							}
+							else {
+								ctx.font = '20px Arial'; //ITC Zapf Chancery
+								ctx.fillText("Choose game settings to continue", 400, 575);
+							}
+						}
+						else if (selected_gamemode) {
+							if (buttons[index].selected) {
+								buttons[index].selected = false;
+								selected_gamemode = false;
+							}
+							else {
+								for (var button in buttons) {
+									if (buttons[button].selected) {
+										buttons[button].selected = false;
+										buttons[index].selected = true;
+									}
+								}
+							}
+						}
+						else {
+							selected_gamemode = true;
+							buttons[index].selected = true;
+						}
+						for (var toDraw in buttons) {
+							drawButton(ctx, buttons[toDraw], selected_gamemode);
+						}
+						break;
+					}
+				}
+			});
+			// ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = 'rgb(41, 37, 37)';
+			console.log("clear rect");
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.font = '40px Arial'; //ITC Zapf Chancery
+			ctx.fillStyle = 'white';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(`Gamemode`, canvas.width / 2, 30);
+			ctx.fillText(`Paddle`, canvas.width / 2, 180);
+			ctx.fillText(`Character`, canvas.width / 2, 330);
+			for (var index in buttons) {
+				drawButton(ctx, buttons[index]);
+			}
+		}
         if (isGameStarted)
         {
+		  console.log("game started.");
           // Draw paddles
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = 'white';
@@ -416,7 +400,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         }
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, handleStartGame, isGameStarted]);
   
   
   
