@@ -278,7 +278,7 @@ export class GameService {
       if (this.map.score.p1 == 11 || this.map.score.p2 == 11) this.stopGame();
       this.map.ballPos.x = this.map.Width / 2;
       this.map.ballPos.y = this.map.Height / 2;
-      this.map.ballVel.y = 1;
+      this.map.ballVel.y = -0.5;
       this.map.ballVel.x = 5;
     }
 
@@ -298,6 +298,9 @@ export class GameService {
         min: this.player1.pos.y,
       })
     ) {
+      const lengthOld = Math.sqrt(
+        this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
+      );
       const maxChange = 0.5;
       let change =
         this.map.ballPos.y - (this.player1.pos.y + this.player1.height / 2);
@@ -308,6 +311,12 @@ export class GameService {
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
       this.player1.getOverHere = false;
+      const lengthNew = Math.sqrt(
+        this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
+      );
+      const scaleFactor = lengthOld / lengthNew;
+      this.map.ballVel.x *= scaleFactor;
+      this.map.ballVel.y *= scaleFactor;
     }
 
     // Ball interaction with player 2
@@ -318,6 +327,9 @@ export class GameService {
         min: this.player2.pos.y,
       })
     ) {
+      const lengthOld = Math.sqrt(
+        this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
+      );
       const maxChange = 0.5;
       let change =
         this.map.ballPos.y - (this.player2.pos.y + this.player2.height / 2);
@@ -327,6 +339,12 @@ export class GameService {
       }
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
+      const lengthNew = Math.sqrt(
+        this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
+      );
+      const scaleFactor = lengthOld / lengthNew;
+      this.map.ballVel.x *= scaleFactor;
+      this.map.ballVel.y *= scaleFactor;
     }
     this.gameGateway.server.emit('player1Update', {
       player1: this.player1.pos.y,

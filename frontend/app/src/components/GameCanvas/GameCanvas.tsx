@@ -132,6 +132,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
         console.error('Failed to use ballreset ability:', error);
       }
     };
+
+    const ballSpeed = async () => {
+      try {
+        await axios.post('/game/ability/ballspeed');
+        console.log('ballspeed');
+      } catch (error) {
+        console.error('Failed to use ballspeed ability:', error);
+      }
+    };
   
     if (event.key === 'ArrowUp' && arrowup == 0) {
 		arrowup = 1;
@@ -148,6 +157,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     } else if (event.key === 'c') {
       BallSize();
     } else if (event.key === 'r') {
+      ballReset();
+    } else if (event.key === 'v') {
       ballReset();
     }
   }, []);

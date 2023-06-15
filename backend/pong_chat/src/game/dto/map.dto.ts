@@ -15,7 +15,7 @@ export class Map {
     this.Height = 600;
     this.ballSize = 10;
     this.ballPos = { x: this.Width / 2, y: this.Height / 2 };
-    this.ballVel = { x: 5, y: -1 };
+    this.ballVel = { x: 5, y: -0.5 };
     this.score = { p1: 0, p2: 0 };
     this.gameStarted = false;
   }
