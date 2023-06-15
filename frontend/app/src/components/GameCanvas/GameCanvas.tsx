@@ -3,6 +3,7 @@ import axios from 'axios';
 import io, { Socket } from "socket.io-client"
 import GetOverHere from '../../sounds/getOverHere.mp3'
 import SoundGrenade from '../../sounds/Sound_Grenade.mp3'
+import { Button } from './Canvas'
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -17,6 +18,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [winner, setWinner] = useState<string>("");
   var arrowdown = 0;
   var arrowup = 0;
+  var isGameStarted = 0;
   const [ballSize, setBallSize] = useState<number>(10);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -24,6 +26,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 
   const handleStartGame = async () => {
+    isGameStarted = 1;
     try {
       await axios.post('/game/start');
     } catch (error) {
@@ -36,6 +39,39 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       await axios.post('/game/stop');
     } catch (error) {
       console.error('Failed to stop the game:', error);
+    }
+  };
+
+  function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number) {
+    ctx.beginPath();
+    ctx.moveTo(button.coordinates.x, button.coordinates.y + radius);
+    ctx.arcTo(button.coordinates.x, button.coordinates.y + button.size.y, button.coordinates.x + radius, button.coordinates.y + button.size.y, radius);
+    ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y + button.size.y, button.coordinates.x + button.size.x, button.coordinates.y + button.size.y - radius, radius);
+    ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y, button.coordinates.x + button.size.x - radius, button.coordinates.y, radius);
+    ctx.arcTo(button.coordinates.x, button.coordinates.y, button.coordinates.x, button.coordinates.y + radius, radius);
+    ctx.fill();
+  };
+
+  function drawButton(ctx: CanvasRenderingContext2D, button: Button, selected: boolean = false) {
+    ctx.font = '40px Arial'; //ITC Zapf Chancery
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'white';
+    roundedRect(ctx, button, 15);
+    if (!button.isFocused && !button.selected && !selected) {
+      ctx.globalAlpha=.25;
+      ctx.fillStyle="black";
+      roundedRect(ctx, button, 15);
+      ctx.globalAlpha=1;
+    }
+    ctx.font = '28px Arial';
+    ctx.fillStyle = 'red';
+    ctx.fillText(button.getName(), button.coordinates.x + button.size.x / 2, button.coordinates.y + button.size.y / 2);
+    if (selected && !button.selected) {
+      ctx.globalAlpha=.4;
+      ctx.fillStyle="black";
+      roundedRect(ctx, button, 15);
+      ctx.globalAlpha=1;
     }
   };
 
@@ -233,51 +269,157 @@ const GameComponent: React.FC<GameComponentProps> = () => {
       document.removeEventListener('keyup', handleKeyUp);
     };
   }, [handleKeyDown, handleKeyUp]);
-
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
+      var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
+      var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
+      var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
+      var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong];
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        // Draw paddles
+        var selected_gamemode = false;
+        var mousefocus = 0;
+        canvas.addEventListener("click", (e) => {
+          var mouseX = e.clientX - canvas.offsetLeft;
+          var mouseY = e.clientY - canvas.offsetTop;
+          for (var index in buttons) {
+            if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+              if (selected_gamemode) {
+                if (buttons[index].selected) {
+                  buttons[index].selected = false;
+                  selected_gamemode = false;
+                }
+                else {
+                  for (var button in buttons) {
+                    if (buttons[button].selected) {
+                      buttons[button].selected = false;
+                      buttons[index].selected = true;
+                    }
+                  }
+                }
+              }
+              else {
+                selected_gamemode = true;
+                buttons[index].selected = true;
+              }
+              for (var toDraw in buttons) {
+                drawButton(ctx, buttons[toDraw], selected_gamemode);
+              }
+              console.log("result: " + selected_gamemode);
+              return;
+            }
+          }
+        });
+        canvas.addEventListener("mouseover", (e) => {
+          mousefocus = 1;
+        });
+        canvas.addEventListener("mouseout", (e) => {
+          mousefocus = 0;
+        });
+        canvas.addEventListener("mousemove", (e) => {
+          if (!mousefocus)
+            return;
+          var mouseX = e.clientX - canvas.offsetLeft;
+          var mouseY = e.clientY - canvas.offsetTop;
+          // console.log("x: " + mouseX + "y: " + mouseY);
+          for (var index in buttons) {
+            if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+              buttons[index].isFocused = true;
+            } 
+            else
+              buttons[index].isFocused = false;
+            drawButton(ctx, buttons[index], selected_gamemode);
+          }
+          // if (mouseX > 30 && mouseX < 230 && mouseY > 70 && mouseY < 120) {
+          //   //drawButton(ctx, );
+          // }
+          // else if (notdarkened) {
+          //   ctx.globalAlpha=.25;
+          //   ctx.fillStyle="black";
+          //   ctx.fillRect(30, 70, 200, 50);
+          //   notdarkened = 0;
+          // }
+            // mouse x coord e.clientX;
+            // mouse y coord e.clientY;
+        });
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'white';
-        ctx.fillRect(10, player1Position, 20, 100);
-        ctx.fillRect(770, player2Position, 20, 100);
-
-        // Draw the ball
-        ctx.beginPath();
-        ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-        ctx.closePath();
-
-        // Draw the line to the ball, when scorpion ability is used
-        if (ultimate) {
-          // Draw a line between two points
-          ctx.beginPath();
-          ctx.moveTo(30, player1Position + 50); // Move to the first point
-          ctx.lineTo(ballPosition.x, ballPosition.y); // Draw a line to the second point
-          ctx.strokeStyle = 'white';
-          ctx.lineWidth = 3;
-          ctx.stroke();
-          ctx.closePath();
-        }
-
-        // Draw score
-        ctx.font = '24px Arial';
+        ctx.fillStyle = 'rgb(41, 37, 37)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '40px Arial'; //ITC Zapf Chancery
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
-        ctx.font = '40px Arial';
-        ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
+        ctx.fillText(`Gamemode`, canvas.width / 2, 30);
+        ctx.fillText(`Paddle`, canvas.width / 2, 180);
+        ctx.fillText(`Character`, canvas.width / 2, 330);
+        for (var index in buttons) {
+          drawButton(ctx, buttons[index]);
+        };
+
+
+        // ctx.fillStyle = 'white';
+        // roundedRect(ctx, 30, 70, 200, 50, 10);
+        // //ctx.fillRect(30, 70, 200, 50);
+        // ctx.fillRect(300, 70, 200, 50);
+        // ctx.fillRect(570, 70, 200, 50);
+        
+        // ctx.globalAlpha=.25;
+        // ctx.fillStyle="black";
+        // ctx.fillRect(30, 70, 200, 50);
+        // ctx.fillRect(300, 70, 200, 50);
+        // ctx.fillRect(570, 70, 200, 50);
+        // ctx.globalAlpha=1;
+        // ctx.font = '27px Arial';
+        // ctx.fillStyle = 'red';
+        // ctx.textAlign = 'center';
+        // ctx.textBaseline = 'middle';
+        // ctx.fillText(`Singleplayer`, 130, 100);
+        // ctx.fillText(`Master Of Pong`, canvas.width / 2, 100);
+        // ctx.fillText(`Regular Pong`, 670, 100);
+        if (isGameStarted)
+        {
+          // Draw paddles
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = 'white';
+          ctx.fillRect(10, player1Position, 20, 100);
+          ctx.fillRect(770, player2Position, 20, 100);
+          
+          // Draw the ball
+          ctx.beginPath();
+          ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+          ctx.fillStyle = 'white';
+          ctx.fill();
+          ctx.closePath();
+          
+          // Draw the line to the ball, when scorpion ability is used
+          if (ultimate) {
+            // Draw a line between two points
+            ctx.beginPath();
+            ctx.moveTo(30, player1Position + 50); // Move to the first point
+            ctx.lineTo(ballPosition.x, ballPosition.y); // Draw a line to the second point
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.closePath();
+          }
+          
+          // Draw score
+          ctx.font = '24px Arial';
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
+          ctx.font = '40px Arial';
+          ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
+        }
       }
     }
   }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize]);
-
-
-
+  
+  
+  
   return (
     <div>
       <canvas ref={canvasRef} width={800} height={600} style={{ backgroundColor: 'black' }}></canvas>
