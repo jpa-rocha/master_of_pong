@@ -226,10 +226,10 @@ export class GameService {
   ): boolean {
     const y_pos =
       this.map.ballPos.y +
-      Math.sqrt(this.map.ballSize**2 - (line_x - this.map.ballPos.x)**2);
+      Math.sqrt(this.map.ballSize ** 2 - (line_x - this.map.ballPos.x) ** 2);
     const y_neg =
       this.map.ballPos.y -
-      Math.sqrt(this.map.ballSize**2 - (line_x - this.map.ballPos.x)**2);
+      Math.sqrt(this.map.ballSize ** 2 - (line_x - this.map.ballPos.x) ** 2);
     if (y_pos < line_y.max && y_pos > line_y.min) return true;
     if (y_neg < line_y.max && y_neg > line_y.min) return true;
     return false;
@@ -283,11 +283,13 @@ export class GameService {
     }
 
     if (
-      this.map.ballPos.y + this.map.ballSize >= this.map.Height ||
-      this.map.ballPos.y - this.map.ballSize <= 0
+      (this.map.ballPos.y + this.map.ballSize >= this.map.Height &&
+        this.map.ballVel.y > 0) ||
+      (this.map.ballPos.y - this.map.ballSize <= 0 && this.map.ballVel.y < 0)
     ) {
       this.map.ballVel.y = this.map.ballVel.y * -1;
     }
+
     // Ball interaction with player 1
     if (
       this.map.ballVel.x <= 0 &&
@@ -295,10 +297,6 @@ export class GameService {
         max: this.player1.pos.y + this.player1.height,
         min: this.player1.pos.y,
       })
-      // this.map.ballPos.x >= this.player1.pos.x &&
-      // this.map.ballPos.x <= this.player1.pos.x + this.player1.width &&
-      // this.map.ballPos.y >= this.player1.pos.y &&
-      // this.map.ballPos.y <= this.player1.pos.y + this.player1.height
     ) {
       const maxChange = 0.5;
       let change =
@@ -315,10 +313,10 @@ export class GameService {
     // Ball interaction with player 2
     if (
       this.map.ballVel.x >= 0 &&
-      this.map.ballPos.x >= this.player2.pos.x &&
-      this.map.ballPos.x <= this.player2.pos.x + this.player2.width &&
-      this.map.ballPos.y >= this.player2.pos.y &&
-      this.map.ballPos.y <= this.player2.pos.y + this.player2.height
+      this.ball_line_interaction(this.player2.pos.x, {
+        max: this.player2.pos.y + this.player2.height,
+        min: this.player2.pos.y,
+      })
     ) {
       const maxChange = 0.5;
       let change =
