@@ -4,8 +4,8 @@ import io, { Socket } from "socket.io-client"
 import GetOverHere from '../../sounds/getOverHere.mp3'
 import SoundGrenade from '../../sounds/Sound_Grenade.mp3'
 import { Button } from './Canvas'
-import paddle_scorpion from '../../images/paddle_scorpion.png'
-import paddle_subzero from '../../images/paddle_sub-zero.png'
+import paddle_scorpion from '../../images/scorpion_paddle.png'
+import paddle_subzero from '../../images/subzero_paddle.png'
 import ice_block from '../../images/iceBlock.png'
 import { imageListClasses } from '@mui/material';
 
@@ -406,6 +406,7 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
 	  gameStatus();
       if (ctx) {
 		  if (!isGameStarted) {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			canvas.addEventListener("mousemove", handleMouseMove);
 			canvas.addEventListener("click", handleMouseClick);
 			// ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -427,6 +428,8 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
 		//   console.log("game started.");
           // Draw paddles
           ctx.clearRect(0, 0, canvas.width, canvas.height);
+		  ctx.fillStyle = 'rgb(41, 37, 37)';
+		  ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = 'white';
         //   ctx.fillRect(10, player1Position, 20, 100);
         //   ctx.fillRect(770, player2Position, 20, 100);
