@@ -433,14 +433,14 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
           ctx.fillStyle = 'white';
         //   ctx.fillRect(10, player1Position, 20, 100);
         //   ctx.fillRect(770, player2Position, 20, 100);
-		  paddle_s.addEventListener('load', () => {
-			console.log("load scorpion");
-			  ctx.drawImage(paddle_s, 10, player1Position);
-		  });
-		  paddle_sub.addEventListener('load', () => {
-			console.log("load subzero");
-			  ctx.drawImage(paddle_sub, 770, player2Position);
-		  });
+		//   paddle_s.addEventListener('load', () => {
+		// 	console.log("load scorpion");
+		// });
+		ctx.drawImage(paddle_s, 10, player1Position);
+		//   paddle_sub.addEventListener('load', () => {
+		// 	console.log("load subzero");
+		// });
+		ctx.drawImage(paddle_sub, 770, player2Position);
           
           // Draw the ball
           ctx.beginPath();
@@ -449,15 +449,15 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
           ctx.fill();
           ctx.closePath();
 		  if (subZeroUlt) {
-			iceBlock.addEventListener('error', () => {
-				console.log("load scorpion ERROR");
-			  });
-			  iceBlock.addEventListener('load', () => {
-				  console.log("load scorpion");
-				  ctx.globalAlpha = 0.50;
-				  ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
-				  ctx.globalAlpha = 1;
-				});
+			// iceBlock.addEventListener('error', () => {
+			// 	console.log("load scorpion ERROR");
+			//   });
+			//   iceBlock.addEventListener('load', () => {
+			// 	  console.log("load scorpion");
+			// 	});
+				ctx.globalAlpha = 0.50;
+				ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+				ctx.globalAlpha = 1;
 				//ctx.fillStyle = 'rgb(3, 248, 252)';
 				//ctx.fillRect(ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
 		  }
