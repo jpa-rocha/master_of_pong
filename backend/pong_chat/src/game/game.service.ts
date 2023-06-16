@@ -16,6 +16,7 @@ export class GameService {
   private pressDown = 0;
 
   private szTimer: NodeJS.Timeout | null = null;
+  private timeWarpTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly gameGateway: GameGateway,
@@ -150,6 +151,10 @@ export class GameService {
     this.player1.getOverHere = true;
   }
 
+  abTimeWarp(): void {
+    this.player1.timeWarp = true;
+  }
+
   ultSubZero(): void {
     this.player1.freeze = true;
     this.gameGateway.server.emit('ultimateSubZero', {
@@ -261,6 +266,26 @@ export class GameService {
   private moveBall(): void {
     if (this.map.gameStarted == false) return;
 
+    // Time Warp
+    if (this.player1.timeWarp == true) {
+      if (this.timeWarpTimer) {
+        clearTimeout(this.szTimer);
+        this.szTimer = null;
+      } else {
+        this.map.ballVel.x = -this.map.ballVel.x;
+        this.map.ballVel.y = -this.map.ballVel.y;
+      }
+      this.player1.timeWarp = false;
+      this.timeWarpTimer = setTimeout(() => {
+        this.map.ballVel.x = -this.map.ballVel.x;
+        this.map.ballVel.y = -this.map.ballVel.y;
+        // this.gameGateway.server.emit('timewarp', {
+        //   timewarp: false,
+        // });
+        this.timeWarpTimer = null;
+      }, 3000);
+    }
+
     if (this.pressUp == 1) {
       this.player1.pos.y -= this.player1.speed;
       if (this.player1.pos.y < 0) this.player1.pos.y = 0;
@@ -291,7 +316,6 @@ export class GameService {
         });
         this.szTimer = null;
       }, 1200);
-      // setTimeout(this.revertBallSpeed, 2000, ballvelx, ballvely);
     }
     // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {

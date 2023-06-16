@@ -36,6 +36,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
+//   const [timeWarp, setTimeWarp] = useState<boolean>(false);
   const [winner, setWinner] = useState<string>("");
   const [arrowDown, setArrowDown] = useState<boolean>(false);
   const [arrowUp, setArrowUp] = useState<boolean>(false);
@@ -236,6 +237,15 @@ const handleKeyDown = useCallback((event: KeyboardEvent) => {
 	}
 };
 
+const abTimeWarp = async () => {
+	try {
+		await axios.post('/game/ability/timewarp');
+        console.log('timeWarp');
+	} catch (error) {
+		console.error('Failed to use timewarp ability:', error);
+      }
+    };
+
 const ultScorpion = async () => {
 	try {
 		await axios.post('/game/ultScorpion');
@@ -310,6 +320,8 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 		ballReset();
     } else if (event.key === 'b') {
 		ultSubZero();
+	} else if (event.key === 't') {
+		abTimeWarp();
 	}
 }, [arrowDown, arrowUp]);
 
@@ -379,6 +391,10 @@ if (event.key === 'ArrowUp' && !arrowUp) {
         const { ultimate } = event;
         setSubZeroUlt(ultimate);
       });
+    //   socket.current.on('timewarp', (event: any) => {
+    //     const { timewarp } = event;
+    //     setTimeWarp(timewarp);
+    //   });
     }
   }, []);  
 
