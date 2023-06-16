@@ -37,6 +37,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
 //   const [timeWarp, setTimeWarp] = useState<boolean>(false);
+  const [mirage, setMirage] = useState<boolean>(false);
+  const [miragePos, setMiragePos] = useState([]);
   const [winner, setWinner] = useState<string>("");
   const [arrowDown, setArrowDown] = useState<boolean>(false);
   const [arrowUp, setArrowUp] = useState<boolean>(false);
@@ -244,7 +246,16 @@ const abTimeWarp = async () => {
 	} catch (error) {
 		console.error('Failed to use timewarp ability:', error);
       }
-    };
+};
+
+const abMirage = async () => {
+	try {
+		await axios.post('/game/ability/mirage');
+        console.log('mirage');
+	} catch (error) {
+		console.error('Failed to use mirage ability:', error);
+      }
+};
 
 const ultScorpion = async () => {
 	try {
@@ -253,7 +264,7 @@ const ultScorpion = async () => {
 	} catch (error) {
 		console.error('Failed to use scorpion ability:', error);
       }
-    };
+};
 
 const ultSubZero = async () => {
 	try {
@@ -322,6 +333,8 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 		ultSubZero();
 	} else if (event.key === 't') {
 		abTimeWarp();
+	} else if (event.key === 'm') {
+		abMirage();
 	}
 }, [arrowDown, arrowUp]);
 
@@ -391,10 +404,14 @@ if (event.key === 'ArrowUp' && !arrowUp) {
         const { ultimate } = event;
         setSubZeroUlt(ultimate);
       });
-    //   socket.current.on('timewarp', (event: any) => {
-    //     const { timewarp } = event;
-    //     setTimeWarp(timewarp);
-    //   });
+      socket.current.on('mirage', (event: any) => {
+        const { mirage } = event;
+        setMirage(mirage);
+      });
+      socket.current.on('mirageUpdate', (event: any) => {
+        const { mirageUpdate } = event;
+        setMiragePos(mirageUpdate);
+      });
     }
   }, []);  
 
@@ -498,6 +515,17 @@ if (event.key === 'ArrowUp' && !arrowUp) {
             ctx.stroke();
             ctx.closePath();
           }
+
+		  if (mirage) {
+			ctx.globalAlpha = 0.65;
+			for (var i in miragePos) {
+				ctx.beginPath();
+				ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.closePath();
+			}
+			ctx.globalAlpha = 1;
+		  }
           
           // Draw score
           ctx.font = '24px Arial';
@@ -510,7 +538,7 @@ if (event.key === 'ArrowUp' && !arrowUp) {
         }
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos]);
   
   
   

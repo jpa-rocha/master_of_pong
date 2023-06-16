@@ -60,6 +60,11 @@ export class GameController {
     this.gameService.abTimeWarp();
   }
 
+  @Post('ability/mirage')
+  Mirage() {
+    this.gameService.abMirage();
+  }
+
   @Post('ability/soundgrenade')
   SoundGrenade() {
     this.gameService.SoundGrenade();

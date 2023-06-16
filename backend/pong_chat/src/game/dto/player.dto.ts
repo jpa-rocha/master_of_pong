@@ -8,8 +8,8 @@ export class Player {
   public width: number;
   public speed: number;
   public getOverHere: boolean;
-  public freeze: boolean;
-  public timeWarp: boolean;
+  //   public freeze: boolean;
+  //   public timeWarp: boolean;
 
   constructor() {
     this.pos = { x: 10, y: 250 };
@@ -17,8 +17,8 @@ export class Player {
     this.width = 20;
     this.speed = 10;
     this.getOverHere = false;
-    this.freeze = false;
-    this.timeWarp = false;
+    // this.freeze = false;
+    // this.timeWarp = false;
   }
 
   public setValues(
