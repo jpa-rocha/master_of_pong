@@ -15,6 +15,8 @@ export class GameService {
   private pressUp = 0;
   private pressDown = 0;
 
+  private szTimer: NodeJS.Timeout | null = null;
+
   constructor(
     private readonly gameGateway: GameGateway,
     @Inject('Map') private readonly map: Map,
@@ -271,18 +273,24 @@ export class GameService {
 
     // Sub Zero ability implementation :
     if (this.player1.freeze == true) {
+      if (this.szTimer) {
+        clearTimeout(this.szTimer);
+        this.szTimer = null;
+      } else {
+        this.map.ballVelOld.x = this.map.ballVel.x;
+        this.map.ballVelOld.y = this.map.ballVel.y;
+        this.map.ballVel.x = 0;
+        this.map.ballVel.y = 0;
+      }
       this.player1.freeze = false;
-      const ballvelx = this.map.ballVel.x;
-      const ballvely = this.map.ballVel.y;
-      this.map.ballVel.x = 0;
-      this.map.ballVel.y = 0;
-      setTimeout(() => {
-        this.map.ballVel.x = ballvelx;
-        this.map.ballVel.y = ballvely;
+      this.szTimer = setTimeout(() => {
+        this.map.ballVel.x = this.map.ballVelOld.x;
+        this.map.ballVel.y = this.map.ballVelOld.y;
         this.gameGateway.server.emit('ultimateSubZero', {
           ultimate: false,
         });
-      }, 1300);
+        this.szTimer = null;
+      }, 1200);
       // setTimeout(this.revertBallSpeed, 2000, ballvelx, ballvely);
     }
     // Scorpion ability implementation :
