@@ -13,9 +13,9 @@ export class Button {
 		this.coordinates = coordinates;
 	}
 
-	public getName(): string {
+		public getName(): string {
 		return (this.name);
-	}
+			}
 
 	public setIsFocused(focus: boolean) {
 		this.isFocused = focus;

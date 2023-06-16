@@ -22,6 +22,12 @@ export class GameService {
     @Inject('Player2') private readonly player2: Player,
   ) {}
 
+  gameStatus(): void {
+    this.gameGateway.server.emit('gameStatus', {
+      gameStatus: this.map.gameStarted,
+    });
+  }
+
   startGame(): void {
     if (this.map.gameStarted == true) {
       console.log('The game was already started');
@@ -93,6 +99,9 @@ export class GameService {
     this.gameGateway.server.emit('scoreUpdate', {
       score: this.map.score,
     });
+    this.gameGateway.server.emit('gameStatus', {
+      gameStatus: this.map.gameStarted,
+    });
   }
 
   moveUpEnable(): void {
@@ -139,6 +148,13 @@ export class GameService {
     this.player1.getOverHere = true;
   }
 
+  ultSubZero(): void {
+    this.player1.freeze = true;
+    this.gameGateway.server.emit('ultimateSubZero', {
+      ultimate: true,
+    });
+  }
+
   SoundGrenade(): void {
     this.gameGateway.server.emit('SoundGrenade', {
       player2: this.player2.pos.y,
@@ -174,6 +190,11 @@ export class GameService {
     this.gameGateway.server.emit('player2Update', {
       player2: this.player2.pos.y,
     });
+  }
+
+  private revertBallSpeed(ballVelX: number, ballVelY: number): void {
+    this.map.ballVel.x = ballVelX;
+    this.map.ballVel.y = ballVelY;
   }
 
   // private ball_line_interaction(
@@ -247,6 +268,23 @@ export class GameService {
       if (this.player1.pos.y > this.map.Height - this.player1.height)
         this.player1.pos.y = this.map.Height - this.player1.height;
     }
+
+    // Sub Zero ability implementation :
+    if (this.player1.freeze == true) {
+      this.player1.freeze = false;
+      const ballvelx = this.map.ballVel.x;
+      const ballvely = this.map.ballVel.y;
+      this.map.ballVel.x = 0;
+      this.map.ballVel.y = 0;
+      setTimeout(() => {
+        this.map.ballVel.x = ballvelx;
+        this.map.ballVel.y = ballvely;
+        this.gameGateway.server.emit('ultimateSubZero', {
+          ultimate: false,
+        });
+      }, 1300);
+      // setTimeout(this.revertBallSpeed, 2000, ballvelx, ballvely);
+    }
     // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {
       const speed = Math.sqrt(
@@ -311,6 +349,7 @@ export class GameService {
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
       this.player1.getOverHere = false;
+      this.player1.freeze = false;
       const lengthNew = Math.sqrt(
         this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
       );

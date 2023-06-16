@@ -1,20 +1,32 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import io, { Socket } from "socket.io-client"
 import GetOverHere from '../../sounds/getOverHere.mp3'
 import SoundGrenade from '../../sounds/Sound_Grenade.mp3'
 import { Button } from './Canvas'
+import paddle_scorpion from '../../images/paddle_scorpion.png'
+import paddle_subzero from '../../images/paddle_sub-zero.png'
+import ice_block from '../../images/iceBlock.png'
+import { imageListClasses } from '@mui/material';
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
+  const paddle_s = new Image();
+  paddle_s.src = paddle_scorpion;
+  const paddle_sub = new Image();
+  paddle_sub.src = paddle_subzero;
+  const iceBlock = new Image();
+  iceBlock.src = ice_block;
+  
   const [player1Position, setPlayer1Position] = useState<number>(250);
   const [player2Position, setPlayer2Position] = useState<number>(250);
   const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
+  const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
   const [winner, setWinner] = useState<string>("");
   var arrowdown = 0;
   var arrowup = 0;
@@ -24,6 +36,22 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const socket = useRef<Socket | null>(null);
   
+  const canvas = canvasRef.current;
+  const ctx = canvas?.getContext('2d');
+  var selected_gamemode = false;
+
+//   var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
+//   var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
+//   var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
+//   var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
+//   var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
+  const buttons = useMemo(() => {
+	var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
+	var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
+	var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
+	var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
+	return [Singleplayer, MasterOfPong, RegularPong, GameStart];
+  }, []);
   
   const handleStartGame = async () => {
 	  try {
@@ -41,6 +69,93 @@ const GameComponent: React.FC<GameComponentProps> = () => {
     }
 };
 
+const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: boolean = false) => {
+	ctx.fillStyle = 'rgb(41, 37, 37)';
+	ctx.fillRect(button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	ctx.fillStyle = 'white';
+	roundedRect(ctx, button, 20);
+	if (!button.isFocused && !button.selected && !selected) {
+	  ctx.globalAlpha=.25;
+	  ctx.fillStyle="black";
+	  roundedRect(ctx, button, 20);
+	  ctx.globalAlpha=1;
+	}
+	ctx.font = '25px Arial';
+	ctx.fillStyle = 'red';
+	ctx.fillText(button.getName(), button.coordinates.x + button.size.x / 2, button.coordinates.y + button.size.y / 2);
+	if (selected && !button.selected) {
+	  ctx.globalAlpha=.4;
+	  ctx.fillStyle="black";
+	  roundedRect(ctx, button, 20);
+	  ctx.globalAlpha=1;
+	}
+  }, []);
+
+const handleMouseClick = useCallback((e: MouseEvent) => {
+	if (!canvas || !ctx)
+		return;
+	var mouseX = e.clientX - canvas.offsetLeft;
+	var mouseY = e.clientY - canvas.offsetTop;
+	for (var index in buttons) {
+		if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+			if (buttons[index].getName() === 'Start Game') {
+				if (selected_gamemode) {
+					handleStartGame();
+					setGameStarted(true);
+					canvas.removeEventListener("mousemove", handleMouseMove);
+					canvas.removeEventListener("click", handleMouseClick);
+					break;
+				}
+				else {
+					ctx.font = '20px Arial'; //ITC Zapf Chancery
+					ctx.fillText("Choose game settings to continue", 400, 575);
+				}
+			}
+			else if (selected_gamemode) {
+				if (buttons[index].selected) {
+					buttons[index].selected = false;
+					selected_gamemode = false;
+				}
+				else {
+					for (var button in buttons) {
+						if (buttons[button].selected) {
+							buttons[button].selected = false;
+							buttons[index].selected = true;
+						}
+					}
+				}
+			}
+			else {
+				selected_gamemode = true;
+				buttons[index].selected = true;
+			}
+			for (var toDraw in buttons) {
+				drawButton(ctx, buttons[toDraw], selected_gamemode);
+			}
+			break;
+		}
+	}
+}, [drawButton, isGameStarted]);
+
+const handleMouseMove = useCallback((e:MouseEvent) => {
+	if (!canvas || !ctx)
+		return;
+	var mouseX = e.clientX - canvas.offsetLeft;
+	var mouseY = e.clientY - canvas.offsetTop;
+	for (var index in buttons) {
+		if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+		buttons[index].isFocused = true;
+		drawButton(ctx, buttons[index], selected_gamemode);
+		}
+		else if (buttons[index].isFocused === true) {
+			buttons[index].isFocused = false;
+			drawButton(ctx, buttons[index], selected_gamemode);
+		}
+	}
+}, [buttons, canvas, ctx, drawButton, selected_gamemode]);
+
 function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number, clear: boolean = false) {
     if (clear)
 	ctx.fillStyle='rgba(0,0,0,0)';
@@ -52,30 +167,6 @@ function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: numb
     ctx.arcTo(button.coordinates.x, button.coordinates.y, button.coordinates.x, button.coordinates.y + radius, radius);
     ctx.fill();
 };
-
-const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: boolean = false) => {
-  ctx.fillStyle = 'rgb(41, 37, 37)';
-  ctx.fillRect(button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = 'white';
-  roundedRect(ctx, button, 20);
-  if (!button.isFocused && !button.selected && !selected) {
-	ctx.globalAlpha=.25;
-	ctx.fillStyle="black";
-	roundedRect(ctx, button, 20);
-	ctx.globalAlpha=1;
-  }
-  ctx.font = '25px Arial';
-  ctx.fillStyle = 'red';
-  ctx.fillText(button.getName(), button.coordinates.x + button.size.x / 2, button.coordinates.y + button.size.y / 2);
-  if (selected && !button.selected) {
-	ctx.globalAlpha=.4;
-	ctx.fillStyle="black";
-	roundedRect(ctx, button, 20);
-	ctx.globalAlpha=1;
-  }
-}, []);
 
 
 const handleKeyUp = useCallback((event: KeyboardEvent) => {
@@ -145,6 +236,15 @@ const ultScorpion = async () => {
       }
     };
 
+const ultSubZero = async () => {
+	try {
+		await axios.post('/game/ultSubZero');
+		console.log('ultSubZero');
+	} catch (error) {
+		console.error('Failed to use sub zero ability', error);
+	}
+};
+
     const soundGrenade = async () => {
 		try {
 			await axios.post('/game/ability/soundgrenade');
@@ -199,7 +299,9 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
 		ballReset();
     } else if (event.key === 'v') {
 		ballReset();
-    }
+    } else if (event.key === 'b') {
+		ultSubZero();
+	}
 }, []);
 
 // const handleKeyUp = useCallback((event: KeyboardEvent) => {
@@ -260,6 +362,14 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
         const { ballSize } = event;
         setBallSize(ballSize)
       });
+      socket.current.on('gameStatus', (event: any) => {
+        const { gameStatus } = event;
+        setGameStarted(gameStatus);
+      });
+      socket.current.on('ultimateSubZero', (event: any) => {
+        const { ultimate } = event;
+        setSubZeroUlt(ultimate);
+      });
     }
   }, []);  
 
@@ -273,82 +383,33 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
     };
   }, [handleKeyDown, handleKeyUp]);
   
+  const gameStatus = async () => {
+	try {
+		await axios.get('/game/gameStatus');
+		// console.log('gameStatus');
+	} catch (error) {
+		console.error('Get gameStatus failed', error);
+	}
+};
+
+
   useEffect(() => {
-    const canvas = canvasRef.current;
+    // const canvas = canvasRef.current;
     if (canvas) {
-      var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
-      var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
-      var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
-	  var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
-      var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
-      const ctx = canvas.getContext('2d');
-	  var selected_gamemode = false;
-	  console.log(isGameStarted);
+    //   var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
+    //   var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
+    //   var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
+	//   var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
+    //   var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
+    //   const ctx = canvas.getContext('2d');
+	//   var selected_gamemode = false;
+	  gameStatus();
       if (ctx) {
 		  if (!isGameStarted) {
-			canvas.addEventListener("mousemove", (e) => {
-			if (isGameStarted)
-				return;
-			var mouseX = e.clientX - canvas.offsetLeft;
-			var mouseY = e.clientY - canvas.offsetTop;
-			for (var index in buttons) {
-				if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-				buttons[index].isFocused = true;
-				drawButton(ctx, buttons[index], selected_gamemode);
-				}
-				else if (buttons[index].isFocused === true) {
-					buttons[index].isFocused = false;
-					drawButton(ctx, buttons[index], selected_gamemode);
-				}
-			}
-			});
-			canvas.addEventListener("click", (e) => {
-				if (isGameStarted)
-					return;
-				var mouseX = e.clientX - canvas.offsetLeft;
-				var mouseY = e.clientY - canvas.offsetTop;
-				for (var index in buttons) {
-					console.log(buttons[index].getName());
-					if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-						if (buttons[index].getName() === 'Start Game') {
-							if (selected_gamemode) {
-								handleStartGame();
-								setGameStarted(true);
-								break;
-							}
-							else {
-								ctx.font = '20px Arial'; //ITC Zapf Chancery
-								ctx.fillText("Choose game settings to continue", 400, 575);
-							}
-						}
-						else if (selected_gamemode) {
-							if (buttons[index].selected) {
-								buttons[index].selected = false;
-								selected_gamemode = false;
-							}
-							else {
-								for (var button in buttons) {
-									if (buttons[button].selected) {
-										buttons[button].selected = false;
-										buttons[index].selected = true;
-									}
-								}
-							}
-						}
-						else {
-							selected_gamemode = true;
-							buttons[index].selected = true;
-						}
-						for (var toDraw in buttons) {
-							drawButton(ctx, buttons[toDraw], selected_gamemode);
-						}
-						break;
-					}
-				}
-			});
+			canvas.addEventListener("mousemove", handleMouseMove);
+			canvas.addEventListener("click", handleMouseClick);
 			// ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.fillStyle = 'rgb(41, 37, 37)';
-			console.log("clear rect");
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 			ctx.font = '40px Arial'; //ITC Zapf Chancery
 			ctx.fillStyle = 'white';
@@ -363,12 +424,20 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
 		}
         if (isGameStarted)
         {
-		  console.log("game started.");
+		//   console.log("game started.");
           // Draw paddles
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.fillStyle = 'white';
-          ctx.fillRect(10, player1Position, 20, 100);
-          ctx.fillRect(770, player2Position, 20, 100);
+        //   ctx.fillRect(10, player1Position, 20, 100);
+        //   ctx.fillRect(770, player2Position, 20, 100);
+		  paddle_s.addEventListener('load', () => {
+			console.log("load scorpion");
+			  ctx.drawImage(paddle_s, 10, player1Position);
+		  });
+		  paddle_sub.addEventListener('load', () => {
+			console.log("load subzero");
+			  ctx.drawImage(paddle_sub, 770, player2Position);
+		  });
           
           // Draw the ball
           ctx.beginPath();
@@ -376,6 +445,19 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
           ctx.fillStyle = 'white';
           ctx.fill();
           ctx.closePath();
+		  if (subZeroUlt) {
+			iceBlock.addEventListener('error', () => {
+				console.log("load scorpion ERROR");
+			  });
+			  iceBlock.addEventListener('load', () => {
+				  console.log("load scorpion");
+				  ctx.globalAlpha = 0.50;
+				  ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+				  ctx.globalAlpha = 1;
+				});
+				//ctx.fillStyle = 'rgb(3, 248, 252)';
+				//ctx.fillRect(ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+		  }
           
           // Draw the line to the ball, when scorpion ability is used
           if (ultimate) {
@@ -400,7 +482,7 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
         }
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, handleStartGame, isGameStarted]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub]);
   
   
   
@@ -410,6 +492,9 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
       <div>
         <button onClick={handleStartGame}>
           Start Game
+        </button>
+        <button onClick={handleStopGame}>
+          Stop Game
         </button>
       </div>
     </div>

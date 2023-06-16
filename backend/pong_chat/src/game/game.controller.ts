@@ -5,6 +5,11 @@ import { GameService } from './game.service';
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
+  @Get('gameStatus')
+  gameStatus() {
+    this.gameService.gameStatus();
+  }
+
   @Post('start')
   startGame() {
     this.gameService.startGame();
@@ -43,6 +48,11 @@ export class GameController {
   @Post('ultScorpion')
   ultScorpion() {
     this.gameService.ultScorpion();
+  }
+
+  @Post('ultSubZero')
+  ultSubZero() {
+    this.gameService.ultSubZero();
   }
 
   @Post('ability/soundgrenade')
