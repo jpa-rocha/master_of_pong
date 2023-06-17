@@ -15,6 +15,10 @@ export class GameService {
   private pressUp = 0;
   private pressDown = 0;
 
+  private szTimer: NodeJS.Timeout | null = null;
+  private timeWarpTimer: NodeJS.Timeout | null = null;
+  private mirageTimer: NodeJS.Timeout | null = null;
+
   constructor(
     private readonly gameGateway: GameGateway,
     @Inject('Map') private readonly map: Map,
@@ -148,10 +152,21 @@ export class GameService {
     this.player1.getOverHere = true;
   }
 
+  abTimeWarp(): void {
+    this.map.timeWarp = true;
+  }
+
   ultSubZero(): void {
-    this.player1.freeze = true;
+    this.map.freeze = true;
     this.gameGateway.server.emit('ultimateSubZero', {
       ultimate: true,
+    });
+  }
+
+  abMirage(): void {
+    this.map.mirage = true;
+    this.gameGateway.server.emit('mirage', {
+      mirage: true,
     });
   }
 
@@ -259,6 +274,23 @@ export class GameService {
   private moveBall(): void {
     if (this.map.gameStarted == false) return;
 
+    // Time Warp
+    if (this.map.timeWarp == true) {
+      if (this.timeWarpTimer) {
+        clearTimeout(this.szTimer);
+        this.szTimer = null;
+      } else {
+        this.map.ballVel.x = -this.map.ballVel.x;
+        this.map.ballVel.y = -this.map.ballVel.y;
+      }
+      this.map.timeWarp = false;
+      this.timeWarpTimer = setTimeout(() => {
+        this.map.ballVel.x = -this.map.ballVel.x;
+        this.map.ballVel.y = -this.map.ballVel.y;
+        this.timeWarpTimer = null;
+      }, 3000);
+    }
+
     if (this.pressUp == 1) {
       this.player1.pos.y -= this.player1.speed;
       if (this.player1.pos.y < 0) this.player1.pos.y = 0;
@@ -270,20 +302,24 @@ export class GameService {
     }
 
     // Sub Zero ability implementation :
-    if (this.player1.freeze == true) {
-      this.player1.freeze = false;
-      const ballvelx = this.map.ballVel.x;
-      const ballvely = this.map.ballVel.y;
-      this.map.ballVel.x = 0;
-      this.map.ballVel.y = 0;
-      setTimeout(() => {
-        this.map.ballVel.x = ballvelx;
-        this.map.ballVel.y = ballvely;
+    if (this.map.freeze == true) {
+      if (this.szTimer) {
+        clearTimeout(this.szTimer);
+      } else {
+        this.map.ballVelOld.x = this.map.ballVel.x;
+        this.map.ballVelOld.y = this.map.ballVel.y;
+        this.map.ballVel.x = 0;
+        this.map.ballVel.y = 0;
+      }
+      this.map.freeze = false;
+      this.szTimer = setTimeout(() => {
+        this.map.ballVel.x = this.map.ballVelOld.x;
+        this.map.ballVel.y = this.map.ballVelOld.y;
         this.gameGateway.server.emit('ultimateSubZero', {
           ultimate: false,
         });
-      }, 1300);
-      // setTimeout(this.revertBallSpeed, 2000, ballvelx, ballvely);
+        this.szTimer = null;
+      }, 1200);
     }
     // Scorpion ability implementation :
     if (this.player1.getOverHere == true) {
@@ -303,11 +339,36 @@ export class GameService {
       targetVector.y = (targetVector.y / magnitude) * speed;
       this.map.ballVel = targetVector;
     }
-
     // Ball movement implementation
     this.map.ballPos.x += this.map.ballVel.x;
     this.map.ballPos.y += this.map.ballVel.y;
-
+    // Mirage
+    if (this.map.mirage) {
+      this.map.mirage = false;
+      if (this.mirageTimer) {
+        clearTimeout(this.mirageTimer);
+      }
+      let index = 0;
+      while (index < 8) {
+        this.map.mirageBallsPos.push([
+          this.map.ballPos.x + (Math.random() - 0.5) * 10,
+          this.map.ballPos.y + (Math.random() - 0.5) * 10,
+        ]);
+        this.map.mirageBallsVel.push([
+          this.map.ballVel.x + (Math.random() - 0.5) * 2,
+          this.map.ballVel.y + (Math.random() - 0.5) * 2,
+        ]);
+        index++;
+      }
+      this.mirageTimer = setTimeout(() => {
+        this.gameGateway.server.emit('mirage', {
+          mirage: false,
+        });
+        this.mirageTimer = null;
+        this.map.mirageBallsPos = [];
+        this.map.mirageBallsVel = [];
+      }, 5000);
+    }
     // Ball interaction with walls
 
     if (this.map.ballPos.x >= this.map.Width || this.map.ballPos.x <= 0) {
@@ -349,7 +410,7 @@ export class GameService {
       this.map.ballVel.x = this.map.ballVel.x * -1;
       this.map.ballVel.y += change;
       this.player1.getOverHere = false;
-      this.player1.freeze = false;
+      this.map.freeze = false;
       const lengthNew = Math.sqrt(
         this.map.ballVel.x ** 2 + this.map.ballVel.y ** 2,
       );
@@ -384,6 +445,30 @@ export class GameService {
       const scaleFactor = lengthOld / lengthNew;
       this.map.ballVel.x *= scaleFactor;
       this.map.ballVel.y *= scaleFactor;
+    }
+
+    if (this.mirageTimer) {
+      let i: string;
+      for (i in this.map.mirageBallsPos) {
+        this.map.mirageBallsPos[i][0] += this.map.mirageBallsVel[i][0];
+        this.map.mirageBallsPos[i][1] += this.map.mirageBallsVel[i][1];
+        if (
+          this.map.mirageBallsPos[i][1] + this.map.ballSize >=
+            this.map.Height ||
+          this.map.mirageBallsPos[i][1] - this.map.ballSize <= 0
+        ) {
+          this.map.mirageBallsVel[i][1] = this.map.mirageBallsVel[i][1] * -1;
+        }
+        if (
+          this.map.mirageBallsPos[i][0] + this.map.ballSize >= this.map.Width ||
+          this.map.mirageBallsPos[i][0] - this.map.ballSize <= 0
+        ) {
+          this.map.mirageBallsVel[i][0] = this.map.mirageBallsVel[i][0] * -1;
+        }
+      }
+      this.gameGateway.server.emit('mirageUpdate', {
+        mirageUpdate: this.map.mirageBallsPos,
+      });
     }
     this.gameGateway.server.emit('player1Update', {
       player1: this.player1.pos.y,

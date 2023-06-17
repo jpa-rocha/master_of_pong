@@ -14,12 +14,21 @@ axios.defaults.baseURL = 'http://localhost:3333';
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
-  const paddle_s = new Image();
-  paddle_s.src = paddle_scorpion;
-  const paddle_sub = new Image();
-  paddle_sub.src = paddle_subzero;
-  const iceBlock = new Image();
-  iceBlock.src = ice_block;
+  const paddle_s = useMemo(() => {
+	var img = new Image();
+	img.src = paddle_scorpion;
+	return img;
+  }, []);
+  const paddle_sub = useMemo(() => {
+	var img = new Image();
+	img.src = paddle_subzero;
+	return img;
+  }, []);
+  const iceBlock = useMemo(() => {
+	var img = new Image();
+	img.src = ice_block;
+	return img;
+  }, []);
   
   const [player1Position, setPlayer1Position] = useState<number>(250);
   const [player2Position, setPlayer2Position] = useState<number>(250);
@@ -27,9 +36,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
+//   const [timeWarp, setTimeWarp] = useState<boolean>(false);
+  const [mirage, setMirage] = useState<boolean>(false);
+  const [miragePos, setMiragePos] = useState([]);
   const [winner, setWinner] = useState<string>("");
-  var arrowdown = 0;
-  var arrowup = 0;
+  const [arrowDown, setArrowDown] = useState<boolean>(false);
+  const [arrowUp, setArrowUp] = useState<boolean>(false);
   const [isGameStarted, setGameStarted] = useState<boolean>(false);
   const [ballSize, setBallSize] = useState<number>(10);
   
@@ -38,7 +50,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
-  var selected_gamemode = false;
+  const [selectedGamemode, setSelectedGamemode] = useState<boolean>(false);
 
 //   var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
 //   var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
@@ -93,6 +105,23 @@ const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, s
 	}
   }, []);
 
+  const handleMouseMove = useCallback((e:MouseEvent) => {
+	  if (!canvas || !ctx)
+		  return;
+	  var mouseX = e.clientX - canvas.offsetLeft;
+	  var mouseY = e.clientY - canvas.offsetTop;
+	  for (var index in buttons) {
+		  if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
+		  buttons[index].isFocused = true;
+		  drawButton(ctx, buttons[index], selectedGamemode);
+		  }
+		  else if (buttons[index].isFocused === true) {
+			  buttons[index].isFocused = false;
+			  drawButton(ctx, buttons[index], selectedGamemode);
+		  }
+	  }
+  }, [buttons, canvas, ctx, drawButton, selectedGamemode]);
+  
 const handleMouseClick = useCallback((e: MouseEvent) => {
 	if (!canvas || !ctx)
 		return;
@@ -101,7 +130,7 @@ const handleMouseClick = useCallback((e: MouseEvent) => {
 	for (var index in buttons) {
 		if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
 			if (buttons[index].getName() === 'Start Game') {
-				if (selected_gamemode) {
+				if (selectedGamemode) {
 					handleStartGame();
 					setGameStarted(true);
 					canvas.removeEventListener("mousemove", handleMouseMove);
@@ -113,10 +142,10 @@ const handleMouseClick = useCallback((e: MouseEvent) => {
 					ctx.fillText("Choose game settings to continue", 400, 575);
 				}
 			}
-			else if (selected_gamemode) {
+			else if (selectedGamemode) {
 				if (buttons[index].selected) {
 					buttons[index].selected = false;
-					selected_gamemode = false;
+					setSelectedGamemode(false);
 				}
 				else {
 					for (var button in buttons) {
@@ -128,33 +157,16 @@ const handleMouseClick = useCallback((e: MouseEvent) => {
 				}
 			}
 			else {
-				selected_gamemode = true;
+				setSelectedGamemode(true);
 				buttons[index].selected = true;
 			}
 			for (var toDraw in buttons) {
-				drawButton(ctx, buttons[toDraw], selected_gamemode);
+				drawButton(ctx, buttons[toDraw], selectedGamemode);
 			}
 			break;
 		}
 	}
-}, [drawButton, isGameStarted]);
-
-const handleMouseMove = useCallback((e:MouseEvent) => {
-	if (!canvas || !ctx)
-		return;
-	var mouseX = e.clientX - canvas.offsetLeft;
-	var mouseY = e.clientY - canvas.offsetTop;
-	for (var index in buttons) {
-		if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-		buttons[index].isFocused = true;
-		drawButton(ctx, buttons[index], selected_gamemode);
-		}
-		else if (buttons[index].isFocused === true) {
-			buttons[index].isFocused = false;
-			drawButton(ctx, buttons[index], selected_gamemode);
-		}
-	}
-}, [buttons, canvas, ctx, drawButton, selected_gamemode]);
+}, [drawButton, buttons, canvas, ctx, handleMouseMove, selectedGamemode]);
 
 function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number, clear: boolean = false) {
     if (clear)
@@ -200,11 +212,11 @@ const handleKeyUp = useCallback((event: KeyboardEvent) => {
 		};
 		if (event.key === 'ArrowUp') {
 		stopPressUp();
-		arrowup = 0;
+		setArrowUp(false);
 	}
 	if (event.key === 'ArrowDown') {
 		stopPressDown();
-		arrowdown = 0;
+		setArrowDown(false);
 	}
 }, []);
 
@@ -227,6 +239,24 @@ const handleKeyDown = useCallback((event: KeyboardEvent) => {
 	}
 };
 
+const abTimeWarp = async () => {
+	try {
+		await axios.post('/game/ability/timewarp');
+        console.log('timeWarp');
+	} catch (error) {
+		console.error('Failed to use timewarp ability:', error);
+      }
+};
+
+const abMirage = async () => {
+	try {
+		await axios.post('/game/ability/mirage');
+        console.log('mirage');
+	} catch (error) {
+		console.error('Failed to use mirage ability:', error);
+      }
+};
+
 const ultScorpion = async () => {
 	try {
 		await axios.post('/game/ultScorpion');
@@ -234,7 +264,7 @@ const ultScorpion = async () => {
 	} catch (error) {
 		console.error('Failed to use scorpion ability:', error);
       }
-    };
+};
 
 const ultSubZero = async () => {
 	try {
@@ -281,11 +311,11 @@ const ultSubZero = async () => {
 	}
 };
 
-if (event.key === 'ArrowUp' && arrowup === 0) {
-	arrowup = 1;
+if (event.key === 'ArrowUp' && !arrowUp) {
+		setArrowUp(true);
     	moveUp();
-    } else if (event.key === 'ArrowDown' && arrowdown === 0) {
-		arrowdown = 1;
+    } else if (event.key === 'ArrowDown' && !arrowDown) {
+		setArrowDown(true);
     	moveDown();
     } else if (event.key === 'z') {
 		const sound = new Audio(GetOverHere);
@@ -301,8 +331,12 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
 		ballReset();
     } else if (event.key === 'b') {
 		ultSubZero();
+	} else if (event.key === 't') {
+		abTimeWarp();
+	} else if (event.key === 'm') {
+		abMirage();
 	}
-}, []);
+}, [arrowDown, arrowUp]);
 
 // const handleKeyUp = useCallback((event: KeyboardEvent) => {
 	//   const moveUp = async () => {
@@ -369,6 +403,14 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
       socket.current.on('ultimateSubZero', (event: any) => {
         const { ultimate } = event;
         setSubZeroUlt(ultimate);
+      });
+      socket.current.on('mirage', (event: any) => {
+        const { mirage } = event;
+        setMirage(mirage);
+      });
+      socket.current.on('mirageUpdate', (event: any) => {
+        const { mirageUpdate } = event;
+        setMiragePos(mirageUpdate);
       });
     }
   }, []);  
@@ -473,6 +515,17 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
             ctx.stroke();
             ctx.closePath();
           }
+
+		  if (mirage) {
+			ctx.globalAlpha = 0.65;
+			for (var i in miragePos) {
+				ctx.beginPath();
+				ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.closePath();
+			}
+			ctx.globalAlpha = 1;
+		  }
           
           // Draw score
           ctx.font = '24px Arial';
@@ -485,7 +538,7 @@ if (event.key === 'ArrowUp' && arrowup === 0) {
         }
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub]);
+  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos]);
   
   
   

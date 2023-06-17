@@ -55,6 +55,16 @@ export class GameController {
     this.gameService.ultSubZero();
   }
 
+  @Post('ability/timewarp')
+  TimeWarp() {
+    this.gameService.abTimeWarp();
+  }
+
+  @Post('ability/mirage')
+  Mirage() {
+    this.gameService.abMirage();
+  }
+
   @Post('ability/soundgrenade')
   SoundGrenade() {
     this.gameService.SoundGrenade();
