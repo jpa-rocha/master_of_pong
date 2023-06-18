@@ -1,6 +1,0 @@
-POSTGRES_USER="admin"
-POSTGRES_PASSWORD="supersecret"
-POSTGRESS_DATABASE="master_of_pong"
-REACT_APP_API_URL=https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-9612c8c641bc7fb3ae5af5c752c73b498ce0d0bd0f419d976f9c2bda50e731e8&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fauth%2Fsignin&response_type=code
-API_UID=u-s4t2ud-9612c8c641bc7fb3ae5af5c752c73b498ce0d0bd0f419d976f9c2bda50e731e8
-SECRET=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
