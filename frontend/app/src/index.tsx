@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import App from './components/App';
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
-import Login from "./components/Login";
 import LandingPage from "./components/LandingPage";
 import MainPage from "./components/MainPage";
 
@@ -15,15 +14,14 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 	<BrowserRouter>
-		<Routes>		
+		<Routes>
 			<Route path="/" element={<App/>} />
-		 	<Route path="/login" element={<Login/>} />
 			<Route path="/home" element={<LandingPage/>} />
 			{/* <Route path="/game" element={<Game/>} /> */}
 			<Route path="/main" element={<MainPage/>} />
-			
+
 		</Routes>
-	</BrowserRouter> 
+	</BrowserRouter>
 	 </React.StrictMode>
 );
 

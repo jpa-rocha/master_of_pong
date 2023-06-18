@@ -25,11 +25,10 @@ services:
     networks:
       - master_of_pong
     ports:
-      - "4242:4242"
+      - "5000:5000"
     volumes:
-    #    - ./backend/example/chat:/backend
       - type: bind
-        source: ./backend/example/chat
+        source: ./backend/auth/
         target: /backend
 
   frontend:
@@ -38,6 +37,7 @@ services:
     container_name: frontend
     depends_on:
       - db
+      - backend
     restart: on-failure
     networks:
       - master_of_pong
@@ -55,9 +55,9 @@ volumes:
     frontend_vol:
       name: "frontend_vol"
       driver_opts:
-        - type: bind
-        - source: ./frontend/app
-        - target: /frontend
+        type: none
+        o: bind
+        device: ./frontend/app
 
     backend_vol:
       name: "backend_vol"
