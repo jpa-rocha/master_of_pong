@@ -9,25 +9,45 @@ const NavBarLandingPage = () => {
 
 	const navigate = useNavigate();
 
-	function handleSubmit(e: React.FormEvent) {
+	function handleLogin(e: React.FormEvent) {
 		e.preventDefault();
 
-		// navigate('/main');
+		//navigate('/main');
 
 		/*  TODO: instead of navigate('/main), we need 42 API : */
 
-		/* const apiURL = `https://api.intra.42.fr/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}&response_type=code`;
-		window.location.href = apiURL;
+		/* API call and authorization, whats the next step,
+		it should redirect to MainPage but should the user name be gotten there?
+		Or should it redirect to an intermediary page? that just stores the user in the db? */
 
-		*/
-		// API call and authorization, whats the next step,
-		// it should redirect to MainPage but should the user name be gotten there?
-		// Or should it redirect to an intermediary page? that just stores the user in the db?
+		const apiUrl = process.env.REACT_APP_API_URL ?? '';
+		if (!apiUrl) {
+		  console.error('REACT_APP_API_URL is not defined');
+		  return;
+		}
+	  
+		fetch(apiUrl, {
+		  // Add necessary headers for the API request
+		  headers: {
+			'Access-Control-Allow-Origin': 'https://api.intra.42.fr/oauth/authorize'
+			// 		// Add other headers if needed
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			console.log(data);
+			// Use the data returned from the API call
+	  
+			// Redirect to the main page
+			//navigate('/main');
+		  })
+		  .catch(error => {
+			console.error('Error fetching data:', error);
+		  });
 
-		// window.location.href = process.env.REACT_APP_API_URL;
-	};
+	}; 
 
-	// function handleClick(e: React.FormEvent) {
+	// function handleLogin(e: React.FormEvent) {
 	// 	e.preventDefault();
 	// 	navigate('/login');
 	// 	fetch(<process className="env REACT_APP_API_URL"></process>, {
@@ -47,7 +67,7 @@ const NavBarLandingPage = () => {
 
 	//   };
 
-	  function handleClick2(e: React.FormEvent) {
+	function handleReturnHome(e: React.FormEvent) {
 		e.preventDefault();
 		navigate('/home');
 	  };
@@ -61,7 +81,7 @@ const NavBarLandingPage = () => {
 					<Grid container justifyContent="center" alignItems="center">
 
 						<Grid item xs={3} textAlign="left">
-							<Button variant="contained" onClick={handleClick2}
+							<Button variant="contained" onClick={handleReturnHome}
 								sx={{ background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Main
 							</Button>
@@ -71,7 +91,7 @@ const NavBarLandingPage = () => {
 						</Grid>
 						<Grid item xs={3} textAlign="right">
 						{/* <Link to="/login">  */}
-							<Button variant="contained"  onClick={handleSubmit}
+							<Button variant="contained"  onClick={handleLogin}
 								sx={{background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)', color: '#000000', fontSize: '20px' }}>
 								Login
 							</Button>

@@ -2,9 +2,15 @@ import { Grid, Box } from "@mui/material";
 import calm from "../images/CalmScorpion.gif"
 import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
-import Chat from './Messages/Chat'
+//import Chat from './Messages/Chat'
+import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from './GameCanvas/GameCanvas'
+import * as socketIO  from "socket.io-client"; 
+import { Socket } from 'socket.io-client';
 
+const URI = 'http://localhost:4000';
+
+const socket: Socket = socketIO.connect(URI);
 
 const LandingPage = () => {
 
@@ -34,9 +40,13 @@ const LandingPage = () => {
 						flexDirection: 'row',
 					}}
 					>
-					<div style={{ flex: 1, display: 'flex' }}>
+					{/* <div style={{ flex: 1, display: 'flex' }}>
 						<Chat />
+					</div> */}
+					<div style={{ flex: 1, display: 'flex'}}>
+						<ChatOnGame socket={socket} />
 					</div>
+					
 					<div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 						<GameCanvas />
 					</div>
@@ -46,9 +56,9 @@ const LandingPage = () => {
 		</Grid>
 
 		{/* This is footer */}
-			<Grid item xs={12}>
+		{/* 	<Grid item xs={12}>
 				<Footer></Footer>
-			</Grid>
+			</Grid> */}
 		</Grid>
 	</>
 	)
