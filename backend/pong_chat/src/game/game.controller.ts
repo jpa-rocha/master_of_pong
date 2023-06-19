@@ -70,6 +70,11 @@ export class GameController {
     this.gameService.abFreeze();
   }
 
+  @Post('ability/lightning')
+  Lightning() {
+    this.gameService.abLightning();
+  }
+
   @Post('ability/soundgrenade')
   SoundGrenade() {
     this.gameService.SoundGrenade();

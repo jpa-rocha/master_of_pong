@@ -54,6 +54,7 @@ const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 })
 const [ultimate, setUlitimate] = useState<boolean>(false);
 const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
 const [freeze, setFreeze] = useState<boolean>(false);
+const [lightning, setLightning] = useState<boolean>(false);
 //   const [timeWarp, setTimeWarp] = useState<boolean>(false);
 const [mirage, setMirage] = useState<boolean>(false);
 const [miragePos, setMiragePos] = useState([]);
@@ -200,7 +201,7 @@ const drawImages = useCallback((ctx: CanvasRenderingContext2D, button: Button, s
 		roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 10);
 		ctx.globalAlpha=1;
 	}
-}, [paddle_s, paddle_sub]);
+}, [paddle_s, paddle_sub, paddle_big, paddle_regular, paddle_small]);
 
 function checkMouseOnButton(button: Button, e: MouseEvent, canvas: HTMLCanvasElement) {
 	var mouseX = e.clientX - canvas.offsetLeft;
@@ -463,6 +464,15 @@ const abFreeze = async () => {
 	}
 };
 
+const abLightning = async () => {
+	try {
+		await axios.post('/game/ability/lightning');
+		console.log('abLightning');
+	} catch (error) {
+		console.error('Failed to use lightning ability', error);
+	}
+};
+
 	const soundGrenade = async () => {
 		try {
 			await axios.post('/game/ability/soundgrenade');
@@ -525,6 +535,8 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 		abMirage();
 	} else if (event.key === 'n') {
 		abFreeze();
+	} else if (event.key === 'l') {
+		abLightning();
 	}
 }, [arrowDown, arrowUp]);
 
@@ -605,6 +617,10 @@ useEffect(() => {
 	socket.current.on('freeze', (event: any) => {
 		const { freeze } = event;
 		setFreeze(freeze);
+	});
+	socket.current.on('lightning', (event: any) => {
+		const { lightning } = event;
+		setLightning(lightning);
 	});
 	}
 }, []);  
@@ -689,10 +705,15 @@ useEffect(() => {
 		{
 		//   console.log("game started.");
 		// Draw paddles
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = backgroundColor;
+		if (lightning) {
+			ctx.fillRect(10, player1Position - 10, 20, 120);
+			ctx.globalAlpha = 0.1;
+		}
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = 'white';
+		ctx.globalAlpha = 1;
 		//   ctx.fillRect(10, player1Position, 20, 100);
 		//   ctx.fillRect(770, player2Position, 20, 100);
 		//   paddle_s.addEventListener('load', () => {
@@ -700,9 +721,9 @@ useEffect(() => {
 		// });
 		ctx.drawImage(paddle_s, 10, player1Position);
 	if (freeze) {
-	ctx.globalAlpha = 0.50;
-			ctx.drawImage(iceBlock, player1Position - 10, 5, player1Position + 20, 15);
-			ctx.globalAlpha = 1;
+		ctx.globalAlpha = 0.50;
+		ctx.drawImage(iceBlock, player1Position - 10, 5, player1Position + 20, 15);
+		ctx.globalAlpha = 1;
 	}
 		//   paddle_sub.addEventListener('load', () => {
 		// 	console.log("load subzero");
@@ -710,11 +731,21 @@ useEffect(() => {
 		ctx.drawImage(paddle_sub, 770, player2Position);
 		
 		// Draw the ball
+		ctx.fillStyle = 'white';
 		ctx.beginPath();
 		ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
-		ctx.fillStyle = 'white';
 		ctx.fill();
-		ctx.closePath();
+		if (lightning) {
+			ctx.globalAlpha = 0.7;
+			ctx.fillStyle = 'rgb(255, 188, 0)';
+			ctx.strokeStyle = 'rgb(255, 188, 0)';
+			ctx.beginPath();
+			ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.beginPath();
+			ctx.arc(ballPosition.x, ballPosition.y, ballSize + 12, 0, Math.PI * 2);
+			ctx.stroke();
+		}
 		if (subZeroUlt) {
 			// iceBlock.addEventListener('error', () => {
 			// 	console.log("load scorpion ERROR");
@@ -725,8 +756,6 @@ useEffect(() => {
 				ctx.globalAlpha = 0.50;
 				ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
 				ctx.globalAlpha = 1;
-				//ctx.fillStyle = 'rgb(3, 248, 252)';
-				//ctx.fillRect(ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
 		}
 		
 		// Draw the line to the ball, when scorpion ability is used
@@ -763,13 +792,13 @@ useEffect(() => {
 		}
 	}
 	}
-}, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages]);
+}, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning]);
 
 
 
 return (
 	<div>
-	<canvas ref={canvasRef} width={1300} height={975} style={{ backgroundColor: 'black', marginRight: '50' }}></canvas>
+	<canvas ref={canvasRef} width={1200} height={800} style={{ backgroundColor: 'black', marginRight: '50' }}></canvas>
 	<div>
 		<button onClick={handleStartGame}>
 		Start Game
