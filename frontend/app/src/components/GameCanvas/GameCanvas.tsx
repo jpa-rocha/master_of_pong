@@ -7,7 +7,6 @@ import { Button } from './Canvas'
 import paddle_scorpion from '../../images/scorpion_paddle.png'
 import paddle_subzero from '../../images/subzero_paddle.png'
 import ice_block from '../../images/iceBlock.png'
-import { imageListClasses } from '@mui/material';
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -36,6 +35,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
   const [ultimate, setUlitimate] = useState<boolean>(false);
   const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
+  const [freeze, setFreeze] = useState<boolean>(false);
 //   const [timeWarp, setTimeWarp] = useState<boolean>(false);
   const [mirage, setMirage] = useState<boolean>(false);
   const [miragePos, setMiragePos] = useState([]);
@@ -50,21 +50,43 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext('2d');
-  const [selectedGamemode, setSelectedGamemode] = useState<boolean>(false);
 
-//   var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
-//   var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
-//   var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
-//   var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
-//   var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
-  const buttons = useMemo(() => {
+
+//   const selectedGamemode = useMemo(() => { return false;  }, [])
+  const [selectedGamemode, setSelectedGamemode] = useState<boolean>(false);
+  const [selectedPaddle, setSelectedPaddle] = useState<boolean>(false);
+//   const selectedGamemodeRef = React.useRef(selectedGamemode);
+//   const [redrawButtons, setRedrawButtons] = useState<boolean>(false);
+
+  const [render, setRender] = useState<boolean>(false);
+
+
+  const gamemodeButtons = useMemo(() => {
 	var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
 	var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
 	var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
+
 	var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
 	return [Singleplayer, MasterOfPong, RegularPong, GameStart];
   }, []);
+
+  const paddleButtons = useMemo(() => {
+	var SmallPaddle:Button = new Button("Small Paddle", {x:200, y:50}, {x:30, y:220});
+	var RegularPaddle:Button = new Button("Regular Paddle", {x:200, y:50}, {x:300, y:220});
+	var BigPaddle:Button = new Button("Big Paddle", {x:200, y:50}, {x:570, y:220});
+
+	return [SmallPaddle, RegularPaddle, BigPaddle];
+  }, []);
   
+  /*   const characterButtons = useMemo(() => {
+	var RegularPaddle:Button = new Button("Big Paddle", {x:200, y:50}, {x:30, y:220});
+	var SubzeroPaddle:Button = new Button("Subzero Paddle", {x:200, y:50}, {x:300, y:220});
+	var ScorpionPaddle:Button = new Button("Scorpion Paddle", {x:200, y:50}, {x:570, y:220});
+
+	return [RegularPaddle, SubzeroPaddle, ScorpionPaddle];
+  }, []); */
+
+
   const handleStartGame = async () => {
 	  try {
 		  await axios.post('/game/start');
@@ -74,6 +96,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
   };
   
   const handleStopGame = async () => {
+	setGameStarted(false);
     try {
 		await axios.post('/game/stop');
     } catch (error) {
@@ -87,11 +110,11 @@ const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, s
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'middle';
 	ctx.fillStyle = 'white';
-	roundedRect(ctx, button, 20);
+	roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 20);
 	if (!button.isFocused && !button.selected && !selected) {
 	  ctx.globalAlpha=.25;
 	  ctx.fillStyle="black";
-	  roundedRect(ctx, button, 20);
+	  roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 20);
 	  ctx.globalAlpha=1;
 	}
 	ctx.font = '25px Arial';
@@ -100,83 +123,140 @@ const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, s
 	if (selected && !button.selected) {
 	  ctx.globalAlpha=.4;
 	  ctx.fillStyle="black";
-	  roundedRect(ctx, button, 20);
+	  roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 20);
 	  ctx.globalAlpha=1;
 	}
   }, []);
 
+  function checkMouseOnButton(button: Button, e: MouseEvent, canvas: HTMLCanvasElement) {
+	var mouseX = e.clientX - canvas.offsetLeft;
+	var mouseY = e.clientY - canvas.offsetTop;
+	if (mouseX > button.coordinates.x && mouseX < button.coordinates.x + button.size.x &&
+		mouseY > button.coordinates.y && mouseY < button.coordinates.y + button.size.y)
+		return true;
+	return false;
+  }
+  
   const handleMouseMove = useCallback((e:MouseEvent) => {
 	  if (!canvas || !ctx)
 		  return;
-	  var mouseX = e.clientX - canvas.offsetLeft;
-	  var mouseY = e.clientY - canvas.offsetTop;
-	  for (var index in buttons) {
-		  if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-		  buttons[index].isFocused = true;
-		  drawButton(ctx, buttons[index], selectedGamemode);
-		  }
-		  else if (buttons[index].isFocused === true) {
-			  buttons[index].isFocused = false;
-			  drawButton(ctx, buttons[index], selectedGamemode);
-		  }
+	for (var index in gamemodeButtons) {
+		  if (checkMouseOnButton(gamemodeButtons[index], e, canvas))
+		  	gamemodeButtons[index].isFocused = true;
+		  else if (gamemodeButtons[index].isFocused === true)
+			  gamemodeButtons[index].isFocused = false;
+		drawButton(ctx, gamemodeButtons[index], selectedGamemode);
 	  }
-  }, [buttons, canvas, ctx, drawButton, selectedGamemode]);
-  
-const handleMouseClick = useCallback((e: MouseEvent) => {
-	if (!canvas || !ctx)
-		return;
-	var mouseX = e.clientX - canvas.offsetLeft;
-	var mouseY = e.clientY - canvas.offsetTop;
-	for (var index in buttons) {
-		if (mouseX > buttons[index].coordinates.x && mouseX < buttons[index].coordinates.x + buttons[index].size.x && mouseY > buttons[index].coordinates.y && mouseY < buttons[index].coordinates.y + buttons[index].size.y) {
-			if (buttons[index].getName() === 'Start Game') {
-				if (selectedGamemode) {
-					handleStartGame();
-					setGameStarted(true);
-					canvas.removeEventListener("mousemove", handleMouseMove);
-					canvas.removeEventListener("click", handleMouseClick);
-					break;
-				}
-				else {
-					ctx.font = '20px Arial'; //ITC Zapf Chancery
-					ctx.fillText("Choose game settings to continue", 400, 575);
-				}
+	  for (index in paddleButtons) {
+		  if (checkMouseOnButton(paddleButtons[index], e, canvas))
+		 	  paddleButtons[index].isFocused = true;
+		  else if (paddleButtons[index].isFocused === true)
+			  paddleButtons[index].isFocused = false;
+			drawButton(ctx, paddleButtons[index], selectedPaddle);
+		}
+			/* 
+			for (index in characterButtons) {
+				if (checkMouseOnButton(characterButtons[index], e, canvas)) {
+					characterButtons[index].isFocused = true;
+		  drawButton(ctx, characterButtons[index], selectedGamemode);
+		  }
+		  else if (characterButtons[index].isFocused === true) {
+			  characterButtons[index].isFocused = false;
+			  drawButton(ctx, characterButtons[index], selectedGamemode);
 			}
-			else if (selectedGamemode) {
-				if (buttons[index].selected) {
-					buttons[index].selected = false;
-					setSelectedGamemode(false);
+		}
+		*/
+	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle]);
+	
+	const handleMouseClick = useCallback((e: MouseEvent) => {
+		console.log("Handle mouse click");
+		if (!canvas || !ctx)
+			return;
+		for (var index in gamemodeButtons) {
+			if (checkMouseOnButton(gamemodeButtons[index], e, canvas)) {
+				if (gamemodeButtons[index].getName() === 'Start Game') {
+					if (selectedGamemode && selectedPaddle) {
+						handleStartGame();
+						setGameStarted(true);
+						canvas.removeEventListener("mousemove", handleMouseMove);
+						canvas.removeEventListener("click", handleMouseClick);
+						return;
+					}
+					else {
+						ctx.font = '20px Arial'; //ITC Zapf Chancery
+						ctx.fillText("Choose game settings to continue", 400, 575);
+					}
 				}
-				else {
-					for (var button in buttons) {
-						if (buttons[button].selected) {
-							buttons[button].selected = false;
-							buttons[index].selected = true;
+				else if (selectedGamemode) {
+					if (gamemodeButtons[index].selected) {
+						console.log("Needs to unselect");
+						gamemodeButtons[index].selected = false;
+						setSelectedGamemode(false);
+					}
+					else {
+						console.log("Needs to unselect old one, and select a new one");
+						for (var button in gamemodeButtons) {
+							if (gamemodeButtons[button].selected) {
+								gamemodeButtons[button].selected = false;
+								gamemodeButtons[index].selected = true;
+								setSelectedGamemode(true);
+							}
 						}
 					}
 				}
+				else {
+					console.log("Selected a new one");
+					setSelectedGamemode(true);
+					gamemodeButtons[index].selected = true;
+				}
+				for (var toDraw in gamemodeButtons) {
+					drawButton(ctx, gamemodeButtons[toDraw], selectedGamemode);
+				}
+				return;
 			}
-			else {
-				setSelectedGamemode(true);
-				buttons[index].selected = true;
-			}
-			for (var toDraw in buttons) {
-				drawButton(ctx, buttons[toDraw], selectedGamemode);
-			}
-			break;
 		}
-	}
-}, [drawButton, buttons, canvas, ctx, handleMouseMove, selectedGamemode]);
+		for (index in paddleButtons) {
+			if (checkMouseOnButton(paddleButtons[index], e, canvas)) {
+				if (selectedPaddle) {
+					if (paddleButtons[index].selected) {
+						console.log("Needs to unselect");
+						paddleButtons[index].selected = false;
+						setSelectedPaddle(false);
+					}
+					else {
+						console.log("Needs to unselect old one, and select a new one");
+						for (button in paddleButtons) {
+							if (paddleButtons[button].selected) {
+								paddleButtons[button].selected = false;
+								paddleButtons[index].selected = true;
+								setSelectedPaddle(true);
+							}
+						}
+					}
+				}
+				else {
+					console.log("Selected a new one");
+					setSelectedPaddle(true);
+					paddleButtons[index].selected = true;
+				}
+				for (toDraw in paddleButtons) {
+					drawButton(ctx, paddleButtons[toDraw], selectedPaddle);
+				}
+				return;
+			}
+		}
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle]);
+	
 
-function roundedRect(ctx: CanvasRenderingContext2D, button: Button, radius: number, clear: boolean = false) {
-    if (clear)
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, size_x: number, size_y: number, radius: number, clear: boolean = false) {
+	if (clear)
 	ctx.fillStyle='rgba(0,0,0,0)';
 	ctx.beginPath();
-    ctx.moveTo(button.coordinates.x, button.coordinates.y + radius);
-    ctx.arcTo(button.coordinates.x, button.coordinates.y + button.size.y, button.coordinates.x + radius, button.coordinates.y + button.size.y, radius);
-    ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y + button.size.y, button.coordinates.x + button.size.x, button.coordinates.y + button.size.y - radius, radius);
-    ctx.arcTo(button.coordinates.x + button.size.x, button.coordinates.y, button.coordinates.x + button.size.x - radius, button.coordinates.y, radius);
-    ctx.arcTo(button.coordinates.x, button.coordinates.y, button.coordinates.x, button.coordinates.y + radius, radius);
+    ctx.moveTo(x, y + radius);
+    ctx.arcTo(x, y + size_y, x + radius, y + size_y, radius);
+    ctx.arcTo(x + size_x, y + size_y, x + size_x, y + size_y - radius, radius);
+    ctx.arcTo(x + size_x, y, x + size_x - radius, y, radius);
+    ctx.arcTo(x, y, x, y + radius, radius);
     ctx.fill();
 };
 
@@ -275,6 +355,15 @@ const ultSubZero = async () => {
 	}
 };
 
+const abFreeze = async () => {
+	try {
+		await axios.post('/game/ability/freeze');
+		console.log('abFreeze');
+	} catch (error) {
+		console.error('Failed to use freeze ability', error);
+	}
+};
+
     const soundGrenade = async () => {
 		try {
 			await axios.post('/game/ability/soundgrenade');
@@ -335,6 +424,8 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 		abTimeWarp();
 	} else if (event.key === 'm') {
 		abMirage();
+	} else if (event.key === 'n') {
+		abFreeze();
 	}
 }, [arrowDown, arrowUp]);
 
@@ -412,18 +503,12 @@ if (event.key === 'ArrowUp' && !arrowUp) {
         const { mirageUpdate } = event;
         setMiragePos(mirageUpdate);
       });
+      socket.current.on('freeze', (event: any) => {
+        const { freeze } = event;
+        setFreeze(freeze);
+      });
     }
   }, []);  
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [handleKeyDown, handleKeyUp]);
   
   const gameStatus = async () => {
 	try {
@@ -434,37 +519,70 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 	}
 };
 
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('keyup', handleKeyUp);
+    if (!isGameStarted) {
+      canvas?.addEventListener("click", handleMouseClick);
+      canvas?.addEventListener("mousemove", handleMouseMove);
+    }
+		return () => {
+      if (!isGameStarted) {
+        canvas?.removeEventListener("click", handleMouseClick);
+        canvas?.removeEventListener("mousemove", handleMouseMove);
+      }
+			document.removeEventListener('keydown', handleKeyDown);
+			document.removeEventListener('keyup', handleKeyUp);
+		}
+	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameStarted]);
+
+	// useEffect(() => {
+	// 	setRender(true);
+	// }, []);
+
+	// useEffect(() => {
+	// 	const handlePageReload = () => {
+	// 		setRender(true);
+	// 	  console.log('Page is being reloaded');
+	// 	};
+	  
+	// 	window.addEventListener('beforeunload', handlePageReload);
+	  
+	// 	return () => {
+	// 	  window.removeEventListener('beforeunload', handlePageReload);
+	// 	};
+	//   }, []);
 
   useEffect(() => {
+	setRender(false);
     // const canvas = canvasRef.current;
     if (canvas) {
-    //   var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
-    //   var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
-    //   var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
-	//   var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
-    //   var buttons: Array<Button> = [Singleplayer, MasterOfPong, RegularPong, GameStart];
-    //   const ctx = canvas.getContext('2d');
-	//   var selected_gamemode = false;
-	  gameStatus();
-      if (ctx) {
-		  if (!isGameStarted) {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			canvas.addEventListener("mousemove", handleMouseMove);
-			canvas.addEventListener("click", handleMouseClick);
-			// ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.fillStyle = 'rgb(41, 37, 37)';
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			ctx.font = '40px Arial'; //ITC Zapf Chancery
-			ctx.fillStyle = 'white';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.fillText(`Gamemode`, canvas.width / 2, 30);
-			ctx.fillText(`Paddle`, canvas.width / 2, 180);
-			ctx.fillText(`Character`, canvas.width / 2, 330);
-			for (var index in buttons) {
-				drawButton(ctx, buttons[index]);
+		if (ctx) {
+			if (!isGameStarted) {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				// ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = 'rgb(41, 37, 37)';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				ctx.font = '40px Arial'; //ITC Zapf Chancery
+				ctx.fillStyle = 'white';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+
+
+				
+				ctx.fillText(`Gamemode`, canvas.width / 2, 30);
+				ctx.fillText(`Paddle`, canvas.width / 2, 180);
+				ctx.fillText(`Character`, canvas.width / 2, 330);
+
+
+
+				for (var index in gamemodeButtons) {
+					drawButton(ctx, gamemodeButtons[index], selectedGamemode);
+				}
+				for (index in paddleButtons) {
+					drawButton(ctx, paddleButtons[index], selectedPaddle);
+				}
 			}
-		}
         if (isGameStarted)
         {
 		//   console.log("game started.");
@@ -479,6 +597,11 @@ if (event.key === 'ArrowUp' && !arrowUp) {
 		// 	console.log("load scorpion");
 		// });
 		ctx.drawImage(paddle_s, 10, player1Position);
+    if (freeze) {
+      ctx.globalAlpha = 0.50;
+			ctx.drawImage(iceBlock, player1Position - 10, player1Position - 10, player1Position + 20, player1Position + 20);
+			ctx.globalAlpha = 1;
+    }
 		//   paddle_sub.addEventListener('load', () => {
 		// 	console.log("load subzero");
 		// });
@@ -538,7 +661,7 @@ if (event.key === 'ArrowUp' && !arrowUp) {
         }
       }
     }
-  }, [player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, buttons, canvas, ctx, handleMouseClick, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos]);
+  }, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze]);
   
   
   
