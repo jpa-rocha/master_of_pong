@@ -18,18 +18,21 @@ const NavBarLandingPage = () => {
 
 		/* API call and authorization, whats the next step,
 		it should redirect to MainPage but should the user name be gotten there?
-		Or should it redirect to an intermediary page? that just stores the user in the db? */
+
+		This is the right option!
+		--> Or should it redirect to an intermediary page? that just stores the user in the db? */
 
 		const apiUrl = process.env.REACT_APP_API_URL ?? '';
 		if (!apiUrl) {
 		  console.error('REACT_APP_API_URL is not defined');
 		  return;
 		}
-	  
+
 		fetch(apiUrl, {
 		  // Add necessary headers for the API request
+		  mode: "cors",
 		  headers: {
-			'Access-Control-Allow-Origin': 'https://api.intra.42.fr/oauth/authorize'
+			'Access-Control-Allow-Origin': 'https://api.intra.42.fr/'
 			// 		// Add other headers if needed
 			}
 		})
@@ -37,7 +40,7 @@ const NavBarLandingPage = () => {
 		.then(data => {
 			console.log(data);
 			// Use the data returned from the API call
-	  
+
 			// Redirect to the main page
 			//navigate('/main');
 		  })
@@ -45,7 +48,7 @@ const NavBarLandingPage = () => {
 			console.error('Error fetching data:', error);
 		  });
 
-	}; 
+	};
 
 	// function handleLogin(e: React.FormEvent) {
 	// 	e.preventDefault();

@@ -3,3 +3,5 @@ frontend/vendor
 .bundle
 .env
 projects/master_of_pong/frontend/app/.env
+env
+projects/master_of_pong/backend/auth/.env
