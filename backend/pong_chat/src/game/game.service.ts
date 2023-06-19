@@ -14,6 +14,7 @@ export class GameService {
 
   private pressUp = 0;
   private pressDown = 0;
+  private freezeBot = false;
 
   private szTimer: NodeJS.Timeout | null = null;
   private timeWarpTimer: NodeJS.Timeout | null = null;
@@ -205,7 +206,7 @@ export class GameService {
   }
 
   private moveBot(): void {
-    if (this.map.gameStarted == false) return;
+    if (this.map.gameStarted == false || this.freezeBot) return;
 
     if (this.map.ballPos.y > this.player2.pos.y + this.player2.height / 2)
       this.player2.pos.y += this.player2.speed;
