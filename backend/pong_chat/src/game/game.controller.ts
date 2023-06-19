@@ -65,6 +65,11 @@ export class GameController {
     this.gameService.abMirage();
   }
 
+  @Post('ability/freeze')
+  Freeze() {
+    this.gameService.abFreeze();
+  }
+
   @Post('ability/soundgrenade')
   SoundGrenade() {
     this.gameService.SoundGrenade();

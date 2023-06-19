@@ -1,7 +1,7 @@
-import { Injectable} from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
-import { User } from "@prisma/client";
+import { User } from '@prisma/client';
 
 
 // Should be a strategy using passport

@@ -14,10 +14,12 @@ export class GameService {
 
   private pressUp = 0;
   private pressDown = 0;
+  private freezeBot = false;
 
   private szTimer: NodeJS.Timeout | null = null;
   private timeWarpTimer: NodeJS.Timeout | null = null;
   private mirageTimer: NodeJS.Timeout | null = null;
+  private freezeTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly gameGateway: GameGateway,
@@ -163,6 +165,13 @@ export class GameService {
     });
   }
 
+  abFreeze(): void {
+    this.player1.freeze = true;
+    this.gameGateway.server.emit('freeze', {
+      freeze: true,
+    });
+  }
+
   abMirage(): void {
     this.map.mirage = true;
     this.gameGateway.server.emit('mirage', {
@@ -181,6 +190,12 @@ export class GameService {
     this.gameGateway.server.emit('BallSize', {
       ballSize: this.map.ballSize,
     });
+    setTimeout(() => {
+      this.map.ballSize /= 2;
+      this.gameGateway.server.emit('BallSize', {
+        ballSize: this.map.ballSize,
+      });
+    }, 10000);
   }
 
   ballReset(): void {
@@ -191,7 +206,7 @@ export class GameService {
   }
 
   private moveBot(): void {
-    if (this.map.gameStarted == false) return;
+    if (this.map.gameStarted == false || this.freezeBot) return;
 
     if (this.map.ballPos.y > this.player2.pos.y + this.player2.height / 2)
       this.player2.pos.y += this.player2.speed;
@@ -291,14 +306,26 @@ export class GameService {
       }, 3000);
     }
 
-    if (this.pressUp == 1) {
-      this.player1.pos.y -= this.player1.speed;
-      if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-    }
-    if (this.pressDown == 1) {
-      this.player1.pos.y += this.player1.speed;
-      if (this.player1.pos.y > this.map.Height - this.player1.height)
-        this.player1.pos.y = this.map.Height - this.player1.height;
+    if (!this.player1.freeze) {
+      if (this.pressUp == 1) {
+        this.player1.pos.y -= this.player1.speed;
+        if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+      }
+      if (this.pressDown == 1) {
+        this.player1.pos.y += this.player1.speed;
+        if (this.player1.pos.y > this.map.Height - this.player1.height)
+          this.player1.pos.y = this.map.Height - this.player1.height;
+      }
+    } else {
+      if (!this.freezeTimer) {
+        this.freezeTimer = setTimeout(() => {
+          this.player1.freeze = false;
+          this.freezeTimer = null;
+          this.gameGateway.server.emit('freeze', {
+            freeze: true,
+          });
+        }, 1200);
+      }
     }
 
     // Sub Zero ability implementation :

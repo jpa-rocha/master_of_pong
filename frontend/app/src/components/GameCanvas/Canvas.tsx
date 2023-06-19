@@ -13,9 +13,15 @@ export class Button {
 		this.coordinates = coordinates;
 	}
 
-		public getName(): string {
+	public setSizeLocation(size: {x: number, y: number}, coordinates: {x: number, y: number})
+	{
+		this.size = size;
+		this.coordinates = coordinates;
+	}
+
+	public getName(): string {
 		return (this.name);
-			}
+	}
 
 	public setIsFocused(focus: boolean) {
 		this.isFocused = focus;
