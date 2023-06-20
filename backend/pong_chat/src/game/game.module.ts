@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameController } from './game.controller';
 import { GameGateway } from './game.gateway';
-import { Map } from './dto/map.dto';
 import { Player } from './dto/player.dto';
+import { gameObject } from './dto/gameObject';
 
 @Module({
   providers: [
     GameService,
     GameGateway,
-    { provide: 'Map', useClass: Map },
+    { provide: 'gameObject', useClass: gameObject },
     { provide: 'Player1', useClass: Player },
     { provide: 'Player2', useClass: Player },
   ],

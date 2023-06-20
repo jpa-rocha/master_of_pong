@@ -43,9 +43,9 @@ const LandingPage = () => {
 					{/* <div style={{ flex: 1, display: 'flex' }}>
 						<Chat />
 					</div> */}
-					<div style={{ flex: 1, display: 'flex'}}>
+					{/* <div style={{ flex: 1, display: 'flex'}}>
 						<ChatOnGame socket={socket} />
-					</div>
+					</div> */}
 					
 					<div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 						<GameCanvas />
