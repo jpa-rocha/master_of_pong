@@ -1,5 +1,6 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { GameService } from './game.service';
+import { Options } from './movement.dto';
 
 @Controller('game')
 export class GameController {
@@ -8,6 +9,14 @@ export class GameController {
   @Get('gameStatus')
   gameStatus() {
     this.gameService.gameStatus();
+  }
+
+  @Post('options')
+  createGameObject(@Body() options: Options) {
+    console.log(options.gameMode);
+    console.log(options.paddle);
+    console.log(options.character);
+    this.gameService.createGameObject(options);
   }
 
   @Post('start')
@@ -88,5 +97,10 @@ export class GameController {
   @Post('ability/ballreset')
   ballReset() {
     this.gameService.ballReset();
+  }
+
+  @Post('ability/random')
+  randomAbility() {
+    this.gameService.randomAbility();
   }
 }

@@ -4,11 +4,15 @@ import { runInThisContext } from 'vm';
 @Injectable()
 export class Player {
   public pos: { x: number; y: number };
+  public character: HTMLImageElement;
   public height: number;
   public width: number;
   public speed: number;
   public getOverHere: boolean;
   public freeze: boolean;
+  public hasAbility: boolean;
+  public ability: number;
+  public hasSpecial: boolean;
 
   constructor() {
     this.pos = { x: 10, y: 250 };
@@ -17,6 +21,9 @@ export class Player {
     this.speed = 10;
     this.getOverHere = false;
     this.freeze = false;
+    this.hasAbility = true;
+    this.hasSpecial = true;
+    this.ability = Math.floor(Math.random() * 5);
   }
 
   public setValues(
