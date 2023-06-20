@@ -1,16 +1,18 @@
 import { Grid, Box } from "@mui/material";
 import calm from "../images/CalmScorpion.gif"
-import Footer from "./Footer";
+//import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
 //import Chat from './Messages/Chat'
-import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
+//import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from './GameCanvas/GameCanvas'
-import * as socketIO  from "socket.io-client"; 
+import logo from "../images/logo.png";
+
+/* import * as socketIO  from "socket.io-client"; 
 import { Socket } from 'socket.io-client';
 
 const URI = 'http://localhost:4000';
 
-const socket: Socket = socketIO.connect(URI);
+const socket: Socket = socketIO.connect(URI); */
 
 const LandingPage = () => {
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Socket } from 'socket.io-client';
-import "../../styles/chat.css";
+import "./chatPageStyle/chat.css";
 
 interface GetUserNameProps {
 	socket: Socket;
@@ -20,7 +20,7 @@ const GetUserName: React.FunctionComponent<GetUserNameProps> = ( { socket} ) => 
 	
 		//sends the username and socket ID to the Node.js server
 		socket.emit('newUser', { userName, socketID: socket.id });
-		navigate('/chat');
+		navigate('/chatPage');
 	  };
 
 

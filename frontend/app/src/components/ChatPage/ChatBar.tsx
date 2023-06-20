@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import "../../styles/chat.css";
+import "./chatPageStyle/chat.css";
 
 interface User {
   socketID: string;

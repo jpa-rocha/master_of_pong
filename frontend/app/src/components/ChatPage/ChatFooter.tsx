@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Socket } from 'socket.io-client';
-import "../../styles/chat.css";
+import "./chatPageStyle/chat.css";
 
 interface ChatFooterProps {
   socket: Socket;

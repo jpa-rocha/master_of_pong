@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react';
 import { Socket } from 'socket.io-client';
-import './chatWindow.css'
+import './chatGameStyle/chatWindow.css'
 
 
 interface ChatFooterProps {
@@ -25,7 +25,7 @@ const ChatOnGameFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) 
 	};
   
 	const handleTyping = (): void => {
-	  const typingElement = document.querySelector(".typing") as HTMLElement | null;
+	  const typingElement = document.querySelector(".windowTyping") as HTMLElement | null;
 	  if (typingElement)
 	  {
 		  typingElement.classList.toggle("active");
@@ -37,17 +37,17 @@ const ChatOnGameFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) 
 	
   
 	return (
-	  <div className="chatFooter">
-		<form className="chatForm" onSubmit={handleSendMessage}>
+	  <div className="chatWindowFooter">
+		<form className="chatWindowForm" onSubmit={handleSendMessage}>
 		  <input
 			type="text"
 			placeholder="Write message"
-			className="message"
+			className="chatWindowMessage"
 			value={message}
 			onChange={(e) => setMessage(e.target.value)}
 			onKeyDown={handleTyping}
 		  />
-		  <button className="sendBtn">SEND</button>
+		  <button className="windowSendBtn">SEND</button>
 		</form>
 	  </div>
 	);

@@ -1,40 +1,95 @@
 
+/* Chat Page */
+*{
+	box-sizing: border-box;
+}
 
-/* Chat PAage */
+body{
+	background-color: rgba(230, 226, 222, 0.7);
+	margin: 0;
+	padding: 0;
+}
 
 .chatPageContainer {
-	display: flex;
-	flex-direction: column;
-	position: absolute;	
-	bottom: 60px;
-	left: 0;
-	padding: 0 1rem;
-	width: 30%;
+	display: grid;
+	grid-template-columns: 1fr 3fr;
+	justify-content: center;
+	align-items: center;
+	padding: 1rem;
   }
 
+
+.chatMain, .chatSide {
+  height: 100%;
+}
+
+
+/* Chat Side Bar */
+ .chatSidebar {
+
+	height: 100%;
+	padding: 1rem;
+	background-color: #0C4160;
+	padding: 20px;
+	border: 1px solid #000;
+	border-radius: 1rem;
+	margin-right: 1rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	text-align: center;
+}
+
+.chatSidebar h2{
+	color: rgba(234, 232, 232, 0.9);
+}
+
+.chatHeader {
+  margin: 30px 0 20px 0;
+  color: rgba(12, 12, 12, 0.9);
+  border-bottom: 1px solid rgba(41, 39, 33, 0.5);
+}
+
+.activeUsers, .allUsers{
+	padding-bottom: 2rem;
+	background-color: #f4f2ef;
+	height: 70%;
+}
+
+.chatUsers > * {
+  margin-bottom: 10px;
+  color: #161717;
+  font-size: 1rem;
+}
+
+.onlineUsers > * {
+
+  margin-bottom: 10px;
+  color: #21772e;
+  font-style: italic;
+}
 
 /* This is for main chat */
 .chatMainContainer{
 	border-radius: 1rem;
-	width: 70%;
-	margin-left: 3rem;
+	width: 80%;
+	margin-left: 5rem;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .chatMainHeader {
-	
-	width: 95%;
-  height: 4vh; 
+  width: 100%;
+  height: 10vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background-color:  #08334c;
-  color: #fff;	
+ background-color:  #08334c;
+ color: #fff;
 }
 
 .leaveChatBtn {
-	padding: 0.3rem 1rem;
+	padding: 0.6rem 1rem;
   border: none;
   border-radius: 10px;
   outline: none;
@@ -50,9 +105,9 @@
 
 .messageContainer {
 
-  width: 95%;
-  height: 60vh;
-  padding: 1rem;
+  width: 100%;
+  height: 80vh;
+  padding: 20px;
   background-color: #d7e0eb;
   overflow-y: scroll;
 
@@ -66,11 +121,11 @@
 /* Chat Footer Form */
 .chatFooter {
 
-	padding: 1rem 0.4rem;
+  padding: 10px;
   background-color: #08334c;
-  height: 7vh;
-  width: 70%;
-  margin-left: 3rem;
+  height: 10vh;
+  width: 80%;
+  margin-left: 5rem;
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
@@ -78,7 +133,7 @@
 
 .chatForm {
 
- width: 100%;
+  width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -86,8 +141,8 @@
 } 
 
 .message {
-   width: 70%;
-   height: 30%;
+  width: 80%;
+  height: 100%;
   border-radius: 10px;
   border: 1px solid #ddd;
   outline: none;
@@ -96,7 +151,7 @@
 
 .sendBtn {
   background-color: #3b8d3b;
-  padding: 1rem 1.9rem;
+  padding: 0.6rem 2.5rem;
   border: none;
   border-radius: 10px;
   outline: none;
@@ -114,7 +169,7 @@
 .messageRecipient {
 
   background-color: #f5ccc2;
-	width: 300px;
+  width: 300px;
   padding: 10px;
   border-radius: 10px;
   font-size: 15px;
@@ -123,7 +178,7 @@
 .messageSender {
 
   background-color: #e1ede6;
- max-width: 300px; 
+  max-width: 300px;
   padding: 10px;
   border-radius: 10px;
   margin-left: auto;
@@ -143,7 +198,7 @@
 	transition: all ease 0.5s;
 	color: #282727;
 	position: absolute;
-	bottom: 10%;
+	bottom: 6%;
 	opacity: 0;
 }
 
