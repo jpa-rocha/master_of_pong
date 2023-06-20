@@ -36,7 +36,6 @@ export class GameService {
   }
 
   createGameObject(options: Options): void {
-    console.log('HELLLLLO');
     this.gameObject.setGameOptions(options);
     console.log(options.gameMode + '!= Regular Pong');
     if (options.gameMode === 'Regular Pong')
@@ -57,6 +56,10 @@ export class GameService {
 
     this.gameGateway.server.emit('winnerUpdate', {
       winner: '',
+    });
+
+    this.gameGateway.server.emit('playerCharacter', {
+      playerCharacter: 'Scorpion',
     });
 
     // Calls the moveBall function on intervals

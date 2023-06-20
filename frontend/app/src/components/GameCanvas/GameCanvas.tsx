@@ -137,6 +137,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [abilities, setAbilities] = useState<boolean>(false);
 	const [hasAbility, setHasAbility] = useState<boolean>(true);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
+	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const socket = useRef<Socket | null>(null);
@@ -723,9 +724,16 @@ useEffect(() => {
 			const { hasAbility } = event;
 			setHasAbility(hasAbility);
 		});
+		socket.current.on('playerCharacter', (event: any) => {
+			const { playerCharacter } = event;
+			if (playerCharacter === "SubZero")
+				setPlayer2Character(paddle_sub);
+			else if (playerCharacter === "Scorpion")
+				setPlayer2Character(paddle_s);
+		});
 	}
 	}
-}, [abilities]);  
+}, [abilities, hasAbility, paddle_s, paddle_sub]);  
 
 const gameStatus = async () => {
 	try {
@@ -823,7 +831,7 @@ useEffect(() => {
 		// 	console.log("load scorpion");
 		// });
 		ctx.drawImage(player1Character, 10, player1Position);
-		ctx.drawImage(paddle_sub, 1170, player2Position);
+		ctx.drawImage(player2Character, 1170, player2Position);
 	if (freeze) {
 		ctx.globalAlpha = 0.50;
 		ctx.drawImage(iceBlock, 5, player1Position - 10, 30, 120);
@@ -965,7 +973,7 @@ useEffect(() => {
 	}
 	}
 	}
-}, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character]);
+}, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
 
 
 
