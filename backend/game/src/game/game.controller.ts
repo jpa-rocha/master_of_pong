@@ -6,6 +6,8 @@ import { Options } from './movement.dto';
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
+  // GAME --------------------------------------------
+
   @Get('gameStatus')
   gameStatus() {
     this.gameService.gameStatus();
@@ -13,9 +15,6 @@ export class GameController {
 
   @Post('options')
   createGameObject(@Body() options: Options) {
-    console.log(options.gameMode);
-    console.log(options.paddle);
-    console.log(options.character);
     this.gameService.createGameObject(options);
   }
 
@@ -29,13 +28,10 @@ export class GameController {
     this.gameService.stopGame();
   }
 
+  // MOVEMENT ----------------------------------------
+
   @Post('move/up/enable')
   moveUpEnable() {
-    this.gameService.moveUp();
-  }
-
-  @Post('move/up/disable')
-  moveUpDisable() {
     this.gameService.moveUp();
   }
 
@@ -44,25 +40,34 @@ export class GameController {
     this.gameService.stopUp();
   }
 
-  @Post('move/stopdown')
-  stopDown() {
-    this.gameService.stopDown();
-  }
-
   @Post('move/down')
   moveDown() {
     this.gameService.moveDown();
   }
 
-  @Post('ultScorpion')
+  @Post('move/stopdown')
+  stopDown() {
+    this.gameService.stopDown();
+  }
+
+  // SPECIAL ABILITIES -------------------------------
+
+  @Post('ability/Scorpion')
   ultScorpion() {
     this.gameService.ultScorpion();
   }
 
-  @Post('ultSubZero')
+  @Post('ability/SubZero')
   ultSubZero() {
-    this.gameService.ultSubZero();
+    this.gameService.abFreeze();
   }
+
+  @Post('ability/Raiden')
+  Lightning() {
+    this.gameService.abLightning();
+  }
+
+  // ABILITIES ---------------------------------------
 
   @Post('ability/timewarp')
   TimeWarp() {
@@ -76,12 +81,7 @@ export class GameController {
 
   @Post('ability/freeze')
   Freeze() {
-    this.gameService.abFreeze();
-  }
-
-  @Post('ability/lightning')
-  Lightning() {
-    this.gameService.abLightning();
+    this.gameService.ultSubZero();
   }
 
   @Post('ability/soundgrenade')
@@ -89,12 +89,12 @@ export class GameController {
     this.gameService.SoundGrenade();
   }
 
-  @Post('ability/ballsize')
+  @Post('ability/biggerball')
   BallSize() {
     this.gameService.BallSize();
   }
 
-  @Post('ability/ballreset')
+  @Post('ability/smallerball')
   ballReset() {
     this.gameService.ballReset();
   }

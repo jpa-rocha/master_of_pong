@@ -247,11 +247,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			try {
 				if (selectedGamemode !== "Regular Pong")
 					setAbilities(true);
+				else
+					setAbilities(false);
 				if (selectedCharacter === "Scorpion") {
 					setPlayer1Character(paddle_s);
+					// setPlayer2Character(paddle_sub);
 				}
 				else if (selectedCharacter === "SubZero") {
 					setPlayer1Character(paddle_sub);
+					// setPlayer2Character(paddle_s);
 				}
 				var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
 				await axios.post('/game/options', opt);
@@ -358,14 +362,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, drawImages, paddle_s, paddle_sub]);
 	
 
-	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, size_x: number, size_y: number, radius: number, clear: boolean = false) {
+	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, clear: boolean = false) {
 		if (clear)
 		ctx.fillStyle='rgba(0,0,0,0)';
 		ctx.beginPath();
 		ctx.moveTo(x, y + radius);
-		ctx.arcTo(x, y + size_y, x + radius, y + size_y, radius);
-		ctx.arcTo(x + size_x, y + size_y, x + size_x, y + size_y - radius, radius);
-		ctx.arcTo(x + size_x, y, x + size_x - radius, y, radius);
+		ctx.arcTo(x, y + height, x + radius, y + height, radius);
+		ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+		ctx.arcTo(x + width, y, x + width - radius, y, radius);
 		ctx.arcTo(x, y, x, y + radius, radius);
 		ctx.fill();
 	};
@@ -399,6 +403,19 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, []);
 
 	const handleKeyDown = useCallback((event: KeyboardEvent) => {
+
+		const executeAbility = async (abilityName: string, endpoint: string) => {
+			try {
+				if (abilityName === "ScorpionSpecial") {
+					const sound = new Audio(GetOverHere);
+					sound.play();
+				}
+				await axios.post(`/game/ability/${endpoint}`);
+				console.log(abilityName);
+			} catch (error) {
+				console.error(`Failed to use ${abilityName} ability:`, error);
+			}
+		}
 		const moveUp = async () => {
 			try {
 				await axios.post('/game/move/up/enable');
@@ -417,146 +434,52 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			}
 		};
 
-		const abTimeWarp = async () => {
-			try {
-				await axios.post('/game/ability/timewarp');
-				console.log('timeWarp');
-			} catch (error) {
-				console.error('Failed to use timewarp ability:', error);
-			}
-		};
-
-		const abMirage = async () => {
-			try {
-				await axios.post('/game/ability/mirage');
-				console.log('mirage');
-			} catch (error) {
-				console.error('Failed to use mirage ability:', error);
-			}
-		};
-
-		const ultScorpion = async () => {
-			try {
-				await axios.post('/game/ultScorpion');
-				console.log('ultScorpion');
-			} catch (error) {
-				console.error('Failed to use scorpion ability:', error);
-			}
-		};
-
-		const ultSubZero = async () => {
-			try {
-				await axios.post('/game/ultSubZero');
-				console.log('ultSubZero');
-			} catch (error) {
-				console.error('Failed to use sub zero ability', error);
-			}
-		};
-
-		const abFreeze = async () => {
-			try {
-				await axios.post('/game/ability/freeze');
-				console.log('abFreeze');
-			} catch (error) {
-				console.error('Failed to use freeze ability', error);
-			}
-		};
-
-		const abLightning = async () => {
-			try {
-				await axios.post('/game/ability/lightning');
-				console.log('abLightning');
-			} catch (error) {
-				console.error('Failed to use lightning ability', error);
-			}
-		};
-
-		const soundGrenade = async () => {
-			try {
-				await axios.post('/game/ability/soundgrenade', isGameStarted);
-				console.log('soundGrenade');
-			} catch (error) {
-				console.error('Failed to use soundGrenade ability:', error);
-			}
-		};
-	
-		const BallSize = async () => {
-			try {
-				await axios.post('/game/ability/ballsize');
-				console.log('BallSize');
-			} catch (error) {
-				console.error('Failed to use BallSize ability:', error);
-			}
-		};
-	
-		const ballReset = async () => {
-			try {
-				await axios.post('/game/ability/ballreset');
-				console.log('ballreset');
-			} catch (error) {
-				console.error('Failed to use ballreset ability:', error);
-			}
-		};
-	
-		const ballSpeed = async () => {
-			try {
-				await axios.post('/game/ability/ballspeed');
-				console.log('ballspeed');
-			} catch (error) {
-				console.error('Failed to use ballspeed ability:', error);
-			}
-		};
-
-		const randomAbility = async () => {
-			try {
-				await axios.post('/game/ability/random');
-				console.log('random ability');
-			} catch (error) {
-				console.error('Random Ability', error);
-			}
-		};
-
 		if (event.key === 'ArrowUp' && !arrowUp) {
-				setArrowUp(true);
-				moveUp();
-		} else if (event.key === 'ArrowDown' && !arrowDown) {
+			setArrowUp(true);
+			moveUp();
+		} 
+		else if (event.key === 'ArrowDown' && !arrowDown) {
 			setArrowDown(true);
 			moveDown();
-		} else if (!abilities) {
+		} 
+		else if (!abilities)
 			return;
-		} else if (event.key === 'z') {
-			const sound = new Audio(GetOverHere);
-			sound.play();
-			ultScorpion();
-		} else if (event.key === 'x') {
-			soundGrenade();
-		} else if (event.key === 'c') {
-			BallSize();
-		} else if (event.key === 'v') {
-			ballReset();
-		} else if (event.key === 'b') {
-			ultSubZero();
-		} else if (event.key === 't') {
-			abTimeWarp();
-		} else if (event.key === 'm') {
-			abMirage();
-		} else if (event.key === 'n') {
-			abFreeze();
-		} else if (event.key === 'l') {
-			abLightning();
-		} else if (event.key === 'a') {
-			randomAbility();
-		}
-	}, [arrowDown, arrowUp, isGameStarted, abilities]);
+		else if (event.key === 'z')
+			executeAbility("ScorpionSpecial", "Scorpion");
+		else if (event.key === 'x')
+			executeAbility("SubZeroSpecial", "SubZero");
+		else if (event.key === 'c')
+			executeAbility("RaidenSpecial", "Raiden");
+ 		else if (event.key === 'q')
+			executeAbility("SoundGrenade", "soundgrenade");
+		else if (event.key === 'v')
+			executeAbility("BiiggerBall", "biggerball");
+		else if (event.key === 'b')
+			executeAbility("SmallerBall", "smallerball");
+		else if (event.key === 't')
+			executeAbility("TimeWarp", "timewarp");
+		else if (event.key === 'n')
+			executeAbility("Freeze", "freeze");
+		else if (event.key === 'm')
+			executeAbility("Mirage", "mirage");
+		else if (event.key === 'a')
+			executeAbility("Random Ability", "random");
+	
+	}, [arrowDown, arrowUp, abilities]);
 
 	useEffect(() => {
 		socket.current = io('http://localhost:8002');
+		if (render === false)
+			setRender(true);
+		else
+			setRender(false);
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();
 			}
 		};
 	}, []);
+	// !!!!! if we include the missing dependancies the canvas won't render on restart / refresh
 
 	useEffect(() => {
 		if (socket.current) {
@@ -631,20 +554,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					if (playerCharacter === "SubZero")
 						setPlayer2Character(paddle_sub);
 					else if (playerCharacter === "Scorpion")
+					{
 						setPlayer2Character(paddle_s);
+						console.log("Set player 2 paddle to Scorpion");
+					}
 				});
 			}
 		}
-	}, [abilities, hasAbility, paddle_s, paddle_sub]);  
-
-	const gameStatus = async () => {
-		try {
-			await axios.get('/game/gameStatus');
-			// console.log('gameStatus');
-		} catch (error) {
-			console.error('Get gameStatus failed', error);
-		}
-	};
+	}, [abilities, hasAbility, paddle_s, paddle_sub]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
@@ -664,7 +581,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameStarted]);
 
 	useEffect(() => {
-		setRender(false);
 		if (canvas) {
 			if (ctx) {
 				if (!isGameStarted) {
@@ -700,8 +616,22 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
 					ctx.globalAlpha = 1;
-					ctx.drawImage(player1Character, 10, player1Position);
-					ctx.drawImage(player2Character, 1170, player2Position);
+					if (selectedGamemode !== "Regular Pong") {
+						ctx.drawImage(player1Character, 10, player1Position);
+						ctx.drawImage(player2Character, 1170, player2Position);
+					}	
+					else {
+						ctx.fillStyle = 'white';
+						ctx.fillRect(10, player1Position, 20, 100);
+						ctx.fillRect(1170, player2Position, 20, 100);
+
+						ctx.strokeStyle = 'black';
+						ctx.lineWidth = 2;
+						ctx.strokeRect(10, player1Position, 20, 100);
+						ctx.strokeRect(1170, player2Position, 20, 100);
+					}
+
+
 					if (abilityFreeze) {
 						ctx.globalAlpha = 0.50;
 						ctx.drawImage(iceBlock, 5, player1Position - 10, 30, 120);
@@ -745,7 +675,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(right_bar, 1025, 25, 25, 40);
 						ctx.drawImage(iconBackground, 1035, 25, 45, 45);
 						ctx.drawImage(icon, 1046, 38, 23, 20);
-						//healthText
 						var x = 0;
 						// draw p1 health bars
 						while (x < 11 - score.p2) {
@@ -768,6 +697,66 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									ctx.drawImage(mid_health, 1024 - 14 * x, 25, 13, 40);
 							x++;
 						}
+
+						// Draw the ball
+						ctx.fillStyle = 'white';
+						ctx.beginPath();
+						ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+						ctx.fill();
+						ctx.strokeStyle = 'black';
+						ctx.beginPath();
+						ctx.lineWidth = 2;
+						ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
+						ctx.stroke();
+						ctx.fillStyle = 'white';
+
+						if (raidenSpecial) {
+							ctx.globalAlpha = 0.7;
+							ctx.fillStyle = 'rgb(255, 188, 0)';
+							ctx.strokeStyle = 'rgb(255, 188, 0)';
+							ctx.beginPath();
+							ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+							ctx.fill();
+							ctx.beginPath();
+							ctx.arc(ballPosition.x, ballPosition.y, ballSize + 12, 0, Math.PI * 2);
+							ctx.stroke();
+						}
+						if (subZeroSpecial) {
+							// iceBlock.addEventListener('error', () => {
+							// 	console.log("load scorpion ERROR");
+							//   });
+							//   iceBlock.addEventListener('load', () => {
+							// 	  console.log("load scorpion");
+							// 	});
+								ctx.globalAlpha = 0.50;
+								ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+								ctx.globalAlpha = 1;
+						}
+				
+						// Draw the line to the ball, when scorpion ability is used
+						if (scorpionSpecial) {
+							// Draw a line between two points
+							ctx.beginPath();
+							ctx.moveTo(30, player1Position + 50);
+							ctx.lineTo(ballPosition.x, ballPosition.y);
+							ctx.strokeStyle = 'white';
+							ctx.lineWidth = 3;
+							ctx.stroke();
+							ctx.closePath();
+							ctx.strokeStyle = 'black';
+							ctx.lineWidth = 1;
+						}
+	
+						if (abilityMirage) {
+							ctx.globalAlpha = 0.65;
+							for (var i in miragePos) {
+								ctx.beginPath();
+								ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, 0, Math.PI * 2);
+								ctx.fill();
+								ctx.closePath();
+							}
+							ctx.globalAlpha = 1;
+						}
 					} else {
 						ctx.font = '30px Arial';
 						ctx.fillStyle = 'white';
@@ -776,69 +765,24 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
 						ctx.font = '40px Arial';
 						ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
-					}
-					// Draw the ball
-					ctx.fillStyle = 'white';
-					ctx.beginPath();
-					ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
-					ctx.fill();
-					ctx.strokeStyle = 'black';
-					ctx.beginPath();
-					ctx.lineWidth = 2;
-					ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
-					ctx.stroke();
-					ctx.fillStyle = 'white';
-					if (raidenSpecial) {
-						ctx.globalAlpha = 0.7;
-						ctx.fillStyle = 'rgb(255, 188, 0)';
-						ctx.strokeStyle = 'rgb(255, 188, 0)';
+
+						// Draw the ball
+						ctx.fillStyle = 'white';
 						ctx.beginPath();
 						ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
 						ctx.fill();
-						ctx.beginPath();
-						ctx.arc(ballPosition.x, ballPosition.y, ballSize + 12, 0, Math.PI * 2);
-						ctx.stroke();
-					}
-					if (subZeroSpecial) {
-						// iceBlock.addEventListener('error', () => {
-						// 	console.log("load scorpion ERROR");
-						//   });
-						//   iceBlock.addEventListener('load', () => {
-						// 	  console.log("load scorpion");
-						// 	});
-							ctx.globalAlpha = 0.50;
-							ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
-							ctx.globalAlpha = 1;
-					}
-			
-					// Draw the line to the ball, when scorpion ability is used
-					if (scorpionSpecial) {
-						// Draw a line between two points
-						ctx.beginPath();
-						ctx.moveTo(30, player1Position + 50); // Move to the first point
-						ctx.lineTo(ballPosition.x, ballPosition.y); // Draw a line to the second point
-						ctx.strokeStyle = 'white';
-						ctx.lineWidth = 3;
-						ctx.stroke();
-						ctx.closePath();
 						ctx.strokeStyle = 'black';
-						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.lineWidth = 2;
+						ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
+						ctx.stroke();
+						ctx.fillStyle = 'white';
 					}
 
-					if (abilityMirage) {
-						ctx.globalAlpha = 0.65;
-						for (var i in miragePos) {
-							ctx.beginPath();
-							ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, 0, Math.PI * 2);
-							ctx.fill();
-							ctx.closePath();
-						}
-						ctx.globalAlpha = 1;
-					}
 				}
 			}
 		}
-	}, [render, setRender, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, paddle_s, paddle_sub, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, drawImages, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
+	}, [render, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, paddle_s, paddle_sub, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, drawImages, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
 
 
 

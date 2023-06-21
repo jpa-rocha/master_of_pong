@@ -37,13 +37,16 @@ export class GameService {
 
   createGameObject(options: Options): void {
     this.gameObject.setGameOptions(options);
-    console.log(options.gameMode + '!= Regular Pong');
     if (options.gameMode === 'Regular Pong')
       this.gameObject.allowAbilities = false;
     else this.gameObject.allowAbilities = true;
   }
 
   startGame(): void {
+    this.gameGateway.server.emit('playerCharacter', {
+      playerCharacter: 'Scorpion',
+    });
+
     if (this.gameObject.gameStarted == true) {
       console.log('The game was already started');
       return;
@@ -56,10 +59,6 @@ export class GameService {
 
     this.gameGateway.server.emit('winnerUpdate', {
       winner: '',
-    });
-
-    this.gameGateway.server.emit('playerCharacter', {
-      playerCharacter: 'Scorpion',
     });
 
     // Calls the moveBall function on intervals
@@ -259,7 +258,7 @@ export class GameService {
       if (this.player1.ability === 0) {
         this.ballReset();
       } else if (this.player1.ability === 1) {
-        this.abFreeze();
+        this.ultSubZero();
       } else if (this.player1.ability === 2) {
         this.SoundGrenade();
       } else if (this.player1.ability === 3) {
@@ -549,9 +548,11 @@ export class GameService {
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      const scaleFactor = lengthOld / lengthNew;
-      this.gameObject.ballVel.x *= scaleFactor;
-      this.gameObject.ballVel.y *= scaleFactor;
+      let scaleFactor = lengthOld / lengthNew;
+      if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
+        scaleFactor *= 1.02;
+      this.gameObject.ballVel.x *= scaleFactor * 1.01;
+      this.gameObject.ballVel.y *= scaleFactor * 1.01;
     }
 
     // Ball interaction with player 2
@@ -578,7 +579,9 @@ export class GameService {
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      const scaleFactor = lengthOld / lengthNew;
+      let scaleFactor = lengthOld / lengthNew;
+      if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
+        scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
     }
