@@ -620,8 +620,8 @@ export class GameService {
     this.gameGateway.server.emit('scoreUpdate', {
       score: this.gameObject.score,
     });
-    this.gameGateway.server.emit('ultimateUpdate', {
-      ultimate: this.player1.getOverHere,
+    this.gameGateway.server.emit('ScorpionSpecial', {
+      ScorpionSpecial: this.player1.getOverHere,
     });
   }
 }

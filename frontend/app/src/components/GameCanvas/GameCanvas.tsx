@@ -62,7 +62,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [arrowUp, setArrowUp] = useState<boolean>(false);
 	const [abilities, setAbilities] = useState<boolean>(false);
 	const [hasAbility, setHasAbility] = useState<boolean>(true);
-	const [ultimate, setUlitimate] = useState<boolean>(false);
+
+	
+	const [scorpionSpecial, setScorpionSpecial] = useState<boolean>(false);
+	// const [ultimate, setUlitimate] = useState<boolean>(false);
+
 	const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
 	const [freeze, setFreeze] = useState<boolean>(false);
 	const [lightning, setLightning] = useState<boolean>(false);
@@ -571,10 +575,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				const { player2 } = event;
 				setPlayer2Position(player2);
 			});
-			socket.current.on('ultimateUpdate', (event: any) => {
-				const { ultimate } = event;
-				setUlitimate(ultimate);
-			});
 			socket.current.on('winnerUpdate', (event: any) => {
 				const { winner } = event;
 				setWinner(winner);
@@ -584,6 +584,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setGameStarted(gameStatus);
 			});
 			if (abilities) {
+				socket.current.on('ScorpionSpecial', (event: any) => {
+					const { ScorpionSpecial } = event;
+					setScorpionSpecial(ScorpionSpecial);
+				});
+				socket.current.on('ultimateSubZero', (event: any) => {
+					const { ultimate } = event;
+					setSubZeroUlt(ultimate);
+				});
 				socket.current.on('SoundGrenade', (event: any) => {
 					const sound = new Audio(SoundGrenade);
 					sound.play();
@@ -591,10 +599,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current.on('BallSize', (event: any) => {
 					const { ballSize } = event;
 					setBallSize(ballSize)
-				});
-				socket.current.on('ultimateSubZero', (event: any) => {
-					const { ultimate } = event;
-					setSubZeroUlt(ultimate);
 				});
 				socket.current.on('mirage', (event: any) => {
 					const { mirage } = event;
@@ -802,7 +806,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}
 			
 					// Draw the line to the ball, when scorpion ability is used
-					if (ultimate) {
+					if (scorpionSpecial) {
 						// Draw a line between two points
 						ctx.beginPath();
 						ctx.moveTo(30, player1Position + 50); // Move to the first point
@@ -828,7 +832,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [render, setRender, player1Position, player2Position, ballPosition, ultimate, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
+	}, [render, setRender, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
 
 
 
