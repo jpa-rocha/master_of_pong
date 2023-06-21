@@ -187,29 +187,29 @@ export class GameService {
 
   ultSubZero(): void {
     this.gameObject.freeze = true;
-    this.gameGateway.server.emit('ultimateSubZero', {
-      ultimate: true,
+    this.gameGateway.server.emit('SubZeroSpecial', {
+      SubZeroSpecial: true,
     });
   }
 
   abFreeze(): void {
     this.player1.freeze = true;
-    this.gameGateway.server.emit('freeze', {
-      freeze: true,
+    this.gameGateway.server.emit('AbilityFreeze', {
+      AbilityFreeze: true,
     });
   }
 
   abLightning(): void {
     this.gameObject.lightning = true;
-    this.gameGateway.server.emit('lightning', {
-      lightning: true,
+    this.gameGateway.server.emit('RaidenSpecial', {
+      RaidenSpecial: true,
     });
   }
 
   abMirage(): void {
     this.gameObject.mirage = true;
-    this.gameGateway.server.emit('mirage', {
-      mirage: true,
+    this.gameGateway.server.emit('AbilityMirage', {
+      AbilityMirage: true,
     });
   }
 
@@ -335,8 +335,8 @@ export class GameService {
       this.szTimer = setTimeout(() => {
         this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
         this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
-        this.gameGateway.server.emit('ultimateSubZero', {
-          ultimate: false,
+        this.gameGateway.server.emit('SubZeroSpecial', {
+          SubZeroSpecial: false,
         });
         this.szTimer = null;
       }, 1200);
@@ -384,8 +384,8 @@ export class GameService {
         index++;
       }
       this.mirageTimer = setTimeout(() => {
-        this.gameGateway.server.emit('mirage', {
-          mirage: false,
+        this.gameGateway.server.emit('AbilityMirage', {
+          AbilityMirage: false,
         });
         this.mirageTimer = null;
         this.gameObject.mirageBallsPos = [];
@@ -433,8 +433,8 @@ export class GameService {
             hypotenuse ** 2 + this.gameObject.ballVel.y ** 2,
           );
         setTimeout(() => {
-          this.gameGateway.server.emit('lightning', {
-            lightning: false,
+          this.gameGateway.server.emit('RaidenSpecial', {
+            RaidenSpecial: false,
           });
           const lengthNew = Math.sqrt(
             this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
@@ -483,8 +483,8 @@ export class GameService {
         this.freezeTimer = setTimeout(() => {
           this.player1.freeze = false;
           this.freezeTimer = null;
-          this.gameGateway.server.emit('freeze', {
-            freeze: false,
+          this.gameGateway.server.emit('AbilityFreeze', {
+            AbilityFreeze: false,
           });
         }, 1200);
       }

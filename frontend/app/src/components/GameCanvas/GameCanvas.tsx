@@ -63,14 +63,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [abilities, setAbilities] = useState<boolean>(false);
 	const [hasAbility, setHasAbility] = useState<boolean>(true);
 
-	
+	// Character special abilities
 	const [scorpionSpecial, setScorpionSpecial] = useState<boolean>(false);
-	// const [ultimate, setUlitimate] = useState<boolean>(false);
+	const [subZeroSpecial, setSubZeroSpecial] = useState<boolean>(false);
+	const [raidenSpecial, setRaidenSpecial] = useState<boolean>(false);
 
-	const [subZeroUlt, setSubZeroUlt] = useState<boolean>(false);
-	const [freeze, setFreeze] = useState<boolean>(false);
-	const [lightning, setLightning] = useState<boolean>(false);
-	const [mirage, setMirage] = useState<boolean>(false);
+	// Regular random abilities
+	const [abilityFreeze, setAbilityFreeze] = useState<boolean>(false);
+	const [abilityMirage, setAbilityMirage] = useState<boolean>(false);
+
 	const [miragePos, setMiragePos] = useState([]);
 	//   const [timeWarp, setTimeWarp] = useState<boolean>(false);
 
@@ -584,13 +585,24 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setGameStarted(gameStatus);
 			});
 			if (abilities) {
+				// Character special abilities
 				socket.current.on('ScorpionSpecial', (event: any) => {
 					const { ScorpionSpecial } = event;
 					setScorpionSpecial(ScorpionSpecial);
 				});
-				socket.current.on('ultimateSubZero', (event: any) => {
-					const { ultimate } = event;
-					setSubZeroUlt(ultimate);
+				socket.current.on('SubZeroSpecial', (event: any) => {
+					const { SubZeroSpecial } = event;
+					setSubZeroSpecial(SubZeroSpecial);
+				});
+				socket.current.on('RaidenSpecial', (event: any) => {
+					const { RaidenSpecial } = event;
+					setRaidenSpecial(RaidenSpecial);
+				});
+
+				// random abilities / powerups
+				socket.current.on('AbilityMirage', (event: any) => {
+					const { AbilityMirage } = event;
+					setAbilityMirage(AbilityMirage);
 				});
 				socket.current.on('SoundGrenade', (event: any) => {
 					const sound = new Audio(SoundGrenade);
@@ -600,22 +612,16 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					const { ballSize } = event;
 					setBallSize(ballSize)
 				});
-				socket.current.on('mirage', (event: any) => {
-					const { mirage } = event;
-					setMirage(mirage);
-				});
 				socket.current.on('mirageUpdate', (event: any) => {
 					const { mirageUpdate } = event;
 					setMiragePos(mirageUpdate);
 				});
-				socket.current.on('freeze', (event: any) => {
-					const { freeze } = event;
-					setFreeze(freeze);
+				socket.current.on('AbilityFreeze', (event: any) => {
+					const { AbilityFreeze } = event;
+					setAbilityFreeze(AbilityFreeze);
 				});
-				socket.current.on('lightning', (event: any) => {
-					const { lightning } = event;
-					setLightning(lightning);
-				});
+
+				// checks for the game
 				socket.current.on('hasAbility', (event: any) => {
 					const { hasAbility } = event;
 					setHasAbility(hasAbility);
@@ -687,7 +693,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 				if (isGameStarted) {
 					ctx.fillStyle = backgroundColor;
-					if (lightning) {
+					if (raidenSpecial) {
 						ctx.fillRect(10, player1Position - 10, 20, 120);
 						ctx.globalAlpha = 0.1;
 					}
@@ -696,7 +702,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.globalAlpha = 1;
 					ctx.drawImage(player1Character, 10, player1Position);
 					ctx.drawImage(player2Character, 1170, player2Position);
-					if (freeze) {
+					if (abilityFreeze) {
 						ctx.globalAlpha = 0.50;
 						ctx.drawImage(iceBlock, 5, player1Position - 10, 30, 120);
 						ctx.globalAlpha = 1;
@@ -782,7 +788,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
 					ctx.stroke();
 					ctx.fillStyle = 'white';
-					if (lightning) {
+					if (raidenSpecial) {
 						ctx.globalAlpha = 0.7;
 						ctx.fillStyle = 'rgb(255, 188, 0)';
 						ctx.strokeStyle = 'rgb(255, 188, 0)';
@@ -793,7 +799,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.arc(ballPosition.x, ballPosition.y, ballSize + 12, 0, Math.PI * 2);
 						ctx.stroke();
 					}
-					if (subZeroUlt) {
+					if (subZeroSpecial) {
 						// iceBlock.addEventListener('error', () => {
 						// 	console.log("load scorpion ERROR");
 						//   });
@@ -819,7 +825,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.lineWidth = 1;
 					}
 
-					if (mirage) {
+					if (abilityMirage) {
 						ctx.globalAlpha = 0.65;
 						for (var i in miragePos) {
 							ctx.beginPath();
@@ -832,7 +838,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [render, setRender, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroUlt, iceBlock, paddle_s, paddle_sub, mirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, freeze, characterButtons, selectedCharacter, drawImages, lightning, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
+	}, [render, setRender, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, paddle_s, paddle_sub, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, drawImages, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
 
 
 
