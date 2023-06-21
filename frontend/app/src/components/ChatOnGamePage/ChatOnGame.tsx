@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import ChatonGameBody from './ChatOnGameBody';
 import ChatonGameFooter from './ChatOnGameFooter';
-import './chatWindow.css'
+import './chatGameStyle/chatWindow.css'
 
 
 interface ChatOnProps {
@@ -18,7 +18,7 @@ const ChatOnGame: React.FunctionComponent<ChatOnProps> = ({ socket }) => {
 	}, [socket, messages]);
   
 	return (
-		<div className="chatPageContainer">
+		<div className="chatWindowContainer">
 			<ChatonGameBody messages={messages} />
 			<ChatonGameFooter socket={socket} />
 		</div> 

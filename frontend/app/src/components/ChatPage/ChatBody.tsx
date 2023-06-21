@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import "../../styles/chat.css";
+import "./chatPageStyle/chat.css";
 
 interface Message {
   id: number;

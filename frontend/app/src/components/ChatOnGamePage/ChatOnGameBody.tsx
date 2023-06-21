@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import './chatWindow.css'
+import './chatGameStyle/chatWindow.css'
 
 interface Message {
 	id: number;
@@ -22,33 +22,33 @@ const ChatOnGameBody: React.FunctionComponent<ChatBodyProps> = ({ messages }) =>
 	};
   
 	return (
-	  <div className='chatMainContainer'>
-		<header className="chatMainHeader">
+	  <div className='chatWindowMainContainer'>
+		<header className="chatWindowMainHeader">
 		  <p>Chat and Play</p>
-		  <button className="leaveChatBtn" onClick={handleLeaveChat}>
+		  <button className="windowLeaveChatBtn" onClick={handleLeaveChat}>
 			Leave Chat
 		  </button>
 		</header>
   
-		<div className="messageContainer">
+		<div className="windowMessageContainer">
 		  {messages.map((message) =>
 			message.name === localStorage.getItem('userName') ? (
-			  <div className="messageChats" key={message.id}>
-				<p className="senderName">You</p>
-				<div className="messageSender">
+			  <div className="windowMessageChats" key={message.id}>
+				<p className="windowSenderName">You</p>
+				<div className="windowMessageSender">
 				  <p>{message.text}</p>
 				</div>
 			  </div>
 			) : (
-			  <div className="messageChats" key={message.id}>
+			  <div className="windowMessageChats" key={message.id}>
 				<p>{message.name}</p>
-				<div className="messageRecipient">
+				<div className="windowMessageRecipient">
 				  <p>{message.text}</p>
 				</div>
 			  </div>
 			)
 		  )}
-	  <div className="typing">
+	  <div className="windowTyping">
 			<p>Someone is typing...</p>
 		  </div> 
 		</div>
