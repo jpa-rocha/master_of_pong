@@ -251,9 +251,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setAbilities(false);
 				if (selectedCharacter === "Scorpion") {
 					setPlayer1Character(paddle_s);
+					// setPlayer2Character(paddle_sub);
 				}
 				else if (selectedCharacter === "SubZero") {
 					setPlayer1Character(paddle_sub);
+					// setPlayer2Character(paddle_s);
 				}
 				var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
 				await axios.post('/game/options', opt);
@@ -552,7 +554,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					if (playerCharacter === "SubZero")
 						setPlayer2Character(paddle_sub);
 					else if (playerCharacter === "Scorpion")
+					{
 						setPlayer2Character(paddle_s);
+						console.log("Set player 2 paddle to Scorpion");
+					}
 				});
 			}
 		}
@@ -611,8 +616,22 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
 					ctx.globalAlpha = 1;
-					ctx.drawImage(player1Character, 10, player1Position);
-					ctx.drawImage(player2Character, 1170, player2Position);
+					if (selectedGamemode !== "Regular Pong") {
+						ctx.drawImage(player1Character, 10, player1Position);
+						ctx.drawImage(player2Character, 1170, player2Position);
+					}	
+					else {
+						ctx.fillStyle = 'white';
+						ctx.fillRect(10, player1Position, 20, 100);
+						ctx.fillRect(1170, player2Position, 20, 100);
+
+						ctx.strokeStyle = 'black';
+						ctx.lineWidth = 2;
+						ctx.strokeRect(10, player1Position, 20, 100);
+						ctx.strokeRect(1170, player2Position, 20, 100);
+					}
+
+
 					if (abilityFreeze) {
 						ctx.globalAlpha = 0.50;
 						ctx.drawImage(iceBlock, 5, player1Position - 10, 30, 120);

@@ -15,9 +15,6 @@ export class GameController {
 
   @Post('options')
   createGameObject(@Body() options: Options) {
-    console.log(options.gameMode);
-    console.log(options.paddle);
-    console.log(options.character);
     this.gameService.createGameObject(options);
   }
 
