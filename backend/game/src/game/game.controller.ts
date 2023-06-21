@@ -59,7 +59,7 @@ export class GameController {
 
   @Post('ability/SubZero')
   ultSubZero() {
-    this.gameService.abFreeze();
+    this.gameService.ultSubZero();
   }
 
   @Post('ability/Raiden')
@@ -81,7 +81,7 @@ export class GameController {
 
   @Post('ability/freeze')
   Freeze() {
-    this.gameService.ultSubZero();
+    this.gameService.abFreeze();
   }
 
   @Post('ability/soundgrenade')
@@ -102,5 +102,10 @@ export class GameController {
   @Post('ability/random')
   randomAbility() {
     this.gameService.randomAbility();
+  }
+
+  @Post('ability/special')
+  specialAbility() {
+    this.gameService.specialAbility();
   }
 }

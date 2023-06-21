@@ -21,6 +21,8 @@ export class GameService {
   private mirageTimer: NodeJS.Timeout | null = null;
   private freezeTimer: NodeJS.Timeout | null = null;
   private shrinkTimer: NodeJS.Timeout | null = null;
+  private abilityTimer: NodeJS.Timeout | null = null;
+  private ultimateTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly gameGateway: GameGateway,
@@ -40,11 +42,23 @@ export class GameService {
     if (options.gameMode === 'Regular Pong')
       this.gameObject.allowAbilities = false;
     else this.gameObject.allowAbilities = true;
+    if (options.paddle === 'Small') {
+      this.player1.height = 50;
+      this.player1.width = 10;
+      this.player1.speed = 15;
+    } else if (options.paddle === 'Average Joe') {
+      this.player1.height = 100;
+    } else if (options.paddle === 'Big Pete') {
+      this.player1.height = 160;
+      this.player1.width = 32;
+      this.player1.speed = 4;
+    }
   }
 
   startGame(): void {
     this.gameGateway.server.emit('playerCharacter', {
       playerCharacter: 'Scorpion',
+      playerSize: 'Average Joe',
     });
 
     if (this.gameObject.gameStarted == true) {
@@ -167,11 +181,47 @@ export class GameService {
     this.gameGateway.server.emit('hasAbility', {
       hasAbility: false,
     });
+    let seconds = 14;
+    const abilityTimer = setInterval(() => {
+      this.gameGateway.server.emit('secondsLeft', {
+        secondsLeft: seconds,
+      });
+      if (seconds === 1) {
+        clearInterval(abilityTimer);
+        return;
+      }
+      seconds--;
+    }, 1000);
     player.ability = Math.floor(Math.random() * 5);
     setTimeout(() => {
       player.hasAbility = true;
       this.gameGateway.server.emit('hasAbility', {
         hasAbility: true,
+        ability: player.ability,
+      });
+    }, 15000);
+  }
+
+  setSpecial(player: Player): void {
+    this.player1.hasSpecial = false;
+    this.gameGateway.server.emit('hasUlt', {
+      hasUlt: false,
+    });
+    let seconds = 14;
+    const ultimateTimer = setInterval(() => {
+      this.gameGateway.server.emit('secondsLeftUlt', {
+        secondsLeftUlt: seconds,
+      });
+      if (seconds === 1) {
+        clearInterval(ultimateTimer);
+        return;
+      }
+      seconds--;
+    }, 1000);
+    setTimeout(() => {
+      player.hasSpecial = true;
+      this.gameGateway.server.emit('hasUlt', {
+        hasUlt: true,
       });
     }, 15000);
   }
@@ -184,17 +234,17 @@ export class GameService {
     this.gameObject.timeWarp = true;
   }
 
-  ultSubZero(): void {
+  abFreeze(): void {
     this.gameObject.freeze = true;
-    this.gameGateway.server.emit('SubZeroSpecial', {
-      SubZeroSpecial: true,
+    this.gameGateway.server.emit('AbilityFreeze', {
+      AbilityFreeze: true,
     });
   }
 
-  abFreeze(): void {
+  ultSubZero(): void {
     this.player1.freeze = true;
-    this.gameGateway.server.emit('AbilityFreeze', {
-      AbilityFreeze: true,
+    this.gameGateway.server.emit('SubZeroSpecial', {
+      SubZeroSpecial: true,
     });
   }
 
@@ -232,7 +282,7 @@ export class GameService {
       this.gameGateway.server.emit('BallSize', {
         ballSize: this.gameObject.ballSize,
       });
-    }, 3000);
+    }, 10000);
   }
 
   ballReset(): void {
@@ -249,7 +299,7 @@ export class GameService {
         ballSize: this.gameObject.ballSize,
       });
       this.shrinkTimer = null;
-    }, 3000);
+    }, 10000);
   }
 
   randomAbility(): void {
@@ -258,7 +308,7 @@ export class GameService {
       if (this.player1.ability === 0) {
         this.ballReset();
       } else if (this.player1.ability === 1) {
-        this.ultSubZero();
+        this.abFreeze();
       } else if (this.player1.ability === 2) {
         this.SoundGrenade();
       } else if (this.player1.ability === 3) {
@@ -267,6 +317,19 @@ export class GameService {
         this.abMirage();
       }
       this.setAbility(this.player1);
+    }
+  }
+
+  specialAbility(): void {
+    if (this.player1.hasSpecial) {
+      console.log('Special ability');
+      if (this.gameObject.gameOptions.character === 'Scorpion')
+        this.ultScorpion();
+      else if (this.gameObject.gameOptions.character === 'SubZero')
+        this.ultSubZero();
+      else if (this.gameObject.gameOptions.character === 'Raiden')
+        this.abLightning();
+      this.setSpecial(this.player1);
     }
   }
 
@@ -319,7 +382,7 @@ export class GameService {
     return false;
   }
 
-  private abilitySubZero() {
+  private abilityFreeze() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.freeze == true) {
       if (this.szTimer) {
@@ -334,8 +397,8 @@ export class GameService {
       this.szTimer = setTimeout(() => {
         this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
         this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
-        this.gameGateway.server.emit('SubZeroSpecial', {
-          SubZeroSpecial: false,
+        this.gameGateway.server.emit('AbilityFreeze', {
+          AbilityFreeze: false,
         });
         this.szTimer = null;
       }, 1200);
@@ -448,6 +511,7 @@ export class GameService {
   }
 
   private moveBall(): void {
+    // return;
     if (this.gameObject.gameStarted == false) return;
 
     // // Time Warp
@@ -482,13 +546,13 @@ export class GameService {
         this.freezeTimer = setTimeout(() => {
           this.player1.freeze = false;
           this.freezeTimer = null;
-          this.gameGateway.server.emit('AbilityFreeze', {
-            AbilityFreeze: false,
+          this.gameGateway.server.emit('SubZeroSpecial', {
+            SubZeroSpecial: false,
           });
         }, 1200);
       }
     }
-    this.abilitySubZero();
+    this.abilityFreeze();
     this.abilityScorpion();
     this.abilityLightning();
     // Ball movement implementation

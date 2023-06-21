@@ -4,8 +4,6 @@ import io, { Socket } from "socket.io-client"
 import { Button, Options } from './Canvas'
 import GetOverHere from '../../sounds/getOverHere.mp3'
 import SoundGrenade from '../../sounds/Sound_Grenade.mp3'
-import paddle_scorpion from '../../images/scorpion_paddle.png'
-import paddle_subzero from '../../images/subzero_paddle.png'
 import big_paddle from "../../images/BigPaddle.png"
 import regular_paddle from "../../images/RegularPaddle.png"
 import small_paddle from "../../images/SmallPaddle.png"
@@ -19,7 +17,21 @@ import right_full from '../../images/HealthBar/RightFull.png'
 import icon_Background from '../../images/HealthBar/icon.png'
 import icon_Symbol from '../../images/HealthBar/health.png'
 import health_text from '../../images/HealthBar/healthText.png'
+import paddle_scorpion from '../../images/scorpion_paddle.png'
+import paddle_subzero from '../../images/subzero_paddle.png'
+import paddle_BigSubZero from '../../images/BigSubZero.png'
+import paddle_SmallSubZero from '../../images/SmallSubZero.png'
+import paddle_BigScorpion from '../../images/BigScorpion.png'
+import paddle_SmallScorpion from '../../images/SmallScorpion.png'
 import masterLogo from '../../images/logo.png'
+import SubZeroSpecialImage from '../../images/Abilities/SubZeroSpecial.png'
+import RaidenSpecialImage from '../../images/Abilities/RaidenSpecial.png'
+import ScorpionSpecialImage from '../../images/Abilities/ScorpionSpecial.png'
+import MirageAbilityImage from '../../images/Abilities/MirageAbility.png'
+import FreezeAbilityImage from '../../images/Abilities/FreezeAbility.png'
+import BiggerBallAbilityImage from '../../images/Abilities/BiggerBallAbility.png'
+import SmallerBallAbilityImage from '../../images/Abilities/SmallerBallAbility.png'
+import SoundGrenadeAbilityImage from '../../images/Abilities/SoundGrenadeAbility.png'
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -32,27 +44,43 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		img.src = src;
 		return img;
 	}
-	const paddle_s			= useMemo(() => createImage(paddle_scorpion), []);
-	const paddle_sub		= useMemo(() => createImage(paddle_subzero), []);
-	const iceBlock			= useMemo(() => createImage(ice_block), []);
-	const paddle_small		= useMemo(() => createImage(small_paddle), []);
-	const paddle_regular	= useMemo(() => createImage(regular_paddle), []);
-	const paddle_big		= useMemo(() => createImage(big_paddle), []);
-	const left_bar			= useMemo(() => createImage(left_empty), []);
-	const mid_bar			= useMemo(() => createImage(mid_empty), []);
-	const right_bar			= useMemo(() => createImage(right_empty), []);
-	const left_health		= useMemo(() => createImage(left_full), []);
-	const mid_health		= useMemo(() => createImage(mid_full), []);
-	const right_health		= useMemo(() => createImage(right_full), []);
-	const iconBackground	= useMemo(() => createImage(icon_Background), []);
-	const icon				= useMemo(() => createImage(icon_Symbol), []);
-	const healthText		= useMemo(() => createImage(health_text), []);
-	const logo				= useMemo(() => createImage(masterLogo), []);
+	const paddle_s				= useMemo(() => createImage(paddle_scorpion), []);
+	const paddle_bigs			= useMemo(() => createImage(paddle_BigScorpion), []);
+	const paddle_smalls			= useMemo(() => createImage(paddle_SmallScorpion), []);
+	const paddle_sub			= useMemo(() => createImage(paddle_subzero), []);
+	const paddle_bigsub			= useMemo(() => createImage(paddle_BigSubZero), []);
+	const paddle_smallsub		= useMemo(() => createImage(paddle_SmallSubZero), []);
+	const iceBlock				= useMemo(() => createImage(ice_block), []);
+	const paddle_small			= useMemo(() => createImage(small_paddle), []);
+	const paddle_regular		= useMemo(() => createImage(regular_paddle), []);
+	const paddle_big			= useMemo(() => createImage(big_paddle), []);
+	const left_bar				= useMemo(() => createImage(left_empty), []);
+	const mid_bar				= useMemo(() => createImage(mid_empty), []);
+	const right_bar				= useMemo(() => createImage(right_empty), []);
+	const left_health			= useMemo(() => createImage(left_full), []);
+	const mid_health			= useMemo(() => createImage(mid_full), []);
+	const right_health			= useMemo(() => createImage(right_full), []);
+	const iconBackground		= useMemo(() => createImage(icon_Background), []);
+	const icon					= useMemo(() => createImage(icon_Symbol), []);
+	const healthText			= useMemo(() => createImage(health_text), []);
+	const logo					= useMemo(() => createImage(masterLogo), []);
+	const SubZeroSpecial		= useMemo(() => createImage(SubZeroSpecialImage), []);
+	const RaidenSpecial			= useMemo(() => createImage(RaidenSpecialImage), []);
+	const ScorpionSpecial		= useMemo(() => createImage(ScorpionSpecialImage), []);
+	const MirageAbility			= useMemo(() => createImage(MirageAbilityImage), []);
+	const FreezeAbility			= useMemo(() => createImage(FreezeAbilityImage), []);
+	const BiggerBallAbility		= useMemo(() => createImage(BiggerBallAbilityImage), []);
+	const SmallerBallAbility	= useMemo(() => createImage(SmallerBallAbilityImage), []);
+	const SoundGrenadeAbility	= useMemo(() => createImage(SoundGrenadeAbilityImage), []);
 	
+	const [player1Size, setPlayer1Size] = useState<{width: number, height: number}>({ width: 20, height: 100})
+	const [player2Size, setPlayer2Size] = useState<{width: number, height: number}>({ width: 20, height: 100})
 	const [player1Position, setPlayer1Position] = useState<number>(250);
 	const [player2Position, setPlayer2Position] = useState<number>(250);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
 	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
+	const [playerAbility, setPlayerAbility] = useState<HTMLImageElement>(new Image());
+	const [playerUlt, setPlayerUlt] = useState<HTMLImageElement>(new Image());
 	const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
 	const [ballSize, setBallSize] = useState<number>(15);
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
@@ -62,6 +90,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [arrowUp, setArrowUp] = useState<boolean>(false);
 	const [abilities, setAbilities] = useState<boolean>(false);
 	const [hasAbility, setHasAbility] = useState<boolean>(true);
+	const [hasUlt, setHasUlt] = useState<boolean>(true);
+
+	const [secondsLeft, setSecondsLeft] = useState<number>(15);
+	const [secondsLeftUlt, setSecondsLeftUlt] = useState<number>(15);
 
 	// Character special abilities
 	const [scorpionSpecial, setScorpionSpecial] = useState<boolean>(false);
@@ -103,7 +135,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const paddleButtons = useMemo(() => {
-		var SmallPaddle:Button = new Button("Small Paddle", {x:200, y:50}, {x:30, y:220});
+		var SmallPaddle:Button = new Button("Small", {x:200, y:50}, {x:30, y:220});
 		var RegularPaddle:Button = new Button("Average Joe", {x:200, y:50}, {x:300, y:220});
 		var BigPaddle:Button = new Button("Big Pete", {x:200, y:50}, {x:570, y:220});
 		if (canvas)
@@ -175,7 +207,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	const drawImages = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: string = "") => {
 		var image: HTMLImageElement;
-		if (button.name === "Small Paddle")
+		if (button.name === "Small")
 			image = paddle_small;
 		else if (button.name === "Average Joe")
 			image = paddle_regular;
@@ -250,11 +282,41 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				else
 					setAbilities(false);
 				if (selectedCharacter === "Scorpion") {
-					setPlayer1Character(paddle_s);
+					setPlayerUlt(ScorpionSpecial);
+					if (selectedPaddle === "Small")
+					{
+						setPlayer1Character(paddle_smalls);
+						setPlayer1Size({width: 10, height: 50});
+					}
+					else if (selectedPaddle === "Average Joe")
+					{
+						setPlayer1Character(paddle_s);
+						setPlayer1Size({width: 20, height: 100});
+					}
+					else if (selectedPaddle === "Big Pete")
+					{
+						setPlayer1Character(paddle_bigs);
+						setPlayer1Size({width: 32, height: 160});
+					}
 					// setPlayer2Character(paddle_sub);
 				}
 				else if (selectedCharacter === "SubZero") {
-					setPlayer1Character(paddle_sub);
+					setPlayerUlt(SubZeroSpecial);
+					if (selectedPaddle === "Small")
+					{
+						setPlayer1Character(paddle_smallsub);
+						setPlayer1Size({width: 10, height: 50});
+					}
+					else if (selectedPaddle === "Average Joe")
+					{
+						setPlayer1Character(paddle_sub);
+						setPlayer1Size({width: 20, height: 100});
+					}
+					else if (selectedPaddle === "Big Pete")
+					{
+						setPlayer1Character(paddle_bigsub);
+						setPlayer1Size({width: 32, height: 160});
+					}
 					// setPlayer2Character(paddle_s);
 				}
 				var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
@@ -359,7 +421,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				return;
 			}
 		}
-	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, drawImages, paddle_s, paddle_sub]);
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, drawImages, paddle_s, paddle_sub, paddle_bigs, paddle_bigsub, paddle_smalls, paddle_smallsub, ScorpionSpecial, SubZeroSpecial]);
 	
 
 	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, clear: boolean = false) {
@@ -406,7 +468,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 		const executeAbility = async (abilityName: string, endpoint: string) => {
 			try {
-				if (abilityName === "ScorpionSpecial") {
+				if (abilityName === "ScorpionSpecial" ||( abilityName === "Special Ability" && selectedCharacter === "Scorpion" && hasUlt)) {
 					const sound = new Audio(GetOverHere);
 					sound.play();
 				}
@@ -462,10 +524,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			executeAbility("Freeze", "freeze");
 		else if (event.key === 'm')
 			executeAbility("Mirage", "mirage");
-		else if (event.key === 'a')
+		else if (event.key === 's')
 			executeAbility("Random Ability", "random");
+		else if (event.key === 'a')
+			executeAbility("Special Ability", "special")
+
+		
 	
-	}, [arrowDown, arrowUp, abilities]);
+	}, [arrowDown, arrowUp, abilities, selectedCharacter, hasUlt]);
 
 	useEffect(() => {
 		socket.current = io('http://localhost:8002');
@@ -509,6 +575,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			});
 			if (abilities) {
 				// Character special abilities
+				socket.current.on('secondsLeft', (event: any) => {
+					const { secondsLeft } = event;
+					setSecondsLeft(secondsLeft);
+				});
+				socket.current.on('secondsLeftUlt', (event: any) => {
+					const { secondsLeftUlt } = event;
+					setSecondsLeftUlt(secondsLeftUlt);
+				});
 				socket.current.on('ScorpionSpecial', (event: any) => {
 					const { ScorpionSpecial } = event;
 					setScorpionSpecial(ScorpionSpecial);
@@ -546,22 +620,78 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 				// checks for the game
 				socket.current.on('hasAbility', (event: any) => {
-					const { hasAbility } = event;
+					const { hasAbility, ability } = event;
 					setHasAbility(hasAbility);
+					setSecondsLeft(15);
+					switch(ability) {
+						case 0:
+							setPlayerAbility(SmallerBallAbility);
+							break;
+						case 1:
+							setPlayerAbility(FreezeAbility);
+							break;
+						case 2:
+							setPlayerAbility(SoundGrenadeAbility);
+							break;
+						case 3:
+							setPlayerAbility(BiggerBallAbility);
+							break;
+						case 4:
+							setPlayerAbility(MirageAbility);
+							break;
+						case 5:
+							break;
+					}
+				});
+				socket.current.on('hasUlt', (event: any) => {
+					const { hasUlt } = event;
+					setHasUlt(hasUlt);
+					setSecondsLeftUlt(15);
 				});
 				socket.current.on('playerCharacter', (event: any) => {
-					const { playerCharacter } = event;
-					if (playerCharacter === "SubZero")
-						setPlayer2Character(paddle_sub);
+					const { playerCharacter, playerSize } = event;
+					if (playerCharacter === "Scorpion")
+					{
+						if (playerSize === "Small")
+						{
+							setPlayer2Character(paddle_smalls);
+							setPlayer2Size({width: 10, height: 50});
+						}
+						else if (playerSize === "Average Joe")
+						{
+							setPlayer2Character(paddle_s);
+							setPlayer2Size({width: 20, height: 100});
+						}
+						else if (playerSize === "Big Pete")
+						{
+							setPlayer2Character(paddle_bigs);
+							setPlayer2Size({width: 32, height: 160});
+						}
+						console.log("Set player 2 paddle to Scorpion");
+					}
 					else if (playerCharacter === "Scorpion")
 					{
-						setPlayer2Character(paddle_s);
+						if (playerSize === "Small")
+						{
+							setPlayer2Character(paddle_smallsub);
+							setPlayer2Size({width: 10, height: 50});
+						}
+						else if (playerSize === "Average Joe")
+						{
+							setPlayer2Character(paddle_sub);
+							setPlayer2Size({width: 20, height: 100});
+						}
+						else if (playerSize === "Big Pete")
+						{
+							setPlayer2Character(paddle_bigsub);
+							setPlayer2Size({width: 32, height: 160});
+						}
 						console.log("Set player 2 paddle to Scorpion");
 					}
 				});
 			}
 		}
-	}, [abilities, hasAbility, paddle_s, paddle_sub]);
+	}, [abilities, hasAbility, paddle_s, paddle_sub, paddle_bigs, paddle_smalls, paddle_bigsub, paddle_smallsub, BiggerBallAbility, MirageAbility, SmallerBallAbility, FreezeAbility, SoundGrenadeAbility]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
@@ -619,6 +749,18 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					if (selectedGamemode !== "Regular Pong") {
 						ctx.drawImage(player1Character, 10, player1Position);
 						ctx.drawImage(player2Character, 1170, player2Position);
+						if (hasUlt)
+							ctx.drawImage(playerUlt, 100, 700, 50, 50);
+						else {
+							ctx.font = '35px Arial';
+							ctx.fillText(`${secondsLeftUlt}`, 120, 725);
+						}
+						if (hasAbility)
+							ctx.drawImage(playerAbility, 150, 700, 50, 50);
+						else {
+							ctx.font = '35px Arial';
+							ctx.fillText(`${secondsLeft}`, 170, 725);
+						}
 					}	
 					else {
 						ctx.fillStyle = 'white';
@@ -632,23 +774,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}
 
 
-					if (abilityFreeze) {
+					if (subZeroSpecial) {
 						ctx.globalAlpha = 0.50;
-						ctx.drawImage(iceBlock, 5, player1Position - 10, 30, 120);
+						ctx.drawImage(iceBlock, 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
 						ctx.globalAlpha = 1;
 					}
 			
 					if (abilities) {
-						if (hasAbility) {
-							ctx.font = '20px Arial';
-							ctx.fillStyle = 'white';
-							ctx.fillText(`Ability ready to use`, canvas.width / 2, 75);
-						}
-						else {
-							ctx.font = '20px Arial';
-							ctx.fillStyle = 'red';
-							ctx.fillText(`Ability isn't ready yet`, canvas.width / 2, 75);
-						}
 						// p1 health border
 						ctx.drawImage(healthText, 185, 60, 140, 25);
 						ctx.font = '20px Arial';
@@ -721,7 +853,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							ctx.arc(ballPosition.x, ballPosition.y, ballSize + 12, 0, Math.PI * 2);
 							ctx.stroke();
 						}
-						if (subZeroSpecial) {
+						if (abilityFreeze) {
 							// iceBlock.addEventListener('error', () => {
 							// 	console.log("load scorpion ERROR");
 							//   });
@@ -737,7 +869,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						if (scorpionSpecial) {
 							// Draw a line between two points
 							ctx.beginPath();
-							ctx.moveTo(30, player1Position + 50);
+							ctx.moveTo(player1Size.width + 10, player1Position + player1Size.height / 2);
 							ctx.lineTo(ballPosition.x, ballPosition.y);
 							ctx.strokeStyle = 'white';
 							ctx.lineWidth = 3;
@@ -782,7 +914,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [render, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, paddle_s, paddle_sub, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, drawImages, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character]);
+	}, [render, player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, paddle_s, paddle_sub, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, drawImages, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt]);
 
 
 
