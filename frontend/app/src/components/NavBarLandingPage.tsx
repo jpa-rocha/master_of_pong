@@ -75,6 +75,10 @@ const NavBarLandingPage = () => {
     e.preventDefault();
     navigate("/game");
   }
+  function handleChat(e: React.FormEvent) {
+    e.preventDefault();
+    navigate("/chat");
+  }
 
   return (
     <Box>
@@ -131,6 +135,18 @@ const NavBarLandingPage = () => {
                 }}
               >
                 Game
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleChat}
+                sx={{
+                  background:
+                    "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
+                  color: "#000000",
+                  fontSize: "20px",
+                }}
+              >
+                Chat
               </Button>
               {/*  </Link>  */}
             </Grid>
