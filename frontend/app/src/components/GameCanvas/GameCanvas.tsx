@@ -453,7 +453,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
  		else if (event.key === 'q')
 			executeAbility("SoundGrenade", "soundgrenade");
 		else if (event.key === 'v')
-			executeAbility("BiiggerBall", "biggerball");
+			executeAbility("BiggerBall", "biggerball");
 		else if (event.key === 'b')
 			executeAbility("SmallerBall", "smallerball");
 		else if (event.key === 't')
