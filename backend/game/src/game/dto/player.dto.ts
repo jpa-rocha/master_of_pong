@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { Options } from '../movement.dto';
 import { runInThisContext } from 'vm';
 
 @Injectable()
 export class Player {
+  public id: string;
   public pos: { x: number; y: number };
   public character: HTMLImageElement;
   public height: number;
@@ -13,6 +15,7 @@ export class Player {
   public hasAbility: boolean;
   public ability: number;
   public hasSpecial: boolean;
+  public options: Options;
 
   constructor() {
     this.pos = { x: 10, y: 250 };
@@ -32,12 +35,14 @@ export class Player {
     height: number,
     width: number,
     speed: number,
+    options: Options,
   ): void {
     this.pos.x = x;
     this.pos.y = y;
     this.height = height;
     this.width = width;
     this.speed = speed;
+    this.options = options;
   }
 
   public resetPos(height: number) {

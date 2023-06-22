@@ -35,10 +35,10 @@ export class gameObject {
   public player1: Player;
   // player2
   public player2: Player;
-  constructor() {
+  constructor(player: Player) {
     // const uuidv4 = require('uuid/v4');
     // gameID = uuidv4();
-    this.allowAbilities = true;
+    this.allowAbilities = false;
     this.Width = 1200;
     this.Height = 800;
     this.ballSize = 15;
@@ -55,6 +55,14 @@ export class gameObject {
     this.mirage = false;
     this.mirageBallsPos = [];
     this.mirageBallsVel = [];
+    this.player1 = player;
+    this.player2 = null;
+    this.gameOptions = player.options;
+    if (
+      this.gameOptions.gameMode === 'SinglePlayer' ||
+      this.gameOptions.gameMode === 'Master Of Pong'
+    )
+      this.allowAbilities = true;
   }
 
   default() {
@@ -64,7 +72,11 @@ export class gameObject {
     this.gameStarted = false;
   }
 
-  setGameOptions(gameOptions: Options) {
-    this.gameOptions = gameOptions;
+  // setGameOptions(gameOptions: Options) {
+  //   this.gameOptions = gameOptions;
+  // }
+
+  setPlayer2(player: Player) {
+    this.player2 = player;
   }
 }

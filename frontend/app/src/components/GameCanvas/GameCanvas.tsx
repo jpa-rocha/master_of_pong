@@ -135,15 +135,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const paddleButtons = useMemo(() => {
-		var SmallPaddle:Button = new Button("Small", {x:200, y:50}, {x:30, y:220});
-		var RegularPaddle:Button = new Button("Average Joe", {x:200, y:50}, {x:300, y:220});
-		var BigPaddle:Button = new Button("Big Pete", {x:200, y:50}, {x:570, y:220});
+		var SmallPaddle:Button = new Button("Small", {x:200, y:50}, {x:30, y:190});
+		var RegularPaddle:Button = new Button("Average Joe", {x:200, y:50}, {x:300, y:190});
+		var BigPaddle:Button = new Button("Big Pete", {x:200, y:50}, {x:570, y:190});
 		if (canvas)
 		{
 			console.log("Scaling the buttons");
-			SmallPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:30 * canvas.width / 800, y:220 * canvas.height / 600});
-			RegularPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:300 * canvas.width / 800, y:220 * canvas.height / 600});
-			BigPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:570 * canvas.width / 800, y:220 * canvas.height / 600});
+			SmallPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:30 * canvas.width / 800, y:190 * canvas.height / 600});
+			RegularPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:300 * canvas.width / 800, y:190 * canvas.height / 600});
+			BigPaddle.setSizeLocation({x:200 * canvas.width / 800, y:100 * canvas.height / 600}, {x:570 * canvas.width / 800, y:190 * canvas.height / 600});
 		}
 		return [SmallPaddle, RegularPaddle, BigPaddle];
 	}, [canvas]);
@@ -161,7 +161,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	const handleStartGame = async () => {
 		try {
-			await axios.post('/game/start');
+			//await axios.post('/game/start');
+			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
+			console.log('Socket:', socket.current);
+			socket.current?.emit('start', opt);
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
@@ -723,9 +726,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.textAlign = 'center';
 					ctx.textBaseline = 'middle';
 
-					ctx.fillText(`Gamemode`, canvas.width / 2, 30);
-					ctx.fillText(`Paddle`, canvas.width / 2, 180);
-					ctx.fillText(`Character`, canvas.width / 2, 330);
+					ctx.fillText(`Gamemode`, canvas.width / 2, 50);
+					ctx.fillText(`Paddle`, canvas.width / 2, 210);
+					ctx.fillText(`Character`, canvas.width / 2, 440);
 
 					for (var index in gamemodeButtons) {
 						drawButton(ctx, gamemodeButtons[index], selectedGamemode);

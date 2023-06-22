@@ -1,10 +1,14 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { GameService } from './game.service';
 import { Options } from './movement.dto';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    @Inject(forwardRef(() => GameService))
+    private readonly gameService: GameService,
+  ) {}
 
   // GAME --------------------------------------------
 
@@ -19,14 +23,16 @@ export class GameController {
   }
 
   @Post('start')
-  startGame() {
-    this.gameService.startGame();
+  startGame(@Body() client_id: string, options: Options) {
+    this.gameService.startGame(client_id, options);
   }
 
   @Post('stop')
   stopGame() {
     this.gameService.stopGame();
   }
+
+  // MATCHMAKING -------------------------------------
 
   // MOVEMENT ----------------------------------------
 

@@ -3,6 +3,8 @@ import { GameGateway } from './game.gateway';
 import { Player } from './dto/player.dto';
 import { Options } from './movement.dto';
 import { gameObject } from './dto/gameObject';
+import { gameCollection } from './gameCollection';
+import { forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class GameService {
@@ -24,11 +26,14 @@ export class GameService {
   private abilityTimer: NodeJS.Timeout | null = null;
   private ultimateTimer: NodeJS.Timeout | null = null;
 
+  private gameObject = new gameObject();
+  private gameCollection = new gameCollection();
+  private player1 = new Player();
+  private player2 = new Player();
+
   constructor(
+    @Inject(forwardRef(() => GameGateway))
     private readonly gameGateway: GameGateway,
-    @Inject('gameObject') private readonly gameObject: gameObject,
-    @Inject('Player1') private readonly player1: Player,
-    @Inject('Player2') private readonly player2: Player,
   ) {}
 
   gameStatus(): void {
@@ -38,7 +43,7 @@ export class GameService {
   }
 
   createGameObject(options: Options): void {
-    this.gameObject.setGameOptions(options);
+    // this.gameObject.setGameOptions(options);
     if (options.gameMode === 'Regular Pong')
       this.gameObject.allowAbilities = false;
     else this.gameObject.allowAbilities = true;
@@ -55,11 +60,40 @@ export class GameService {
     }
   }
 
-  startGame(): void {
+  startGame(client_id: string, options: Options): void {
     this.gameGateway.server.emit('playerCharacter', {
       playerCharacter: 'Scorpion',
       playerSize: 'Average Joe',
     });
+
+    // player
+    const newPlayer = new Player();
+    newPlayer.options = options;
+    newPlayer.id = client_id;
+    if (options.paddle === 'Small') {
+      newPlayer.height = 50;
+      newPlayer.width = 10;
+      newPlayer.speed = 15;
+    } else if (options.paddle === 'Average Joe') {
+      newPlayer.height = 100;
+      newPlayer.width = 20;
+      newPlayer.speed = 10;
+    } else if (options.paddle === 'Big Pete') {
+      newPlayer.height = 160;
+      newPlayer.width = 32;
+      newPlayer.speed = 4;
+    }
+
+    let i = 0;
+    for (; i < this.gameCollection.totalGameCount; i++) {
+      if (this.gameCollection.checkAvailability(newPlayer, i)) {
+        // if this returns true, the game is ready to start
+        break;
+      }
+    }
+    if (i === this.gameCollection.totalGameCount) {
+      this.gameCollection.addGameObject(new gameObject(newPlayer));
+    }
 
     if (this.gameObject.gameStarted == true) {
       console.log('The game was already started');
@@ -68,8 +102,8 @@ export class GameService {
 
     // Starting game and initializing the players
     this.gameObject.gameStarted = true;
-    this.player1.setValues(10, 250, 100, 20, 5);
-    this.player2.setValues(1170, 250, 100, 20, 1);
+    this.player1.setValues(10, 250, 100, 20, 5, options);
+    this.player2.setValues(1170, 250, 100, 20, 1, options);
 
     this.gameGateway.server.emit('winnerUpdate', {
       winner: '',
@@ -511,7 +545,7 @@ export class GameService {
   }
 
   private moveBall(): void {
-    // return;
+    return;
     if (this.gameObject.gameStarted == false) return;
 
     // // Time Warp
