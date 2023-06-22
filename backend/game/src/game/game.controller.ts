@@ -13,18 +13,17 @@ export class GameController {
   // GAME --------------------------------------------
 
   @Get('gameStatus')
-  gameStatus() {
-    this.gameService.gameStatus();
-  }
+  // gameStatus() {
+  //   this.gameService.gameStatus();
+  // }
 
-  @Post('options')
-  createGameObject(@Body() options: Options) {
-    this.gameService.createGameObject(options);
-  }
-
+  // @Post('options')
+  // createGameObject(@Body() options: Options) {
+  //   this.gameService.createGameObject(options);
+  // }
   @Post('start')
   startGame(@Body() client_id: string, options: Options) {
-    this.gameService.startGame(client_id, options);
+    this.gameService.startGame();
   }
 
   @Post('stop')
@@ -38,21 +37,25 @@ export class GameController {
 
   @Post('move/up/enable')
   moveUpEnable() {
+    //console.log('CONTROLER RECEIVED MOVING INSTRUCTIONS');
     this.gameService.moveUp();
   }
 
   @Post('move/stopup')
   stopUp() {
+    //console.log('CONTROLER RECEIVED MOVING INSTRUCTIONS');
     this.gameService.stopUp();
   }
 
   @Post('move/down')
   moveDown() {
+    //console.log('CONTROLER RECEIVED MOVING INSTRUCTIONS');
     this.gameService.moveDown();
   }
 
   @Post('move/stopdown')
   stopDown() {
+    //console.log('CONTROLER RECEIVED MOVING INSTRUCTIONS');
     this.gameService.stopDown();
   }
 

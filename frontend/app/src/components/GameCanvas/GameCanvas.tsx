@@ -424,7 +424,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				return;
 			}
 		}
-	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, drawImages, paddle_s, paddle_sub, paddle_bigs, paddle_bigsub, paddle_smalls, paddle_smallsub, ScorpionSpecial, SubZeroSpecial]);
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, drawImages, paddle_s, paddle_sub, paddle_bigs, paddle_bigsub, paddle_smalls, paddle_smallsub, ScorpionSpecial, SubZeroSpecial, handleStartGame]);
 	
 
 	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, clear: boolean = false) {
@@ -553,6 +553,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	useEffect(() => {
 		if (socket.current) {
 			socket.current.on('ballUpdate', (event: any) => {
+				console.log("Got the ball position update");
 				const { ball } = event;
 				setBallPosition(ball);
 			});

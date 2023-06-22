@@ -1,9 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GameGateway } from './game.gateway';
 import { Player } from './dto/player.dto';
 import { Options } from './movement.dto';
 import { gameObject } from './dto/gameObject';
-import { gameCollection } from './gameCollection';
+import { GameCollection } from './gameCollection';
 import { forwardRef } from '@nestjs/common';
 
 @Injectable()
@@ -17,6 +16,7 @@ export class GameService {
   private pressUp = 0;
   private pressDown = 0;
   private freezeBot = false;
+  private testTemp = 0;
 
   private szTimer: NodeJS.Timeout | null = null;
   private timeWarpTimer: NodeJS.Timeout | null = null;
@@ -26,99 +26,57 @@ export class GameService {
   private abilityTimer: NodeJS.Timeout | null = null;
   private ultimateTimer: NodeJS.Timeout | null = null;
 
-  private gameObject = new gameObject();
-  private gameCollection = new gameCollection();
-  private player1 = new Player();
-  private player2 = new Player();
+  private gameCollection = new GameCollection();
 
-  constructor(
-    @Inject(forwardRef(() => GameGateway))
-    private readonly gameGateway: GameGateway,
-  ) {}
+  constructor(private readonly gameObject: gameObject) {}
 
-  gameStatus(): void {
-    this.gameGateway.server.emit('gameStatus', {
-      gameStatus: this.gameObject.gameStarted,
-    });
-  }
+  // gameStatus(): void {
+  //   this.gameGateway.server.emit('gameStatus', {
+  //     gameStatus: this.gameObject.gameStarted,
+  //   });
+  // }
+  // createGameObject(options: Options): void {
+  //   // this.gameObject.setGameOptions(options);
+  //   if (options.gameMode === 'Regular Pong')
+  //     this.gameObject.allowAbilities = false;
+  //   else this.gameObject.allowAbilities = true;
+  //   if (options.paddle === 'Small') {
+  //     this.player1.height = 50;
+  //     this.player1.width = 10;
+  //     this.player1.speed = 15;
+  //   } else if (options.paddle === 'Average Joe') {
+  //     this.player1.height = 100;
+  //   } else if (options.paddle === 'Big Pete') {
+  //     this.player1.height = 160;
+  //     this.player1.width = 32;
+  //     this.player1.speed = 4;
+  //   }
+  // }
 
-  createGameObject(options: Options): void {
-    // this.gameObject.setGameOptions(options);
-    if (options.gameMode === 'Regular Pong')
-      this.gameObject.allowAbilities = false;
-    else this.gameObject.allowAbilities = true;
-    if (options.paddle === 'Small') {
-      this.player1.height = 50;
-      this.player1.width = 10;
-      this.player1.speed = 15;
-    } else if (options.paddle === 'Average Joe') {
-      this.player1.height = 100;
-    } else if (options.paddle === 'Big Pete') {
-      this.player1.height = 160;
-      this.player1.width = 32;
-      this.player1.speed = 4;
-    }
-  }
+  // SENDING TO THE CLIENT : --------------------------------------------------------
+  // this.gameObject.sendToClients<{}>('', {});
+  // SENDING TO THE CLIENT : --------------------------------------------------------
 
-  startGame(client_id: string, options: Options): void {
-    this.gameGateway.server.emit('playerCharacter', {
+  startGame(): void {
+    console.log('GAME START FUNCTION CALLED');
+    this.gameObject.sendToClients<{
+      playerCharacter: string;
+      playerSize: string;
+    }>('playerCharacter', {
       playerCharacter: 'Scorpion',
       playerSize: 'Average Joe',
     });
 
-    // player
-    const newPlayer = new Player();
-    newPlayer.options = options;
-    newPlayer.id = client_id;
-    if (options.paddle === 'Small') {
-      newPlayer.height = 50;
-      newPlayer.width = 10;
-      newPlayer.speed = 15;
-    } else if (options.paddle === 'Average Joe') {
-      newPlayer.height = 100;
-      newPlayer.width = 20;
-      newPlayer.speed = 10;
-    } else if (options.paddle === 'Big Pete') {
-      newPlayer.height = 160;
-      newPlayer.width = 32;
-      newPlayer.speed = 4;
-    }
-
-    let i = 0;
-    for (; i < this.gameCollection.totalGameCount; i++) {
-      if (this.gameCollection.checkAvailability(newPlayer, i)) {
-        // if this returns true, the game is ready to start
-        break;
-      }
-    }
-    if (i === this.gameCollection.totalGameCount) {
-      this.gameCollection.addGameObject(new gameObject(newPlayer));
-    }
-
-    if (this.gameObject.gameStarted == true) {
-      console.log('The game was already started');
-      return;
-    }
-
-    // Starting game and initializing the players
-    this.gameObject.gameStarted = true;
-    this.player1.setValues(10, 250, 100, 20, 5, options);
-    this.player2.setValues(1170, 250, 100, 20, 1, options);
-
-    this.gameGateway.server.emit('winnerUpdate', {
-      winner: '',
-    });
-
-    // Calls the moveBall function on intervals
     if (this.ballTimer || this.botTimer) return;
     this.ballTimer = setInterval(() => {
       this.moveBall();
     }, 10);
 
-    // Calls the moveBot function on intervals
+    // if (this.gameObject.gameOptions.gameMode === 'Regular Pong') {
     this.botTimer = setInterval(() => {
       this.moveBot();
     }, 1);
+    // }
   }
 
   stopGame(): void {
@@ -139,44 +97,35 @@ export class GameService {
       this.botTimer = null;
     }
 
-    if (this.gameObject.score.p1 == 11) {
-      this.gameGateway.server.emit('winnerUpdate', {
-        winner: 'Player1 wins',
-      });
-    } else if (this.gameObject.score.p2 == 11) {
-      this.gameGateway.server.emit('winnerUpdate', {
-        winner: 'Player2 wins',
-      });
-    }
-
     // Reset player, ball and score
     this.gameObject.default();
-    this.player1.resetPos(this.gameObject.Height);
-    this.player2.resetPos(this.gameObject.Height);
-    this.gameGateway.server.emit('player1Update', {
-      player1: this.player1.pos.y,
+    this.gameObject.player1.resetPos(this.gameObject.Height);
+    this.gameObject.player2.resetPos(this.gameObject.Height);
+
+    this.gameObject.sendToClients<{ player1: number }>('player1Update', {
+      player1: this.gameObject.player1.pos.y,
     });
-    this.gameGateway.server.emit('player2Update', {
-      player2: this.player2.pos.y,
+    this.gameObject.sendToClients<{ player2: number }>('player2Update', {
+      player2: this.gameObject.player2.pos.y,
     });
-    this.gameGateway.server.emit('ballUpdate', {
-      ball: this.gameObject.ballPos,
-    });
-    this.gameGateway.server.emit('scoreUpdate', {
-      score: this.gameObject.score,
-    });
-    this.gameGateway.server.emit('gameStatus', {
+    this.gameObject.sendToClients<{ ball: { x: number; y: number } }>(
+      'ballUpdate',
+      {
+        ball: this.gameObject.ballPos,
+      },
+    );
+    this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
+      'player2Update',
+      {
+        score: this.gameObject.score,
+      },
+    );
+    this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,
     });
   }
 
   moveUpEnable(): void {
-    // if (this.gameObject.gameStarted == false) return;
-    // this.player1.pos.y -= this.player1.speed;
-    // if (this.player1.pos.y < 0) this.player1.pos.y = 0;
-    // this.gameGateway.server.emit('player1Update', {
-    //   player1: this.player1.pos.y,
-    // });
     if (this.moveUpTimer) return;
     this.moveUpTimer = setInterval(() => {
       this.moveUp();
@@ -211,13 +160,14 @@ export class GameService {
   }
 
   setAbility(player: Player): void {
-    this.player1.hasAbility = false;
-    this.gameGateway.server.emit('hasAbility', {
+    this.gameObject.player1.hasAbility = false;
+    this.gameObject.sendToClients<{ hasAbility: boolean }>('hasAbility', {
       hasAbility: false,
     });
+
     let seconds = 14;
     const abilityTimer = setInterval(() => {
-      this.gameGateway.server.emit('secondsLeft', {
+      this.gameObject.sendToClients<{ secondsLeft: number }>('secondsLeft', {
         secondsLeft: seconds,
       });
       if (seconds === 1) {
@@ -229,23 +179,25 @@ export class GameService {
     player.ability = Math.floor(Math.random() * 5);
     setTimeout(() => {
       player.hasAbility = true;
-      this.gameGateway.server.emit('hasAbility', {
-        hasAbility: true,
-        ability: player.ability,
-      });
+      this.gameObject.sendToClients<{ hasAbility: boolean; ability: number }>(
+        'hasAbility',
+        { hasAbility: true, ability: player.ability },
+      );
     }, 15000);
   }
 
   setSpecial(player: Player): void {
-    this.player1.hasSpecial = false;
-    this.gameGateway.server.emit('hasUlt', {
+    this.gameObject.player1.hasSpecial = false;
+
+    this.gameObject.sendToClients<{ hasUlt: boolean }>('hasUlt', {
       hasUlt: false,
     });
     let seconds = 14;
     const ultimateTimer = setInterval(() => {
-      this.gameGateway.server.emit('secondsLeftUlt', {
-        secondsLeftUlt: seconds,
-      });
+      this.gameObject.sendToClients<{ secondsLeftUlt: number }>(
+        'secondsLeftUlt',
+        { secondsLeftUlt: seconds },
+      );
       if (seconds === 1) {
         clearInterval(ultimateTimer);
         return;
@@ -254,14 +206,14 @@ export class GameService {
     }, 1000);
     setTimeout(() => {
       player.hasSpecial = true;
-      this.gameGateway.server.emit('hasUlt', {
+      this.gameObject.sendToClients<{ hasUlt: boolean }>('hasUlt', {
         hasUlt: true,
       });
     }, 15000);
   }
 
   ultScorpion(): void {
-    this.player1.getOverHere = true;
+    this.gameObject.player1.getOverHere = true;
   }
 
   abTimeWarp(): void {
@@ -270,50 +222,56 @@ export class GameService {
 
   abFreeze(): void {
     this.gameObject.freeze = true;
-    this.gameGateway.server.emit('AbilityFreeze', {
+    //this.gameObject.sendToClients<{}>('', {});
+
+    this.gameObject.sendToClients<{ AbilityFreeze: boolean }>('AbilityFreeze', {
       AbilityFreeze: true,
     });
   }
 
   ultSubZero(): void {
-    this.player1.freeze = true;
-    this.gameGateway.server.emit('SubZeroSpecial', {
-      SubZeroSpecial: true,
-    });
+    this.gameObject.player1.freeze = true;
+    this.gameObject.sendToClients<{ SubZeroSpecial: boolean }>(
+      'SubZeroSpecial',
+      {
+        SubZeroSpecial: true,
+      },
+    );
   }
 
   abLightning(): void {
     this.gameObject.lightning = true;
-    this.gameGateway.server.emit('RaidenSpecial', {
+    this.gameObject.sendToClients<{ RaidenSpecial: boolean }>('RaidenSpecial', {
       RaidenSpecial: true,
     });
   }
 
   abMirage(): void {
     this.gameObject.mirage = true;
-    this.gameGateway.server.emit('AbilityMirage', {
+    this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
       AbilityMirage: true,
     });
   }
 
   SoundGrenade(): void {
-    this.gameGateway.server.emit('SoundGrenade', {
-      player2: this.player2.pos.y,
-    });
+    // this.gameObject.clients.get(client.id);
+    this.gameObject.sendToPlayer2('SoundGrenade', {});
+    // TODO figure out how to send it to one client
+    // this.gameObject.sendToClients<{}>('SoundGrenade', {});
   }
 
   BallSize(): void {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.ballSize >= 60) return;
     this.gameObject.ballSize *= 2;
-    this.gameGateway.server.emit('BallSize', {
+    this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
     setTimeout(() => {
       if (this.gameObject.ballSize >= 15) this.gameObject.ballSize /= 2;
       if (this.gameObject.ballSize < 15 && !this.shrinkTimer)
         this.gameObject.ballSize = 15;
-      this.gameGateway.server.emit('BallSize', {
+      this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
         ballSize: this.gameObject.ballSize,
       });
     }, 10000);
@@ -324,12 +282,12 @@ export class GameService {
     if (this.gameObject.ballSize <= 6) return;
     if (this.shrinkTimer) clearTimeout(this.shrinkTimer);
     this.gameObject.ballSize /= 2;
-    this.gameGateway.server.emit('BallSize', {
+    this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
     this.shrinkTimer = setTimeout(() => {
       if (this.gameObject.ballSize < 15) this.gameObject.ballSize = 15;
-      this.gameGateway.server.emit('BallSize', {
+      this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
         ballSize: this.gameObject.ballSize,
       });
       this.shrinkTimer = null;
@@ -337,33 +295,33 @@ export class GameService {
   }
 
   randomAbility(): void {
-    if (this.player1.hasAbility) {
+    if (this.gameObject.player1.hasAbility) {
       console.log('Random ability');
-      if (this.player1.ability === 0) {
+      if (this.gameObject.player1.ability === 0) {
         this.ballReset();
-      } else if (this.player1.ability === 1) {
+      } else if (this.gameObject.player1.ability === 1) {
         this.abFreeze();
-      } else if (this.player1.ability === 2) {
+      } else if (this.gameObject.player1.ability === 2) {
         this.SoundGrenade();
-      } else if (this.player1.ability === 3) {
+      } else if (this.gameObject.player1.ability === 3) {
         this.BallSize();
-      } else if (this.player1.ability === 4) {
+      } else if (this.gameObject.player1.ability === 4) {
         this.abMirage();
       }
-      this.setAbility(this.player1);
+      this.setAbility(this.gameObject.player1);
     }
   }
 
   specialAbility(): void {
-    if (this.player1.hasSpecial) {
+    if (this.gameObject.player1.hasSpecial) {
       console.log('Special ability');
-      if (this.gameObject.gameOptions.character === 'Scorpion')
-        this.ultScorpion();
-      else if (this.gameObject.gameOptions.character === 'SubZero')
-        this.ultSubZero();
-      else if (this.gameObject.gameOptions.character === 'Raiden')
-        this.abLightning();
-      this.setSpecial(this.player1);
+      // if (this.gameObject.gameOptions.character === 'Scorpion')
+      //   this.ultScorpion();
+      // else if (this.gameObject.gameOptions.character === 'SubZero')
+      //   this.ultSubZero();
+      // else if (this.gameObject.gameOptions.character === 'Raiden')
+      //   this.abLightning();
+      this.setSpecial(this.gameObject.player1);
     }
   }
 
@@ -372,21 +330,25 @@ export class GameService {
 
     if (
       this.gameObject.ballPos.y >
-      this.player2.pos.y + this.player2.height / 2
+      this.gameObject.player2.pos.y + this.gameObject.player2.height / 2
     )
-      this.player2.pos.y += this.player2.speed;
+      this.gameObject.player2.pos.y += this.gameObject.player2.speed;
     if (
       this.gameObject.ballPos.y <
-      this.player2.pos.y + this.player2.height / 2
+      this.gameObject.player2.pos.y + this.gameObject.player2.height / 2
     )
-      this.player2.pos.y -= this.player2.speed;
+      this.gameObject.player2.pos.y -= this.gameObject.player2.speed;
 
-    if (this.player2.pos.y < 0) this.player2.pos.y = 0;
-    if (this.player2.pos.y > this.gameObject.Height - this.player2.height)
-      this.player2.pos.y = this.gameObject.Height - this.player2.height;
+    if (this.gameObject.player2.pos.y < 0) this.gameObject.player2.pos.y = 0;
+    if (
+      this.gameObject.player2.pos.y >
+      this.gameObject.Height - this.gameObject.player2.height
+    )
+      this.gameObject.player2.pos.y =
+        this.gameObject.Height - this.gameObject.player2.height;
 
-    this.gameGateway.server.emit('player2Update', {
-      player2: this.player2.pos.y,
+    this.gameObject.sendToClients<{ player2: number }>('player2Update', {
+      player2: this.gameObject.player2.pos.y,
     });
   }
 
@@ -431,9 +393,12 @@ export class GameService {
       this.szTimer = setTimeout(() => {
         this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
         this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
-        this.gameGateway.server.emit('AbilityFreeze', {
-          AbilityFreeze: false,
-        });
+        this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
+          'AbilityFreeze',
+          {
+            AbilityFreeze: false,
+          },
+        );
         this.szTimer = null;
       }, 1200);
     }
@@ -441,13 +406,13 @@ export class GameService {
 
   private abilityScorpion() {
     if (!this.gameObject.allowAbilities) return;
-    if (this.player1.getOverHere == true) {
+    if (this.gameObject.player1.getOverHere == true) {
       const speed = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
       const target = {
-        x: this.player1.pos.x + this.player1.width,
-        y: this.player1.pos.y + this.player1.height / 2,
+        x: this.gameObject.player1.pos.x + this.gameObject.player1.width,
+        y: this.gameObject.player1.pos.y + this.gameObject.player1.height / 2,
       };
       const targetVector = {
         x: target.x - this.gameObject.ballPos.x,
@@ -480,9 +445,12 @@ export class GameService {
         index++;
       }
       this.mirageTimer = setTimeout(() => {
-        this.gameGateway.server.emit('AbilityMirage', {
-          AbilityMirage: false,
-        });
+        this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
+          'AbilityMirage',
+          {
+            AbilityMirage: false,
+          },
+        );
         this.mirageTimer = null;
         this.gameObject.mirageBallsPos = [];
         this.gameObject.mirageBallsVel = [];
@@ -529,9 +497,12 @@ export class GameService {
             hypotenuse ** 2 + this.gameObject.ballVel.y ** 2,
           );
         setTimeout(() => {
-          this.gameGateway.server.emit('RaidenSpecial', {
-            RaidenSpecial: false,
-          });
+          this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
+            'RaidenSpecial',
+            {
+              RaidenSpecial: false,
+            },
+          );
           const lengthNew = Math.sqrt(
             this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
           );
@@ -545,7 +516,7 @@ export class GameService {
   }
 
   private moveBall(): void {
-    return;
+    //return;
     if (this.gameObject.gameStarted == false) return;
 
     // // Time Warp
@@ -565,24 +536,32 @@ export class GameService {
     //   }, 3000);
     // }
 
-    if (!this.player1.freeze) {
+    if (!this.gameObject.player1.freeze) {
       if (this.pressUp == 1) {
-        this.player1.pos.y -= this.player1.speed;
-        if (this.player1.pos.y < 0) this.player1.pos.y = 0;
+        this.gameObject.player1.pos.y -= this.gameObject.player1.speed;
+        if (this.gameObject.player1.pos.y < 0)
+          this.gameObject.player1.pos.y = 0;
       }
       if (this.pressDown == 1) {
-        this.player1.pos.y += this.player1.speed;
-        if (this.player1.pos.y > this.gameObject.Height - this.player1.height)
-          this.player1.pos.y = this.gameObject.Height - this.player1.height;
+        this.gameObject.player1.pos.y += this.gameObject.player1.speed;
+        if (
+          this.gameObject.player1.pos.y >
+          this.gameObject.Height - this.gameObject.player1.height
+        )
+          this.gameObject.player1.pos.y =
+            this.gameObject.Height - this.gameObject.player1.height;
       }
     } else {
       if (!this.freezeTimer) {
         this.freezeTimer = setTimeout(() => {
-          this.player1.freeze = false;
+          this.gameObject.player1.freeze = false;
           this.freezeTimer = null;
-          this.gameGateway.server.emit('SubZeroSpecial', {
-            SubZeroSpecial: false,
-          });
+          this.gameObject.sendToClients<{ SubZeroSpecial: boolean }>(
+            'SubZeroSpecial',
+            {
+              SubZeroSpecial: false,
+            },
+          );
         }, 1200);
       }
     }
@@ -623,10 +602,13 @@ export class GameService {
     // Ball interaction with player 1
     if (
       this.gameObject.ballVel.x <= 0 &&
-      this.ball_line_interaction(this.player1.pos.x + this.player1.width, {
-        max: this.player1.pos.y + this.player1.height,
-        min: this.player1.pos.y,
-      })
+      this.ball_line_interaction(
+        this.gameObject.player1.pos.x + this.gameObject.player1.width,
+        {
+          max: this.gameObject.player1.pos.y + this.gameObject.player1.height,
+          min: this.gameObject.player1.pos.y,
+        },
+      )
     ) {
       const lengthOld = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
@@ -634,21 +616,21 @@ export class GameService {
       const maxChange = 0.5;
       let change =
         this.gameObject.ballPos.y -
-        (this.player1.pos.y + this.player1.height / 2);
+        (this.gameObject.player1.pos.y + this.gameObject.player1.height / 2);
       if (Math.abs(change) > maxChange) {
         if (change > 0) change = maxChange;
         else change = maxChange * -1;
       }
       this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
       this.gameObject.ballVel.y += change;
-      this.player1.getOverHere = false;
+      this.gameObject.player1.getOverHere = false;
       this.gameObject.freeze = false;
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      let scaleFactor = lengthOld / lengthNew;
-      if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-        scaleFactor *= 1.02;
+      const scaleFactor = lengthOld / lengthNew;
+      // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
+      //   scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor * 1.01;
       this.gameObject.ballVel.y *= scaleFactor * 1.01;
     }
@@ -656,9 +638,9 @@ export class GameService {
     // Ball interaction with player 2
     if (
       this.gameObject.ballVel.x >= 0 &&
-      this.ball_line_interaction(this.player2.pos.x, {
-        max: this.player2.pos.y + this.player2.height,
-        min: this.player2.pos.y,
+      this.ball_line_interaction(this.gameObject.player2.pos.x, {
+        max: this.gameObject.player2.pos.y + this.gameObject.player2.height,
+        min: this.gameObject.player2.pos.y,
       })
     ) {
       const lengthOld = Math.sqrt(
@@ -667,7 +649,7 @@ export class GameService {
       const maxChange = 0.5;
       let change =
         this.gameObject.ballPos.y -
-        (this.player2.pos.y + this.player2.height / 2);
+        (this.gameObject.player2.pos.y + this.gameObject.player2.height / 2);
       if (Math.abs(change) > maxChange) {
         if (change > 0) change = maxChange;
         else change = maxChange * -1;
@@ -677,9 +659,9 @@ export class GameService {
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      let scaleFactor = lengthOld / lengthNew;
-      if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-        scaleFactor *= 1.02;
+      const scaleFactor = lengthOld / lengthNew;
+      // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
+      //   scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
     }
@@ -708,21 +690,33 @@ export class GameService {
             this.gameObject.mirageBallsVel[i][0] * -1;
         }
       }
-      this.gameGateway.server.emit('mirageUpdate', {
-        mirageUpdate: this.gameObject.mirageBallsPos,
-      });
+      this.gameObject.sendToClients<{ mirageUpdate: number[][] }>(
+        'mirageUpdate',
+        {
+          mirageUpdate: this.gameObject.mirageBallsPos,
+        },
+      );
     }
-    this.gameGateway.server.emit('player1Update', {
-      player1: this.player1.pos.y,
+    this.gameObject.sendToClients<{ player1: number }>('player1Update', {
+      player1: this.gameObject.player1.pos.y,
     });
-    this.gameGateway.server.emit('ballUpdate', {
-      ball: this.gameObject.ballPos,
-    });
-    this.gameGateway.server.emit('scoreUpdate', {
-      score: this.gameObject.score,
-    });
-    this.gameGateway.server.emit('ScorpionSpecial', {
-      ScorpionSpecial: this.player1.getOverHere,
-    });
+    this.gameObject.sendToClients<{ ball: { x: number; y: number } }>(
+      'ballUpdate',
+      {
+        ball: this.gameObject.ballPos,
+      },
+    );
+    this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
+      'scoreUpdate',
+      {
+        score: this.gameObject.score,
+      },
+    );
+    this.gameObject.sendToClients<{ ScorpionSpecial: boolean }>(
+      'ScorpionSpecial',
+      {
+        ScorpionSpecial: this.gameObject.player1.getOverHere,
+      },
+    );
   }
 }
