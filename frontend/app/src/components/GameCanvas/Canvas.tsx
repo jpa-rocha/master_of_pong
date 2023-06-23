@@ -1,12 +1,14 @@
 export class Button {
 	public name: string;
+	public id: number;
 	public isFocused: boolean;
 	public selected: boolean;
 	public size: {x : number, y : number};
 	public coordinates: {x : number, y : number};
 
-	constructor(name: string, size: {x: number, y: number}, coordinates: {x: number, y: number}) {
+	constructor(name: string, id: number, size: {x: number, y: number}, coordinates: {x: number, y: number}) {
 		this.name = name;
+		this.id = id;
 		this.isFocused = false;
 		this.selected = false;
 		this.size = size;
@@ -29,11 +31,11 @@ export class Button {
 }
 
 export class Options {
-	public gameMode: string;
-	public paddle: string;
-	public character: string;
+	public gameMode: number;
+	public paddle: number;
+	public character: number;
 
-	constructor (gamemode: string, paddle: string, character: string) {
+	constructor (gamemode: number, paddle: number, character: number) {
 		this.gameMode = gamemode;
 		this.paddle = paddle;
 		this.character = character;

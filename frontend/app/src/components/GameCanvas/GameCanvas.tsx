@@ -32,6 +32,9 @@ import FreezeAbilityImage from '../../images/Abilities/FreezeAbility.png'
 import BiggerBallAbilityImage from '../../images/Abilities/BiggerBallAbility.png'
 import SmallerBallAbilityImage from '../../images/Abilities/SmallerBallAbility.png'
 import SoundGrenadeAbilityImage from '../../images/Abilities/SoundGrenadeAbility.png'
+import { Mode } from './enums/Modes';
+import { Paddles } from './enums/Paddles';
+import { Character } from './enums/Characters';
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -112,18 +115,18 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const canvas = canvasRef.current;
 	const ctx = canvas?.getContext('2d');
 
-	const [selectedGamemode, setSelectedGamemode] = useState<string>("");
-	const [selectedPaddle, setSelectedPaddle] = useState<string>("");
-	const [selectedCharacter, setSelectedCharacter] = useState<string>("");
+	const [selectedGamemode, setSelectedGamemode] = useState<number>(-1);
+	const [selectedPaddle, setSelectedPaddle] = useState<number>(-1);
+	const [selectedCharacter, setSelectedCharacter] = useState<number>(-1);
 	const [render, setRender] = useState<boolean>(false);
 
 	const backgroundColor = "rgb(100, 100, 100)"
 
 	const gamemodeButtons = useMemo(() => {
-		var Singleplayer:Button = new Button("Singleplayer", {x:200, y:50}, {x:30, y:70});
-		var MasterOfPong:Button = new Button("Master Of Pong", {x:200, y:50}, {x:300, y:70});
-		var RegularPong:Button = new Button("Regular Pong", {x:200, y:50}, {x:570, y:70});
-		var GameStart:Button = new Button("Start Game", {x: 200, y:50}, {x:300, y:500});
+		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70});
+		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70});
+		var RegularPong:Button = new Button("Regular", Mode.Regular, {x:200, y:50}, {x:570, y:70});
+		var GameStart:Button = new Button("Start Game", Mode.Start, {x: 200, y:50}, {x:300, y:500});
 		if (canvas)
 		{
 			Singleplayer.setSizeLocation({x:200 * canvas.width / 800, y:50 * canvas.height / 600}, {x:30 * canvas.width / 800, y:70 * canvas.height / 600});
@@ -135,9 +138,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const paddleButtons = useMemo(() => {
-		var SmallPaddle:Button = new Button("Small", {x:200, y:50}, {x:30, y:190});
-		var RegularPaddle:Button = new Button("Average Joe", {x:200, y:50}, {x:300, y:190});
-		var BigPaddle:Button = new Button("Big Pete", {x:200, y:50}, {x:570, y:190});
+		var SmallPaddle:Button = new Button("Small", Paddles.Small, {x:200, y:50}, {x:30, y:190});
+		var RegularPaddle:Button = new Button("Average Joe", Paddles.AverageJoe, {x:200, y:50}, {x:300, y:190});
+		var BigPaddle:Button = new Button("Big Pete", Paddles.BigPete, {x:200, y:50}, {x:570, y:190});
 		if (canvas)
 		{
 			console.log("Scaling the buttons");
@@ -149,8 +152,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const characterButtons = useMemo(() => {
-		var Scorpion:Button = new Button("Scorpion", {x:20, y:100}, {x:30, y:360});
-		var SubZero:Button = new Button("SubZero", {x:20, y:100}, {x:300, y:360});
+		var Scorpion:Button = new Button("Scorpion", Character.Scorpion, {x:20, y:100}, {x:30, y:360});
+		var SubZero:Button = new Button("SubZero", Character.SubZero, {x:20, y:100}, {x:300, y:360});
 		if (canvas)
 		{
 			Scorpion.setSizeLocation({x:20 * canvas.width / 800, y:100 * canvas.height / 600}, {x:30 * canvas.width / 800, y:360 * canvas.height / 600});
@@ -159,7 +162,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		return [Scorpion, SubZero];
 	}, [canvas]);
 
-	const handleStartGame = async () => {
+	const handleStartGame = useCallback(() => {
 		try {
 			//await axios.post('/game/start');
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
@@ -168,7 +171,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
-	};
+	}, [selectedCharacter, selectedGamemode, selectedPaddle]);
 
 	const handleStopGame = async () => {
 		setGameStarted(false);
@@ -179,11 +182,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	};
 
-	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: string = "") => {
+	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: number) => {
 		const { coordinates, size, isFocused, selected: buttonSelected } = button;
 		const { x, y } = coordinates;
 		const { x: width, y: height } = size;
-		const isButtonSelected = selected.length > 0 && !buttonSelected;
+		const isButtonSelected = selected > -1 && !buttonSelected;
 
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(x, y, width, height);
@@ -208,29 +211,35 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	}, []);
 
-	const drawImages = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: string = "") => {
+	const drawImages = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: number = 0) => {
 		var image: HTMLImageElement;
-		if (button.name === "Small")
-			image = paddle_small;
-		else if (button.name === "Average Joe")
-			image = paddle_regular;
-		else if (button.name === "Big Pete")
-			image = paddle_big;
-		else if (button.name === "Scorpion")
-			image = paddle_s;
-		else //if (button.name === "SubZero")
-			image = paddle_sub;
+		switch (button.id) {
+			case Paddles.Small:
+				image = paddle_small;
+				break;
+			case Paddles.AverageJoe:
+				image = paddle_regular;
+				break;
+			case Paddles.BigPete:
+				image = paddle_big;
+				break;
+			case Character.Scorpion:
+				image = paddle_s;
+				break;
+			default:
+				image = paddle_sub;
+		}
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
 		ctx.drawImage(image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-		if (!button.isFocused && !button.selected && selected.length === 0) {
+		if (!button.isFocused && !button.selected && selected === -1) {
 			ctx.drawImage(image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
 			ctx.globalAlpha=.25;
 			ctx.fillStyle="black";
 			roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 10);
 			ctx.globalAlpha=1;
 		}
-		if (selected.length > 0 && !button.selected) {
+		if (selected > -1 && !button.selected) {
 			ctx.drawImage(image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
 			ctx.globalAlpha=.4;
 			ctx.fillStyle="black";
@@ -280,51 +289,56 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			return;
 		const gameOptions = async () => {
 			try {
-				if (selectedGamemode !== "Regular Pong")
+				if (selectedGamemode !== Mode.Regular)
 					setAbilities(true);
 				else
 					setAbilities(false);
-				if (selectedCharacter === "Scorpion") {
-					setPlayerUlt(ScorpionSpecial);
-					if (selectedPaddle === "Small")
-					{
-						setPlayer1Character(paddle_smalls);
-						setPlayer1Size({width: 10, height: 50});
-					}
-					else if (selectedPaddle === "Average Joe")
-					{
-						setPlayer1Character(paddle_s);
-						setPlayer1Size({width: 20, height: 100});
-					}
-					else if (selectedPaddle === "Big Pete")
-					{
-						setPlayer1Character(paddle_bigs);
-						setPlayer1Size({width: 32, height: 160});
-					}
-					// setPlayer2Character(paddle_sub);
+				console.log("selected character : " + selectedCharacter);
+				switch (selectedCharacter) {
+					case Character.Scorpion:
+						setPlayerUlt(ScorpionSpecial);
+						switch (selectedPaddle) {
+							case Paddles.Small:
+								setPlayer1Character(paddle_smalls);
+								console.log("Set player 1 character");
+								setPlayer1Size({width: 10, height: 50});
+								break;
+							case Paddles.AverageJoe:
+								setPlayer1Character(paddle_s);
+								console.log("Set player 1 character");
+								setPlayer1Size({width: 20, height: 100});
+								break;
+							case Paddles.BigPete:
+								setPlayer1Character(paddle_bigs);
+								console.log("Set player 1 character");
+								setPlayer1Size({width: 32, height: 160});
+						}
+						break;
+					case Character.SubZero:
+						setPlayerUlt(SubZeroSpecial);
+						switch (selectedPaddle) {
+						case Paddles.Small:
+							setPlayer1Character(paddle_smallsub);
+							console.log("Set player 1 character");
+							setPlayer1Size({width: 10, height: 50});
+							break;
+						case Paddles.AverageJoe:
+							setPlayer1Character(paddle_sub);
+							console.log("Set player 1 character");
+							setPlayer1Size({width: 20, height: 100});
+							break;
+						case Paddles.BigPete:
+							setPlayer1Character(paddle_bigsub);
+							console.log("Set player 1 character");
+							setPlayer1Size({width: 32, height: 160});
+							break;
+						}
 				}
-				else if (selectedCharacter === "SubZero") {
-					setPlayerUlt(SubZeroSpecial);
-					if (selectedPaddle === "Small")
-					{
-						setPlayer1Character(paddle_smallsub);
-						setPlayer1Size({width: 10, height: 50});
-					}
-					else if (selectedPaddle === "Average Joe")
-					{
-						setPlayer1Character(paddle_sub);
-						setPlayer1Size({width: 20, height: 100});
-					}
-					else if (selectedPaddle === "Big Pete")
-					{
-						setPlayer1Character(paddle_bigsub);
-						setPlayer1Size({width: 32, height: 160});
-					}
-					// setPlayer2Character(paddle_s);
-				}
-				var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
-				await axios.post('/game/options', opt);
-				console.log('options');
+						// setPlayer2Character(paddle_s);
+
+				// var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
+				// await axios.post('/game/options', opt);
+				// console.log('options');
 			} catch (error) {
 			console.error('Failed to send options:', error);
 			}
@@ -332,8 +346,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		for (var index in gamemodeButtons) {
 			if (checkMouseOnButton(gamemodeButtons[index], e, canvas)) {
 				if (gamemodeButtons[index].getName() === 'Start Game') {
-					if (selectedGamemode.length !== 0 && selectedPaddle && selectedCharacter.length !== 0) {
-						gameOptions();
+					if (selectedGamemode !== -1 && selectedPaddle !== -1 && selectedCharacter !== -1) {
+						// gameOptions();
+						if (selectedGamemode !== Mode.Regular)
+							setAbilities(true);
 						handleStartGame();
 						setGameStarted(true);
 						canvas.removeEventListener("mousemove", handleMouseMove);
@@ -345,23 +361,23 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.fillText("Choose game settings to continue", 400, 575);
 					}
 				}
-				else if (selectedGamemode.length !== 0) {
+				else if (selectedGamemode !== -1) {
 					if (gamemodeButtons[index].selected) {
 						gamemodeButtons[index].selected = false;
-						setSelectedGamemode("");
+						setSelectedGamemode(-1);
 					}
 					else {
 						for (var button in gamemodeButtons) {
 							if (gamemodeButtons[button].selected) {
 								gamemodeButtons[button].selected = false;
 								gamemodeButtons[index].selected = true;
-								setSelectedGamemode(gamemodeButtons[index].name);
+								setSelectedGamemode(gamemodeButtons[index].id);
 							}
 						}
 					}
 				}
 				else {
-					setSelectedGamemode(gamemodeButtons[index].name);
+					setSelectedGamemode(gamemodeButtons[index].id);
 					gamemodeButtons[index].selected = true;
 				}
 				for (var toDraw in gamemodeButtons) {
@@ -372,23 +388,23 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 		for (index in paddleButtons) {
 			if (checkMouseOnButton(paddleButtons[index], e, canvas)) {
-				if (selectedPaddle) {
+				if (selectedPaddle !== -1) {
 					if (paddleButtons[index].selected) {
 						paddleButtons[index].selected = false;
-						setSelectedPaddle("");
+						setSelectedPaddle(-1);
 					}
 					else {
 						for (button in paddleButtons) {
 							if (paddleButtons[button].selected) {
 								paddleButtons[button].selected = false;
 								paddleButtons[index].selected = true;
-								setSelectedPaddle(paddleButtons[index].name);
+								setSelectedPaddle(paddleButtons[index].id);
 							}
 						}
 					}
 				}
 				else {
-					setSelectedPaddle(paddleButtons[index].name);
+					setSelectedPaddle(paddleButtons[index].id);
 					paddleButtons[index].selected = true;
 				}
 				for (toDraw in paddleButtons) {
@@ -399,23 +415,23 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 		for (index in characterButtons) {
 			if (checkMouseOnButton(characterButtons[index], e, canvas)) {
-				if (selectedCharacter.length !== 0) {
+				if (selectedCharacter !== -1) {
 					if (characterButtons[index].selected) {
 						characterButtons[index].selected = false;
-						setSelectedCharacter("");
+						setSelectedCharacter(-1);
 					}
 					else {
 						for (button in characterButtons) {
 							if (characterButtons[button].selected) {
 								characterButtons[button].selected = false;
 								characterButtons[index].selected = true;
-								setSelectedCharacter(characterButtons[index].name);
+								setSelectedCharacter(characterButtons[index].id - 7);
 							}
 						}
 					}
 				}
 				else {
-					setSelectedCharacter(characterButtons[index].name);
+					setSelectedCharacter(characterButtons[index].id);
 					characterButtons[index].selected = true;
 				}
 				for (toDraw in characterButtons) {
@@ -443,7 +459,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const handleKeyUp = useCallback((event: KeyboardEvent) => {
 		const stopPressUp = async () => {
 			try {
-				await axios.post('/game/move/stopup');
+				socket.current?.emit('moveUpDisable');
+				// await axios.post('/game/move/stopup');
 				console.log('stopMoveUp');
 			} catch (error) {
 				console.error('Failed to stop moving the paddle up:', error);
@@ -451,7 +468,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		};
 		const stopPressDown = async () => {
 			try {
-				await axios.post('/game/move/stopdown');
+				socket.current?.emit('moveDownDisable');
+				// await axios.post('/game/move/stopdown');
 				console.log('stopMoveDown');
 			} catch (error) {
 				console.error('Failed to stop moving the paddle down:', error);
@@ -471,7 +489,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 		const executeAbility = async (abilityName: string, endpoint: string) => {
 			try {
-				if (abilityName === "ScorpionSpecial" ||( abilityName === "Special Ability" && selectedCharacter === "Scorpion" && hasUlt)) {
+				if (abilityName === "ScorpionSpecial" ||( abilityName === "Special Ability" && selectedCharacter === Character.Scorpion && hasUlt)) {
 					const sound = new Audio(GetOverHere);
 					sound.play();
 				}
@@ -483,7 +501,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 		const moveUp = async () => {
 			try {
-				await axios.post('/game/move/up/enable');
+				socket.current?.emit('moveUpEnable');
+				// await axios.post('/game/move/up/enable');
 				console.log('moveUpEnable');
 			} catch (error) {
 				console.error('Failed to move the paddle up:', error);
@@ -492,7 +511,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	
 		const moveDown = async () => {
 			try {
-				await axios.post('/game/move/down');
+				socket.current?.emit('moveDownEnable');
+				// await axios.post('/game/move/down');
 				console.log('moveDown');
 			} catch (error) {
 				console.error('Failed to move the paddle down:', error);
@@ -528,9 +548,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		else if (event.key === 'm')
 			executeAbility("Mirage", "mirage");
 		else if (event.key === 's')
-			executeAbility("Random Ability", "random");
+			socket.current?.emit('randomAbility');
 		else if (event.key === 'a')
-			executeAbility("Special Ability", "special")
+			socket.current?.emit('specialAbility');
+			//executeAbility("Special Ability", "special")
 
 		
 	
@@ -653,44 +674,82 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setSecondsLeftUlt(15);
 				});
 				socket.current.on('playerCharacter', (event: any) => {
-					const { playerCharacter, playerSize } = event;
-					if (playerCharacter === "Scorpion")
-					{
-						if (playerSize === "Small")
-						{
-							setPlayer2Character(paddle_smalls);
-							setPlayer2Size({width: 10, height: 50});
-						}
-						else if (playerSize === "Average Joe")
-						{
-							setPlayer2Character(paddle_s);
-							setPlayer2Size({width: 20, height: 100});
-						}
-						else if (playerSize === "Big Pete")
-						{
-							setPlayer2Character(paddle_bigs);
-							setPlayer2Size({width: 32, height: 160});
-						}
-						console.log("Set player 2 paddle to Scorpion");
-					}
-					else if (playerCharacter === "Scorpion")
-					{
-						if (playerSize === "Small")
-						{
-							setPlayer2Character(paddle_smallsub);
-							setPlayer2Size({width: 10, height: 50});
-						}
-						else if (playerSize === "Average Joe")
-						{
-							setPlayer2Character(paddle_sub);
-							setPlayer2Size({width: 20, height: 100});
-						}
-						else if (playerSize === "Big Pete")
-						{
-							setPlayer2Character(paddle_bigsub);
-							setPlayer2Size({width: 32, height: 160});
-						}
-						console.log("Set player 2 paddle to Scorpion");
+					const { player1Character, player1Size, player2Character, player2Size } = event;
+					switch (player2Character) {
+						case Character.Scorpion:
+							switch (player2Size) {
+								case Paddles.Small:
+									setPlayer2Character(paddle_smalls);
+									setPlayer2Size({width: 10, height: 50});
+									break;
+								case Paddles.AverageJoe:
+									setPlayer2Character(paddle_s);
+									setPlayer2Size({width: 20, height: 100});
+									break;
+								case Paddles.BigPete:
+									setPlayer2Character(paddle_bigs);
+									setPlayer2Size({width: 32, height: 160});
+									break;
+							}
+							break;
+						case Character.SubZero:
+							switch (player2Size) {
+								case Paddles.Small:
+									setPlayer2Character(paddle_smallsub);
+									setPlayer2Size({width: 10, height: 50});
+									break;
+								case Paddles.AverageJoe:
+									setPlayer2Character(paddle_sub);
+									setPlayer2Size({width: 20, height: 100});
+									break;
+								case Paddles.BigPete:
+									setPlayer2Character(paddle_bigsub);
+									setPlayer2Size({width: 32, height: 160});
+									break;
+							}
+							break;	
+						case Character.Raiden:
+							switch (player2Size) {
+
+							}
+					}		
+					switch (player1Character) {
+						case Character.Scorpion:
+							switch (player1Size) {
+								case Paddles.Small:
+									setPlayer1Character(paddle_smalls);
+									setPlayer1Size({width: 10, height: 50});
+									break;
+								case Paddles.AverageJoe:
+									setPlayer1Character(paddle_s);
+									setPlayer1Size({width: 20, height: 100});
+									break;
+								case Paddles.BigPete:
+									setPlayer1Character(paddle_bigs);
+									setPlayer1Size({width: 32, height: 160});
+									break;
+							}
+							break;
+						case Character.SubZero:
+							switch (player1Size) {
+								case Paddles.Small:
+									setPlayer1Character(paddle_smallsub);
+									setPlayer1Size({width: 10, height: 50});
+									break;
+								case Paddles.AverageJoe:
+									setPlayer1Character(paddle_sub);
+									setPlayer1Size({width: 20, height: 100});
+									break;
+								case Paddles.BigPete:
+									setPlayer1Character(paddle_bigsub);
+									setPlayer1Size({width: 32, height: 160});
+									break;
+							}
+							break;	
+						case Character.Raiden:
+							switch (player1Size) {
+
+							}
 					}
 				});
 			}
@@ -750,7 +809,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
 					ctx.globalAlpha = 1;
-					if (selectedGamemode !== "Regular Pong") {
+					if (selectedGamemode !== Mode.Regular) {
 						ctx.drawImage(player1Character, 10, player1Position);
 						ctx.drawImage(player2Character, 1170, player2Position);
 						if (hasUlt)

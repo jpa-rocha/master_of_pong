@@ -1,13 +1,14 @@
 import { Server, Socket } from 'socket.io';
-import { GameService } from '../game.service';
-import { Player } from './player.dto';
+import { GameService } from './game.service';
+import { Player } from './dto/player.dto';
 import { Injectable } from '@nestjs/common';
-import { Options } from '../movement.dto';
-import { AuthenticatedSocket } from './types';
+import { Options } from './movement.dto';
+import { AuthenticatedSocket } from './dto/types';
 import { v4 } from 'uuid';
+import { Mode } from './enums/Modes';
 
 @Injectable()
-export class gameObject {
+export class GameObject {
   public readonly gameID: string = v4();
   public readonly createdAt: Date = new Date();
   public readonly clients: Map<Socket['id'], AuthenticatedSocket> = new Map<
@@ -59,16 +60,18 @@ export class gameObject {
     this.mirage = false;
     this.mirageBallsPos = [];
     this.mirageBallsVel = [];
-    this.player1 = new Player();
-    this.player2 = new Player();
-    this.player1.options = options;
-    this.player2.options = options;
-    // this.gameOptions = player.options;
-    // if (
-    //   this.gameOptions.gameMode === 'SinglePlayer' ||
-    //   this.gameOptions.gameMode === 'Master Of Pong'
-    // )
-    //   this.allowAbilities = true;
+    this.player1 = new Player(options);
+    this.player2 = null;
+    if (options.gameMode === Mode.Singleplayer) {
+      this.player2 = new Player(options);
+      this.player2.pos.x = 1170;
+    }
+    this.gameOptions = options;
+    if (
+      this.gameOptions.gameMode === Mode.Singleplayer ||
+      this.gameOptions.gameMode === Mode.MasterOfPong
+    )
+      this.allowAbilities = true;
   }
 
   default() {
@@ -79,14 +82,18 @@ export class gameObject {
   }
 
   addClient(client: AuthenticatedSocket) {
+    console.log('adding client...');
     this.clients.set(client.id, client);
     client.join(this.gameID);
     client.data.lobby = this;
+    if (!this.player1.id) this.player1.id = client.id;
+    else if (!this.player2.id) this.player2.id = client.id;
     if (
       (this.clients.size === 1 &&
-        this.player1.options.gameMode === 'SinglePlayer') ||
+        this.player1.options.gameMode === Mode.Singleplayer) ||
       this.clients.size === 2
     ) {
+      console.log('starting game...');
       this.gameService.startGame();
     }
     // this.sendToClients
@@ -101,13 +108,14 @@ export class gameObject {
     });
   }
 
-  sendToPlayer1<T>(event: any, payload: T) {
-    this.clients[0].emit(event, payload);
-  }
+  // sendToPlayer1<T>(event: any, payload: T) {
+  //   this.clients[0].emit(event, payload);
+  // }
 
-  sendToPlayer2<T>(event: any, payload: T) {
-    this.clients[1].emit(event, payload);
-  }
+  // sendToPlayer2<T>(event: any, payload: T) {
+  //   this.server.
+  //   // this.clients[1].emit(event, payload);
+  // }
 
   sendToClients<T>(event: any, payload: T) {
     this.server.to(this.gameID).emit(event, payload);
