@@ -1,14 +1,16 @@
 export class Button {
 	public name: string;
 	public id: number;
+	public image: HTMLImageElement;
 	public isFocused: boolean;
 	public selected: boolean;
 	public size: {x : number, y : number};
 	public coordinates: {x : number, y : number};
 
-	constructor(name: string, id: number, size: {x: number, y: number}, coordinates: {x: number, y: number}) {
+	constructor(name: string, id: number, size: {x: number, y: number}, coordinates: {x: number, y: number}, image: HTMLImageElement = new Image()) {
 		this.name = name;
 		this.id = id;
+		this.image = image;
 		this.isFocused = false;
 		this.selected = false;
 		this.size = size;

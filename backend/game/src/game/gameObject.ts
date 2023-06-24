@@ -7,6 +7,7 @@ import { AuthenticatedSocket } from './dto/types';
 import { v4 } from 'uuid';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
+import { Character } from './enums/Characters';
 
 @Injectable()
 export class GameObject {
@@ -69,7 +70,7 @@ export class GameObject {
         new Options(
           Mode.Singleplayer,
           Paddles.AverageJoe,
-          Math.floor(Math.random() * 2) + 7,
+          Math.floor(Math.random() * 3) + Character.Scorpion,
         ),
       );
       this.player2.pos.x = 1170;

@@ -50,7 +50,7 @@ const Game = () => {
 					</div> */}
 					
 					<div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-						<GameCanvas />
+						<GameCanvas/>
 					</div>
 					</div>
 				</Box>
