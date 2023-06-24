@@ -6,6 +6,7 @@ import { Options } from './movement.dto';
 import { AuthenticatedSocket } from './dto/types';
 import { v4 } from 'uuid';
 import { Mode } from './enums/Modes';
+import { Paddles } from './enums/Paddles';
 
 @Injectable()
 export class GameObject {
@@ -60,10 +61,17 @@ export class GameObject {
     this.mirage = false;
     this.mirageBallsPos = [];
     this.mirageBallsVel = [];
-    this.player1 = new Player(options);
+    this.player1 = new Player(server, options, 1);
     this.player2 = null;
     if (options.gameMode === Mode.Singleplayer) {
-      this.player2 = new Player(options);
+      this.player2 = new Player(
+        server,
+        new Options(
+          Mode.Singleplayer,
+          Paddles.AverageJoe,
+          Math.floor(Math.random() * 2) + 7,
+        ),
+      );
       this.player2.pos.x = 1170;
     }
     this.gameOptions = options;
@@ -108,14 +116,13 @@ export class GameObject {
     });
   }
 
-  // sendToPlayer1<T>(event: any, payload: T) {
-  //   this.clients[0].emit(event, payload);
-  // }
+  sendToPlayer1<T>(event: any, payload: T) {
+    this.server.to(this.player1.id).emit(event, payload);
+  }
 
-  // sendToPlayer2<T>(event: any, payload: T) {
-  //   this.server.
-  //   // this.clients[1].emit(event, payload);
-  // }
+  sendToPlayer2<T>(event: any, payload: T) {
+    this.server.to(this.player2.id).emit(event, payload);
+  }
 
   sendToClients<T>(event: any, payload: T) {
     this.server.to(this.gameID).emit(event, payload);

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
 import { Options } from '../movement.dto';
-import { runInThisContext } from 'vm';
 import { Mode } from '../enums/Modes';
 import { Paddles } from '../enums/Paddles';
 
@@ -14,6 +14,7 @@ export class Player {
   public speed: number;
   public getOverHere: boolean;
   public freeze: boolean;
+  public freezeTimer: NodeJS.Timeout | null = null;
   public hasAbility: boolean;
   public ability: number;
   public hasSpecial: boolean;
@@ -23,7 +24,11 @@ export class Player {
   public useSpecial: boolean;
   public useAbility: boolean;
 
-  constructor(options: Options) {
+  constructor(
+    private readonly server: Server,
+    options: Options,
+    public player: number = 2,
+  ) {
     this.pos = { x: 10, y: 250 };
     if (options.gameMode === Mode.Regular) {
       this.height = 100;
@@ -78,5 +83,65 @@ export class Player {
 
   public resetPos(height: number) {
     this.pos.y = (height - this.height) / 2;
+  }
+
+  public sendToClient<T>(event: any, payload: T) {
+    this.server.to(this.id).emit(event, payload);
+  }
+
+  public setAbility(): void {
+    this.hasAbility = false;
+    this.sendToClient<{ hasAbility: boolean }>('hasAbility', {
+      hasAbility: false,
+    });
+
+    let seconds = 14;
+    const abilityTimer = setInterval(() => {
+      this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
+        secondsLeft: seconds,
+      });
+      if (seconds === 1) {
+        clearInterval(abilityTimer);
+        return;
+      }
+      seconds--;
+    }, 1000);
+    this.ability = Math.floor(Math.random() * 5);
+    setTimeout(() => {
+      this.hasAbility = true;
+      this.sendToClient<{ hasAbility: boolean; ability: number }>(
+        'hasAbility',
+        { hasAbility: true, ability: this.ability },
+      );
+    }, 15000);
+  }
+
+  setSpecial(): void {
+    this.hasSpecial = false;
+    this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
+      hasUlt: false,
+    });
+    let seconds = 14;
+    const ultimateTimer = setInterval(() => {
+      this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
+        secondsLeftUlt: seconds,
+      });
+      if (seconds === 1) {
+        clearInterval(ultimateTimer);
+        return;
+      }
+      seconds--;
+    }, 1000);
+    setTimeout(() => {
+      this.hasSpecial = true;
+      this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
+        hasUlt: true,
+      });
+    }, 15000);
+  }
+
+  SoundGrenade(): void {
+    // this.gameObject.clients.get(client.id);
+    this.sendToClient('SoundGrenade', {});
   }
 }

@@ -80,7 +80,7 @@ export class GameCollection {
           current.clients.size === 1
           // Iterating over the Map
         ) {
-          current.player2 = new Player(options);
+          current.player2 = new Player(this.server, options);
           current.player2.pos.x = 1170;
           console.log('Returning an already created game');
           return current;
