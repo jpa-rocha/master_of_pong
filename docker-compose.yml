@@ -1,72 +1,72 @@
-version: '3.9'
+version: "3.9"
 
 services:
-
   db:
     image: postgres:15.3
     container_name: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRESS_DATABASE: $(POSTGRESS_DATABASE)
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
     volumes:
-       - db_volume:/var/lib/postgresql/data
+      - db_volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: on-failure
 
-  backend:
-    image: backend
-    build: ./backend/
-    container_name: backend
-    depends_on:
-      - db
-    restart: on-failure
-    networks:
-      - master_of_pong
-    ports:
-      - "5000:5000"
-    volumes:
-      - type: bind
-        source: ./backend/auth/
-        target: /backend
+  # backend:
+  #   image: backend
+  #   build: ./backend/
+  #   container_name: backend
+  #   depends_on:
+  #     - db
+  #   restart: on-failure
+  #   networks:
+  #     - master_of_pong
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - type: bind
+  #       source: ./backend/auth/
+  #       target: /backend
 
-  frontend:
-    image: frontend
-    build: ./frontend/
-    container_name: frontend
-    depends_on:
-      - db
-      - backend
-    restart: on-failure
-    networks:
-      - master_of_pong
-    ports:
-      - "3000:3000"
-    volumes:
-    # - ./frontend/app:/frontend
-      - type: bind
-        source: ./frontend/app
-        target: /frontend
+  # frontend:
+  #   image: frontend
+  #   build: ./frontend/
+  #   container_name: frontend
+  #   depends_on:
+  #     - db
+  #     - backend
+  #   restart: on-failure
+  #   networks:
+  #     - master_of_pong
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     # - ./frontend/app:/frontend
+  #     - type: bind
+  #       source: ./frontend/app
+  #       target: /frontend
+
 volumes:
-    db_volume:
-      driver: local
+  db_volume:
+    driver: local
 
-    frontend_vol:
-      name: "frontend_vol"
-      driver_opts:
-        type: none
-        o: bind
-        device: ./frontend/app
+  # frontend_vol:
+  #   name: "frontend_vol"
+  #   driver_opts:
+  #     type: none
+  #     o: bind
+  #     device: ./frontend/app
 
-    backend_vol:
-      name: "backend_vol"
-      driver_opts:
-        type: none
-        o: bind
-        device: ./backend/example/chat
+  # backend_vol:
+  #   name: "backend_vol"
+  #   driver_opts:
+  #     type: none
+  #     o: bind
+  #     device: ./backend/example/chat
 
-networks:
-  master_of_pong:
-    name: master_of_pong
-    driver: bridge
+# networks:
+#   master_of_pong:
+#     name: master_of_pong
+#     driver: bridge
