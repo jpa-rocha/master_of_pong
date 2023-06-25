@@ -1,50 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
-import { Button, Options } from './Canvas';
+import { Button, Options, ImageContainer } from './Canvas';
 import GetOverHere from '../../sounds/getOverHere.mp3';
 import SoundGrenade from '../../sounds/sound_grenade.mp3';
-import heading_paddle from '../../images/heading_paddle.png';
-import heading_character from '../../images/heading_character.png';
-import heading_gamemode from '../../images/heading_gamemode.png';
-import char_desc_bz from '../../images/char_desc_bz.png';
-import char_desc_ventail from '../../images/char_desc_ventail.png';
-import char_desc_raiven from '../../images/char_desc_raiven.png';
-import button_mode_master from '../../images/button_mode_master.png';
-import button_mode_regular from '../../images/button_mode_regular.png';
-import button_mode_singleplayer from '../../images/button_mode_singleplayer.png';
-import button_start from '../../images/button_start.png';
-import big_paddle from "../../images/BigPaddle.png";
-import regular_paddle from "../../images/RegularPaddle.png";
-import small_paddle from "../../images/SmallPaddle.png";
-import ice_block from '../../images/iceBlock.png';
-import left_empty from '../../images/HealthBar/LeftEmpty.png';
-import mid_empty from '../../images/HealthBar/MidEmpty.png';
-import right_empty from '../../images/HealthBar/RightEmpty.png';
-import left_full from '../../images/HealthBar/LeftFull.png';
-import mid_full from '../../images/HealthBar/MidFull.png';
-import right_full from '../../images/HealthBar/RightFull.png';
-import icon_Background from '../../images/HealthBar/icon.png';
-import icon_Symbol from '../../images/HealthBar/health.png';
-import health_text from '../../images/HealthBar/healthText.png';
-import paddle_bz_s from '../../images/paddle_bz_s.png';
-import paddle_bz_m from '../../images/paddle_bz_m.png';
-import paddle_bz_l from '../../images/paddle_bz_l.png';
-import paddle_ventail_s from '../../images/paddle_ventail_s.png';
-import paddle_ventail_m from '../../images/paddle_ventail_m.png';
-import paddle_ventail_l from '../../images/paddle_ventail_l.png';
-import paddle_raiven_l from '../../images/paddle_raiven_l.png';
-import paddle_raiven_m from '../../images/paddle_raiven_m.png';
-import paddle_raiven_s from '../../images/paddle_raiven_s.png';
-import masterLogo from '../../images/logo.png';
-import SubZeroSpecialImage from '../../images/Abilities/SubZeroSpecial.png';
-import RaidenSpecialImage from '../../images/Abilities/RaidenSpecial.png';
-import ScorpionSpecialImage from '../../images/Abilities/ScorpionSpecial.png';
-import MirageAbilityImage from '../../images/Abilities/MirageAbility.png';
-import FreezeAbilityImage from '../../images/Abilities/FreezeAbility.png';
-import BiggerBallAbilityImage from '../../images/Abilities/BiggerBallAbility.png';
-import SmallerBallAbilityImage from '../../images/Abilities/SmallerBallAbility.png';
-import SoundGrenadeAbilityImage from '../../images/Abilities/SoundGrenadeAbility.png';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
@@ -55,55 +14,57 @@ type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
 
-	function createImage(src: string) {
-		var img = new Image();
-		img.src = src;
-		return img;
-	}
-	const headPaddle			= useMemo(() => createImage(heading_paddle), []);
-	const headCharacter			= useMemo(() => createImage(heading_character), []);
-	const headGamemode			= useMemo(() => createImage(heading_gamemode), []);
-	const buttonCharBz			= useMemo(() => createImage(char_desc_bz), []);
-	const buttonCharVentail		= useMemo(() => createImage(char_desc_ventail), []);
-	const buttonCharRaiven		= useMemo(() => createImage(char_desc_raiven), []);
-	const buttonModeMaster		= useMemo(() => createImage(button_mode_master), []);
-	const buttonModeRegular		= useMemo(() => createImage(button_mode_regular), []);
-	const buttonModeSingle		= useMemo(() => createImage(button_mode_singleplayer), []);
-	const buttonPaddleSmall		= useMemo(() => createImage(small_paddle), []);
-	const buttonPaddleRegular	= useMemo(() => createImage(regular_paddle), []);
-	const buttonPaddleBig		= useMemo(() => createImage(big_paddle), []);
-	const buttonStart			= useMemo(() => createImage(button_start), []);
-	const paddleVentailS		= useMemo(() => createImage(paddle_ventail_s), []);
-	const paddleVentailM		= useMemo(() => createImage(paddle_ventail_m), []);
-	const paddleVentailL		= useMemo(() => createImage(paddle_ventail_l), []);
-	const paddleBzS				= useMemo(() => createImage(paddle_bz_s), []);
-	const paddleBzM				= useMemo(() => createImage(paddle_bz_m), []);
-	const paddleBzL				= useMemo(() => createImage(paddle_bz_l), []);
-	const paddleRaivenS			= useMemo(() => createImage(paddle_raiven_s), []);
-	const paddleRaivenM			= useMemo(() => createImage(paddle_raiven_m), []);
-	const paddleRaivenL			= useMemo(() => createImage(paddle_raiven_l), []);
-	const iceBlock				= useMemo(() => createImage(ice_block), []);
-	const left_bar				= useMemo(() => createImage(left_empty), []);
-	const mid_bar				= useMemo(() => createImage(mid_empty), []);
-	const right_bar				= useMemo(() => createImage(right_empty), []);
-	const left_health			= useMemo(() => createImage(left_full), []);
-	const mid_health			= useMemo(() => createImage(mid_full), []);
-	const right_health			= useMemo(() => createImage(right_full), []);
-	const iconBackground		= useMemo(() => createImage(icon_Background), []);
-	const icon					= useMemo(() => createImage(icon_Symbol), []);
-	const healthText			= useMemo(() => createImage(health_text), []);
-	const logo					= useMemo(() => createImage(masterLogo), []);
-	const SubZeroSpecial		= useMemo(() => createImage(SubZeroSpecialImage), []);
-	const RaidenSpecial			= useMemo(() => createImage(RaidenSpecialImage), []);
-	const ScorpionSpecial		= useMemo(() => createImage(ScorpionSpecialImage), []);
-	const MirageAbility			= useMemo(() => createImage(MirageAbilityImage), []);
-	const FreezeAbility			= useMemo(() => createImage(FreezeAbilityImage), []);
-	const BiggerBallAbility		= useMemo(() => createImage(BiggerBallAbilityImage), []);
-	const SmallerBallAbility	= useMemo(() => createImage(SmallerBallAbilityImage), []);
-	const SoundGrenadeAbility	= useMemo(() => createImage(SoundGrenadeAbilityImage), []);
+	// function createImage(src: string) {
+	// 	var img = new Image();
+	// 	img.src = src;
+	// 	return img;
+	// }
+	// const headPaddle			= useMemo(() => createImage(heading_paddle), []);
+	// const headCharacter			= useMemo(() => createImage(heading_character), []);
+	// const headGamemode			= useMemo(() => createImage(heading_gamemode), []);
+	// const buttonCharBz			= useMemo(() => createImage(char_desc_bz), []);
+	// const buttonCharVentail		= useMemo(() => createImage(char_desc_ventail), []);
+	// const buttonCharRaiven		= useMemo(() => createImage(char_desc_raiven), []);
+	// const buttonModeMaster		= useMemo(() => createImage(button_mode_master), []);
+	// const buttonModeRegular		= useMemo(() => createImage(button_mode_regular), []);
+	// const buttonModeSingle		= useMemo(() => createImage(button_mode_singleplayer), []);
+	// const buttonPaddleSmall		= useMemo(() => createImage(small_paddle), []);
+	// const buttonPaddleRegular	= useMemo(() => createImage(regular_paddle), []);
+	// const buttonPaddleBig		= useMemo(() => createImage(big_paddle), []);
+	// const buttonStart			= useMemo(() => createImage(button_start), []);
+	// const paddleVentailS		= useMemo(() => createImage(paddle_ventail_s), []);
+	// const paddleVentailM		= useMemo(() => createImage(paddle_ventail_m), []);
+	// const paddleVentailL		= useMemo(() => createImage(paddle_ventail_l), []);
+	// const paddleBzS				= useMemo(() => createImage(paddle_bz_s), []);
+	// const paddleBzM				= useMemo(() => createImage(paddle_bz_m), []);
+	// const paddleBzL				= useMemo(() => createImage(paddle_bz_l), []);
+	// const paddleRaivenS			= useMemo(() => createImage(paddle_raiven_s), []);
+	// const paddleRaivenM			= useMemo(() => createImage(paddle_raiven_m), []);
+	// const paddleRaivenL			= useMemo(() => createImage(paddle_raiven_l), []);
+	// const iceBlock				= useMemo(() => createImage(ice_block), []);
+	// const left_bar				= useMemo(() => createImage(left_empty), []);
+	// const mid_bar				= useMemo(() => createImage(mid_empty), []);
+	// const right_bar				= useMemo(() => createImage(right_empty), []);
+	// const left_health			= useMemo(() => createImage(left_full), []);
+	// const mid_health			= useMemo(() => createImage(mid_full), []);
+	// const right_health			= useMemo(() => createImage(right_full), []);
+	// const iconBackground		= useMemo(() => createImage(icon_Background), []);
+	// const icon					= useMemo(() => createImage(icon_Symbol), []);
+	// const healthText			= useMemo(() => createImage(health_text), []);
+	// const logo					= useMemo(() => createImage(masterLogo), []);
+	// const SubZeroSpecial		= useMemo(() => createImage(SubZeroSpecialImage), []);
+	// const RaidenSpecial			= useMemo(() => createImage(RaidenSpecialImage), []);
+	// const ScorpionSpecial		= useMemo(() => createImage(ScorpionSpecialImage), []);
+	// const MirageAbility			= useMemo(() => createImage(MirageAbilityImage), []);
+	// const FreezeAbility			= useMemo(() => createImage(FreezeAbilityImage), []);
+	// const BiggerBallAbility		= useMemo(() => createImage(BiggerBallAbilityImage), []);
+	// const SmallerBallAbility	= useMemo(() => createImage(SmallerBallAbilityImage), []);
+	// const SoundGrenadeAbility	= useMemo(() => createImage(SoundGrenadeAbilityImage), []);
+
 	const scorpionSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
 	const soundGrenadeSound 	= useMemo(() => new Audio(SoundGrenade), []);
 
+	const Images = useMemo(() => new ImageContainer(), []);
 	const [player, setPlayer] = useState<number>();
 	const [player1Size, setPlayer1Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player2Size, setPlayer2Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
@@ -115,7 +76,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [playerUlt, setPlayerUlt] = useState<HTMLImageElement>(new Image());
 	const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
 	const [ballSize, setBallSize] = useState<number>(15);
+	const [isGameSelection, setGameSelection] = useState<boolean>(true);
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
+	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
+	const [isGameInit, setGameInit] = useState<boolean>(false);
+	const [isAnimPlaying, setAnimPlaying] = useState<boolean>(false);
 	const [winner, setWinner] = useState<string>("");
 	const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 	const [arrowDown, setArrowDown] = useState<boolean>(false);
@@ -155,16 +120,16 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const backgroundColor = "rgb(100, 100, 100)"
 
 	const startButton = useMemo(() => {
-		var GameStart:Button = new Button("Start Game", Mode.Start, {x: 200, y:50}, {x:300, y:500}, buttonStart);
+		var GameStart:Button = new Button("Start Game", Mode.Start, {x: 200, y:50}, {x:300, y:500}, Images.buttonStart);
 		if (canvas)
 			GameStart.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:670 * canvas.height / 800});
 		return GameStart;
-	}, [canvas, buttonStart]);
+	}, [canvas, Images.buttonStart]);
 
 	const gamemodeButtons = useMemo(() => {
-		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70}, buttonModeSingle);
-		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70}, buttonModeMaster);
-		var RegularPong:Button = new Button("Regular", Mode.Regular, {x:200, y:50}, {x:570, y:70}, buttonModeRegular);
+		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70}, Images.buttonModeSingle);
+		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70}, Images.buttonModeMaster);
+		var RegularPong:Button = new Button("Regular", Mode.Regular, {x:200, y:50}, {x:570, y:70}, Images.buttonModeRegular);
 		if (canvas)
 		{
 			Singleplayer.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:100 * canvas.height / 800});
@@ -172,12 +137,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			RegularPong.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:825 * canvas.width / 1200, y:100 * canvas.height / 800});
 		}
 		return [Singleplayer, MasterOfPong, RegularPong];
-	}, [canvas, buttonModeMaster, buttonModeRegular, buttonModeSingle]);
+	}, [canvas, Images.buttonModeMaster, Images.buttonModeRegular, Images.buttonModeSingle]);
 
 	const paddleButtons = useMemo(() => {
-		var SmallPaddle:Button = new Button("Small", Paddles.Small, {x:200, y:50}, {x:30, y:190}, buttonPaddleSmall);
-		var RegularPaddle:Button = new Button("Average Joe", Paddles.AverageJoe, {x:200, y:50}, {x:300, y:190}, buttonPaddleRegular);
-		var BigPaddle:Button = new Button("Big Pete", Paddles.BigPete, {x:200, y:50}, {x:570, y:190}, buttonPaddleBig);
+		var SmallPaddle:Button = new Button("Small", Paddles.Small, {x:200, y:50}, {x:30, y:190}, Images.buttonPaddleSmall);
+		var RegularPaddle:Button = new Button("Average Joe", Paddles.AverageJoe, {x:200, y:50}, {x:300, y:190}, Images.buttonPaddleRegular);
+		var BigPaddle:Button = new Button("Big Pete", Paddles.BigPete, {x:200, y:50}, {x:570, y:190}, Images.buttonPaddleBig);
 		if (canvas)
 		{
 			console.log("Scaling the buttons");
@@ -186,12 +151,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			BigPaddle.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:825 * canvas.width / 1200, y:260 * canvas.height / 800});
 		}
 		return [SmallPaddle, RegularPaddle, BigPaddle];
-	}, [canvas, buttonPaddleBig, buttonPaddleRegular, buttonPaddleSmall]);
+	}, [canvas, Images.buttonPaddleBig, Images.buttonPaddleRegular, Images.buttonPaddleSmall]);
 
 	const characterButtons = useMemo(() => {
-		var Scorpion:Button = new Button("Scorpion", Character.Scorpion, {x:200, y:100}, {x:30, y:360}, buttonCharVentail);
-		var SubZero:Button = new Button("SubZero", Character.SubZero, {x:200, y:100}, {x:300, y:360}, buttonCharBz);
-		var Raiven:Button = new Button("Raiven", Character.Raiden, {x:200, y:100}, {x:300, y:360}, buttonCharRaiven);
+		var Scorpion:Button = new Button("Scorpion", Character.Scorpion, {x:200, y:100}, {x:30, y:360}, Images.buttonCharVentail);
+		var SubZero:Button = new Button("SubZero", Character.SubZero, {x:200, y:100}, {x:300, y:360}, Images.buttonCharBz);
+		var Raiven:Button = new Button("Raiven", Character.Raiden, {x:200, y:100}, {x:300, y:360}, Images.buttonCharRaiven);
 		if (canvas)
 		{
 			Scorpion.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:490 * canvas.height / 800});
@@ -199,7 +164,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			Raiven.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:825 * canvas.width / 1200, y:490 * canvas.height / 800});
 		}
 		return [Scorpion, SubZero, Raiven];
-	}, [canvas, buttonCharBz, buttonCharRaiven, buttonCharVentail]);
+	}, [canvas, Images.buttonCharBz, Images.buttonCharRaiven, Images.buttonCharVentail]);
 
 	const handleStartGame = useCallback(() => {
 		try {
@@ -334,18 +299,19 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setAbilities(true);
 					switch (selectedCharacter) {
 						case Character.Scorpion:
-							setPlayerUlt(ScorpionSpecial);
+							setPlayerUlt(Images.ScorpionSpecial);
 							break;
 						case Character.SubZero:
-							setPlayerUlt(SubZeroSpecial);
+							setPlayerUlt(Images.SubZeroSpecial);
 							break;
 						case Character.Raiden:
-							setPlayerUlt(RaidenSpecial);
+							setPlayerUlt(Images.RaidenSpecial);
 							break;
 					}
 				}
 				handleStartGame();
-				setGameStarted(true);
+				setPlayerWaiting(true);
+				setGameSelection(false);
 				canvas.removeEventListener("mousemove", handleMouseMove);
 				canvas.removeEventListener("click", handleMouseClick);
 				return;
@@ -456,7 +422,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				return;
 			}
 		}
-	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, handleStartGame, RaidenSpecial, SubZeroSpecial, ScorpionSpecial, startButton, clearSelection, regular]);
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, handleStartGame, Images.RaidenSpecial, Images.SubZeroSpecial, Images.ScorpionSpecial, startButton, clearSelection, regular]);
 	
 
 	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, clear: boolean = false) {
@@ -669,19 +635,19 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setSecondsLeft(15);
 					switch(ability) {
 						case 0:
-							setPlayerAbility(SmallerBallAbility);
+							setPlayerAbility(Images.SmallerBallAbility);
 							break;
 						case 1:
-							setPlayerAbility(FreezeAbility);
+							setPlayerAbility(Images.FreezeAbility);
 							break;
 						case 2:
-							setPlayerAbility(SoundGrenadeAbility);
+							setPlayerAbility(Images.SoundGrenadeAbility);
 							break;
 						case 3:
-							setPlayerAbility(BiggerBallAbility);
+							setPlayerAbility(Images.BiggerBallAbility);
 							break;
 						case 4:
-							setPlayerAbility(MirageAbility);
+							setPlayerAbility(Images.MirageAbility);
 							break;
 						case 5:
 							break;
@@ -698,15 +664,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.Scorpion:
 							switch (player2Size) {
 								case Paddles.Small:
-									setPlayer2Character(paddleVentailS);
+									setPlayer2Character(Images.paddleVentailS);
 									setPlayer2Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer2Character(paddleVentailM);
+									setPlayer2Character(Images.paddleVentailM);
 									setPlayer2Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer2Character(paddleVentailL);
+									setPlayer2Character(Images.paddleVentailL);
 									setPlayer2Size({width: 32, height: 160});
 									break;
 							}
@@ -714,15 +680,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.SubZero:
 							switch (player2Size) {
 								case Paddles.Small:
-									setPlayer2Character(paddleBzS);
+									setPlayer2Character(Images.paddleBzS);
 									setPlayer2Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer2Character(paddleBzM);
+									setPlayer2Character(Images.paddleBzM);
 									setPlayer2Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer2Character(paddleBzL);
+									setPlayer2Character(Images.paddleBzL);
 									setPlayer2Size({width: 32, height: 160});
 									break;
 							}
@@ -730,15 +696,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.Raiden:
 							switch (player2Size) {
 								case Paddles.Small:
-									setPlayer2Character(paddleRaivenS);
+									setPlayer2Character(Images.paddleRaivenS);
 									setPlayer2Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer2Character(paddleRaivenM);
+									setPlayer2Character(Images.paddleRaivenM);
 									setPlayer2Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer2Character(paddleRaivenL);
+									setPlayer2Character(Images.paddleRaivenL);
 									setPlayer2Size({width: 32, height: 160});
 									break;
 							}
@@ -747,15 +713,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.Scorpion:
 							switch (player1Size) {
 								case Paddles.Small:
-									setPlayer1Character(paddleVentailS);
+									setPlayer1Character(Images.paddleVentailS);
 									setPlayer1Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer1Character(paddleVentailM);
+									setPlayer1Character(Images.paddleVentailM);
 									setPlayer1Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer1Character(paddleVentailL);
+									setPlayer1Character(Images.paddleVentailL);
 									setPlayer1Size({width: 32, height: 160});
 									break;
 							}
@@ -763,15 +729,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.SubZero:
 							switch (player1Size) {
 								case Paddles.Small:
-									setPlayer1Character(paddleBzS);
+									setPlayer1Character(Images.paddleBzS);
 									setPlayer1Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer1Character(paddleBzM);
+									setPlayer1Character(Images.paddleBzM);
 									setPlayer1Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer1Character(paddleBzL);
+									setPlayer1Character(Images.paddleBzL);
 									setPlayer1Size({width: 32, height: 160});
 									break;
 							}
@@ -779,15 +745,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						case Character.Raiden:
 							switch (player1Size) {
 								case Paddles.Small:
-									setPlayer1Character(paddleRaivenS);
+									setPlayer1Character(Images.paddleRaivenS);
 									setPlayer1Size({width: 10, height: 50});
 									break;
 								case Paddles.AverageJoe:
-									setPlayer1Character(paddleRaivenM);
+									setPlayer1Character(Images.paddleRaivenM);
 									setPlayer1Size({width: 20, height: 100});
 									break;
 								case Paddles.BigPete:
-									setPlayer1Character(paddleRaivenL);
+									setPlayer1Character(Images.paddleRaivenL);
 									setPlayer1Size({width: 32, height: 160});
 									break;
 							}
@@ -798,49 +764,52 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setPlayer(player);
 					switch(ability) {
 						case 0:
-							setPlayerAbility(SmallerBallAbility);
+							setPlayerAbility(Images.SmallerBallAbility);
 							break;
 						case 1:
-							setPlayerAbility(FreezeAbility);
+							setPlayerAbility(Images.FreezeAbility);
 							break;
 						case 2:
-							setPlayerAbility(SoundGrenadeAbility);
+							setPlayerAbility(Images.SoundGrenadeAbility);
 							break;
 						case 3:
-							setPlayerAbility(BiggerBallAbility);
+							setPlayerAbility(Images.BiggerBallAbility);
 							break;
 						case 4:
-							setPlayerAbility(MirageAbility);
+							setPlayerAbility(Images.MirageAbility);
 							break;
 						case 5:
 							break;
 					}
+					setGameInit(true);
+					setGameStarted(true);
+					setPlayerWaiting(false);
 				});
 			}
 		}
-	}, [abilities, hasAbility, BiggerBallAbility, MirageAbility, SmallerBallAbility, FreezeAbility, SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, paddleBzL, paddleBzM, paddleBzS, paddleVentailL, paddleVentailM, paddleVentailS, paddleRaivenL, paddleRaivenM, paddleRaivenS]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
-		if (!isGameStarted) {
+		if (!isGameStarted && !isPlayerWaiting && !isGameInit) {
 			canvas?.addEventListener("click", handleMouseClick);
 			canvas?.addEventListener("mousemove", handleMouseMove);
 		}
 		return () => {
-			if (!isGameStarted) {
+			if (!isGameStarted && !isPlayerWaiting && !isGameInit) {
 				canvas?.removeEventListener("click", handleMouseClick);
 				canvas?.removeEventListener("mousemove", handleMouseMove);
 			}
 			document.removeEventListener('keydown', handleKeyDown);
 			document.removeEventListener('keyup', handleKeyUp);
 		}
-	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameStarted]);
+	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameStarted, isPlayerWaiting, isGameInit]);
 
 	useEffect(() => {
 		if (canvas) {
 			if (ctx) {
-				if (!isGameStarted) {
+				if (isGameSelection) {
 					ctx.globalAlpha = 1;
 					ctx.clearRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = backgroundColor;
@@ -850,9 +819,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.textAlign = 'center';
 					ctx.textBaseline = 'middle';
 
-					ctx.drawImage(headGamemode, canvas.width / 2 - 150, 20, 300, 75);
-					ctx.drawImage(headPaddle, canvas.width / 2 - 150, 190, 300, 75);
-					ctx.drawImage(headCharacter, canvas.width / 2 - 150, 420, 300, 75);
+					ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
+					ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
+					ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
 
 					drawButton(ctx, startButton, Mode.Start);
 					for (var index in gamemodeButtons) {
@@ -867,7 +836,31 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						drawButton(ctx, characterButtons[index], selectedCharacter);
 					}
 				}
-				if (isGameStarted) {
+				else if (isPlayerWaiting) {
+					setAnimPlaying(true);
+					var rotIndex = 0;
+					const animInterval = setInterval(() => {
+						if (rotIndex === Images.YinYangRotate.length)
+						rotIndex = 0;
+						ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, canvas.width, canvas.height);
+						rotIndex++;
+					}, 33);
+					return () => clearInterval(animInterval);
+				}
+				else if (isGameStarted) {
+					// if (isAnimPlaying) {
+					// 	var endIndex = 0;
+					// 	const animInterval = setInterval(() => {
+					// 		if (endIndex === Images.YinYangEnd.length) {
+					// 			clearInterval(this);
+					// 			setAnimPlaying(false);
+					// 			return;
+					// 		}
+					// 		ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
+					// 		endIndex++;
+					// 	}, 33);
+					// 	return () => clearInterval(animInterval);
+					// }
 					ctx.fillStyle = backgroundColor;
 					if (raidenSpecial) {
 						ctx.fillRect(10, player1Position - 10, 20, 120);
@@ -907,59 +900,59 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					if (subZeroSpecial) {
 						ctx.globalAlpha = 0.50;
 						if (subZeroTarget === 1)
-							ctx.drawImage(iceBlock, 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
+							ctx.drawImage(Images.iceBlock, 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
 						else if (subZeroTarget === 2)
-							ctx.drawImage(iceBlock, 1165, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
+							ctx.drawImage(Images.iceBlock, 1165, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
 						ctx.globalAlpha = 1;
 					}
 			
 					if (abilities) {
 						// p1 health border
-						ctx.drawImage(healthText, 185, 60, 140, 25);
+						ctx.drawImage(Images.healthText, 185, 60, 140, 25);
 						ctx.font = '20px Arial';
 						ctx.fillStyle = 'black';
 						ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
-						ctx.drawImage(left_bar, 150, 25, 25, 40);
-						ctx.drawImage(mid_bar, 175, 25, 25, 40);
-						ctx.drawImage(mid_bar, 200, 25, 25, 40);
-						ctx.drawImage(mid_bar, 225, 25, 26, 40);
-						ctx.drawImage(mid_bar, 251, 25, 26, 40);
-						ctx.drawImage(mid_bar, 277, 25, 26, 40);
-						ctx.drawImage(right_bar, 303, 25, 25, 40);
-						ctx.drawImage(iconBackground, 120, 25, 45, 45);
-						ctx.drawImage(icon, 131, 38, 23, 20);
+						ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
+						ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
+						ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
+						ctx.drawImage(Images.mid_bar, 225, 25, 26, 40);
+						ctx.drawImage(Images.mid_bar, 251, 25, 26, 40);
+						ctx.drawImage(Images.mid_bar, 277, 25, 26, 40);
+						ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
+						ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
+						ctx.drawImage(Images.icon, 131, 38, 23, 20);
 						// p2 health border
-						ctx.drawImage(healthText, 875, 60, 140, 25);
+						ctx.drawImage(Images.healthText, 875, 60, 140, 25);
 						ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
-						ctx.drawImage(left_bar, 872, 25, 25, 40);
-						ctx.drawImage(mid_bar, 897, 25, 26, 40);
-						ctx.drawImage(mid_bar, 923, 25, 26, 40);
-						ctx.drawImage(mid_bar, 949, 25, 26, 40);
-						ctx.drawImage(mid_bar, 975, 25, 25, 40);
-						ctx.drawImage(mid_bar, 1000, 25, 25, 40);
-						ctx.drawImage(right_bar, 1025, 25, 25, 40);
-						ctx.drawImage(iconBackground, 1035, 25, 45, 45);
-						ctx.drawImage(icon, 1046, 38, 23, 20);
+						ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
+						ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
+						ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
+						ctx.drawImage(Images.mid_bar, 949, 25, 26, 40);
+						ctx.drawImage(Images.mid_bar, 975, 25, 25, 40);
+						ctx.drawImage(Images.mid_bar, 1000, 25, 25, 40);
+						ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
+						ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
+						ctx.drawImage(Images.icon, 1046, 38, 23, 20);
 						var x = 0;
 						// draw p1 health bars
 						while (x < 11 - score.p2) {
 							if (x === 0)
-								ctx.drawImage(left_health, 151, 25, 25, 40);
+								ctx.drawImage(Images.left_health, 151, 25, 25, 40);
 							else if (x === 10)
-								ctx.drawImage(right_health, 303, 25, 25, 40);
+								ctx.drawImage(Images.right_health, 303, 25, 25, 40);
 							else
-								ctx.drawImage(mid_health, 163 + 14 * x, 25, 13, 40);
+							ctx.drawImage(Images.mid_health, 163 + 14 * x, 25, 13, 40);
 							x++;
 						}			
 						x = 0;
 						// draw p2 health bars
 						while (x < 11 - score.p1) {
 								if (x === 0)
-									ctx.drawImage(right_health, 1024, 25, 25, 40);
+									ctx.drawImage(Images.right_health, 1024, 25, 25, 40);
 							else if (x === 10)
-									ctx.drawImage(left_health, 872, 25, 25, 40);
+									ctx.drawImage(Images.left_health, 872, 25, 25, 40);
 							else
-									ctx.drawImage(mid_health, 1024 - 14 * x, 25, 13, 40);
+									ctx.drawImage(Images.mid_health, 1024 - 14 * x, 25, 13, 40);
 							x++;
 						}
 
@@ -994,7 +987,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							// 	  console.log("load scorpion");
 							// 	});
 								ctx.globalAlpha = 0.50;
-								ctx.drawImage(iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+								ctx.drawImage(Images.iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
 								ctx.globalAlpha = 1;
 						}
 				
@@ -1046,11 +1039,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.stroke();
 						ctx.fillStyle = 'white';
 					}
-
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, healthText, icon, iconBackground, left_bar, left_health, mid_bar, mid_health, right_bar, right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, subZeroTarget, scorpionTarget, headCharacter, headGamemode, headPaddle, startButton]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, subZeroTarget, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isAnimPlaying]);
 
 
 
