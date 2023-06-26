@@ -3,7 +3,7 @@ import logo from "../images/logo.png";
 import { useNavigate } from "react-router-dom";
 
 /* This is the Navigation Section for the Landing Page */
-const NavBarLandingPage = () => {
+const NavBarLandingPage: React.FunctionComponent = () => {
   const navigate = useNavigate();
 
   function handleLogin(e: React.FormEvent) {

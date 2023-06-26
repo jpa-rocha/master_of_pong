@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Grid, Box } from "@mui/material";
 
 /* This is Footer */
 
-const Footer = () => {
+const Footer: React.FunctionComponent = () => {
   return (
     <Box>
       <AppBar

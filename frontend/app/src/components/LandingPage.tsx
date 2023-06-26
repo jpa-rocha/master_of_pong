@@ -7,6 +7,7 @@ import NavBarLandingPage from "./NavBarLandingPage";
 import GameCanvas from "./GameCanvas/GameCanvas";
 import logo from "../images/logo.png";
 
+
 /* import * as socketIO  from "socket.io-client"; 
 import { Socket } from 'socket.io-client';
 
@@ -14,7 +15,7 @@ const URI = 'http://localhost:4000';
 
 const socket: Socket = socketIO.connect(URI); */
 
-const LandingPage = () => {
+const LandingPage: React.FunctionComponent = () => {
   return (
     <>
       <Grid container>
@@ -52,7 +53,7 @@ const LandingPage = () => {
             </Box>
           </Box>
         </Grid>
-
+		
         {/* This is footer */}
         <Grid item xs={12}>
           <Footer></Footer>
