@@ -4,7 +4,6 @@ import {Grid, Box} from "@mui/material";
 import angry from "../images/AngryScorpion.gif";
 import NavBarMainPage from "./NavBarMainPage";
 import Footer from "./Footer";
-import { ClientRequest } from "http";
 
 
 /* This is the Main Page after User Login */
@@ -18,6 +17,8 @@ const MainPage: React.FunctionComponent = () => {
       .catch(error => console.error(error));
   }, []);
   console.log(data)
+
+  
   return (
 	<Box sx={{ display: 'flex', flexDirection: 'column',  alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
 	<Grid container>
