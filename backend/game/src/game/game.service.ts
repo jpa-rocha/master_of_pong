@@ -35,7 +35,6 @@ export class GameService {
     console.log('Player2: ' + this.gameObject.player2.options.character);
 
     this.gameObject.gameStarted = true;
-    console.log('GAME START FUNCTION CALLED');
     this.gameObject.sendToClients<{
       player1Character: number;
       player1Size: number;
@@ -49,13 +48,17 @@ export class GameService {
     });
     this.gameObject.sendToPlayer1<{
       player: number;
-    }>('player', {
+      ability: number;
+    }>('gameInit', {
       player: 1,
+      ability: this.gameObject.player1.ability,
     });
     this.gameObject.sendToPlayer2<{
       player: number;
-    }>('player', {
+      ability: number;
+    }>('gameInit', {
       player: 2,
+      ability: this.gameObject.player2.ability,
     });
 
     console.log('Setting ball timer...');
@@ -209,13 +212,13 @@ export class GameService {
 
   BallSize(): void {
     if (!this.gameObject.allowAbilities) return;
-    if (this.gameObject.ballSize >= 60) return;
-    this.gameObject.ballSize *= 2;
+    if (this.gameObject.ballSize >= 120) return;
+    this.gameObject.ballSize *= 4;
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
     setTimeout(() => {
-      if (this.gameObject.ballSize >= 15) this.gameObject.ballSize /= 2;
+      if (this.gameObject.ballSize >= 15) this.gameObject.ballSize /= 4;
       if (this.gameObject.ballSize < 15 && !this.shrinkTimer)
         this.gameObject.ballSize = 15;
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
