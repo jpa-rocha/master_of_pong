@@ -13,54 +13,6 @@ axios.defaults.baseURL = 'http://localhost:3333';
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
-
-	// function createImage(src: string) {
-	// 	var img = new Image();
-	// 	img.src = src;
-	// 	return img;
-	// }
-	// const headPaddle			= useMemo(() => createImage(heading_paddle), []);
-	// const headCharacter			= useMemo(() => createImage(heading_character), []);
-	// const headGamemode			= useMemo(() => createImage(heading_gamemode), []);
-	// const buttonCharBz			= useMemo(() => createImage(char_desc_bz), []);
-	// const buttonCharVentail		= useMemo(() => createImage(char_desc_ventail), []);
-	// const buttonCharRaiven		= useMemo(() => createImage(char_desc_raiven), []);
-	// const buttonModeMaster		= useMemo(() => createImage(button_mode_master), []);
-	// const buttonModeRegular		= useMemo(() => createImage(button_mode_regular), []);
-	// const buttonModeSingle		= useMemo(() => createImage(button_mode_singleplayer), []);
-	// const buttonPaddleSmall		= useMemo(() => createImage(small_paddle), []);
-	// const buttonPaddleRegular	= useMemo(() => createImage(regular_paddle), []);
-	// const buttonPaddleBig		= useMemo(() => createImage(big_paddle), []);
-	// const buttonStart			= useMemo(() => createImage(button_start), []);
-	// const paddleVentailS		= useMemo(() => createImage(paddle_ventail_s), []);
-	// const paddleVentailM		= useMemo(() => createImage(paddle_ventail_m), []);
-	// const paddleVentailL		= useMemo(() => createImage(paddle_ventail_l), []);
-	// const paddleBzS				= useMemo(() => createImage(paddle_bz_s), []);
-	// const paddleBzM				= useMemo(() => createImage(paddle_bz_m), []);
-	// const paddleBzL				= useMemo(() => createImage(paddle_bz_l), []);
-	// const paddleRaivenS			= useMemo(() => createImage(paddle_raiven_s), []);
-	// const paddleRaivenM			= useMemo(() => createImage(paddle_raiven_m), []);
-	// const paddleRaivenL			= useMemo(() => createImage(paddle_raiven_l), []);
-	// const iceBlock				= useMemo(() => createImage(ice_block), []);
-	// const left_bar				= useMemo(() => createImage(left_empty), []);
-	// const mid_bar				= useMemo(() => createImage(mid_empty), []);
-	// const right_bar				= useMemo(() => createImage(right_empty), []);
-	// const left_health			= useMemo(() => createImage(left_full), []);
-	// const mid_health			= useMemo(() => createImage(mid_full), []);
-	// const right_health			= useMemo(() => createImage(right_full), []);
-	// const iconBackground		= useMemo(() => createImage(icon_Background), []);
-	// const icon					= useMemo(() => createImage(icon_Symbol), []);
-	// const healthText			= useMemo(() => createImage(health_text), []);
-	// const logo					= useMemo(() => createImage(masterLogo), []);
-	// const SubZeroSpecial		= useMemo(() => createImage(SubZeroSpecialImage), []);
-	// const RaidenSpecial			= useMemo(() => createImage(RaidenSpecialImage), []);
-	// const ScorpionSpecial		= useMemo(() => createImage(ScorpionSpecialImage), []);
-	// const MirageAbility			= useMemo(() => createImage(MirageAbilityImage), []);
-	// const FreezeAbility			= useMemo(() => createImage(FreezeAbilityImage), []);
-	// const BiggerBallAbility		= useMemo(() => createImage(BiggerBallAbilityImage), []);
-	// const SmallerBallAbility	= useMemo(() => createImage(SmallerBallAbilityImage), []);
-	// const SoundGrenadeAbility	= useMemo(() => createImage(SoundGrenadeAbilityImage), []);
-
 	const scorpionSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
 	const soundGrenadeSound 	= useMemo(() => new Audio(SoundGrenade), []);
 
@@ -72,9 +24,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [player2Position, setPlayer2Position] = useState<number>(250);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
 	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
+	const [currentFrame, setCurrentFrame] = useState<number>(0);
 	const [playerAbility, setPlayerAbility] = useState<HTMLImageElement>(new Image());
 	const [playerUlt, setPlayerUlt] = useState<HTMLImageElement>(new Image());
-	const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 400, y: 300 });
+	const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 600, y: 400 });
 	const [ballSize, setBallSize] = useState<number>(15);
 	const [isGameSelection, setGameSelection] = useState<boolean>(true);
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
@@ -91,12 +44,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	const [secondsLeft, setSecondsLeft] = useState<number>(15);
 	const [secondsLeftUlt, setSecondsLeftUlt] = useState<number>(15);
+	const [abilityCooldownImage, setAbilityCooldownImage] = useState<HTMLImageElement>(new Image());
+	const [ultimateCooldownImage, setUltimateCooldownImage] = useState<HTMLImageElement>(new Image());
 
 	// Character special abilities
 	const [scorpionSpecial, setScorpionSpecial] = useState<boolean>(false);
 	const [scorpionTarget, setScorpionTarget] = useState<number>();
-	const [subZeroSpecial, setSubZeroSpecial] = useState<boolean>(false);
-	const [subZeroTarget, setSubZeroTarget] = useState<number>();
+	const [player1Frozen, setPlayer1Frozen] = useState<boolean>();
+	const [player2Frozen, setPlayer2Frozen] = useState<boolean>();
 	const [raidenSpecial, setRaidenSpecial] = useState<boolean>(false);
 
 	// Regular random abilities
@@ -168,7 +123,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	const handleStartGame = useCallback(() => {
 		try {
-			//await axios.post('/game/start');
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
 			console.log('Socket:', socket);
 			socket.current?.emit('start', opt);
@@ -443,7 +397,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		const stopPressUp = async () => {
 			try {
 				socket.current?.emit('moveUpDisable');
-				// await axios.post('/game/move/stopup');
 				console.log('stopMoveUp');
 			} catch (error) {
 				console.error('Failed to stop moving the paddle up:', error);
@@ -452,7 +405,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		const stopPressDown = async () => {
 			try {
 				socket.current?.emit('moveDownDisable');
-				// await axios.post('/game/move/stopdown');
 				console.log('stopMoveDown');
 			} catch (error) {
 				console.error('Failed to stop moving the paddle down:', error);
@@ -556,6 +508,31 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	useEffect(() => {
 		if (socket.current) {
+			socket.current.on('gameInit', (event: any) => {
+				const { player, ability } = event;
+				setPlayer(player);
+				switch(ability) {
+					case 0:
+						setPlayerAbility(Images.SmallerBallAbility);
+						break;
+					case 1:
+						setPlayerAbility(Images.FreezeAbility);
+						break;
+					case 2:
+						setPlayerAbility(Images.SoundGrenadeAbility);
+						break;
+					case 3:
+						setPlayerAbility(Images.BiggerBallAbility);
+						break;
+					case 4:
+						setPlayerAbility(Images.MirageAbility);
+						break;
+					case 5:
+						break;
+				}
+				setGameInit(true);
+				setPlayerWaiting(false);
+			});
 			socket.current.on('ballUpdate', (event: any) => {
 				console.log("Got the ball position update");
 				const { ball } = event;
@@ -598,9 +575,16 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					scorpionSpecialSound.play();
 				});
 				socket.current.on('SubZeroSpecial', (event: any) => {
-					const { SubZeroSpecial, target } = event;
-					setSubZeroSpecial(SubZeroSpecial);
-					setSubZeroTarget(target);
+					const { target } = event;
+					if (target === -1) {
+						setPlayer1Frozen(false);
+					} else if (target === -2) {
+						setPlayer2Frozen(false);
+					} else if (target === 1) {
+						setPlayer1Frozen(true);
+					} else if (target === 2) {
+						setPlayer2Frozen(true);
+					}
 				});
 				socket.current.on('RaidenSpecial', (event: any) => {
 					const { RaidenSpecial } = event;
@@ -628,11 +612,20 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setAbilityFreeze(AbilityFreeze);
 				});
 
-				// checks for the game
 				socket.current.on('hasAbility', (event: any) => {
 					const { hasAbility, ability } = event;
 					setHasAbility(hasAbility);
 					setSecondsLeft(15);
+					if (!hasAbility) {
+						setAbilityCooldownImage(Images.Cooldown[0]);
+						var animFrame = 1;
+						const abilTimer = setInterval(() => {
+							setAbilityCooldownImage(Images.Cooldown[animFrame % Images.Cooldown.length]);
+							animFrame++;
+							if (animFrame >= 30)
+								clearInterval(abilTimer);
+						}, 500);
+					}
 					switch(ability) {
 						case 0:
 							setPlayerAbility(Images.SmallerBallAbility);
@@ -657,6 +650,17 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					const { hasUlt } = event;
 					setHasUlt(hasUlt);
 					setSecondsLeftUlt(15);
+					if (!hasUlt) {
+						setUltimateCooldownImage(Images.Cooldown[0]);
+						var animFrame = 1;
+						let ultTimer = setInterval(() => {
+							setUltimateCooldownImage(Images.Cooldown[animFrame % Images.Cooldown.length]);
+							animFrame++;
+							console.log("frame:" + animFrame);
+							if (animFrame >= 30)
+								clearInterval(ultTimer);
+						}, 500);
+					}
 				});
 				socket.current.on('playerCharacter', (event: any) => {
 					const { player1Character, player1Size, player2Character, player2Size } = event;
@@ -759,52 +763,56 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							}
 					}
 				});
-				socket.current.on('gameInit', (event: any) => {
-					const { player, ability } = event;
-					setPlayer(player);
-					switch(ability) {
-						case 0:
-							setPlayerAbility(Images.SmallerBallAbility);
-							break;
-						case 1:
-							setPlayerAbility(Images.FreezeAbility);
-							break;
-						case 2:
-							setPlayerAbility(Images.SoundGrenadeAbility);
-							break;
-						case 3:
-							setPlayerAbility(Images.BiggerBallAbility);
-							break;
-						case 4:
-							setPlayerAbility(Images.MirageAbility);
-							break;
-						case 5:
-							break;
-					}
-					setGameInit(true);
-					setGameStarted(true);
-					setPlayerWaiting(false);
-				});
+				return () => {
+					socket.current?.off('hasUlt');
+					socket.current?.off('hasAbility');
+					socket.current?.off('playerCharacter');
+					socket.current?.off('secondsLeft');
+					socket.current?.off('secondsLeftUlt');
+					socket.current?.off('gameStatus');
+					socket.current?.off('winnerUpdate');
+					socket.current?.off('player2Update');
+					socket.current?.off('player1Update');
+					socket.current?.off('scoreUpdate');
+					socket.current?.off('ballUpdate');
+					socket.current?.off('gameInit');
+					socket.current?.off('mirageUpdate');
+					socket.current?.off('AbilityMirage');
+					socket.current?.off('SoundGrenade');
+					socket.current?.off('BallSize');
+					socket.current?.off('ScorpionSpecial');
+					socket.current?.off('SubZeroSpecial');
+					socket.current?.off('RaidenSpecial');
+				};
+			}
+			return () => {
+				socket.current?.off('gameStatus');
+				socket.current?.off('winnerUpdate');
+				socket.current?.off('player2Update');
+				socket.current?.off('player1Update');
+				socket.current?.off('scoreUpdate');
+				socket.current?.off('ballUpdate');
+				socket.current?.off('gameInit');
 			}
 		}
-	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
-		if (!isGameStarted && !isPlayerWaiting && !isGameInit) {
+		if (isGameSelection) {
 			canvas?.addEventListener("click", handleMouseClick);
 			canvas?.addEventListener("mousemove", handleMouseMove);
 		}
 		return () => {
-			if (!isGameStarted && !isPlayerWaiting && !isGameInit) {
+			if (isGameSelection) {
 				canvas?.removeEventListener("click", handleMouseClick);
 				canvas?.removeEventListener("mousemove", handleMouseMove);
 			}
 			document.removeEventListener('keydown', handleKeyDown);
 			document.removeEventListener('keyup', handleKeyUp);
 		}
-	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameStarted, isPlayerWaiting, isGameInit]);
+	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameSelection]);
 
 	useEffect(() => {
 		if (canvas) {
@@ -837,16 +845,123 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}
 				}
 				else if (isPlayerWaiting) {
-					setAnimPlaying(true);
 					var rotIndex = 0;
 					const animInterval = setInterval(() => {
-						if (rotIndex === Images.YinYangRotate.length)
-						rotIndex = 0;
 						ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, canvas.width, canvas.height);
 						rotIndex++;
+						if (rotIndex === Images.YinYangRotate.length) {
+							rotIndex = 0;
+						}
 					}, 33);
 					return () => clearInterval(animInterval);
 				}
+				else if (isGameInit) {
+					var rotaIndex = 0;
+					var endIndex = 0;
+					const animInterval = setInterval(() => {
+						console.log("Images loaded: " + Images.imagesLoaded + "/" + Images.totalImages);
+						if (rotaIndex === Images.YinYangRotate.length && Images.imagesLoaded === Images.totalImages) {
+							ctx.fillStyle = backgroundColor;
+							ctx.fillRect(0, 0, canvas.width, canvas.height);
+							ctx.fillStyle = 'white';
+							ctx.globalAlpha = 1;
+							if (selectedGamemode !== Mode.Regular) {
+								ctx.drawImage(player1Character, 10, player1Position);
+								ctx.drawImage(player2Character, 1170, player2Position);
+								ctx.drawImage(playerUlt, 100, 700, 50, 50);
+								ctx.drawImage(playerAbility, 150, 700, 50, 50);
+							} else {
+								ctx.fillStyle = 'white';
+								ctx.fillRect(10, player1Position, 20, 100);
+								ctx.fillRect(1170, player2Position, 20, 100);
+								
+								ctx.strokeStyle = 'black';
+								ctx.lineWidth = 2;
+								ctx.strokeRect(10, player1Position, 20, 100);
+								ctx.strokeRect(1170, player2Position, 20, 100);
+							}
+							if (abilities) {
+								// p1 health border
+								ctx.drawImage(Images.healthText, 185, 60, 140, 25);
+								ctx.font = '20px Arial';
+								ctx.fillStyle = 'black';
+								ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
+								ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 225, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 251, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 277, 25, 26, 40);
+								ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
+								ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
+								ctx.drawImage(Images.icon, 131, 38, 23, 20);
+								// p2 health border
+								ctx.drawImage(Images.healthText, 875, 60, 140, 25);
+								ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
+								ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 949, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 975, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 1000, 25, 25, 40);
+								ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
+								ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
+								ctx.drawImage(Images.icon, 1046, 38, 23, 20);
+								var x = 0;
+								// draw p1 health bars
+								while (x < 11 - score.p2) {
+									if (x === 0)
+									ctx.drawImage(Images.left_health, 151, 25, 25, 40);
+									else if (x === 10)
+									ctx.drawImage(Images.right_health, 303, 25, 25, 40);
+									else
+									ctx.drawImage(Images.mid_health, 163 + 14 * x, 25, 13, 40);
+									x++;
+								}			
+								x = 0;
+								// draw p2 health bars
+								while (x < 11 - score.p1) {
+									if (x === 0)
+									ctx.drawImage(Images.right_health, 1024, 25, 25, 40);
+									else if (x === 10)
+									ctx.drawImage(Images.left_health, 872, 25, 25, 40);
+									else
+									ctx.drawImage(Images.mid_health, 1024 - 14 * x, 25, 13, 40);
+									x++;
+								}
+								
+								// Draw the ball
+								ctx.fillStyle = 'white';
+								ctx.beginPath();
+								ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+								ctx.fill();
+								ctx.strokeStyle = 'black';
+								ctx.beginPath();
+								ctx.lineWidth = 2;
+								ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
+								ctx.stroke();
+								ctx.fillStyle = 'white';
+							}
+							ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
+							endIndex++;
+							if (endIndex === Images.YinYangEnd.length) {
+								clearInterval(animInterval);
+								setGameInit(false);
+								setGameStarted(true);
+								socket.current?.emit('readyToPlay');
+								return;
+							}
+						}
+						else {
+							if (rotaIndex === Images.YinYangRotate.length)
+								rotaIndex = 0;
+							ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, canvas.width, canvas.height);
+							rotaIndex++;
+						}
+					}, 33);
+					return () => clearInterval(animInterval);
+				}
+				
 				else if (isGameStarted) {
 					// if (isAnimPlaying) {
 					// 	var endIndex = 0;
@@ -869,21 +984,51 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
 					ctx.globalAlpha = 1;
+					console.log("Selected GameMode: " + selectedGamemode);
 					if (selectedGamemode !== Mode.Regular) {
+						console.log("Character 1: " + player1Character);
+						console.log("Position 1: " + player1Position);
+						console.log("Character 2: " + player2Character);
+						console.log("Position 2: " + player2Position);
 						ctx.drawImage(player1Character, 10, player1Position);
 						ctx.drawImage(player2Character, 1170, player2Position);
-						if (hasUlt)
-							ctx.drawImage(playerUlt, 100, 700, 50, 50);
-						else {
-							ctx.font = '35px Arial';
-							ctx.fillText(`${secondsLeftUlt}`, 120, 725);
-						}
-						if (hasAbility)
-							ctx.drawImage(playerAbility, 150, 700, 50, 50);
-						else {
-							ctx.font = '35px Arial';
-							ctx.fillText(`${secondsLeft}`, 170, 725);
-						}
+						if (player === 1) {
+							ctx.font = '27px Arial';
+							ctx.fillStyle = 'black';
+							if (hasUlt)
+								ctx.drawImage(playerUlt, 100, 700, 50, 50);
+							else {
+								ctx.drawImage(ultimateCooldownImage, 90, 700, 50, 50);
+								if (secondsLeftUlt < 10)
+									ctx.fillText(`${secondsLeftUlt}`, 115, 728);
+								else
+									ctx.fillText(`${secondsLeftUlt}`, 113, 728);
+							}
+							if (hasAbility)
+								ctx.drawImage(playerAbility, 150, 700, 50, 50);
+							else {
+								ctx.drawImage(abilityCooldownImage, 150, 700, 50, 50);
+								if (secondsLeft < 10)
+									ctx.fillText(`${secondsLeft}`, 175, 728);
+								else
+									ctx.fillText(`${secondsLeft}`, 173, 728);
+							}
+						} else if (player === 2) {
+							if (hasAbility)
+								ctx.drawImage(playerAbility, 1050, 700, 50, 50);
+							else {
+								ctx.font = '35px Arial';
+								ctx.fillStyle = 'black';
+								ctx.fillText(`${secondsLeft}`, 1080, 725);
+							}
+							if (hasUlt)
+								ctx.drawImage(playerUlt, 1000, 700, 50, 50);
+							else {
+								ctx.font = '35px Arial';
+								ctx.fillStyle = 'black';
+								ctx.fillText(`${secondsLeftUlt}`, 1030, 725);
+							}
+						}		
 					}	
 					else {
 						ctx.fillStyle = 'white';
@@ -897,12 +1042,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}
 
 
-					if (subZeroSpecial) {
-						ctx.globalAlpha = 0.50;
-						if (subZeroTarget === 1)
+					if (player1Frozen) {
+							ctx.globalAlpha = 0.50;
 							ctx.drawImage(Images.iceBlock, 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
-						else if (subZeroTarget === 2)
-							ctx.drawImage(Images.iceBlock, 1165, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
+							ctx.globalAlpha = 1;
+					}
+					if (player2Frozen) {
+						ctx.globalAlpha = 0.50;
+						ctx.drawImage(Images.iceBlock, 1165, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
 						ctx.globalAlpha = 1;
 					}
 			
@@ -980,15 +1127,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							ctx.stroke();
 						}
 						if (abilityFreeze) {
-							// iceBlock.addEventListener('error', () => {
-							// 	console.log("load scorpion ERROR");
-							//   });
-							//   iceBlock.addEventListener('load', () => {
-							// 	  console.log("load scorpion");
-							// 	});
-								ctx.globalAlpha = 0.50;
-								ctx.drawImage(Images.iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
-								ctx.globalAlpha = 1;
+							ctx.globalAlpha = 0.50;
+							ctx.drawImage(Images.iceBlock, ballPosition.x - ballSize - 10, ballPosition.y - ballSize - 10, ballSize*2 + 20, ballSize*2 + 20);
+							ctx.globalAlpha = 1;
 						}
 				
 						// Draw the line to the ball, when scorpion ability is used
@@ -1009,12 +1150,17 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						}
 	
 						if (abilityMirage) {
-							ctx.globalAlpha = 0.65;
+							ctx.globalAlpha = 0.75;
 							for (var i in miragePos) {
 								ctx.beginPath();
 								ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, 0, Math.PI * 2);
 								ctx.fill();
 								ctx.closePath();
+								ctx.strokeStyle = 'black';
+								ctx.beginPath();
+								ctx.lineWidth = 2;
+								ctx.arc(miragePos[i][0], miragePos[i][1], ballSize, -2, Math.PI * 2);
+								ctx.stroke();
 							}
 							ctx.globalAlpha = 1;
 						}
@@ -1042,7 +1188,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, subZeroSpecial, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, subZeroTarget, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isAnimPlaying]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isAnimPlaying, currentFrame, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage]);
 
 
 

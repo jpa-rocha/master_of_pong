@@ -29,6 +29,7 @@ export class GameObject {
   public ballPosTarget: number;
   public ballVel: { x: number; y: number };
   public ballVelOld: { x: number; y: number };
+  public ballMagnitude: number;
 
   public allowAbilities: boolean;
   public freeze: boolean;
@@ -73,6 +74,7 @@ export class GameObject {
           Math.floor(Math.random() * 3) + Character.Scorpion,
         ),
       );
+      this.player2.ready = true;
       this.player2.pos.x = 1170;
     }
     this.gameOptions = options;
@@ -103,7 +105,7 @@ export class GameObject {
       this.clients.size === 2
     ) {
       console.log('starting game...');
-      this.gameService.startGame();
+      this.gameService.initGame();
     }
     // this.sendToClients
   }
