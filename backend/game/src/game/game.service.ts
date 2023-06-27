@@ -223,7 +223,7 @@ export class GameService {
     if (this.gameObject.ballSize >= 120) return;
     this.gameObject.ballSize *= 4;
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-      ballSize: this.gameObject.ballSizeDefault,
+      ballSize: this.gameObject.ballSize,
     });
     setTimeout(() => {
       if (this.gameObject.ballSize >= this.gameObject.ballSizeDefault)
@@ -234,7 +234,7 @@ export class GameService {
       )
         this.gameObject.ballSize = this.gameObject.ballSizeDefault;
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-        ballSize: this.gameObject.ballSizeDefault,
+        ballSize: this.gameObject.ballSize,
       });
     }, 10000);
   }
@@ -245,12 +245,12 @@ export class GameService {
     if (this.shrinkTimer) clearTimeout(this.shrinkTimer);
     this.gameObject.ballSize /= 2;
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-      ballSize: this.gameObject.ballSizeDefault,
+      ballSize: this.gameObject.ballSize,
     });
     this.shrinkTimer = setTimeout(() => {
       if (this.gameObject.ballSize < 15) this.gameObject.ballSize = 15;
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-        ballSize: this.gameObject.ballSizeDefault,
+        ballSize: this.gameObject.ballSize,
       });
       this.shrinkTimer = null;
     }, 10000);

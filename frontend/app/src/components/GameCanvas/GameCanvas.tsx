@@ -586,6 +586,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current.on('scoreUpdate', (event: any) => {
 				const { score } = event;
 				setScore(score);
+				setPlayer1Frozen(false);
+				setPlayer2Frozen(false);
+				setRaidenSpecial(false);
+				setAbilityFreeze(false);
+				setScorpionSpecial(false);
+				setAbilityMirage(false);
 			});
 			socket.current.on('player1Update', (event: any) => {
 				const { player1 } = event;
