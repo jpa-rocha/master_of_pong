@@ -3,12 +3,12 @@ version: "3.9"
 services:
 
   db:
-    image: postgres
+    image: postgres:15.3
     container_name: ${DB_HOST}
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - master_of_pong
     volumes:
@@ -20,24 +20,32 @@ services:
   db_viewer:
     image: adminer
     container_name: adminer
-    restart: always
+    restart: on-failure
     ports:
       - 8081:8080
-  # backend:
-  #   image: backend
-  #   build: ./backend/
-  #   container_name: backend
-  #   depends_on:
-  #     - db
-  #   restart: on-failure
-  #   networks:
-  #     - master_of_pong
-  #   ports:
-  #     - "5000:5000"
-  #   volumes:
-  #     - type: bind
-  #       source: ./backend/auth/
-  #       target: /backend
+
+  backend:
+    image: backend
+    build: ./backend/
+    container_name: backend
+    depends_on:
+      - db
+    restart: on-failure
+    networks:
+      - master_of_pong
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      API_UID: ${API_UID}
+      SECRET: ${SECRET}
+    volumes:
+      - type: bind
+        source: ./backend/nest-user-api/
+        target: /backend
 
   frontend:
     image: frontend
@@ -61,20 +69,6 @@ services:
 volumes:
   db_volume:
     driver: local
-
-  # frontend_vol:
-  #   name: "frontend_vol"
-  #   driver_opts:
-  #     type: none
-  #     o: bind
-  #     device: ./frontend/app
-
-  # backend_vol:
-  #   name: "backend_vol"
-  #   driver_opts:
-  #     type: none
-  #     o: bind
-  #     device: ./backend/example/chat
 
 networks:
   master_of_pong:

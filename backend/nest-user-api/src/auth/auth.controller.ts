@@ -4,7 +4,7 @@ import { oauth2Guard } from './utils/auth.guards';
 @Controller('auth')
 export class AuthController {
   // api/auth/login
-  @Get('login')
+  @Get('signin')
   @UseGuards(oauth2Guard)
   handleLogin() {
     return { message: 'Auth login' };

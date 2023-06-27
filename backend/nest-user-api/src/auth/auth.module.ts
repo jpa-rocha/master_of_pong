@@ -8,9 +8,11 @@ import { AuthController } from './auth.controller';
 import { HttpModule } from '@nestjs/axios';
 import { UsersService } from 'src/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule,
     UsersModule,
     HttpModule,
     TypeOrmModule.forFeature([User]),
