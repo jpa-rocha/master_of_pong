@@ -90,6 +90,11 @@ export class GameGateway
     this.gameCollection.playerReady(client);
   }
 
+  @SubscribeMessage('loadWindow')
+  loadWindow(client: AuthenticatedSocket): void {
+    this.server.to(client.id).emit('loadWindow', true);
+  }
+
   // Start move up
   // Stop move up
   // Start move down

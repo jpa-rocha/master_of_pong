@@ -20,8 +20,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [player, setPlayer] = useState<number>();
 	const [player1Size, setPlayer1Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player2Size, setPlayer2Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
-	const [player1Position, setPlayer1Position] = useState<number>(250);
-	const [player2Position, setPlayer2Position] = useState<number>(250);
+	const [player1Position, setPlayer1Position] = useState<number>(350);
+	const [player2Position, setPlayer2Position] = useState<number>(350);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
 	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
 	const [playerAbility, setPlayerAbility] = useState<HTMLImageElement>(new Image());
@@ -86,6 +86,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		return Reset;
 	}, [canvas, Images.buttonStart]);
 
+	const hyperButton = useMemo(() => {
+		var Hyper:Button = new Button("Enable HyperMode", Mode.Hyper, {x: 15, y:15}, {x:385, y:475}, undefined);
+		if (canvas)
+			Hyper.setSizeLocation({x:15 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:15 * canvas.width / 1200, y:670 * canvas.height / 800});
+		return Hyper;
+	}, [canvas]);
+
 	const gamemodeButtons = useMemo(() => {
 		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70}, Images.buttonModeSingle);
 		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70}, Images.buttonModeMaster);
@@ -105,7 +112,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		var BigPaddle:Button = new Button("Big Pete", Paddles.BigPete, {x:200, y:50}, {x:570, y:190}, Images.buttonPaddleBig);
 		if (canvas)
 		{
-			console.log("Scaling the buttons");
 			SmallPaddle.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:260 * canvas.height / 800});
 			RegularPaddle.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:260 * canvas.height / 800});
 			BigPaddle.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:825 * canvas.width / 1200, y:260 * canvas.height / 800});
@@ -128,13 +134,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	const handleStartGame = useCallback(() => {
 		try {
-			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter);
+			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter, hyperButton.selected);
 			console.log('Socket:', socket);
 			socket.current?.emit('start', opt);
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
-	}, [selectedCharacter, selectedGamemode, selectedPaddle]);
+	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected]);
 
 	const handleStopGame = async () => {
 		setGameStarted(false);
@@ -155,7 +161,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		ctx.fillRect(x, y, width, height);
 		ctx.fillStyle = 'white';
 		roundedRect(ctx, x, y, width, height, 20);
-		ctx.drawImage(image, x, y, width, height);
+		if (selectedOption !== Mode.Hyper)
+			ctx.drawImage(image, x, y, width, height);
 		if (!isFocused && ((!selected && !otherButtonSelected && !regular) || selectedOption === Mode.Start)) {
 			ctx.globalAlpha = 0.25;
 			ctx.fillStyle = "black";
@@ -210,6 +217,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		else if (startButton.isFocused)
 			startButton.isFocused = false;
 		drawButton(ctx, startButton, Mode.Start);
+		if (checkMouseOnButton(hyperButton, e, canvas))
+			hyperButton.isFocused = true;
+		else if (hyperButton.isFocused)
+			hyperButton.isFocused = false;
+		drawButton(ctx, hyperButton, Mode.Hyper);
 		for (var index in gamemodeButtons) {
 			if (checkMouseOnButton(gamemodeButtons[index], e, canvas))
 				gamemodeButtons[index].isFocused = true;
@@ -233,7 +245,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			drawButton(ctx, characterButtons[index], selectedCharacter);
 			// drawImages(ctx, characterButtons[index], selectedCharacter);
 		}
-	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton]);
+	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton, hyperButton]);
 	
 	const clearSelection = useCallback(() => {
 		for (var index in paddleButtons) {
@@ -280,6 +292,15 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				ctx.fillText("Choose game settings to continue", 600, 770);
 				return;
 			}
+		}
+		if (checkMouseOnButton(hyperButton, e, canvas)) {
+			if (hyperButton.selected) {
+				hyperButton.selected = false;
+			} else {
+				hyperButton.selected = true;
+			}
+			drawButton(ctx, hyperButton, Mode.Hyper);
+			return;
 		}
 		for (var index in gamemodeButtons) {
 			if (checkMouseOnButton(gamemodeButtons[index], e, canvas)) {
@@ -364,7 +385,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								if (characterButtons[button].selected) {
 									characterButtons[button].selected = false;
 									characterButtons[index].selected = true;
-									setSelectedCharacter(characterButtons[index].id - 7);
+									setSelectedCharacter(characterButtons[index].id);
 								}
 							}
 						}
@@ -517,11 +538,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	useEffect(() => {
 		socket.current = io('http://localhost:8002');
-		if (render === false)
-			setRender(true);
-		else
-			setRender(false);
-		// renderEffect();
+		// if (render === false)
+		// 	setRender(true);
+		// else
+		// 	setRender(false);
+		socket.current?.emit('loadWindow');
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();
@@ -565,6 +586,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current.on('scoreUpdate', (event: any) => {
 				const { score } = event;
 				setScore(score);
+				setPlayer1Frozen(false);
+				setPlayer2Frozen(false);
+				setRaidenSpecial(false);
+				setAbilityFreeze(false);
+				setScorpionSpecial(false);
+				setAbilityMirage(false);
 			});
 			socket.current.on('player1Update', (event: any) => {
 				const { player1 } = event;
@@ -581,6 +608,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current.on('gameStatus', (event: any) => {
 				const { gameStatus } = event;
 				setGameStarted(gameStatus);
+			});
+			socket.current.on('loadWindow', (event: any) => {
+				const { load } = event;
+				setRender(load);
 			});
 			if (abilities) {
 				// Character special abilities
@@ -688,6 +719,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				});
 				socket.current.on('playerCharacter', (event: any) => {
 					const { player1Character, player1Size, player2Character, player2Size } = event;
+					console.log("player1Character" + player1Character);
+					console.log("player1Size: " + player1Size);
+					console.log("player2Character: " + player2Character);
+					console.log("player2Size: " + player2Size);
 					switch (player2Character) {
 						case Character.Scorpion:
 							switch (player2Size) {
@@ -699,14 +734,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									setPlayer2Character(Images.paddleVentailM);
 									setPlayer2Size({width: 20, height: 100});
 									break;
-								case Paddles.BigPete:
-									setPlayer2Character(Images.paddleVentailL);
+									case Paddles.BigPete:
+										setPlayer2Character(Images.paddleVentailL);
 									setPlayer2Size({width: 32, height: 160});
 									break;
-							}
-							break;
-						case Character.SubZero:
-							switch (player2Size) {
+								}
+								break;
+								case Character.SubZero:
+									switch (player2Size) {
 								case Paddles.Small:
 									setPlayer2Character(Images.paddleBzS);
 									setPlayer2Size({width: 10, height: 50});

@@ -4,4 +4,5 @@ export enum Mode {
   Regular,
   Start,
   Reset = 10,
+  Hyper,
 }

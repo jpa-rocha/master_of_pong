@@ -25,9 +25,11 @@ export class GameObject {
   public Height: number;
 
   public ballSize: number;
+  public ballSizeDefault: number;
   public ballPos: { x: number; y: number };
   public ballPosTarget: number;
   public ballVel: { x: number; y: number };
+  public ballVelDefault: { x: number; y: number };
   public ballVelOld: { x: number; y: number };
   public ballMagnitude: number;
 
@@ -49,9 +51,17 @@ export class GameObject {
     this.allowAbilities = false;
     this.Width = 1200;
     this.Height = 800;
+    this.ballVelDefault = { x: 5, y: -0.5 };
+    this.ballVel = { x: 5, y: -0.5 };
+    this.ballSizeDefault = 15;
     this.ballSize = 15;
     this.ballPos = { x: this.Width / 2, y: this.Height / 2 };
-    this.ballVel = { x: 5, y: -0.5 };
+    if (options.hyper === true) {
+      this.ballVel = { x: 10, y: -0.5 };
+      this.ballVelDefault = { x: 10, y: -0.5 };
+      this.ballSizeDefault = 60;
+      this.ballSize = 60;
+    }
     this.ballVelOld = { x: 0, y: 0 };
     this.score = { p1: 0, p2: 0 };
     this.gameStarted = false;
@@ -72,6 +82,7 @@ export class GameObject {
           Mode.Singleplayer,
           Paddles.AverageJoe,
           Math.floor(Math.random() * 3) + Character.Scorpion,
+          false,
         ),
       );
       this.player2.ready = true;
