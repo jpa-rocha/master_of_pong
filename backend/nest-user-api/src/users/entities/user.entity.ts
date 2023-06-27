@@ -6,11 +6,23 @@ export class User {
   id: number;
 
   @Column()
-  firstName: string;
+  forty_two_id: number;
 
-  @Column()
-  lastName: string;
+  @Column({ type: 'varchar', length: 50, unique: true })
+  username: string;
 
-  @Column()
-  age: number;
+  @Column({ type: 'varchar', nullable: true })
+  refresh_token: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  email: string;
+
+  @Column({ type: 'varchar', length: 70, nullable: true })
+  avatar: string;
+
+  @Column({ type: 'boolean', default: false })
+  is_2fa_enabled: boolean;
+
+  @Column({ type: 'float', default: 0.0 })
+  xp: number;
 }

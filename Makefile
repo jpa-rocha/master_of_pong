@@ -9,3 +9,6 @@ run:
 	$(RUN_SCRIPT)setup.py;
 	$(RUN_SCRIPT)create_images.py;
 	docker compose up;
+
+docker fclean:
+	docker system prune -a;
