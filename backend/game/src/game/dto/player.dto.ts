@@ -30,7 +30,7 @@ export class Player {
     options: Options,
     public player: number = 2,
   ) {
-    this.pos = { x: 10, y: 250 };
+    this.pos = { x: 10, y: 350 };
     if (options.gameMode === Mode.Regular) {
       this.height = 100;
       this.width = 20;

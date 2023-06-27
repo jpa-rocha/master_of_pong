@@ -79,21 +79,16 @@ export class GameCollection {
   }
 
   public createGame(client: AuthenticatedSocket, options: Options): void {
-    console.log('creating/finding game');
-    console.log('gamemode: ' + options.gameMode);
-    console.log('Singleplayer: ' + Mode.Singleplayer);
-    console.log('Regular: ' + Mode.Regular);
     if (options.gameMode !== Mode.Singleplayer) {
-      console.log('inside if statement');
       console.log('total game count: ' + this.totalGameCount);
       const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
       let current: GameObject;
       for (let i = 0; i < this.totalGameCount; i++) {
         current = this.gameObjects.get(keys[i]);
-        console.log('Looking for game...');
         if (
           current.player1.options.gameMode === options.gameMode &&
-          current.clients.size === 1
+          current.clients.size === 1 &&
+          current.player1.options.hyper === options.hyper
           // Iterating over the Map
         ) {
           current.player2 = new Player(this.server, options);
