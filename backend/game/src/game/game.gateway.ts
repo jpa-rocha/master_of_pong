@@ -104,6 +104,7 @@ export class GameGateway
   initGame(client: AuthenticatedSocket, options: Options) {
     console.log('start message received...');
     this.gameCollection.createGame(client, options);
+    console.log(this.gameCollection.totalGameCount);
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);

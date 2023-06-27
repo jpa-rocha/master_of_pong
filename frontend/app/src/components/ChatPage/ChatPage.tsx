@@ -5,9 +5,9 @@ import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import "./chatPageStyle/chat.css";
 import { Grid, Box } from "@mui/material";
-import NavBarLandingPage from "../NavBarLandingPage";
-import Footer from "../Footer";
-import calm from "../../images/CalmScorpion.gif";
+// import NavBarLandingPage from "../NavBarLandingPage";
+// import Footer from "../Footer";
+// import calm from "../../images/CalmScorpion.gif";
 
 interface ChatPageProps {
   socket: Socket;

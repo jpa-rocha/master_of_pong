@@ -24,7 +24,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [player2Position, setPlayer2Position] = useState<number>(250);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
 	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
-	const [currentFrame, setCurrentFrame] = useState<number>(0);
 	const [playerAbility, setPlayerAbility] = useState<HTMLImageElement>(new Image());
 	const [playerUlt, setPlayerUlt] = useState<HTMLImageElement>(new Image());
 	const [ballPosition, setBallPosition] = useState<{ x: number; y: number }>({ x: 600, y: 400 });
@@ -33,7 +32,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
 	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
 	const [isGameInit, setGameInit] = useState<boolean>(false);
-	const [isAnimPlaying, setAnimPlaying] = useState<boolean>(false);
 	const [winner, setWinner] = useState<string>("");
 	const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 	const [arrowDown, setArrowDown] = useState<boolean>(false);
@@ -79,6 +77,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		if (canvas)
 			GameStart.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:670 * canvas.height / 800});
 		return GameStart;
+	}, [canvas, Images.buttonStart]);
+
+	const resetButton = useMemo(() => {
+		var Reset:Button = new Button("Return to Game Menu", Mode.Reset, {x: 200, y:50}, {x:700, y:300}, Images.buttonStart);
+		if (canvas)
+			Reset.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:670 * canvas.height / 800});
+		return Reset;
 	}, [canvas, Images.buttonStart]);
 
 	const gamemodeButtons = useMemo(() => {
@@ -144,13 +149,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		const { coordinates, size, image, isFocused, selected } = button;
 		const { x, y } = coordinates;
 		const { x: width, y: height } = size;
-		const otherButtonSelected = selectedOption > -1 && selectedOption !== Mode.Start && !selected;
+		const otherButtonSelected = selectedOption > -1 && selectedOption !== Mode.Start && selectedOption !== Mode.Reset && !selected;
 
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(x, y, width, height);
 		ctx.fillStyle = 'white';
 		roundedRect(ctx, x, y, width, height, 20);
-		ctx.drawImage(image, x + 50, y + 10, width, height);
+		ctx.drawImage(image, x, y, width, height);
 		if (!isFocused && ((!selected && !otherButtonSelected && !regular) || selectedOption === Mode.Start)) {
 			ctx.globalAlpha = 0.25;
 			ctx.fillStyle = "black";
@@ -377,6 +382,24 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			}
 		}
 	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, handleStartGame, Images.RaidenSpecial, Images.SubZeroSpecial, Images.ScorpionSpecial, startButton, clearSelection, regular]);
+
+	const handleFinishClick = useCallback((e: MouseEvent) => {
+		if (!canvas || !ctx)
+			return;
+		if (checkMouseOnButton(resetButton, e, canvas)) {
+			setGameSelection(true);
+		}
+	}, [canvas, ctx, resetButton]);
+
+	const handleFinishMove = useCallback((e: MouseEvent) => {
+		if (!canvas || !ctx)
+			return;
+		if (checkMouseOnButton(resetButton, e, canvas))
+			resetButton.isFocused = true;
+		else if (resetButton.isFocused)
+			resetButton.isFocused = false;
+		drawButton(ctx, resetButton, Mode.Reset);
+	}, [canvas, ctx, drawButton, resetButton]);
 	
 
 	function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, clear: boolean = false) {
@@ -498,6 +521,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			setRender(true);
 		else
 			setRender(false);
+		// renderEffect();
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();
@@ -813,169 +837,43 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			document.removeEventListener('keyup', handleKeyUp);
 		}
 	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameSelection]);
+	
+	// const renderEffect = () => {
+	// 	if (!canvas || !ctx) {
+	// 		console.log("Canvas not found");
+	// 		return;
+	// 	}
+	// 	ctx.globalAlpha = 1;
+	// 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// 	ctx.fillStyle = backgroundColor;
+	// 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	// 	ctx.font = '40px Arial'; //ITC Zapf Chancery
+	// 	ctx.fillStyle = 'white';
+	// 	ctx.textAlign = 'center';
+	// 	ctx.textBaseline = 'middle';
+
+	// 	ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
+	// 	ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
+	// 	ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
+
+	// 	drawButton(ctx, startButton, Mode.Start);
+	// 	for (var index in gamemodeButtons) {
+	// 		drawButton(ctx, gamemodeButtons[index], selectedGamemode);
+	// 	}
+	// 	for (index in paddleButtons) {
+	// 		// drawImages(ctx, paddleButtons[index], selectedPaddle);
+	// 		drawButton(ctx, paddleButtons[index], selectedPaddle);
+	// 	}
+	// 	for (index in characterButtons) {
+	// 		// drawImages(ctx, characterButtons[index], selectedCharacter);
+	// 		drawButton(ctx, characterButtons[index], selectedCharacter);
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (canvas) {
 			if (ctx) {
-				if (isGameSelection) {
-					ctx.globalAlpha = 1;
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					ctx.fillStyle = backgroundColor;
-					ctx.fillRect(0, 0, canvas.width, canvas.height);
-					ctx.font = '40px Arial'; //ITC Zapf Chancery
-					ctx.fillStyle = 'white';
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-
-					ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
-					ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
-					ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
-
-					drawButton(ctx, startButton, Mode.Start);
-					for (var index in gamemodeButtons) {
-						drawButton(ctx, gamemodeButtons[index], selectedGamemode);
-					}
-					for (index in paddleButtons) {
-						// drawImages(ctx, paddleButtons[index], selectedPaddle);
-						drawButton(ctx, paddleButtons[index], selectedPaddle);
-					}
-					for (index in characterButtons) {
-						// drawImages(ctx, characterButtons[index], selectedCharacter);
-						drawButton(ctx, characterButtons[index], selectedCharacter);
-					}
-				}
-				else if (isPlayerWaiting) {
-					var rotIndex = 0;
-					const animInterval = setInterval(() => {
-						ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, canvas.width, canvas.height);
-						rotIndex++;
-						if (rotIndex === Images.YinYangRotate.length) {
-							rotIndex = 0;
-						}
-					}, 33);
-					return () => clearInterval(animInterval);
-				}
-				else if (isGameInit) {
-					var rotaIndex = 0;
-					var endIndex = 0;
-					const animInterval = setInterval(() => {
-						console.log("Images loaded: " + Images.imagesLoaded + "/" + Images.totalImages);
-						if (rotaIndex === Images.YinYangRotate.length && Images.imagesLoaded === Images.totalImages) {
-							ctx.fillStyle = backgroundColor;
-							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							ctx.fillStyle = 'white';
-							ctx.globalAlpha = 1;
-							if (selectedGamemode !== Mode.Regular) {
-								ctx.drawImage(player1Character, 10, player1Position);
-								ctx.drawImage(player2Character, 1170, player2Position);
-								ctx.drawImage(playerUlt, 100, 700, 50, 50);
-								ctx.drawImage(playerAbility, 150, 700, 50, 50);
-							} else {
-								ctx.fillStyle = 'white';
-								ctx.fillRect(10, player1Position, 20, 100);
-								ctx.fillRect(1170, player2Position, 20, 100);
-								
-								ctx.strokeStyle = 'black';
-								ctx.lineWidth = 2;
-								ctx.strokeRect(10, player1Position, 20, 100);
-								ctx.strokeRect(1170, player2Position, 20, 100);
-							}
-							if (abilities) {
-								// p1 health border
-								ctx.drawImage(Images.healthText, 185, 60, 140, 25);
-								ctx.font = '20px Arial';
-								ctx.fillStyle = 'black';
-								ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
-								ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
-								ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
-								ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
-								ctx.drawImage(Images.mid_bar, 225, 25, 26, 40);
-								ctx.drawImage(Images.mid_bar, 251, 25, 26, 40);
-								ctx.drawImage(Images.mid_bar, 277, 25, 26, 40);
-								ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
-								ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
-								ctx.drawImage(Images.icon, 131, 38, 23, 20);
-								// p2 health border
-								ctx.drawImage(Images.healthText, 875, 60, 140, 25);
-								ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
-								ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
-								ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
-								ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
-								ctx.drawImage(Images.mid_bar, 949, 25, 26, 40);
-								ctx.drawImage(Images.mid_bar, 975, 25, 25, 40);
-								ctx.drawImage(Images.mid_bar, 1000, 25, 25, 40);
-								ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
-								ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
-								ctx.drawImage(Images.icon, 1046, 38, 23, 20);
-								var x = 0;
-								// draw p1 health bars
-								while (x < 11 - score.p2) {
-									if (x === 0)
-									ctx.drawImage(Images.left_health, 151, 25, 25, 40);
-									else if (x === 10)
-									ctx.drawImage(Images.right_health, 303, 25, 25, 40);
-									else
-									ctx.drawImage(Images.mid_health, 163 + 14 * x, 25, 13, 40);
-									x++;
-								}			
-								x = 0;
-								// draw p2 health bars
-								while (x < 11 - score.p1) {
-									if (x === 0)
-									ctx.drawImage(Images.right_health, 1024, 25, 25, 40);
-									else if (x === 10)
-									ctx.drawImage(Images.left_health, 872, 25, 25, 40);
-									else
-									ctx.drawImage(Images.mid_health, 1024 - 14 * x, 25, 13, 40);
-									x++;
-								}
-								
-								// Draw the ball
-								ctx.fillStyle = 'white';
-								ctx.beginPath();
-								ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
-								ctx.fill();
-								ctx.strokeStyle = 'black';
-								ctx.beginPath();
-								ctx.lineWidth = 2;
-								ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
-								ctx.stroke();
-								ctx.fillStyle = 'white';
-							}
-							ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
-							endIndex++;
-							if (endIndex === Images.YinYangEnd.length) {
-								clearInterval(animInterval);
-								setGameInit(false);
-								setGameStarted(true);
-								socket.current?.emit('readyToPlay');
-								return;
-							}
-						}
-						else {
-							if (rotaIndex === Images.YinYangRotate.length)
-								rotaIndex = 0;
-							ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, canvas.width, canvas.height);
-							rotaIndex++;
-						}
-					}, 33);
-					return () => clearInterval(animInterval);
-				}
-				
-				else if (isGameStarted) {
-					// if (isAnimPlaying) {
-					// 	var endIndex = 0;
-					// 	const animInterval = setInterval(() => {
-					// 		if (endIndex === Images.YinYangEnd.length) {
-					// 			clearInterval(this);
-					// 			setAnimPlaying(false);
-					// 			return;
-					// 		}
-					// 		ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
-					// 		endIndex++;
-					// 	}, 33);
-					// 	return () => clearInterval(animInterval);
-					// }
+				if (isGameStarted) {
 					ctx.fillStyle = backgroundColor;
 					if (raidenSpecial) {
 						ctx.fillRect(10, player1Position - 10, 20, 120);
@@ -1185,24 +1083,168 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.stroke();
 						ctx.fillStyle = 'white';
 					}
+				} else if (isGameSelection) {
+					ctx.globalAlpha = 1;
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.fillStyle = backgroundColor;
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					ctx.font = '40px Arial'; //ITC Zapf Chancery
+					ctx.fillStyle = 'white';
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+
+					ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
+					ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
+					ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
+
+					drawButton(ctx, startButton, Mode.Start);
+					for (var index in gamemodeButtons) {
+						drawButton(ctx, gamemodeButtons[index], selectedGamemode);
+					}
+					for (index in paddleButtons) {
+						// drawImages(ctx, paddleButtons[index], selectedPaddle);
+						drawButton(ctx, paddleButtons[index], selectedPaddle);
+					}
+					for (index in characterButtons) {
+						// drawImages(ctx, characterButtons[index], selectedCharacter);
+						drawButton(ctx, characterButtons[index], selectedCharacter);
+					}
+				} else if (isPlayerWaiting) {
+					var rotIndex = 0;
+					const animInterval = setInterval(() => {
+						ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, canvas.width, canvas.height);
+						rotIndex++;
+						if (rotIndex === Images.YinYangRotate.length) {
+							rotIndex = 0;
+						}
+					}, 33);
+					return () => clearInterval(animInterval);
+				} else if (isGameInit) {
+					var rotaIndex = 0;
+					var endIndex = 0;
+					const animInterval = setInterval(() => {
+						console.log("Images loaded: " + Images.imagesLoaded + "/" + Images.totalImages);
+						if (rotaIndex === Images.YinYangRotate.length && Images.imagesLoaded === Images.totalImages) {
+							ctx.fillStyle = backgroundColor;
+							ctx.fillRect(0, 0, canvas.width, canvas.height);
+							ctx.fillStyle = 'white';
+							ctx.globalAlpha = 1;
+							if (selectedGamemode !== Mode.Regular) {
+								ctx.drawImage(player1Character, 10, player1Position);
+								ctx.drawImage(player2Character, 1170, player2Position);
+								ctx.drawImage(playerUlt, 100, 700, 50, 50);
+								ctx.drawImage(playerAbility, 150, 700, 50, 50);
+							} else {
+								ctx.fillStyle = 'white';
+								ctx.fillRect(10, player1Position, 20, 100);
+								ctx.fillRect(1170, player2Position, 20, 100);
+								
+								ctx.strokeStyle = 'black';
+								ctx.lineWidth = 2;
+								ctx.strokeRect(10, player1Position, 20, 100);
+								ctx.strokeRect(1170, player2Position, 20, 100);
+							}
+							if (abilities) {
+								// p1 health border
+								ctx.drawImage(Images.healthText, 185, 60, 140, 25);
+								ctx.font = '20px Arial';
+								ctx.fillStyle = 'black';
+								ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
+								ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 225, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 251, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 277, 25, 26, 40);
+								ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
+								ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
+								ctx.drawImage(Images.icon, 131, 38, 23, 20);
+								// p2 health border
+								ctx.drawImage(Images.healthText, 875, 60, 140, 25);
+								ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
+								ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 949, 25, 26, 40);
+								ctx.drawImage(Images.mid_bar, 975, 25, 25, 40);
+								ctx.drawImage(Images.mid_bar, 1000, 25, 25, 40);
+								ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
+								ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
+								ctx.drawImage(Images.icon, 1046, 38, 23, 20);
+								var x = 0;
+								// draw p1 health bars
+								while (x < 11 - score.p2) {
+									if (x === 0)
+									ctx.drawImage(Images.left_health, 151, 25, 25, 40);
+									else if (x === 10)
+									ctx.drawImage(Images.right_health, 303, 25, 25, 40);
+									else
+									ctx.drawImage(Images.mid_health, 163 + 14 * x, 25, 13, 40);
+									x++;
+								}			
+								x = 0;
+								// draw p2 health bars
+								while (x < 11 - score.p1) {
+									if (x === 0)
+									ctx.drawImage(Images.right_health, 1024, 25, 25, 40);
+									else if (x === 10)
+									ctx.drawImage(Images.left_health, 872, 25, 25, 40);
+									else
+									ctx.drawImage(Images.mid_health, 1024 - 14 * x, 25, 13, 40);
+									x++;
+								}
+								
+								// Draw the ball
+								ctx.fillStyle = 'white';
+								ctx.beginPath();
+								ctx.arc(ballPosition.x, ballPosition.y, ballSize, 0, Math.PI * 2);
+								ctx.fill();
+								ctx.strokeStyle = 'black';
+								ctx.beginPath();
+								ctx.lineWidth = 2;
+								ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
+								ctx.stroke();
+								ctx.fillStyle = 'white';
+							}
+							ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
+							endIndex++;
+							if (endIndex === Images.YinYangEnd.length) {
+								clearInterval(animInterval);
+								setGameInit(false);
+								setGameStarted(true);
+								socket.current?.emit('readyToPlay');
+								return;
+							}
+						}
+						else {
+							if (rotaIndex === Images.YinYangRotate.length)
+								rotaIndex = 0;
+							ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, canvas.width, canvas.height);
+							rotaIndex++;
+						}
+					}, 33);
+					return () => clearInterval(animInterval);
+				} else {
+					canvas?.addEventListener("click", handleFinishClick);
+					canvas?.addEventListener("mousemove", handleFinishMove);
+					ctx.fillStyle = backgroundColor;
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					ctx.fillStyle = 'white';
+					ctx.fillText(winner, 600, 400);
+					drawButton(ctx, resetButton, Mode.Reset);
+					return () => {
+						canvas?.removeEventListener("click", handleFinishClick);
+						canvas?.removeEventListener("mousemove", handleFinishMove);
+					}
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isAnimPlaying, currentFrame, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage]);
-
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove]);
 
 
 	return (
 		<div>
 		<canvas ref={canvasRef} width={1200} height={800} style={{ backgroundColor: 'black', marginRight: '50' }}></canvas>
-		<div>
-			<button onClick={handleStartGame}>
-			Start Game
-			</button>
-			<button onClick={handleStopGame}>
-			Stop Game
-			</button>
-		</div>
 		</div>
 	);
 };

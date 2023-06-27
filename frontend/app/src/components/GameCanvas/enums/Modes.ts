@@ -3,4 +3,5 @@ export enum Mode {
   MasterOfPong,
   Regular,
   Start,
+  Reset = 10,
 }

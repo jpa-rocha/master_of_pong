@@ -73,7 +73,9 @@ export class GameCollection {
   }
 
   public terminateSocket(client: AuthenticatedSocket) {
+    const id = client.data.lobby?.gameID;
     client.data.lobby?.removeClient(client);
+    if (this.gameObjects.delete(id)) this.totalGameCount--;
   }
 
   public createGame(client: AuthenticatedSocket, options: Options): void {

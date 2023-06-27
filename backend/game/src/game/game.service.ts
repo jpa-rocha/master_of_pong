@@ -89,6 +89,9 @@ export class GameService {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
+    let winnerMessage;
+    if (this.gameObject.score.p1 === 11) winnerMessage = 'player 1 wins';
+    else if (this.gameObject.score.p2 === 11) winnerMessage = 'player 2 wins';
 
     // Reset player, ball and score
     this.gameObject.default();
@@ -115,6 +118,9 @@ export class GameService {
     );
     this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,
+    });
+    this.gameObject.sendToClients<{ winner: string }>('winnerUpdate', {
+      winner: winnerMessage,
     });
   }
 

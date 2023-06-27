@@ -4,8 +4,8 @@ import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
 //import Chat from './Messages/Chat'
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
-import GameCanvas from "./GameCanvas/GameCanvas";
-import logo from "../images/logo.png";
+// import GameCanvas from "./GameCanvas/GameCanvas";
+// import logo from "../images/logo.png";
 
 
 /* import * as socketIO  from "socket.io-client"; 

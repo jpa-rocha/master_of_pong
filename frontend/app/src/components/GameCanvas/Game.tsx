@@ -4,8 +4,7 @@ import calm from "../../images/CalmScorpion.gif"
 import NavBarLandingPage from "../NavBarLandingPage";
 //import Chat from './Messages/Chat'
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
-import GameCanvas from './GameCanvas'
-import logo from "../images/logo.png";
+import GameCanvas from './GameCanvas';
 
 /* import * as socketIO  from "socket.io-client"; 
 import { Socket } from 'socket.io-client';

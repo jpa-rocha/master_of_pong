@@ -114,8 +114,9 @@ export class GameObject {
     this.clients.delete(client.id);
     client.data.lobby = null;
     this.gameService.stopGame();
-    this.sendToClients('game message', {
-      message: 'Opponent has left the game.',
+    // this.gameService.winner
+    this.sendToClients('winnerUpdate', {
+      winner: 'Opponent has left the game.',
     });
   }
 
