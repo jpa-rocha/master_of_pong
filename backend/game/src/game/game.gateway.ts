@@ -85,6 +85,11 @@ export class GameGateway
     this.gameCollection.useAbility(client);
   }
 
+  @SubscribeMessage('readyToPlay')
+  readyToPlay(client: AuthenticatedSocket): void {
+    this.gameCollection.playerReady(client);
+  }
+
   // Start move up
   // Stop move up
   // Start move down
@@ -96,10 +101,10 @@ export class GameGateway
   //   return data;
   // }
   @SubscribeMessage('start')
-  startGame(client: AuthenticatedSocket, options: Options) {
+  initGame(client: AuthenticatedSocket, options: Options) {
     console.log('start message received...');
-    const game = this.gameCollection.createGame(options);
-    game.addClient(client);
+    this.gameCollection.createGame(client, options);
+    // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
   }

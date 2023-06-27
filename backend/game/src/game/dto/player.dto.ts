@@ -7,6 +7,7 @@ import { Paddles } from '../enums/Paddles';
 @Injectable()
 export class Player {
   public id: string;
+  public ready: boolean;
   public pos: { x: number; y: number };
   public character: HTMLImageElement;
   public height: number;
@@ -63,6 +64,7 @@ export class Player {
     this.useAbility = false;
     this.options = options;
     this.id = null;
+    this.ready = false;
   }
 
   public setValues(

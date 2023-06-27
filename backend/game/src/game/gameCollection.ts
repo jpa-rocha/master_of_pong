@@ -13,6 +13,19 @@ export class GameCollection {
     GameObject
   >();
 
+  public playerReady(client: AuthenticatedSocket) {
+    if (client.data.lobby.player1.id === client.id)
+      client.data.lobby.player1.ready = true;
+    else if (client.data.lobby.player2.id === client.id)
+      client.data.lobby.player2.ready = true;
+    if (
+      client.data.lobby.player1.ready === true &&
+      client.data.lobby.player2.ready === true
+    ) {
+      client.data.lobby.gameService.startGame();
+    }
+  }
+
   public moveUpEnable(client: AuthenticatedSocket) {
     if (client.data.lobby.player1.id === client.id)
       client.data.lobby.player1.moveUp = true;
@@ -63,10 +76,11 @@ export class GameCollection {
     client.data.lobby?.removeClient(client);
   }
 
-  public createGame(options: Options): GameObject {
+  public createGame(client: AuthenticatedSocket, options: Options): void {
     console.log('creating/finding game');
-    console.log(options.gameMode);
-    console.log(Mode.Singleplayer);
+    console.log('gamemode: ' + options.gameMode);
+    console.log('Singleplayer: ' + Mode.Singleplayer);
+    console.log('Regular: ' + Mode.Regular);
     if (options.gameMode !== Mode.Singleplayer) {
       console.log('inside if statement');
       console.log('total game count: ' + this.totalGameCount);
@@ -83,7 +97,8 @@ export class GameCollection {
           current.player2 = new Player(this.server, options);
           current.player2.pos.x = 1170;
           console.log('Returning an already created game');
-          return current;
+          current.addClient(client);
+          return;
         }
       }
     }
@@ -91,7 +106,8 @@ export class GameCollection {
     const game = new GameObject(this.server, options);
     this.gameObjects.set(game.gameID, game);
     this.totalGameCount++;
-    return game;
+    game.addClient(client);
+    return;
   }
 
   public joinGame(gameID: string, client: AuthenticatedSocket) {

@@ -29,13 +29,9 @@ export class GameService {
     console.log('new gameservice class created');
   }
 
-  startGame(): void {
+  initGame(): void {
     if (this.gameObject.gameStarted) return;
-    console.log('Player1: ' + this.gameObject.player1.options.character);
-    console.log('Player2: ' + this.gameObject.player2.options.character);
-
     this.gameObject.gameStarted = true;
-    console.log('GAME START FUNCTION CALLED');
     this.gameObject.sendToClients<{
       player1Character: number;
       player1Size: number;
@@ -49,15 +45,21 @@ export class GameService {
     });
     this.gameObject.sendToPlayer1<{
       player: number;
-    }>('player', {
+      ability: number;
+    }>('gameInit', {
       player: 1,
+      ability: this.gameObject.player1.ability,
     });
     this.gameObject.sendToPlayer2<{
       player: number;
-    }>('player', {
+      ability: number;
+    }>('gameInit', {
       player: 2,
+      ability: this.gameObject.player2.ability,
     });
+  }
 
+  startGame(): void {
     console.log('Setting ball timer...');
     this.ballTimer = setInterval(() => {
       this.moveBall();
@@ -150,8 +152,9 @@ export class GameService {
     this.pressDown = 0;
   }
 
-  ultScorpion(player: Player): void {
+  ultScorpion(player: Player, opponent: Player): void {
     player.getOverHere = true;
+    opponent.getOverHere = false;
     this.gameObject.sendToClients<{ ScorpionSpecial: boolean; target: number }>(
       'ScorpionSpecial',
       {
@@ -174,27 +177,25 @@ export class GameService {
 
   ultSubZero(opponent: Player): void {
     opponent.freeze = true;
-    this.gameObject.sendToClients<{ SubZeroSpecial: boolean; target: number }>(
-      'SubZeroSpecial',
-      {
-        SubZeroSpecial: true,
-        target: opponent.player,
-      },
-    );
+    this.gameObject.sendToClients<{ target: number }>('SubZeroSpecial', {
+      target: opponent.player,
+    });
     opponent.freezeTimer = setTimeout(() => {
       opponent.freeze = false;
       opponent.freezeTimer = null;
-      this.gameObject.sendToClients<{ SubZeroSpecial: boolean }>(
-        'SubZeroSpecial',
-        {
-          SubZeroSpecial: false,
-        },
-      );
+      this.gameObject.sendToClients<{
+        target: number;
+      }>('SubZeroSpecial', {
+        target: -opponent.player,
+      });
     }, 1200);
   }
 
   abLightning(): void {
     this.gameObject.lightning = true;
+    this.gameObject.ballMagnitude = Math.sqrt(
+      this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+    );
     this.gameObject.sendToClients<{ RaidenSpecial: boolean }>('RaidenSpecial', {
       RaidenSpecial: true,
     });
@@ -209,13 +210,13 @@ export class GameService {
 
   BallSize(): void {
     if (!this.gameObject.allowAbilities) return;
-    if (this.gameObject.ballSize >= 60) return;
-    this.gameObject.ballSize *= 2;
+    if (this.gameObject.ballSize >= 120) return;
+    this.gameObject.ballSize *= 4;
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
     setTimeout(() => {
-      if (this.gameObject.ballSize >= 15) this.gameObject.ballSize /= 2;
+      if (this.gameObject.ballSize >= 15) this.gameObject.ballSize /= 4;
       if (this.gameObject.ballSize < 15 && !this.shrinkTimer)
         this.gameObject.ballSize = 15;
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
@@ -263,10 +264,10 @@ export class GameService {
     if (player.hasSpecial) {
       console.log('Special ability');
       if (player.options.character === Character.Scorpion)
-        this.ultScorpion(player);
+        this.ultScorpion(player, opponent);
       else if (player.options.character === Character.SubZero)
         this.ultSubZero(opponent);
-      else if (player.options.character === Character.Scorpion)
+      else if (player.options.character === Character.Raiden)
         this.abLightning();
       player.setSpecial();
     }
@@ -438,15 +439,16 @@ export class GameService {
           this.gameObject.ballPos.y <= this.gameObject.ballPosTarget)
       ) {
         this.gameObject.lightning = false;
-        const hypotenuse = 5;
         this.gameObject.ballVel.y = -this.gameObject.ballVel.y / 4;
         if (this.gameObject.lightningDir < 0) {
           this.gameObject.ballVel.x = -Math.sqrt(
-            hypotenuse ** 2 - this.gameObject.ballVel.y ** 2,
+            (this.gameObject.ballMagnitude + 2) ** 2 -
+              this.gameObject.ballVel.y ** 2,
           );
         } else
           this.gameObject.ballVel.x = Math.sqrt(
-            hypotenuse ** 2 + this.gameObject.ballVel.y ** 2,
+            (this.gameObject.ballMagnitude + 2) ** 2 -
+              this.gameObject.ballVel.y ** 2,
           );
         setTimeout(() => {
           this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
@@ -455,12 +457,17 @@ export class GameService {
               RaidenSpecial: false,
             },
           );
-          const lengthNew = Math.sqrt(
-            this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-          );
-          const scaleFactor = 5 / lengthNew;
-          this.gameObject.ballVel.x *= scaleFactor;
-          this.gameObject.ballVel.y *= scaleFactor;
+          if (this.gameObject.ballVel.x < 0)
+            this.gameObject.ballVel.x = -Math.sqrt(
+              this.gameObject.ballMagnitude ** 2 -
+                this.gameObject.ballVel.y ** 2,
+            );
+          else {
+            this.gameObject.ballVel.x = Math.sqrt(
+              this.gameObject.ballMagnitude ** 2 -
+                this.gameObject.ballVel.y ** 2,
+            );
+          }
         }, 800);
         this.gameObject.lightningDir = 0;
       }
@@ -529,10 +536,16 @@ export class GameService {
         this.stopGame();
       this.gameObject.ballPos.x = this.gameObject.Width / 2;
       this.gameObject.ballPos.y = this.gameObject.Height / 2;
-      this.gameObject.ballVel.y = -0.5;
-      this.gameObject.ballVel.x = 5;
+      let angle = Math.random() * 360;
+      if (angle > 45 && angle < 135) {
+        angle = Math.random() * 45;
+      } else if (angle > 225 && angle < 315) {
+        angle = Math.random() * 45 + 315;
+      }
+      angle = angle * (Math.PI / 180);
+      this.gameObject.ballVel.x = 5 * Math.cos(angle) - -0.5 * Math.sin(angle);
+      this.gameObject.ballVel.y = 5 * Math.sin(angle) + -0.5 * Math.cos(angle);
     }
-
     if (
       (this.gameObject.ballPos.y + this.gameObject.ballSize >=
         this.gameObject.Height &&
@@ -579,9 +592,9 @@ export class GameService {
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      const scaleFactor = lengthOld / lengthNew;
+      let scaleFactor = lengthOld / lengthNew;
       // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-      //   scaleFactor *= 1.02;
+      scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor * 1.01;
       this.gameObject.ballVel.y *= scaleFactor * 1.01;
     }
@@ -618,9 +631,9 @@ export class GameService {
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
-      const scaleFactor = lengthOld / lengthNew;
+      let scaleFactor = lengthOld / lengthNew;
       // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-      //   scaleFactor *= 1.02;
+      scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
     }
