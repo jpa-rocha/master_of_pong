@@ -659,6 +659,7 @@ export class GameService {
       this.gameObject.freeze = false;
       this.gameObject.player1.getOverHere = false;
       this.gameObject.player2.getOverHere = false;
+      this.gameObject.ballSize = this.gameObject.ballSizeDefault;
       if (this.mirageTimer) {
         clearTimeout(this.mirageTimer);
         this.mirageTimer = null;

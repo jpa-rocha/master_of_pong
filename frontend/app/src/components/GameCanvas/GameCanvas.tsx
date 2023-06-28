@@ -30,6 +30,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [ballSize, setBallSize] = useState<number>(15);
 	const [isGameSelection, setGameSelection] = useState<boolean>(true);
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
+	const [playerChose, setPlayerChose] = useState<boolean>(false);
 	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
 	const [isGameInit, setGameInit] = useState<boolean>(false);
 	const [winner, setWinner] = useState<number>(-1);
@@ -265,8 +266,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							break;
 					}
 				}
-				handleStartGame();
-				setPlayerWaiting(true);
+				// handleStartGame();
+				setPlayerChose(true);
+				// setPlayerWaiting(true);
 				setGameSelection(false);
 				canvas.removeEventListener("mousemove", handleMouseMove);
 				canvas.removeEventListener("click", handleMouseClick);
@@ -850,6 +852,25 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameSelection]);
 
+	// function animateStartLoading() {
+	// 	if (canvas && ctx) {
+	// 		var startIndex = Images.YinYangEnd.length - 1;
+	// 		const animInterval = setInterval(() => {
+	// 			ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, canvas.width, canvas.height);
+	// 			console.log("Image : " + startIndex);
+	// 			startIndex--;
+	// 			if (startIndex < 0) {
+	// 				clearInterval(animInterval);
+	// 				setPlayerChose(false);
+	// 				handleStartGame();
+	// 				setPlayerWaiting(true);
+	// 				return;
+	// 			}
+	// 		}, 33);
+	// 		return () => clearInterval(animInterval);
+	// 	}
+	// }
+
 	useEffect(() => {
 		if (canvas) {
 			if (ctx) {
@@ -870,37 +891,43 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							ctx.font = '27px Arial';
 							ctx.fillStyle = 'black';
 							if (hasUlt)
-								ctx.drawImage(playerUlt, 100, 700, 50, 50);
+								ctx.drawImage(playerUlt, 80, 700, 60, 60);
 							else {
-								ctx.drawImage(ultimateCooldownImage, 90, 700, 50, 50);
+								ctx.drawImage(ultimateCooldownImage, 80, 700, 60, 60);
 								if (secondsLeftUlt < 10)
-									ctx.fillText(`${secondsLeftUlt}`, 115, 728);
+									ctx.fillText(`${secondsLeftUlt}`, 110, 732);
 								else
-									ctx.fillText(`${secondsLeftUlt}`, 113, 728);
+									ctx.fillText(`${secondsLeftUlt}`, 108, 732);
 							}
 							if (hasAbility)
-								ctx.drawImage(playerAbility, 150, 700, 50, 50);
+								ctx.drawImage(playerAbility, 150, 700, 60, 60);
 							else {
-								ctx.drawImage(abilityCooldownImage, 150, 700, 50, 50);
+								ctx.drawImage(abilityCooldownImage, 150, 700, 60, 60);
 								if (secondsLeft < 10)
-									ctx.fillText(`${secondsLeft}`, 175, 728);
+									ctx.fillText(`${secondsLeft}`, 180, 732);
 								else
-									ctx.fillText(`${secondsLeft}`, 173, 728);
+									ctx.fillText(`${secondsLeft}`, 178, 732);
 							}
 						} else if (player === 2) {
+							ctx.font = '27px Arial';
+							ctx.fillStyle = 'black';
 							if (hasAbility)
-								ctx.drawImage(playerAbility, 1050, 700, 50, 50);
+								ctx.drawImage(playerAbility, 1060, 700, 60, 60);
 							else {
-								ctx.font = '35px Arial';
-								ctx.fillStyle = 'black';
-								ctx.fillText(`${secondsLeft}`, 1080, 725);
+								ctx.drawImage(abilityCooldownImage, 1060, 700, 60, 60);
+								if (secondsLeft < 10)
+									ctx.fillText(`${secondsLeft}`, 1090, 732);
+								else
+									ctx.fillText(`${secondsLeft}`, 1088, 732);
 							}
 							if (hasUlt)
-								ctx.drawImage(playerUlt, 1000, 700, 50, 50);
+								ctx.drawImage(playerUlt, 990, 700, 60, 60);
 							else {
-								ctx.font = '35px Arial';
-								ctx.fillStyle = 'black';
-								ctx.fillText(`${secondsLeftUlt}`, 1030, 725);
+								ctx.drawImage(ultimateCooldownImage, 990, 700, 60, 60);
+								if (secondsLeftUlt < 10)
+									ctx.fillText(`${secondsLeftUlt}`, 1020, 732);
+								else
+									ctx.fillText(`${secondsLeftUlt}`, 1018, 732);
 							}
 						}		
 					}	
@@ -1091,6 +1118,21 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						drawButton(ctx, characterButtons[index], selectedCharacter);
 					}
 					drawButton(ctx, hyperButton, Mode.Hyper, 5);
+				} else if (playerChose) {
+					var startIndex = Images.YinYangEnd.length - 1;
+					const animInterval = setInterval(() => {
+						ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, canvas.width, canvas.height);
+						console.log("Image : " + startIndex);
+						startIndex--;
+						if (startIndex < 0) {
+							clearInterval(animInterval);
+							setPlayerChose(false);
+							handleStartGame();
+							setPlayerWaiting(true);
+							return;
+						}
+					}, 33);
+					return () => clearInterval(animInterval);
 				} else if (isPlayerWaiting) {
 					var rotIndex = 0;
 					const animInterval = setInterval(() => {
@@ -1114,8 +1156,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							if (selectedGamemode !== Mode.Regular) {
 								ctx.drawImage(player1Character, 10, player1Position);
 								ctx.drawImage(player2Character, 1170, player2Position);
-								ctx.drawImage(playerUlt, 100, 700, 50, 50);
-								ctx.drawImage(playerAbility, 150, 700, 50, 50);
+								if (player === 1) {
+										ctx.drawImage(playerUlt, 80, 700, 60, 60);
+										ctx.drawImage(playerAbility, 150, 700, 60, 60);
+								} else if (player === 2) {
+										ctx.drawImage(playerAbility, 1060, 700, 60, 60);
+										ctx.drawImage(playerUlt, 990, 700, 60, 60);
+								}	
 							} else {
 								ctx.fillStyle = 'white';
 								ctx.fillRect(10, player1Position, 20, 100);
@@ -1236,7 +1283,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillStyle = 'white';
 					ctx.font = 'bold 40px Arial';
 					if (winner === player) {
-						ctx.fillText("You have reached transcendence!", 600, 100);
+						ctx.fillText("You have reached transcendence", 600, 100);
 						var c1max = 700;
 						var c1min = 200;
 						var c1x = 200;
@@ -1306,7 +1353,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, playerChose, handleStartGame]);
 
 
 	return (
