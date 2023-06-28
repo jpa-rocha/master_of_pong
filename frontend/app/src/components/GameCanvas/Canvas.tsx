@@ -39,6 +39,10 @@ import FreezeAbilityImage from '../../images/Abilities/FreezeAbility.png';
 import BiggerBallAbilityImage from '../../images/Abilities/BiggerBallAbility.png';
 import SmallerBallAbilityImage from '../../images/Abilities/SmallerBallAbility.png';
 import SoundGrenadeAbilityImage from '../../images/Abilities/SoundGrenadeAbility.png';
+import mountains from '../../images/win/mountains.png';
+import cloud1 from '../../images/win/cloud1.png';
+import cloud2 from '../../images/win/cloud2.png';
+import cloud3 from '../../images/win/cloud3.png';
 
 export class Button {
 	public name: string;
@@ -136,6 +140,10 @@ export class ImageContainer {
 	public YinYangRotate: HTMLImageElement [] = [];
 	public YinYangEnd: HTMLImageElement [] = [];
 	public Cooldown: HTMLImageElement [] = [];
+	public Mountains;
+	public Cloud1;
+	public Cloud2;
+	public Cloud3;
 
 	importAll(r: any) {
 		return r.keys().map(r);
@@ -333,8 +341,21 @@ export class ImageContainer {
 			this.Cooldown[this.Cooldown.length - 1].onload = this.incrementCounter.bind(this);
 			this.Cooldown[this.Cooldown.length - 1].src = image;
 		});
-		console.log("yinyangrotate length: " + this.YinYangRotate.length);
-		console.log("yinyangend length: " + this.YinYangEnd.length);
-		console.log("cooldown length: " + this.Cooldown.length);
+		this.Mountains = new Image();
+		this.totalImages++;
+		this.Mountains.onload = this.incrementCounter.bind(this);
+		this.Mountains.src = mountains;
+		this.Cloud1 = new Image();
+		this.totalImages++;
+		this.Cloud1.onload = this.incrementCounter.bind(this);
+		this.Cloud1.src = cloud1;
+		this.Cloud2 = new Image();
+		this.totalImages++;
+		this.Cloud2.onload = this.incrementCounter.bind(this);
+		this.Cloud2.src = cloud2;
+		this.Cloud3 = new Image();
+		this.totalImages++;
+		this.Cloud3.onload = this.incrementCounter.bind(this);
+		this.Cloud3.src = cloud3;
 	}
 }

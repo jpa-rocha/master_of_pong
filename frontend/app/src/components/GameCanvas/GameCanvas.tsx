@@ -32,7 +32,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [isGameStarted, setGameStarted] = useState<boolean>(false);
 	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
 	const [isGameInit, setGameInit] = useState<boolean>(false);
-	const [winner, setWinner] = useState<string>("");
+	const [winner, setWinner] = useState<number>(-1);
 	const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 	const [arrowDown, setArrowDown] = useState<boolean>(false);
 	const [arrowUp, setArrowUp] = useState<boolean>(false);
@@ -82,14 +82,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const resetButton = useMemo(() => {
 		var Reset:Button = new Button("Return to Game Menu", Mode.Reset, {x: 200, y:50}, {x:700, y:300}, Images.buttonStart);
 		if (canvas)
-			Reset.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:670 * canvas.height / 800});
+			Reset.setSizeLocation({x:150 * canvas.width / 1200, y:50 * canvas.height / 800}, {x:1040 * canvas.width / 1200, y:10 * canvas.height / 800});
 		return Reset;
 	}, [canvas, Images.buttonStart]);
 
 	const hyperButton = useMemo(() => {
 		var Hyper:Button = new Button("Enable HyperMode", Mode.Hyper, {x: 15, y:15}, {x:385, y:475}, undefined);
 		if (canvas)
-			Hyper.setSizeLocation({x:15 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:15 * canvas.width / 1200, y:670 * canvas.height / 800});
+			Hyper.setSizeLocation({x:25 * canvas.width / 1200, y:25 * canvas.height / 800}, {x:850 * canvas.width / 1200, y:695 * canvas.height / 800});
 		return Hyper;
 	}, [canvas]);
 
@@ -151,7 +151,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	};
 
-	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1) => {
+	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1, radius: number = 20) => {
 		const { coordinates, size, image, isFocused, selected } = button;
 		const { x, y } = coordinates;
 		const { x: width, y: height } = size;
@@ -160,45 +160,32 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(x, y, width, height);
 		ctx.fillStyle = 'white';
-		roundedRect(ctx, x, y, width, height, 20);
-		if (selectedOption !== Mode.Hyper)
+		roundedRect(ctx, x, y, width, height, radius);
+		if (selectedOption !== Mode.Hyper) {
 			ctx.drawImage(image, x, y, width, height);
+		} else {
+			ctx.fillStyle = backgroundColor;
+			ctx.fillRect(x - 2, y - 2, width + 190, height + 4);
+			ctx.fillStyle = 'black';
+			ctx.font = '20px Arial';
+			ctx.fillText(button.name, x + 120, y + 14);
+		}
 		if (!isFocused && ((!selected && !otherButtonSelected && !regular) || selectedOption === Mode.Start)) {
 			ctx.globalAlpha = 0.25;
 			ctx.fillStyle = "black";
-			roundedRect(ctx, x, y, width, height, 20);
+			roundedRect(ctx, x, y, width, height, radius);
 			ctx.globalAlpha = 1;
 		} else if (selected && (!regular || button.id === Mode.Regular)) {
 			ctx.strokeStyle = "red";
 			ctx.lineWidth = 2;
-			roundedRect(ctx, x, y, width, height, 20, true);
+			roundedRect(ctx, x, y, width, height, radius, true);
 		} else if (otherButtonSelected || (button.id !== Mode.Regular && regular && selectedOption !== Mode.Start)) {
 			ctx.globalAlpha = 0.5;
 			ctx.fillStyle = "black";
-			roundedRect(ctx, x, y, width, height, 20);
+			roundedRect(ctx, x, y, width, height, radius);
 			ctx.globalAlpha = 1;
 		}
 	}, [regular]);
-
-	// const drawImages = useCallback((ctx: CanvasRenderingContext2D, button: Button, selected: number = 0) => {
-	// 	ctx.fillStyle = backgroundColor;
-	// 	ctx.fillRect(button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-	// 	ctx.drawImage(button.image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-	// 	if (!button.isFocused && !button.selected && selected === -1) {
-	// 		ctx.drawImage(button.image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-	// 		ctx.globalAlpha=.25;
-	// 		ctx.fillStyle="black";
-	// 		roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 10);
-	// 		ctx.globalAlpha=1;
-	// 	}
-	// 	if (selected > -1 && !button.selected) {
-	// 		ctx.drawImage(button.image, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y);
-	// 		ctx.globalAlpha=.4;
-	// 		ctx.fillStyle="black";
-	// 		roundedRect(ctx, button.coordinates.x, button.coordinates.y, button.size.x, button.size.y, 10);
-	// 		ctx.globalAlpha=1;
-	// 	}
-	// }, []);
 
 	function checkMouseOnButton(button: Button, e: MouseEvent, canvas: HTMLCanvasElement) {
 		var mouseX = e.clientX - canvas.offsetLeft;
@@ -221,7 +208,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			hyperButton.isFocused = true;
 		else if (hyperButton.isFocused)
 			hyperButton.isFocused = false;
-		drawButton(ctx, hyperButton, Mode.Hyper);
+		drawButton(ctx, hyperButton, Mode.Hyper, 5);
 		for (var index in gamemodeButtons) {
 			if (checkMouseOnButton(gamemodeButtons[index], e, canvas))
 				gamemodeButtons[index].isFocused = true;
@@ -235,7 +222,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			else if (paddleButtons[index].isFocused === true)
 				paddleButtons[index].isFocused = false;
 			drawButton(ctx, paddleButtons[index], selectedPaddle);
-			// drawImages(ctx, paddleButtons[index], selectedPaddle);
 		}
 		for (index in characterButtons) {
 			if (checkMouseOnButton(characterButtons[index], e, canvas))
@@ -243,7 +229,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			else if (characterButtons[index].isFocused === true)
 				characterButtons[index].isFocused = false;
 			drawButton(ctx, characterButtons[index], selectedCharacter);
-			// drawImages(ctx, characterButtons[index], selectedCharacter);
 		}
 	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton, hyperButton]);
 	
@@ -299,7 +284,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			} else {
 				hyperButton.selected = true;
 			}
-			drawButton(ctx, hyperButton, Mode.Hyper);
+			drawButton(ctx, hyperButton, Mode.Hyper, 5);
 			return;
 		}
 		for (var index in gamemodeButtons) {
@@ -367,7 +352,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 				for (toDraw in paddleButtons) {
 					drawButton(ctx, paddleButtons[toDraw], selectedPaddle);
-					// drawImages(ctx, paddleButtons[toDraw], selectedPaddle);
 				}
 				return;
 			}
@@ -397,12 +381,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 				for (toDraw in characterButtons) {
 					drawButton(ctx, characterButtons[toDraw], selectedCharacter);
-					// drawImages(ctx, characterButtons[toDraw], selectedCharacter);
 				}
 				return;
 			}
 		}
-	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, handleStartGame, Images.RaidenSpecial, Images.SubZeroSpecial, Images.ScorpionSpecial, startButton, clearSelection, regular]);
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, handleStartGame, Images.RaidenSpecial, Images.SubZeroSpecial, Images.ScorpionSpecial, startButton, clearSelection, regular, hyperButton]);
 
 	const handleFinishClick = useCallback((e: MouseEvent) => {
 		if (!canvas || !ctx)
@@ -481,7 +464,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		const moveUp = async () => {
 			try {
 				socket.current?.emit('moveUpEnable');
-				// await axios.post('/game/move/up/enable');
 				console.log('moveUpEnable');
 			} catch (error) {
 				console.error('Failed to move the paddle up:', error);
@@ -491,7 +473,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		const moveDown = async () => {
 			try {
 				socket.current?.emit('moveDownEnable');
-				// await axios.post('/game/move/down');
 				console.log('moveDown');
 			} catch (error) {
 				console.error('Failed to move the paddle down:', error);
@@ -530,10 +511,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current?.emit('randomAbility');
 		else if (event.key === 'a')
 			socket.current?.emit('specialAbility');
-			//executeAbility("Special Ability", "special")
-
-		
-	
 	}, [arrowDown, arrowUp, abilities, selectedCharacter, hasUlt]);
 
 	useEffect(() => {
@@ -872,38 +849,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			document.removeEventListener('keyup', handleKeyUp);
 		}
 	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameSelection]);
-	
-	// const renderEffect = () => {
-	// 	if (!canvas || !ctx) {
-	// 		console.log("Canvas not found");
-	// 		return;
-	// 	}
-	// 	ctx.globalAlpha = 1;
-	// 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	// 	ctx.fillStyle = backgroundColor;
-	// 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	// 	ctx.font = '40px Arial'; //ITC Zapf Chancery
-	// 	ctx.fillStyle = 'white';
-	// 	ctx.textAlign = 'center';
-	// 	ctx.textBaseline = 'middle';
-
-	// 	ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
-	// 	ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
-	// 	ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
-
-	// 	drawButton(ctx, startButton, Mode.Start);
-	// 	for (var index in gamemodeButtons) {
-	// 		drawButton(ctx, gamemodeButtons[index], selectedGamemode);
-	// 	}
-	// 	for (index in paddleButtons) {
-	// 		// drawImages(ctx, paddleButtons[index], selectedPaddle);
-	// 		drawButton(ctx, paddleButtons[index], selectedPaddle);
-	// 	}
-	// 	for (index in characterButtons) {
-	// 		// drawImages(ctx, characterButtons[index], selectedCharacter);
-	// 		drawButton(ctx, characterButtons[index], selectedCharacter);
-	// 	}
-	// };
 
 	useEffect(() => {
 		if (canvas) {
@@ -919,10 +864,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.globalAlpha = 1;
 					console.log("Selected GameMode: " + selectedGamemode);
 					if (selectedGamemode !== Mode.Regular) {
-						console.log("Character 1: " + player1Character);
-						console.log("Position 1: " + player1Position);
-						console.log("Character 2: " + player2Character);
-						console.log("Position 2: " + player2Position);
 						ctx.drawImage(player1Character, 10, player1Position);
 						ctx.drawImage(player2Character, 1170, player2Position);
 						if (player === 1) {
@@ -991,7 +932,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(Images.healthText, 185, 60, 140, 25);
 						ctx.font = '20px Arial';
 						ctx.fillStyle = 'black';
-						ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
+						ctx.fillText("Someone", 255, 75);
 						ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
@@ -1001,9 +942,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
 						ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
 						ctx.drawImage(Images.icon, 131, 38, 23, 20);
+						ctx.font = '15px Arial';
+						ctx.fillText(`${11 - score.p2}`, 142, 50);
 						// p2 health border
 						ctx.drawImage(Images.healthText, 875, 60, 140, 25);
-						ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
+						ctx.font = '20px Arial';
+						ctx.fillText("Someone", 945, 75);
 						ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
 						ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
@@ -1013,6 +957,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
 						ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
 						ctx.drawImage(Images.icon, 1046, 38, 23, 20);
+						ctx.font = '15px Arial';
+						ctx.fillText(`${11 - score.p1}`, 1057, 50);
 						var x = 0;
 						// draw p1 health bars
 						while (x < 11 - score.p2) {
@@ -1103,8 +1049,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
 						ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
-						ctx.font = '40px Arial';
-						ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
+						// ctx.font = '40px Arial';
+						// ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
 
 						// Draw the ball
 						ctx.fillStyle = 'white';
@@ -1144,6 +1090,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						// drawImages(ctx, characterButtons[index], selectedCharacter);
 						drawButton(ctx, characterButtons[index], selectedCharacter);
 					}
+					drawButton(ctx, hyperButton, Mode.Hyper, 5);
 				} else if (isPlayerWaiting) {
 					var rotIndex = 0;
 					const animInterval = setInterval(() => {
@@ -1184,7 +1131,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								ctx.drawImage(Images.healthText, 185, 60, 140, 25);
 								ctx.font = '20px Arial';
 								ctx.fillStyle = 'black';
-								ctx.fillText(`Hp: ${11 - score.p2}`, 255, 75);
+								ctx.fillText("Someone", 255, 75);
 								ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
@@ -1194,9 +1141,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								ctx.drawImage(Images.right_bar, 303, 25, 25, 40);
 								ctx.drawImage(Images.iconBackground, 120, 25, 45, 45);
 								ctx.drawImage(Images.icon, 131, 38, 23, 20);
+								ctx.font = '15px Arial';
+								ctx.fillText(`${11 - score.p2}`, 142, 50);
 								// p2 health border
 								ctx.drawImage(Images.healthText, 875, 60, 140, 25);
-								ctx.fillText(`Hp: ${11 - score.p1}`, 945, 75);
+								ctx.font = '20px Arial';
+								ctx.fillText("Someone", 945, 75);
 								ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
 								ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
@@ -1206,6 +1156,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								ctx.drawImage(Images.right_bar, 1025, 25, 25, 40);
 								ctx.drawImage(Images.iconBackground, 1035, 25, 45, 45);
 								ctx.drawImage(Images.icon, 1046, 38, 23, 20);
+								ctx.font = '15px Arial';
+								ctx.fillText(`${11 - score.p1}`, 1057, 50);
 								var x = 0;
 								// draw p1 health bars
 								while (x < 11 - score.p2) {
@@ -1240,7 +1192,19 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								ctx.arc(ballPosition.x, ballPosition.y, ballSize, -2, Math.PI * 2);
 								ctx.stroke();
 								ctx.fillStyle = 'white';
+							} else {
+								ctx.font = '30px Arial';
+								ctx.fillStyle = 'white';
+								ctx.textAlign = 'center';
+								ctx.textBaseline = 'middle';
+								ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
 							}
+							ctx.fillStyle = 'black';
+							ctx.font = '35px Arial';
+							ctx.fillText("Someone", 600, 100);
+							ctx.fillText("Someone Else", 600, 200);
+							ctx.font = '40px Arial';
+							ctx.fillText("VS", 600, 150);
 							ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
 							endIndex++;
 							if (endIndex === Images.YinYangEnd.length) {
@@ -1260,21 +1224,89 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}, 33);
 					return () => clearInterval(animInterval);
 				} else {
-					canvas?.addEventListener("click", handleFinishClick);
-					canvas?.addEventListener("mousemove", handleFinishMove);
+					//canvas?.addEventListener("click", handleFinishClick);
+					//canvas?.addEventListener("mousemove", handleFinishMove);
+					var timer: NodeJS.Timer | null = null;
+					const grd = ctx.createLinearGradient(0, 1000, 0, 300);
+					grd.addColorStop(0.8, "red");
+					grd.addColorStop(0.8, "orange");
+					grd.addColorStop(1, backgroundColor);
 					ctx.fillStyle = backgroundColor;
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
-					ctx.fillText(winner, 600, 400);
+					ctx.font = 'bold 40px Arial';
+					if (winner === player) {
+						ctx.fillText("You have reached transcendence!", 600, 100);
+						var c1max = 700;
+						var c1min = 200;
+						var c1x = 200;
+						var c1behind = false;
+						var c2max = 800;
+						var c2min = 250;
+						var c2x = 700;
+						var c2behind = true;
+						var c3max = 800;
+						var c3min = 300;
+						var c3x = 800;
+						var c3behind = false;
+						ctx.drawImage(Images.Mountains, 100, 300);
+						ctx.drawImage(Images.Cloud1, c1x, 430);
+						ctx.drawImage(Images.Cloud2, c2x, 535);
+						ctx.drawImage(Images.Cloud3, c3x, 370);
+						timer = setInterval(() => {
+							ctx.fillStyle = backgroundColor;
+							ctx.fillRect(0, 0, canvas.width, canvas.height);
+							ctx.fillStyle = grd;
+							ctx.fillRect(0, 0, canvas.width, canvas.height);
+							if (c1behind && c1x > c1min) {
+								c1x -= 1;
+								ctx.drawImage(Images.Cloud1, c1x, 430);
+							}
+							if (c2behind && c2x < c2max) {
+								c2x += 1;
+								ctx.drawImage(Images.Cloud2, c2x, 535);
+							}
+							if (c3behind && c3x > c3min) {
+								c3x -= 1;
+								ctx.drawImage(Images.Cloud3, c3x, 370);
+							}
+							ctx.drawImage(Images.Mountains, 100, 300);
+							if (!c1behind && c1x < c1max) {
+								c1x += 1;
+								ctx.drawImage(Images.Cloud1, c1x, 430);
+							}
+							if (!c2behind && c2x > c2min) {
+								c2x -= 1;
+								ctx.drawImage(Images.Cloud2, c2x, 535);
+							}
+							if (!c3behind && c3x < c3max) {
+								c3x += 1;
+								ctx.drawImage(Images.Cloud3, c3x, 370);
+							}
+							ctx.fillStyle = 'white';
+							ctx.fillText("You have reached transcendence", 600, 100);
+							drawButton(ctx, resetButton, Mode.Reset);
+							if (c1x === c1max || c1x === c1min)
+								c1behind = !c1behind;
+							if (c2x === c2max || c2x === c2min)
+								c2behind = !c2behind;
+							if (c3x === c3max || c3x === c3min)
+								c3behind = !c3behind;
+						}, 100);
+
+					} else {
+						ctx.fillText("Player " + winner + " reaches transcendence, leaving you in the dust.", 600, 300);
+					}
 					drawButton(ctx, resetButton, Mode.Reset);
 					return () => {
 						canvas?.removeEventListener("click", handleFinishClick);
 						canvas?.removeEventListener("mousemove", handleFinishMove);
+						if (timer) clearInterval(timer);
 					}
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton]);
 
 
 	return (

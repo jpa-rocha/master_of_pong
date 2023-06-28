@@ -93,9 +93,9 @@ export class GameService {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
-    let winnerMessage;
-    if (this.gameObject.score.p1 === 11) winnerMessage = 'player 1 wins';
-    else if (this.gameObject.score.p2 === 11) winnerMessage = 'player 2 wins';
+    let winningPlayer: number;
+    if (this.gameObject.score.p1 === 11) winningPlayer = 1;
+    else if (this.gameObject.score.p2 === 11) winningPlayer = 2;
 
     // Reset player, ball and score
     this.gameObject.default();
@@ -123,8 +123,8 @@ export class GameService {
     this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,
     });
-    this.gameObject.sendToClients<{ winner: string }>('winnerUpdate', {
-      winner: winnerMessage,
+    this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
+      winner: winningPlayer,
     });
   }
 
@@ -343,8 +343,9 @@ export class GameService {
         this.gameObject.ballSize ** 2 -
           (line_x - this.gameObject.ballPos.x) ** 2,
       );
-    if (y_pos < line_y.max && y_pos > line_y.min) return true;
-    if (y_neg < line_y.max && y_neg > line_y.min) return true;
+    if (y_pos <= line_y.max && y_pos >= line_y.min) return true;
+    if (y_neg <= line_y.max && y_neg >= line_y.min) return true;
+    if (y_pos > line_y.max && y_neg < line_y.min) return true;
     return false;
   }
 
@@ -538,80 +539,6 @@ export class GameService {
     this.gameObject.ballPos.y += this.gameObject.ballVel.y;
     this.abilityMirage();
 
-    // Ball interaction with walls
-    if (
-      this.gameObject.ballPos.x >= this.gameObject.Width ||
-      this.gameObject.ballPos.x <= 0
-    ) {
-      if (this.gameObject.ballPos.x >= this.gameObject.Width)
-        this.gameObject.score.p1 += 1;
-      if (this.gameObject.ballPos.x <= 0) this.gameObject.score.p2 += 1;
-      if (this.gameObject.score.p1 == 11 || this.gameObject.score.p2 == 11)
-        this.stopGame();
-      this.gameObject.ballPos.x = this.gameObject.Width / 2;
-      this.gameObject.ballPos.y = this.gameObject.Height / 2;
-      let angle = Math.random() * 360;
-      if (angle > 45 && angle < 135) {
-        angle = Math.random() * 45;
-      } else if (angle > 225 && angle < 315) {
-        angle = Math.random() * 45 + 315;
-      }
-      angle = angle * (Math.PI / 180);
-      this.gameObject.ballVel.x =
-        this.gameObject.ballVelDefault.x * Math.cos(angle) -
-        this.gameObject.ballVelDefault.y * Math.sin(angle);
-      this.gameObject.ballVel.y =
-        this.gameObject.ballVelDefault.x * Math.sin(angle) +
-        this.gameObject.ballVelDefault.y * Math.cos(angle);
-
-      this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
-        'scoreUpdate',
-        {
-          score: this.gameObject.score,
-        },
-      );
-      this.gameObject.player1.freeze = false;
-      this.gameObject.player2.freeze = false;
-      this.gameObject.lightning = false;
-      this.gameObject.freeze = false;
-      this.gameObject.player1.getOverHere = false;
-      this.gameObject.player2.getOverHere = false;
-      if (this.mirageTimer) {
-        clearTimeout(this.mirageTimer);
-        this.mirageTimer = null;
-        this.gameObject.mirageBallsPos = [];
-        this.gameObject.mirageBallsVel = [];
-      }
-      this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-        ballSize: this.gameObject.ballSizeDefault,
-      });
-      if (this.gameObject.player1.freezeTimer) {
-        clearTimeout(this.gameObject.player1.freezeTimer);
-        this.gameObject.player1.freezeTimer = null;
-      }
-      if (this.gameObject.player2.freezeTimer) {
-        clearTimeout(this.gameObject.player2.freezeTimer);
-        this.gameObject.player2.freezeTimer = null;
-      }
-      if (this.shrinkTimer) {
-        clearTimeout(this.shrinkTimer);
-        this.shrinkTimer = null;
-      }
-      if (this.szTimer) {
-        clearTimeout(this.szTimer);
-        this.szTimer = null;
-      }
-    }
-    if (
-      (this.gameObject.ballPos.y + this.gameObject.ballSize >=
-        this.gameObject.Height &&
-        this.gameObject.ballVel.y > 0) ||
-      (this.gameObject.ballPos.y - this.gameObject.ballSize <= 0 &&
-        this.gameObject.ballVel.y < 0)
-    ) {
-      this.gameObject.ballVel.y = this.gameObject.ballVel.y * -1;
-    }
-
     // Ball interaction with player 1
     if (
       this.gameObject.ballVel.x <= 0 &&
@@ -692,6 +619,80 @@ export class GameService {
       scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
+    }
+
+    // Ball interaction with walls
+    if (
+      this.gameObject.ballPos.x >= this.gameObject.Width ||
+      this.gameObject.ballPos.x <= 0
+    ) {
+      if (this.gameObject.ballPos.x >= this.gameObject.Width)
+        this.gameObject.score.p1 += 1;
+      if (this.gameObject.ballPos.x <= 0) this.gameObject.score.p2 += 1;
+      if (this.gameObject.score.p1 == 11 || this.gameObject.score.p2 == 11)
+        this.stopGame();
+      this.gameObject.ballPos.x = this.gameObject.Width / 2;
+      this.gameObject.ballPos.y = this.gameObject.Height / 2;
+      let angle = Math.random() * 360;
+      if (angle > 45 && angle < 135) {
+        angle = Math.random() * 45;
+      } else if (angle > 225 && angle < 315) {
+        angle = Math.random() * 45 + 315;
+      }
+      angle = angle * (Math.PI / 180);
+      this.gameObject.ballVel.x =
+        this.gameObject.ballVelDefault.x * Math.cos(angle) -
+        this.gameObject.ballVelDefault.y * Math.sin(angle);
+      this.gameObject.ballVel.y =
+        this.gameObject.ballVelDefault.x * Math.sin(angle) +
+        this.gameObject.ballVelDefault.y * Math.cos(angle);
+
+      this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
+        'scoreUpdate',
+        {
+          score: this.gameObject.score,
+        },
+      );
+      this.gameObject.player1.freeze = false;
+      this.gameObject.player2.freeze = false;
+      this.gameObject.lightning = false;
+      this.gameObject.freeze = false;
+      this.gameObject.player1.getOverHere = false;
+      this.gameObject.player2.getOverHere = false;
+      if (this.mirageTimer) {
+        clearTimeout(this.mirageTimer);
+        this.mirageTimer = null;
+        this.gameObject.mirageBallsPos = [];
+        this.gameObject.mirageBallsVel = [];
+      }
+      this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
+        ballSize: this.gameObject.ballSizeDefault,
+      });
+      if (this.gameObject.player1.freezeTimer) {
+        clearTimeout(this.gameObject.player1.freezeTimer);
+        this.gameObject.player1.freezeTimer = null;
+      }
+      if (this.gameObject.player2.freezeTimer) {
+        clearTimeout(this.gameObject.player2.freezeTimer);
+        this.gameObject.player2.freezeTimer = null;
+      }
+      if (this.shrinkTimer) {
+        clearTimeout(this.shrinkTimer);
+        this.shrinkTimer = null;
+      }
+      if (this.szTimer) {
+        clearTimeout(this.szTimer);
+        this.szTimer = null;
+      }
+    }
+    if (
+      (this.gameObject.ballPos.y + this.gameObject.ballSize >=
+        this.gameObject.Height &&
+        this.gameObject.ballVel.y > 0) ||
+      (this.gameObject.ballPos.y - this.gameObject.ballSize <= 0 &&
+        this.gameObject.ballVel.y < 0)
+    ) {
+      this.gameObject.ballVel.y = this.gameObject.ballVel.y * -1;
     }
 
     if (this.mirageTimer) {
