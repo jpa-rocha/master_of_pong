@@ -5,18 +5,19 @@ import { AuthService } from '../auth.service';
 import { User } from 'src/users/entities/user.entity';
 import { HttpService } from '@nestjs/axios';
 import { AuthDto } from '../dto/auth.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
-  constructor(private authService: AuthService, private http: HttpService) {
-    super({
+
+  constructor(private readonly configService: ConfigService,
+              private authService: AuthService,
+              private http: HttpService) {super({
       authorizationURL:
         '--> secret here', //TODO: add secret
       tokenURL: 'https://api.intra.42.fr/oauth/token',
-      clientID:
-      '--> secret here', //TODO: add secret,
-      clientSecret:
-      '--> secret here', //TODO: add secret,
+      clientID:configService.get<string>('API_UID'),
+      clientSecret: configService.get<string>('SECRET'),
       callbackURL: 'http://localhost:3001/api/auth/redirect',
       grant_type: 'authorization_code',
     });
