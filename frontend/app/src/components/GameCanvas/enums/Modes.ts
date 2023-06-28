@@ -5,4 +5,5 @@ export enum Mode {
   Start,
   Reset = 10,
   Hyper,
+  Dodge,
 }

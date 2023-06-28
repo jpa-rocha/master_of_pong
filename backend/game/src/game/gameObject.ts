@@ -39,6 +39,8 @@ export class GameObject {
   public lightningDir: number;
   public timeWarp: boolean;
   public mirage: boolean;
+  public mirageNumber: number;
+  public mirageSpread: number;
   public mirageBallsPos: number[][];
   public mirageBallsVel: number[][];
   public gameOptions: Options;
@@ -56,11 +58,20 @@ export class GameObject {
     this.ballSizeDefault = 15;
     this.ballSize = 15;
     this.ballPos = { x: this.Width / 2, y: this.Height / 2 };
+    this.mirageNumber = 8;
+    this.mirageSpread = 10;
     if (options.hyper === true) {
       this.ballVel = { x: 10, y: -0.5 };
       this.ballVelDefault = { x: 10, y: -0.5 };
       this.ballSizeDefault = 60;
       this.ballSize = 60;
+    } else if (options.dodge === true) {
+      this.ballVel = { x: 7, y: -0.5 };
+      this.ballVelDefault = { x: 7, y: -0.5 };
+      this.ballSizeDefault = 40;
+      this.ballSize = 40;
+      this.mirageNumber = 2;
+      this.mirageSpread = 50;
     }
     this.ballVelOld = { x: 0, y: 0 };
     this.score = { p1: 0, p2: 0 };
@@ -82,7 +93,8 @@ export class GameObject {
           Mode.Singleplayer,
           Paddles.AverageJoe,
           Math.floor(Math.random() * 3) + Character.Scorpion,
-          false,
+          options.hyper,
+          options.dodge,
         ),
       );
       this.player2.ready = true;

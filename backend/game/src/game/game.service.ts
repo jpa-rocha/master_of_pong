@@ -3,7 +3,6 @@ import { GameObject } from './gameObject';
 import { GameCollection } from './gameCollection';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
-import { clear } from 'console';
 
 // @Injectable()
 export class GameService {
@@ -64,6 +63,7 @@ export class GameService {
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSizeDefault,
     });
+    this.serve();
     console.log('Setting ball timer...');
     this.ballTimer = setInterval(() => {
       this.moveBall();
@@ -99,32 +99,11 @@ export class GameService {
 
     // Reset player, ball and score
     this.gameObject.default();
-    this.gameObject.player1.resetPos(this.gameObject.Height);
-    this.gameObject.player2.resetPos(this.gameObject.Height);
-
-    this.gameObject.sendToClients<{ player1: number }>('player1Update', {
-      player1: this.gameObject.player1.pos.y,
-    });
-    this.gameObject.sendToClients<{ player2: number }>('player2Update', {
-      player2: this.gameObject.player2.pos.y,
-    });
-    this.gameObject.sendToClients<{ ball: { x: number; y: number } }>(
-      'ballUpdate',
-      {
-        ball: this.gameObject.ballPos,
-      },
-    );
-    this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
-      'player2Update',
-      {
-        score: this.gameObject.score,
-      },
-    );
-    this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
-      gameStatus: this.gameObject.gameStarted,
-    });
     this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
       winner: winningPlayer,
+    });
+    this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
+      gameStatus: this.gameObject.gameStarted,
     });
   }
 
@@ -163,15 +142,23 @@ export class GameService {
   }
 
   ultScorpion(player: Player, opponent: Player): void {
-    player.getOverHere = true;
-    opponent.getOverHere = false;
-    this.gameObject.sendToClients<{ ScorpionSpecial: boolean; target: number }>(
-      'ScorpionSpecial',
-      {
+    if (this.gameObject.gameOptions.dodge) {
+      player.getOverHere = false;
+      opponent.getOverHere = true;
+      setTimeout(() => {
+        opponent.getOverHere = false;
+      }, 3000);
+    } else {
+      player.getOverHere = true;
+      opponent.getOverHere = false;
+      this.gameObject.sendToClients<{
+        ScorpionSpecial: boolean;
+        target: number;
+      }>('ScorpionSpecial', {
         ScorpionSpecial: true,
         target: player.player,
-      },
-    );
+      });
+    }
   }
 
   abTimeWarp(): void {
@@ -216,6 +203,37 @@ export class GameService {
     this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
       AbilityMirage: true,
     });
+    if (this.mirageTimer) {
+      clearTimeout(this.mirageTimer);
+    }
+    let index = 0;
+    while (index < this.gameObject.mirageNumber) {
+      this.gameObject.mirageBallsPos.push([
+        this.gameObject.ballPos.x +
+          (Math.random() - 0.5) * this.gameObject.mirageSpread,
+        this.gameObject.ballPos.y +
+          (Math.random() - 0.5) * this.gameObject.mirageSpread,
+      ]);
+      this.gameObject.mirageBallsVel.push([
+        this.gameObject.ballVel.x + (Math.random() - 0.5) * 2,
+        this.gameObject.ballVel.y + (Math.random() - 0.5) * 2,
+      ]);
+      index++;
+    }
+    if (!this.gameObject.gameOptions.dodge) {
+      this.mirageTimer = setTimeout(() => {
+        this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
+          'AbilityMirage',
+          {
+            AbilityMirage: false,
+          },
+        );
+        this.gameObject.mirage = false;
+        this.mirageTimer = null;
+        this.gameObject.mirageBallsPos = [];
+        this.gameObject.mirageBallsVel = [];
+      }, 5000);
+    }
   }
 
   BallSize(): void {
@@ -269,6 +287,8 @@ export class GameService {
         this.BallSize();
       } else if (player.ability === 4) {
         this.abMirage();
+      } else if (player.ability === 5) {
+        this.ultScorpion(player, opponent);
       }
       player.setAbility();
     }
@@ -277,12 +297,15 @@ export class GameService {
   specialAbility(player: Player, opponent: Player): void {
     if (player.hasSpecial) {
       console.log('Special ability');
-      if (player.options.character === Character.Scorpion)
+      if (
+        player.options.character === Character.Raiden ||
+        this.gameObject.gameOptions.dodge
+      )
+        this.abLightning();
+      else if (player.options.character === Character.Scorpion)
         this.ultScorpion(player, opponent);
       else if (player.options.character === Character.SubZero)
         this.ultSubZero(opponent);
-      else if (player.options.character === Character.Raiden)
-        this.abLightning();
       player.setSpecial();
     }
   }
@@ -290,21 +313,40 @@ export class GameService {
   private moveBot(): void {
     if (this.gameObject.gameStarted == false || this.gameObject.player2.freeze)
       return;
-    if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
-      this.gameObject.player2.moveUp = false;
-      this.gameObject.player2.moveDown = false;
-    } else if (
-      this.gameObject.ballPos.y >
-      this.gameObject.player2.pos.y + this.gameObject.player2.height
-    ) {
-      this.gameObject.player2.moveUp = false;
-      this.gameObject.player2.moveDown = true;
-    } else if (this.gameObject.ballPos.y < this.gameObject.player2.pos.y) {
-      this.gameObject.player2.moveDown = false;
-      this.gameObject.player2.moveUp = true;
+    if (this.gameObject.gameOptions.dodge) {
+      if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
+        this.gameObject.player2.moveUp = false;
+        this.gameObject.player2.moveDown = false;
+      } else if (
+        this.gameObject.ballPos.y <
+          this.gameObject.player2.pos.y + this.gameObject.player2.height &&
+        this.gameObject.ballPos.y > this.gameObject.player2.pos.y
+      ) {
+        if (this.gameObject.player2.moveUp || this.gameObject.player2.moveDown)
+          return;
+        else if (Math.random() >= 0.5) this.gameObject.player2.moveUp = true;
+        else this.gameObject.player2.moveDown = true;
+      } else {
+        this.gameObject.player2.moveUp = false;
+        this.gameObject.player2.moveDown = false;
+      }
     } else {
-      this.gameObject.player2.moveUp = false;
-      this.gameObject.player2.moveDown = false;
+      if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
+        this.gameObject.player2.moveUp = false;
+        this.gameObject.player2.moveDown = false;
+      } else if (
+        this.gameObject.ballPos.y >
+        this.gameObject.player2.pos.y + this.gameObject.player2.height
+      ) {
+        this.gameObject.player2.moveUp = false;
+        this.gameObject.player2.moveDown = true;
+      } else if (this.gameObject.ballPos.y < this.gameObject.player2.pos.y) {
+        this.gameObject.player2.moveDown = false;
+        this.gameObject.player2.moveUp = true;
+      } else {
+        this.gameObject.player2.moveUp = false;
+        this.gameObject.player2.moveDown = false;
+      }
     }
   }
 
@@ -313,21 +355,25 @@ export class GameService {
       if (player.moveUp) {
         player.pos.y -= player.speed;
         if (player.pos.y < 0) player.pos.y = 0;
-      }
-      if (player.moveDown) {
+      } else if (player.moveDown) {
         player.pos.y += player.speed;
         if (player.pos.y > this.gameObject.Height - player.height)
           player.pos.y = this.gameObject.Height - player.height;
       }
+      if (this.gameObject.gameOptions.dodge) {
+        if (player.moveLeft) {
+          player.pos.x -= player.speed;
+          if (player.pos.x < 0) player.pos.x = 0;
+        } else if (player.moveRight) {
+          player.pos.x += player.speed;
+          if (player.pos.x > this.gameObject.Width - player.width)
+            player.pos.x = this.gameObject.Width - player.width;
+        }
+      }
     }
   }
 
-  private revertBallSpeed(ballVelX: number, ballVelY: number): void {
-    this.gameObject.ballVel.x = ballVelX;
-    this.gameObject.ballVel.y = ballVelY;
-  }
-
-  private ball_line_interaction(
+  private ball_line_intersection(
     line_x: number,
     line_y: { max: number; min: number },
   ): boolean {
@@ -393,38 +439,40 @@ export class GameService {
     this.gameObject.ballVel = targetVector;
   }
 
-  private abilityMirage() {
-    if (!this.gameObject.allowAbilities) return;
-    if (this.gameObject.mirage) {
-      this.gameObject.mirage = false;
-      if (this.mirageTimer) {
-        clearTimeout(this.mirageTimer);
-      }
-      let index = 0;
-      while (index < 8) {
-        this.gameObject.mirageBallsPos.push([
-          this.gameObject.ballPos.x + (Math.random() - 0.5) * 10,
-          this.gameObject.ballPos.y + (Math.random() - 0.5) * 10,
-        ]);
-        this.gameObject.mirageBallsVel.push([
-          this.gameObject.ballVel.x + (Math.random() - 0.5) * 2,
-          this.gameObject.ballVel.y + (Math.random() - 0.5) * 2,
-        ]);
-        index++;
-      }
-      this.mirageTimer = setTimeout(() => {
-        this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
-          'AbilityMirage',
-          {
-            AbilityMirage: false,
-          },
-        );
-        this.mirageTimer = null;
-        this.gameObject.mirageBallsPos = [];
-        this.gameObject.mirageBallsVel = [];
-      }, 5000);
-    }
-  }
+  // private abilityMirage() {
+  //   if (!this.gameObject.allowAbilities) return;
+  //   if (this.gameObject.mirage) {
+  //     this.gameObject.mirage = false;
+  //     if (this.mirageTimer) {
+  //       clearTimeout(this.mirageTimer);
+  //     }
+  //     let index = 0;
+  //     while (index < 8) {
+  //       this.gameObject.mirageBallsPos.push([
+  //         this.gameObject.ballPos.x + (Math.random() - 0.5) * 10,
+  //         this.gameObject.ballPos.y + (Math.random() - 0.5) * 10,
+  //       ]);
+  //       this.gameObject.mirageBallsVel.push([
+  //         this.gameObject.ballVel.x + (Math.random() - 0.5) * 2,
+  //         this.gameObject.ballVel.y + (Math.random() - 0.5) * 2,
+  //       ]);
+  //       index++;
+  //     }
+  //     if (!this.gameObject.gameOptions.dodge) {
+  //       this.mirageTimer = setTimeout(() => {
+  //         this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
+  //           'AbilityMirage',
+  //           {
+  //             AbilityMirage: false,
+  //           },
+  //         );
+  //         this.mirageTimer = null;
+  //         this.gameObject.mirageBallsPos = [];
+  //         this.gameObject.mirageBallsVel = [];
+  //       }, 5000);
+  //     }
+  //   }
+  // }
 
   private abilityLightning() {
     if (!this.gameObject.allowAbilities) return;
@@ -489,6 +537,229 @@ export class GameService {
     }
   }
 
+  private score(player: number): void {
+    if (player === 1) {
+      this.gameObject.score.p1++;
+      if (this.gameObject.score.p1 === 11) this.stopGame();
+    } else if (player === 2) {
+      this.gameObject.score.p2++;
+      if (this.gameObject.score.p2 === 11) this.stopGame();
+    }
+    this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
+      'scoreUpdate',
+      {
+        score: this.gameObject.score,
+      },
+    );
+  }
+
+  private serve(): void {
+    this.gameObject.ballPos.x = this.gameObject.Width / 2;
+    this.gameObject.ballPos.y = this.gameObject.Height / 2;
+    let angle = Math.random() * 360;
+    if (angle > 45 && angle < 135) {
+      angle = Math.random() * 45;
+    } else if (angle > 225 && angle < 315) {
+      angle = Math.random() * 45 + 315;
+    }
+    angle = angle * (Math.PI / 180);
+    this.gameObject.ballVel.x =
+      this.gameObject.ballVelDefault.x * Math.cos(angle) -
+      this.gameObject.ballVelDefault.y * Math.sin(angle);
+    this.gameObject.ballVel.y =
+      this.gameObject.ballVelDefault.x * Math.sin(angle) +
+      this.gameObject.ballVelDefault.y * Math.cos(angle);
+  }
+
+  private resetEffects(): void {
+    this.gameObject.player1.freeze = false;
+    this.gameObject.player2.freeze = false;
+    this.gameObject.lightning = false;
+    this.gameObject.freeze = false;
+    this.gameObject.player1.getOverHere = false;
+    this.gameObject.player2.getOverHere = false;
+    this.gameObject.ballSize = this.gameObject.ballSizeDefault;
+    if (this.gameObject.mirage) {
+      this.gameObject.mirage = false;
+      clearTimeout(this.mirageTimer);
+      this.mirageTimer = null;
+      this.gameObject.mirageBallsPos = [];
+      this.gameObject.mirageBallsVel = [];
+    }
+    this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
+      ballSize: this.gameObject.ballSizeDefault,
+    });
+    if (this.gameObject.player1.freezeTimer) {
+      clearTimeout(this.gameObject.player1.freezeTimer);
+      this.gameObject.player1.freezeTimer = null;
+    }
+    if (this.gameObject.player2.freezeTimer) {
+      clearTimeout(this.gameObject.player2.freezeTimer);
+      this.gameObject.player2.freezeTimer = null;
+    }
+    if (this.shrinkTimer) {
+      clearTimeout(this.shrinkTimer);
+      this.shrinkTimer = null;
+    }
+    if (this.szTimer) {
+      clearTimeout(this.szTimer);
+      this.szTimer = null;
+    }
+  }
+
+  private updateMirage(): void {
+    let i: string;
+    for (i in this.gameObject.mirageBallsPos) {
+      this.gameObject.mirageBallsPos[i][0] +=
+        this.gameObject.mirageBallsVel[i][0];
+      this.gameObject.mirageBallsPos[i][1] +=
+        this.gameObject.mirageBallsVel[i][1];
+      if (
+        this.gameObject.mirageBallsPos[i][1] + this.gameObject.ballSize >=
+          this.gameObject.Height ||
+        this.gameObject.mirageBallsPos[i][1] - this.gameObject.ballSize <= 0
+      ) {
+        this.gameObject.mirageBallsVel[i][1] =
+          this.gameObject.mirageBallsVel[i][1] * -1;
+      }
+      if (
+        this.gameObject.mirageBallsPos[i][0] + this.gameObject.ballSize >=
+          this.gameObject.Width ||
+        this.gameObject.mirageBallsPos[i][0] - this.gameObject.ballSize <= 0
+      ) {
+        this.gameObject.mirageBallsVel[i][0] =
+          this.gameObject.mirageBallsVel[i][0] * -1;
+      }
+    }
+    this.gameObject.sendToClients<{ mirageUpdate: number[][] }>(
+      'mirageUpdate',
+      {
+        mirageUpdate: this.gameObject.mirageBallsPos,
+      },
+    );
+  }
+
+  private ballPlayerInteraction(): void {
+    if (this.gameObject.gameOptions.dodge) {
+      let scored = 0;
+      if (
+        this.ball_line_intersection(
+          this.gameObject.player1.pos.x + this.gameObject.player1.width,
+          {
+            max: this.gameObject.player1.pos.y + this.gameObject.player1.height,
+            min: this.gameObject.player1.pos.y,
+          },
+        ) ||
+        this.ball_line_intersection(this.gameObject.player1.pos.x, {
+          max: this.gameObject.player1.pos.y + this.gameObject.player1.height,
+          min: this.gameObject.player1.pos.y,
+        })
+      ) {
+        this.score(1);
+        scored++;
+      }
+      if (
+        this.ball_line_intersection(this.gameObject.player2.pos.x, {
+          max: this.gameObject.player2.pos.y + this.gameObject.player2.height,
+          min: this.gameObject.player2.pos.y,
+        }) ||
+        this.ball_line_intersection(
+          this.gameObject.player2.pos.x + this.gameObject.player2.width,
+          {
+            max: this.gameObject.player2.pos.y + this.gameObject.player2.height,
+            min: this.gameObject.player2.pos.y,
+          },
+        )
+      ) {
+        this.score(2);
+        scored++;
+      }
+      if (scored > 0) {
+        this.resetEffects();
+        this.serve();
+      }
+      return;
+    }
+    // Ball interaction with player 1
+    if (
+      this.gameObject.ballVel.x <= 0 &&
+      this.ball_line_intersection(
+        this.gameObject.player1.pos.x + this.gameObject.player1.width,
+        {
+          max: this.gameObject.player1.pos.y + this.gameObject.player1.height,
+          min: this.gameObject.player1.pos.y,
+        },
+      )
+    ) {
+      const lengthOld = Math.sqrt(
+        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+      );
+      const maxChange = 0.5;
+      let change =
+        this.gameObject.ballPos.y -
+        (this.gameObject.player1.pos.y + this.gameObject.player1.height / 2);
+      if (Math.abs(change) > maxChange) {
+        if (change > 0) change = maxChange;
+        else change = maxChange * -1;
+      }
+      this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
+      this.gameObject.ballVel.y += change;
+      if (this.gameObject.player1.getOverHere) {
+        this.gameObject.player1.getOverHere = false;
+        this.gameObject.sendToClients<{
+          ScorpionSpecial: boolean;
+        }>('ScorpionSpecial', {
+          ScorpionSpecial: false,
+        });
+      }
+      this.gameObject.freeze = false;
+      const lengthNew = Math.sqrt(
+        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+      );
+      let scaleFactor = lengthOld / lengthNew;
+      scaleFactor *= 1.02;
+      this.gameObject.ballVel.x *= scaleFactor;
+      this.gameObject.ballVel.y *= scaleFactor;
+    }
+    // Ball interaction with player 2
+    if (
+      this.gameObject.ballVel.x >= 0 &&
+      this.ball_line_intersection(this.gameObject.player2.pos.x, {
+        max: this.gameObject.player2.pos.y + this.gameObject.player2.height,
+        min: this.gameObject.player2.pos.y,
+      })
+    ) {
+      const lengthOld = Math.sqrt(
+        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+      );
+      const maxChange = 0.5;
+      let change =
+        this.gameObject.ballPos.y -
+        (this.gameObject.player2.pos.y + this.gameObject.player2.height / 2);
+      if (Math.abs(change) > maxChange) {
+        if (change > 0) change = maxChange;
+        else change = maxChange * -1;
+      }
+      this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
+      this.gameObject.ballVel.y += change;
+      if (this.gameObject.player2.getOverHere) {
+        this.gameObject.player2.getOverHere = false;
+        this.gameObject.sendToClients<{
+          ScorpionSpecial: boolean;
+        }>('ScorpionSpecial', {
+          ScorpionSpecial: false,
+        });
+      }
+      const lengthNew = Math.sqrt(
+        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+      );
+      let scaleFactor = lengthOld / lengthNew;
+      scaleFactor *= 1.02;
+      this.gameObject.ballVel.x *= scaleFactor;
+      this.gameObject.ballVel.y *= scaleFactor;
+    }
+  }
+
   private moveBall(): void {
     if (this.gameObject.gameStarted == false) return;
 
@@ -537,154 +808,30 @@ export class GameService {
     // Ball movement implementation
     this.gameObject.ballPos.x += this.gameObject.ballVel.x;
     this.gameObject.ballPos.y += this.gameObject.ballVel.y;
-    this.abilityMirage();
-
-    // Ball interaction with player 1
-    if (
-      this.gameObject.ballVel.x <= 0 &&
-      this.ball_line_interaction(
-        this.gameObject.player1.pos.x + this.gameObject.player1.width,
-        {
-          max: this.gameObject.player1.pos.y + this.gameObject.player1.height,
-          min: this.gameObject.player1.pos.y,
-        },
-      )
-    ) {
-      const lengthOld = Math.sqrt(
-        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-      );
-      const maxChange = 0.5;
-      let change =
-        this.gameObject.ballPos.y -
-        (this.gameObject.player1.pos.y + this.gameObject.player1.height / 2);
-      if (Math.abs(change) > maxChange) {
-        if (change > 0) change = maxChange;
-        else change = maxChange * -1;
-      }
-      this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
-      this.gameObject.ballVel.y += change;
-      if (this.gameObject.player1.getOverHere) {
-        this.gameObject.player1.getOverHere = false;
-        this.gameObject.sendToClients<{
-          ScorpionSpecial: boolean;
-        }>('ScorpionSpecial', {
-          ScorpionSpecial: false,
-        });
-      }
-      this.gameObject.freeze = false;
-      const lengthNew = Math.sqrt(
-        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-      );
-      let scaleFactor = lengthOld / lengthNew;
-      // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-      scaleFactor *= 1.02;
-      this.gameObject.ballVel.x *= scaleFactor * 1.01;
-      this.gameObject.ballVel.y *= scaleFactor * 1.01;
-    }
-
-    // Ball interaction with player 2
-    if (
-      this.gameObject.ballVel.x >= 0 &&
-      this.ball_line_interaction(this.gameObject.player2.pos.x, {
-        max: this.gameObject.player2.pos.y + this.gameObject.player2.height,
-        min: this.gameObject.player2.pos.y,
-      })
-    ) {
-      const lengthOld = Math.sqrt(
-        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-      );
-      const maxChange = 0.5;
-      let change =
-        this.gameObject.ballPos.y -
-        (this.gameObject.player2.pos.y + this.gameObject.player2.height / 2);
-      if (Math.abs(change) > maxChange) {
-        if (change > 0) change = maxChange;
-        else change = maxChange * -1;
-      }
-      this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
-      this.gameObject.ballVel.y += change;
-      if (this.gameObject.player2.getOverHere) {
-        this.gameObject.player2.getOverHere = false;
-        this.gameObject.sendToClients<{
-          ScorpionSpecial: boolean;
-        }>('ScorpionSpecial', {
-          ScorpionSpecial: false,
-        });
-      }
-      const lengthNew = Math.sqrt(
-        this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-      );
-      let scaleFactor = lengthOld / lengthNew;
-      // if (this.gameObject.gameOptions.gameMode === 'Regular Pong')
-      scaleFactor *= 1.02;
-      this.gameObject.ballVel.x *= scaleFactor;
-      this.gameObject.ballVel.y *= scaleFactor;
-    }
+    //this.abilityMirage();
+    this.ballPlayerInteraction();
 
     // Ball interaction with walls
-    if (
-      this.gameObject.ballPos.x >= this.gameObject.Width ||
-      this.gameObject.ballPos.x <= 0
-    ) {
-      if (this.gameObject.ballPos.x >= this.gameObject.Width)
-        this.gameObject.score.p1 += 1;
-      if (this.gameObject.ballPos.x <= 0) this.gameObject.score.p2 += 1;
-      if (this.gameObject.score.p1 == 11 || this.gameObject.score.p2 == 11)
-        this.stopGame();
-      this.gameObject.ballPos.x = this.gameObject.Width / 2;
-      this.gameObject.ballPos.y = this.gameObject.Height / 2;
-      let angle = Math.random() * 360;
-      if (angle > 45 && angle < 135) {
-        angle = Math.random() * 45;
-      } else if (angle > 225 && angle < 315) {
-        angle = Math.random() * 45 + 315;
+    if (this.gameObject.gameOptions.dodge) {
+      if (
+        (this.gameObject.ballPos.x + this.gameObject.ballSize >=
+          this.gameObject.Width &&
+          this.gameObject.ballVel.x > 0) ||
+        (this.gameObject.ballPos.x - this.gameObject.ballSize <= 0 &&
+          this.gameObject.ballVel.x < 0)
+      ) {
+        this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
+        this.gameObject.ballVel.x *= 1.1;
+        this.gameObject.ballVel.y *= 1.1;
       }
-      angle = angle * (Math.PI / 180);
-      this.gameObject.ballVel.x =
-        this.gameObject.ballVelDefault.x * Math.cos(angle) -
-        this.gameObject.ballVelDefault.y * Math.sin(angle);
-      this.gameObject.ballVel.y =
-        this.gameObject.ballVelDefault.x * Math.sin(angle) +
-        this.gameObject.ballVelDefault.y * Math.cos(angle);
-
-      this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
-        'scoreUpdate',
-        {
-          score: this.gameObject.score,
-        },
-      );
-      this.gameObject.player1.freeze = false;
-      this.gameObject.player2.freeze = false;
-      this.gameObject.lightning = false;
-      this.gameObject.freeze = false;
-      this.gameObject.player1.getOverHere = false;
-      this.gameObject.player2.getOverHere = false;
-      this.gameObject.ballSize = this.gameObject.ballSizeDefault;
-      if (this.mirageTimer) {
-        clearTimeout(this.mirageTimer);
-        this.mirageTimer = null;
-        this.gameObject.mirageBallsPos = [];
-        this.gameObject.mirageBallsVel = [];
-      }
-      this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
-        ballSize: this.gameObject.ballSizeDefault,
-      });
-      if (this.gameObject.player1.freezeTimer) {
-        clearTimeout(this.gameObject.player1.freezeTimer);
-        this.gameObject.player1.freezeTimer = null;
-      }
-      if (this.gameObject.player2.freezeTimer) {
-        clearTimeout(this.gameObject.player2.freezeTimer);
-        this.gameObject.player2.freezeTimer = null;
-      }
-      if (this.shrinkTimer) {
-        clearTimeout(this.shrinkTimer);
-        this.shrinkTimer = null;
-      }
-      if (this.szTimer) {
-        clearTimeout(this.szTimer);
-        this.szTimer = null;
-      }
+    } else if (this.gameObject.ballPos.x >= this.gameObject.Width) {
+      this.score(1);
+      this.resetEffects();
+      this.serve();
+    } else if (this.gameObject.ballPos.x <= 0) {
+      this.score(2);
+      this.resetEffects();
+      this.serve();
     }
     if (
       (this.gameObject.ballPos.y + this.gameObject.ballSize >=
@@ -696,36 +843,8 @@ export class GameService {
       this.gameObject.ballVel.y = this.gameObject.ballVel.y * -1;
     }
 
-    if (this.mirageTimer) {
-      let i: string;
-      for (i in this.gameObject.mirageBallsPos) {
-        this.gameObject.mirageBallsPos[i][0] +=
-          this.gameObject.mirageBallsVel[i][0];
-        this.gameObject.mirageBallsPos[i][1] +=
-          this.gameObject.mirageBallsVel[i][1];
-        if (
-          this.gameObject.mirageBallsPos[i][1] + this.gameObject.ballSize >=
-            this.gameObject.Height ||
-          this.gameObject.mirageBallsPos[i][1] - this.gameObject.ballSize <= 0
-        ) {
-          this.gameObject.mirageBallsVel[i][1] =
-            this.gameObject.mirageBallsVel[i][1] * -1;
-        }
-        if (
-          this.gameObject.mirageBallsPos[i][0] + this.gameObject.ballSize >=
-            this.gameObject.Width ||
-          this.gameObject.mirageBallsPos[i][0] - this.gameObject.ballSize <= 0
-        ) {
-          this.gameObject.mirageBallsVel[i][0] =
-            this.gameObject.mirageBallsVel[i][0] * -1;
-        }
-      }
-      this.gameObject.sendToClients<{ mirageUpdate: number[][] }>(
-        'mirageUpdate',
-        {
-          mirageUpdate: this.gameObject.mirageBallsPos,
-        },
-      );
+    if (this.gameObject.mirage) {
+      this.updateMirage();
     }
     this.gameObject.sendToClients<{ player1: number }>('player1Update', {
       player1: this.gameObject.player1.pos.y,
@@ -733,6 +852,14 @@ export class GameService {
     this.gameObject.sendToClients<{ player2: number }>('player2Update', {
       player2: this.gameObject.player2.pos.y,
     });
+    if (this.gameObject.gameOptions.dodge) {
+      this.gameObject.sendToClients<{ player1X: number }>('player1X', {
+        player1X: this.gameObject.player1.pos.x,
+      });
+      this.gameObject.sendToClients<{ player2X: number }>('player2X', {
+        player2X: this.gameObject.player2.pos.x,
+      });
+    }
     this.gameObject.sendToClients<{ ball: { x: number; y: number } }>(
       'ballUpdate',
       {
