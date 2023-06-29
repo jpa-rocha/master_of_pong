@@ -73,6 +73,16 @@ export class GameGateway
     this.gameCollection.moveUpDisable(client);
   }
 
+  @SubscribeMessage('moveEnable')
+  gameMoveEnable(client: AuthenticatedSocket, direction: number): void {
+    this.gameCollection.moveEnable(client, direction);
+  }
+
+  @SubscribeMessage('moveDisable')
+  gameMoveDisable(client: AuthenticatedSocket, direction: number): void {
+    this.gameCollection.moveDisable(client, direction);
+  }
+
   @SubscribeMessage('specialAbility')
   gameUseSpecial(client: AuthenticatedSocket): void {
     this.gameCollection.useSpecial(client);

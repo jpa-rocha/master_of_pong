@@ -54,6 +54,26 @@ export class GameCollection {
       client.data.lobby.player2.moveDown = false;
   }
 
+  public moveEnable(client: AuthenticatedSocket, direction: number) {
+    if (client.data.lobby.player1.id === client.id) {
+      if (direction === 1) client.data.lobby.player1.moveLeft = true;
+      else if (direction === 2) client.data.lobby.player1.moveRight = true;
+    } else if (client.data.lobby.player2.id === client.id) {
+      if (direction === 1) client.data.lobby.player2.moveLeft = true;
+      else if (direction === 2) client.data.lobby.player2.moveRight = true;
+    }
+  }
+
+  public moveDisable(client: AuthenticatedSocket, direction: number) {
+    if (client.data.lobby.player1.id === client.id) {
+      if (direction === 1) client.data.lobby.player1.moveLeft = false;
+      else if (direction === 2) client.data.lobby.player1.moveRight = false;
+    } else if (client.data.lobby.player2.id === client.id) {
+      if (direction === 1) client.data.lobby.player2.moveLeft = false;
+      else if (direction === 2) client.data.lobby.player2.moveRight = false;
+    }
+  }
+
   public useSpecial(client: AuthenticatedSocket) {
     if (client.data.lobby.player1.id === client.id)
       client.data.lobby.player1.useSpecial = true;
@@ -88,7 +108,8 @@ export class GameCollection {
         if (
           current.player1.options.gameMode === options.gameMode &&
           current.clients.size === 1 &&
-          current.player1.options.hyper === options.hyper
+          current.player1.options.hyper === options.hyper &&
+          current.player1.options.dodge === options.dodge
           // Iterating over the Map
         ) {
           current.player2 = new Player(this.server, options);

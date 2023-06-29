@@ -17,13 +17,17 @@ export class Player {
   public freeze: boolean;
   public freezeTimer: NodeJS.Timeout | null = null;
   public hasAbility: boolean;
+  public abilityCooldown: number;
   public ability: number;
   public hasSpecial: boolean;
   public options: Options;
   public moveUp: boolean;
   public moveDown: boolean;
+  public moveLeft: boolean;
+  public moveRight: boolean;
   public useSpecial: boolean;
   public useAbility: boolean;
+  public abilityCount: number;
 
   constructor(
     private readonly server: Server,
@@ -60,8 +64,17 @@ export class Player {
     this.ability = Math.floor(Math.random() * 5);
     this.moveUp = false;
     this.moveDown = false;
+    this.moveLeft = false;
+    this.moveRight = false;
     this.useSpecial = false;
     this.useAbility = false;
+    if (options.dodge) {
+      this.abilityCooldown = 5000;
+      this.abilityCount = 6;
+    } else {
+      this.abilityCooldown = 15000;
+      this.abilityCount = 5;
+    }
     this.options = options;
     this.id = null;
     this.ready = false;
@@ -98,6 +111,7 @@ export class Player {
     });
 
     let seconds = 14;
+    if (this.options.dodge) seconds = 4;
     const abilityTimer = setInterval(() => {
       this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
         secondsLeft: seconds,
@@ -108,14 +122,14 @@ export class Player {
       }
       seconds--;
     }, 1000);
-    this.ability = Math.floor(Math.random() * 5);
+    this.ability = Math.floor(Math.random() * this.abilityCount);
     setTimeout(() => {
       this.hasAbility = true;
       this.sendToClient<{ hasAbility: boolean; ability: number }>(
         'hasAbility',
         { hasAbility: true, ability: this.ability },
       );
-    }, 15000);
+    }, this.abilityCooldown);
   }
 
   setSpecial(): void {
@@ -124,6 +138,7 @@ export class Player {
       hasUlt: false,
     });
     let seconds = 14;
+    if (this.options.dodge) seconds = 4;
     const ultimateTimer = setInterval(() => {
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,
@@ -139,7 +154,7 @@ export class Player {
       this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
         hasUlt: true,
       });
-    }, 15000);
+    }, this.abilityCooldown);
   }
 
   SoundGrenade(): void {
