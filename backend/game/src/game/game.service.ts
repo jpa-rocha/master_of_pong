@@ -300,9 +300,9 @@ export class GameService {
       if (
         player.options.character === Character.Raiden ||
         this.gameObject.gameOptions.dodge
-      )
+      ) {
         this.abLightning();
-      else if (player.options.character === Character.Scorpion)
+      } else if (player.options.character === Character.Scorpion)
         this.ultScorpion(player, opponent);
       else if (player.options.character === Character.SubZero)
         this.ultSubZero(opponent);
@@ -401,8 +401,25 @@ export class GameService {
       if (this.szTimer) {
         clearTimeout(this.szTimer);
       } else {
-        this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
-        this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
+        if (this.gameObject.lightning) {
+          this.gameObject.ballVelOld.y = -this.gameObject.ballVel.y / 4;
+          if (this.gameObject.lightningDir < 0) {
+            this.gameObject.ballVelOld.x = -Math.sqrt(
+              (this.gameObject.ballMagnitude + 2) ** 2 -
+                this.gameObject.ballVelOld.y ** 2,
+            );
+          } else {
+            this.gameObject.ballVelOld.x = Math.sqrt(
+              (this.gameObject.ballMagnitude + 2) ** 2 -
+                this.gameObject.ballVelOld.y ** 2,
+            );
+          }
+          this.gameObject.lightningDir = 0;
+          // this.gameObject.lightning = false;
+        } else {
+          this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
+          this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
+        }
         this.gameObject.ballVel.x = 0;
         this.gameObject.ballVel.y = 0;
       }
@@ -477,6 +494,16 @@ export class GameService {
   private abilityLightning() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.lightning) {
+      if (this.gameObject.freeze || this.szTimer) {
+        this.gameObject.lightning = false;
+        this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
+          'RaidenSpecial',
+          {
+            RaidenSpecial: false,
+          },
+        );
+        return;
+      }
       if (this.gameObject.lightningDir === 0) {
         if (this.gameObject.ballVel.x < 0) {
           this.gameObject.lightningDir = -1;
@@ -513,6 +540,8 @@ export class GameService {
             (this.gameObject.ballMagnitude + 2) ** 2 -
               this.gameObject.ballVel.y ** 2,
           );
+        // this.gameObject.ballVel.x * 3;
+        // this.gameObject.ballVel.y * 3;
         setTimeout(() => {
           this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
             'RaidenSpecial',
@@ -520,17 +549,19 @@ export class GameService {
               RaidenSpecial: false,
             },
           );
-          if (this.gameObject.ballVel.x < 0)
-            this.gameObject.ballVel.x = -Math.sqrt(
-              this.gameObject.ballMagnitude ** 2 -
-                this.gameObject.ballVel.y ** 2,
-            );
-          else {
-            this.gameObject.ballVel.x = Math.sqrt(
-              this.gameObject.ballMagnitude ** 2 -
-                this.gameObject.ballVel.y ** 2,
-            );
-          }
+          this.gameObject.ballVel.x *= this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
+          this.gameObject.ballVel.y *= this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
+          // if (this.gameObject.ballVel.x < 0)
+          //   this.gameObject.ballVel.x = -Math.sqrt(
+          //     (this.gameObject.ballMagnitude) ** 2 -
+          //       this.gameObject.ballVel.y ** 2,
+          //   );
+          // else {
+          //   this.gameObject.ballVel.x = Math.sqrt(
+          //     (this.gameObject.ballMagnitude) ** 2 -
+          //       this.gameObject.ballVel.y ** 2,
+          //   );
+          // }
         }, 800);
         this.gameObject.lightningDir = 0;
       }
@@ -655,7 +686,7 @@ export class GameService {
           min: this.gameObject.player1.pos.y,
         })
       ) {
-        this.score(1);
+        this.score(2);
         scored++;
       }
       if (
@@ -671,7 +702,7 @@ export class GameService {
           },
         )
       ) {
-        this.score(2);
+        this.score(1);
         scored++;
       }
       if (scored > 0) {
@@ -821,8 +852,8 @@ export class GameService {
           this.gameObject.ballVel.x < 0)
       ) {
         this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
-        this.gameObject.ballVel.x *= 1.1;
-        this.gameObject.ballVel.y *= 1.1;
+        this.gameObject.ballVel.x *= 1.05;
+        this.gameObject.ballVel.y *= 1.05;
       }
     } else if (this.gameObject.ballPos.x >= this.gameObject.Width) {
       this.score(1);

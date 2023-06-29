@@ -3,6 +3,8 @@ import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { Button, Options, ImageContainer } from './Canvas';
 import GetOverHere from '../../sounds/getOverHere.mp3';
+import IceSound from '../../sounds/IceSound.mp3';
+import LightningSound from '../../sounds/LightningSound.mp3';
 import SoundGrenade from '../../sounds/sound_grenade.mp3';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
@@ -14,6 +16,8 @@ type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
 	const scorpionSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
+	const subZeroSpecialSound 	= useMemo(() => new Audio(IceSound), []);
+	const raidenSpecialSound 	= useMemo(() => new Audio(LightningSound), []);
 	const soundGrenadeSound 	= useMemo(() => new Audio(SoundGrenade), []);
 
 	const Images = useMemo(() => new ImageContainer(), []);
@@ -99,7 +103,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const dodgeButton = useMemo(() => {
-		var Dodge:Button = new Button("Grab life by the balls", Mode.Dodge, {x: 25, y:25}, {x:850, y:740}, undefined);
+		var Dodge:Button = new Button("Grab life by the ball", Mode.Dodge, {x: 25, y:25}, {x:850, y:740}, undefined);
 		if (canvas)
 			Dodge.setSizeLocation({x:25 * canvas.width / 1200, y:25 * canvas.height / 800}, {x:850 * canvas.width / 1200, y:740 * canvas.height / 800});
 		return Dodge;
@@ -145,6 +149,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas, Images.buttonCharBz, Images.buttonCharRaiven, Images.buttonCharVentail]);
 
 	const handleStartGame = useCallback(() => {
+		scorpionSpecialSound.preload = 'auto';
+		subZeroSpecialSound.preload = 'auto';
+		raidenSpecialSound.preload = 'auto';
+		soundGrenadeSound.preload = 'auto';
+		scorpionSpecialSound.load();
+		subZeroSpecialSound.load();
+		raidenSpecialSound.load();
+		soundGrenadeSound.load();
 		try {
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter, hyperButton.selected, dodgeButton.selected);
 			console.log('Socket:', socket);
@@ -152,7 +164,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
-	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected]);
+	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, scorpionSpecialSound, subZeroSpecialSound, raidenSpecialSound, soundGrenadeSound]);
 
 	const handleStopGame = async () => {
 		setGameStarted(false);
@@ -633,6 +645,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setAbilityFreeze(false);
 				setScorpionSpecial(false);
 				setAbilityMirage(false);
+				subZeroSpecialSound.muted = true;
+				scorpionSpecialSound.muted = true;
+				raidenSpecialSound.muted = true;
 			});
 			socket.current.on('player1Update', (event: any) => {
 				const { player1 } = event;
@@ -676,6 +691,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					const { ScorpionSpecial, target } = event;
 					setScorpionSpecial(ScorpionSpecial);
 					setScorpionTarget(target);
+					scorpionSpecialSound.muted = false;
 					scorpionSpecialSound.play();
 				});
 				socket.current.on('SubZeroSpecial', (event: any) => {
@@ -686,13 +702,21 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						setPlayer2Frozen(false);
 					} else if (target === 1) {
 						setPlayer1Frozen(true);
+						subZeroSpecialSound.muted = false;
+						subZeroSpecialSound.play();
 					} else if (target === 2) {
 						setPlayer2Frozen(true);
+						subZeroSpecialSound.muted = false;
+						subZeroSpecialSound.play();
 					}
 				});
 				socket.current.on('RaidenSpecial', (event: any) => {
 					const { RaidenSpecial } = event;
 					setRaidenSpecial(RaidenSpecial);
+					if (RaidenSpecial) {
+						raidenSpecialSound.muted = false;
+						raidenSpecialSound.play();
+					}
 				});
 
 				// random abilities / powerups
@@ -914,7 +938,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current?.off('gameInit');
 			}
 		}
-	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, subZeroSpecialSound, raidenSpecialSound]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
@@ -1543,7 +1567,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX]);
 
 
 	return (
