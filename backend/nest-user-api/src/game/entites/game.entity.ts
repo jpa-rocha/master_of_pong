@@ -1,19 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
-  userOne: number;
-
-  @Column({ type: 'int' })
-  userTwo: number;
-
-  @Column({ type: 'int' })
-  winner: number;
-
   @Column({ type: 'timestamp' })
   timestamp: Date;
+
+  @ManyToOne(() => User, (user) => user.gamesAsUserOne, { onDelete: 'CASCADE' })
+  userOne: User;
+
+  @ManyToOne(() => User, (user) => user.gamesAsUserTwo, { onDelete: 'CASCADE' })
+  userTwo: User;
+
+  @ManyToOne(() => User, (user) => user.gamesAsWinner, { onDelete: 'CASCADE' })
+  winner: User;
+
 }
