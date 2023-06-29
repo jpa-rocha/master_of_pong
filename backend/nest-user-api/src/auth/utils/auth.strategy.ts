@@ -18,11 +18,11 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
     private http: HttpService,
   ) {
     super({
-      authorizationURL: '--> secret here', //TODO: add secret
+      authorizationURL: configService.get<string>('API_URL'),
       tokenURL: 'https://api.intra.42.fr/oauth/token',
       clientID: configService.get<string>('API_UID'),
       clientSecret: configService.get<string>('SECRET'),
-      callbackURL: 'http://localhost:3001/api/auth/redirect',
+      callbackURL: 'http://localhost:5000/api/auth/redirect',
       grant_type: 'authorization_code',
     });
   }
