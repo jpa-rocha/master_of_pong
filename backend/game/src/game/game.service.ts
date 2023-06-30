@@ -3,6 +3,7 @@ import { GameObject } from './gameObject';
 import { GameCollection } from './gameCollection';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
+import { clear } from 'console';
 
 // @Injectable()
 export class GameService {
@@ -12,16 +13,21 @@ export class GameService {
   private moveUpTimer: NodeJS.Timeout | null = null;
   private moveDownTimer: NodeJS.Timeout | null = null;
 
+  private scoreTimer: NodeJS.Timeout | null = null;
+
   private pressUp = 0;
   private pressDown = 0;
-  private testTemp = 0;
 
-  private szTimer: NodeJS.Timeout | null = null;
+  private freezeTimer: NodeJS.Timeout | null = null;
   private timeWarpTimer: NodeJS.Timeout | null = null;
   private mirageTimer: NodeJS.Timeout | null = null;
   private shrinkTimer: NodeJS.Timeout | null = null;
+  private lightningTimer: NodeJS.Timeout | null = null;
   private abilityTimer: NodeJS.Timeout | null = null;
   private ultimateTimer: NodeJS.Timeout | null = null;
+
+  private readyToServe = true;
+  private scored = false;
 
   private gameCollection = new GameCollection();
 
@@ -77,10 +83,10 @@ export class GameService {
   }
 
   stopGame(): void {
-    if (this.gameObject.gameStarted == false) {
-      console.log('Can not end the game, it has not started yet');
-      return;
-    }
+    // if (this.gameObject.gameStarted == false) {
+    //   console.log('Can not end the game, it has not started yet');
+    //   return;
+    // }
 
     // Stops calling the moveBall function
     if (this.ballTimer) {
@@ -96,12 +102,12 @@ export class GameService {
     let winningPlayer: number;
     if (this.gameObject.score.p1 === 11) winningPlayer = 1;
     else if (this.gameObject.score.p2 === 11) winningPlayer = 2;
-
-    // Reset player, ball and score
-    this.gameObject.default();
     this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
       winner: winningPlayer,
     });
+
+    // Reset player, ball and score
+    this.gameObject.default();
     this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,
     });
@@ -190,6 +196,18 @@ export class GameService {
 
   abLightning(): void {
     this.gameObject.lightning = true;
+    if (this.freezeTimer) {
+      clearTimeout(this.freezeTimer);
+      this.freezeTimer = null;
+      this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
+      this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
+      this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
+        'AbilityFreeze',
+        {
+          AbilityFreeze: false,
+        },
+      );
+    }
     this.gameObject.ballMagnitude = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
     );
@@ -240,6 +258,7 @@ export class GameService {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.ballSize >= 120) return;
     this.gameObject.ballSize *= 4;
+    this.gameObject.twoThirdsBallRadius = this.gameObject.ballSize * (2 / 3);
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
@@ -251,6 +270,7 @@ export class GameService {
         !this.shrinkTimer
       )
         this.gameObject.ballSize = this.gameObject.ballSizeDefault;
+      this.gameObject.twoThirdsBallRadius = this.gameObject.ballSize * (2 / 3);
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
         ballSize: this.gameObject.ballSize,
       });
@@ -262,11 +282,16 @@ export class GameService {
     if (this.gameObject.ballSize <= 6) return;
     if (this.shrinkTimer) clearTimeout(this.shrinkTimer);
     this.gameObject.ballSize /= 2;
+    this.gameObject.twoThirdsBallRadius = this.gameObject.ballSize * (2 / 3);
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSize,
     });
     this.shrinkTimer = setTimeout(() => {
-      if (this.gameObject.ballSize < 15) this.gameObject.ballSize = 15;
+      if (this.gameObject.ballSize < 15) {
+        this.gameObject.ballSize = 15;
+        this.gameObject.twoThirdsBallRadius =
+          this.gameObject.ballSize * (2 / 3);
+      }
       this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
         ballSize: this.gameObject.ballSize,
       });
@@ -277,19 +302,19 @@ export class GameService {
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
       console.log('Random ability');
-      if (player.ability === 0) {
-        this.ballReset();
-      } else if (player.ability === 1) {
-        this.abFreeze();
-      } else if (player.ability === 2) {
-        opponent.SoundGrenade();
-      } else if (player.ability === 3) {
-        this.BallSize();
-      } else if (player.ability === 4) {
-        this.abMirage();
-      } else if (player.ability === 5) {
-        this.ultScorpion(player, opponent);
-      }
+      this.BallSize();
+      // if (player.ability === 0) {
+      //   this.ballReset();
+      // } else if (player.ability === 1) {
+      //   this.abFreeze();
+      // } else if (player.ability === 2) {
+      //   opponent.SoundGrenade();
+      // } else if (player.ability === 3) {
+      // } else if (player.ability === 4) {
+      //   this.abMirage();
+      // } else if (player.ability === 5) {
+      //   this.ultScorpion(player, opponent);
+      // }
       player.setAbility();
     }
   }
@@ -398,24 +423,41 @@ export class GameService {
   private abilityFreeze() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.freeze == true) {
-      if (this.szTimer) {
-        clearTimeout(this.szTimer);
+      if (this.freezeTimer) {
+        clearTimeout(this.freezeTimer);
       } else {
-        if (this.gameObject.lightning) {
+        if (this.lightningTimer) {
+          clearTimeout(this.lightningTimer);
+          this.lightningTimer = null;
+          this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
+            'RaidenSpecial',
+            {
+              RaidenSpecial: false,
+            },
+          );
+          this.gameObject.ballVelOld.x =
+            this.gameObject.ballVel.x *
+            (this.gameObject.ballMagnitude /
+              (this.gameObject.ballMagnitude + 2));
+          this.gameObject.ballVelOld.y =
+            this.gameObject.ballVel.y *
+            (this.gameObject.ballMagnitude /
+              (this.gameObject.ballMagnitude + 2));
+        } else if (this.gameObject.lightning) {
           this.gameObject.ballVelOld.y = -this.gameObject.ballVel.y / 4;
           if (this.gameObject.lightningDir < 0) {
             this.gameObject.ballVelOld.x = -Math.sqrt(
-              (this.gameObject.ballMagnitude + 2) ** 2 -
+              this.gameObject.ballMagnitude ** 2 -
                 this.gameObject.ballVelOld.y ** 2,
             );
           } else {
             this.gameObject.ballVelOld.x = Math.sqrt(
-              (this.gameObject.ballMagnitude + 2) ** 2 -
+              this.gameObject.ballMagnitude ** 2 -
                 this.gameObject.ballVelOld.y ** 2,
             );
           }
           this.gameObject.lightningDir = 0;
-          // this.gameObject.lightning = false;
+          this.gameObject.lightning = false;
         } else {
           this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
           this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
@@ -424,7 +466,7 @@ export class GameService {
         this.gameObject.ballVel.y = 0;
       }
       this.gameObject.freeze = false;
-      this.szTimer = setTimeout(() => {
+      this.freezeTimer = setTimeout(() => {
         this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
         this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
         this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
@@ -433,7 +475,7 @@ export class GameService {
             AbilityFreeze: false,
           },
         );
-        this.szTimer = null;
+        this.freezeTimer = null;
       }, 1200);
     }
   }
@@ -494,15 +536,13 @@ export class GameService {
   private abilityLightning() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.lightning) {
-      if (this.gameObject.freeze || this.szTimer) {
-        this.gameObject.lightning = false;
-        this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
-          'RaidenSpecial',
-          {
-            RaidenSpecial: false,
-          },
-        );
-        return;
+      if (this.lightningTimer) {
+        clearTimeout(this.lightningTimer);
+        this.lightningTimer = null;
+        this.gameObject.ballVel.x *=
+          this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
+        this.gameObject.ballVel.y *=
+          this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
       }
       if (this.gameObject.lightningDir === 0) {
         if (this.gameObject.ballVel.x < 0) {
@@ -540,28 +580,18 @@ export class GameService {
             (this.gameObject.ballMagnitude + 2) ** 2 -
               this.gameObject.ballVel.y ** 2,
           );
-        // this.gameObject.ballVel.x * 3;
-        // this.gameObject.ballVel.y * 3;
-        setTimeout(() => {
+        this.lightningTimer = setTimeout(() => {
           this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
             'RaidenSpecial',
             {
               RaidenSpecial: false,
             },
           );
-          this.gameObject.ballVel.x *= this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
-          this.gameObject.ballVel.y *= this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
-          // if (this.gameObject.ballVel.x < 0)
-          //   this.gameObject.ballVel.x = -Math.sqrt(
-          //     (this.gameObject.ballMagnitude) ** 2 -
-          //       this.gameObject.ballVel.y ** 2,
-          //   );
-          // else {
-          //   this.gameObject.ballVel.x = Math.sqrt(
-          //     (this.gameObject.ballMagnitude) ** 2 -
-          //       this.gameObject.ballVel.y ** 2,
-          //   );
-          // }
+          this.gameObject.ballVel.x *=
+            this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
+          this.gameObject.ballVel.y *=
+            this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2);
+          this.lightningTimer = null;
         }, 800);
         this.gameObject.lightningDir = 0;
       }
@@ -576,10 +606,10 @@ export class GameService {
       this.gameObject.score.p2++;
       if (this.gameObject.score.p2 === 11) this.stopGame();
     }
-    this.gameObject.sendToClients<{ score: { p1: number; p2: number } }>(
+    this.gameObject.sendToClients<{ newScore: { p1: number; p2: number } }>(
       'scoreUpdate',
       {
-        score: this.gameObject.score,
+        newScore: this.gameObject.score,
       },
     );
   }
@@ -610,6 +640,7 @@ export class GameService {
     this.gameObject.player1.getOverHere = false;
     this.gameObject.player2.getOverHere = false;
     this.gameObject.ballSize = this.gameObject.ballSizeDefault;
+    this.gameObject.twoThirdsBallRadius = this.gameObject.ballSize * (2 / 3);
     if (this.gameObject.mirage) {
       this.gameObject.mirage = false;
       clearTimeout(this.mirageTimer);
@@ -632,9 +663,9 @@ export class GameService {
       clearTimeout(this.shrinkTimer);
       this.shrinkTimer = null;
     }
-    if (this.szTimer) {
-      clearTimeout(this.szTimer);
-      this.szTimer = null;
+    if (this.freezeTimer) {
+      clearTimeout(this.freezeTimer);
+      this.freezeTimer = null;
     }
   }
 
@@ -793,12 +824,33 @@ export class GameService {
 
   private moveBall(): void {
     if (this.gameObject.gameStarted == false) return;
+    if (!this.readyToServe) {
+      this.gameObject.sendToClients<{
+        player1: number;
+        player2: number;
+        ball: { x: number; y: number };
+      }>('positionsUpdate', {
+        player1: this.gameObject.player1.pos.y,
+        player2: this.gameObject.player2.pos.y,
+        ball: this.gameObject.ballPos,
+      });
+      if (this.gameObject.gameOptions.dodge) {
+        this.gameObject.sendToClients<{ player1X: number; player2X: number }>(
+          'positionXUpdate',
+          {
+            player1X: this.gameObject.player1.pos.x,
+            player2X: this.gameObject.player2.pos.x,
+          },
+        );
+      }
+      return;
+    }
 
     // // Time Warp
     // if (this.gameObject.timeWarp == true) {
     //   if (this.timeWarpTimer) {
-    //     clearTimeout(this.szTimer);
-    //     this.szTimer = null;
+    //     clearTimeout(this.freezeTimer);
+    //     this.freezeTimer = null;
     //   } else {
     //     this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
     //     this.gameObject.ballVel.y = -this.gameObject.ballVel.y;
@@ -836,12 +888,12 @@ export class GameService {
     if (this.gameObject.player2.getOverHere)
       this.abilityScorpion(this.gameObject.player2);
     this.abilityLightning();
+
     // Ball movement implementation
     this.gameObject.ballPos.x += this.gameObject.ballVel.x;
     this.gameObject.ballPos.y += this.gameObject.ballVel.y;
-    //this.abilityMirage();
-    this.ballPlayerInteraction();
 
+    if (!this.scored) this.ballPlayerInteraction();
     // Ball interaction with walls
     if (this.gameObject.gameOptions.dodge) {
       if (
@@ -855,14 +907,45 @@ export class GameService {
         this.gameObject.ballVel.x *= 1.05;
         this.gameObject.ballVel.y *= 1.05;
       }
-    } else if (this.gameObject.ballPos.x >= this.gameObject.Width) {
+    } else if (
+      this.gameObject.ballPos.x + this.gameObject.twoThirdsBallRadius >=
+        this.gameObject.Width &&
+      this.gameObject.ballVel.x > 0 &&
+      !this.scored
+    ) {
       this.score(1);
-      this.resetEffects();
-      this.serve();
-    } else if (this.gameObject.ballPos.x <= 0) {
+      this.scored = true;
+      setTimeout(() => {
+        this.resetEffects();
+        this.serve();
+        this.scored = false;
+        this.readyToServe = false;
+        this.gameObject.player1.pos.y = 350;
+        this.gameObject.player2.pos.y = 350;
+        setTimeout(() => {
+          this.readyToServe = true;
+        }, 500);
+      }, 500);
+      return;
+    } else if (
+      this.gameObject.ballPos.x - this.gameObject.twoThirdsBallRadius <= 0 &&
+      this.gameObject.ballVel.x < 0 &&
+      !this.scored
+    ) {
       this.score(2);
-      this.resetEffects();
-      this.serve();
+      this.scored = true;
+      setTimeout(() => {
+        this.resetEffects();
+        this.serve();
+        this.scored = false;
+        this.readyToServe = false;
+        this.gameObject.player1.pos.y = 350;
+        this.gameObject.player2.pos.y = 350;
+        setTimeout(() => {
+          this.readyToServe = true;
+        }, 500);
+      }, 500);
+      return;
     }
     if (
       (this.gameObject.ballPos.y + this.gameObject.ballSize >=
@@ -877,25 +960,24 @@ export class GameService {
     if (this.gameObject.mirage) {
       this.updateMirage();
     }
-    this.gameObject.sendToClients<{ player1: number }>('player1Update', {
+
+    this.gameObject.sendToClients<{
+      player1: number;
+      player2: number;
+      ball: { x: number; y: number };
+    }>('positionsUpdate', {
       player1: this.gameObject.player1.pos.y,
-    });
-    this.gameObject.sendToClients<{ player2: number }>('player2Update', {
       player2: this.gameObject.player2.pos.y,
+      ball: this.gameObject.ballPos,
     });
     if (this.gameObject.gameOptions.dodge) {
-      this.gameObject.sendToClients<{ player1X: number }>('player1X', {
-        player1X: this.gameObject.player1.pos.x,
-      });
-      this.gameObject.sendToClients<{ player2X: number }>('player2X', {
-        player2X: this.gameObject.player2.pos.x,
-      });
+      this.gameObject.sendToClients<{ player1X: number; player2X: number }>(
+        'positionXUpdate',
+        {
+          player1X: this.gameObject.player1.pos.x,
+          player2X: this.gameObject.player2.pos.x,
+        },
+      );
     }
-    this.gameObject.sendToClients<{ ball: { x: number; y: number } }>(
-      'ballUpdate',
-      {
-        ball: this.gameObject.ballPos,
-      },
-    );
   }
 }

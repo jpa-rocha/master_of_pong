@@ -32,6 +32,7 @@ export class GameObject {
   public ballVelDefault: { x: number; y: number };
   public ballVelOld: { x: number; y: number };
   public ballMagnitude: number;
+  public twoThirdsBallRadius: number;
 
   public allowAbilities: boolean;
   public freeze: boolean;
@@ -53,8 +54,8 @@ export class GameObject {
     this.allowAbilities = false;
     this.Width = 1200;
     this.Height = 800;
-    this.ballVelDefault = { x: 5, y: -0.5 };
-    this.ballVel = { x: 5, y: -0.5 };
+    this.ballVelDefault = { x: 6.5, y: -0.65 };
+    this.ballVel = { x: 6.5, y: -0.65 };
     this.ballSizeDefault = 15;
     this.ballSize = 15;
     this.ballPos = { x: this.Width / 2, y: this.Height / 2 };
@@ -73,6 +74,7 @@ export class GameObject {
       this.mirageNumber = 2;
       this.mirageSpread = 50;
     }
+    this.twoThirdsBallRadius = this.ballSize * (2 / 3);
     this.ballVelOld = { x: 0, y: 0 };
     this.score = { p1: 0, p2: 0 };
     this.gameStarted = false;
@@ -98,7 +100,7 @@ export class GameObject {
         ),
       );
       this.player2.ready = true;
-      this.player2.pos.x = 1170;
+      this.player2.pos.x = 1160;
     }
     this.gameOptions = options;
     if (
@@ -113,6 +115,10 @@ export class GameObject {
     this.ballVel = { x: 5, y: 0.5 };
     this.score = { p1: 0, p2: 0 };
     this.gameStarted = false;
+    this.player1.pos.x = 20;
+    this.player1.pos.y = 350;
+    this.player2.pos.x = 1160;
+    this.player2.pos.y = 350;
   }
 
   addClient(client: AuthenticatedSocket) {

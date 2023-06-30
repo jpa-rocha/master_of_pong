@@ -18,6 +18,7 @@ export class Player {
   public freezeTimer: NodeJS.Timeout | null = null;
   public hasAbility: boolean;
   public abilityCooldown: number;
+  public abilityCooldownS: number;
   public ability: number;
   public hasSpecial: boolean;
   public options: Options;
@@ -34,7 +35,7 @@ export class Player {
     options: Options,
     public player: number = 2,
   ) {
-    this.pos = { x: 10, y: 350 };
+    this.pos = { x: 20, y: 350 };
     if (options.gameMode === Mode.Regular) {
       this.height = 100;
       this.width = 20;
@@ -70,9 +71,15 @@ export class Player {
     this.useAbility = false;
     if (options.dodge) {
       this.abilityCooldown = 5000;
+      this.abilityCooldownS = 4;
       this.abilityCount = 6;
+    } else if (options.hyper) {
+      this.abilityCooldown = 5000;
+      this.abilityCooldownS = 4;
+      this.abilityCount = 5;
     } else {
       this.abilityCooldown = 15000;
+      this.abilityCooldownS = 14;
       this.abilityCount = 5;
     }
     this.options = options;
@@ -110,8 +117,10 @@ export class Player {
       hasAbility: false,
     });
 
-    let seconds = 14;
-    if (this.options.dodge) seconds = 4;
+    let seconds = this.abilityCooldownS;
+    this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
+      secondsLeft: seconds + 1,
+    });
     const abilityTimer = setInterval(() => {
       this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
         secondsLeft: seconds,
@@ -137,8 +146,10 @@ export class Player {
     this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
       hasUlt: false,
     });
-    let seconds = 14;
-    if (this.options.dodge) seconds = 4;
+    let seconds = this.abilityCooldownS;
+    this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
+      secondsLeftUlt: seconds + 1,
+    });
     const ultimateTimer = setInterval(() => {
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,

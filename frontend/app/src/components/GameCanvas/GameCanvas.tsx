@@ -9,6 +9,7 @@ import SoundGrenade from '../../sounds/sound_grenade.mp3';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
+import { EndScreen } from './Canvas';
 
 axios.defaults.baseURL = 'http://localhost:3333';
 
@@ -21,13 +22,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const soundGrenadeSound 	= useMemo(() => new Audio(SoundGrenade), []);
 
 	const Images = useMemo(() => new ImageContainer(), []);
+	const endScreen = useMemo(() => new EndScreen(), []);
 	const [player, setPlayer] = useState<number>();
 	const [player1Size, setPlayer1Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player2Size, setPlayer2Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player1Position, setPlayer1Position] = useState<number>(350);
 	const [player2Position, setPlayer2Position] = useState<number>(350);
-	const [player1PositionX, setPlayer1PositionX] = useState<number>(10);
-	const [player2PositionX, setPlayer2PositionX] = useState<number>(1170);
+	const [player1PositionX, setPlayer1PositionX] = useState<number>(20);
+	const [player2PositionX, setPlayer2PositionX] = useState<number>(1160);
 	const [player1Character, setPlayer1Character] = useState<HTMLImageElement>(new Image());
 	const [player2Character, setPlayer2Character] = useState<HTMLImageElement>(new Image());
 	const [playerAbility, setPlayerAbility] = useState<HTMLImageElement>(new Image());
@@ -48,6 +50,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [abilities, setAbilities] = useState<boolean>(false);
 	const [hasAbility, setHasAbility] = useState<boolean>(true);
 	const [hasUlt, setHasUlt] = useState<boolean>(true);
+	const [maxTimerAnim, setMaxTimerAnim] = useState<number>(30);
+	const [playerScored, setPlayerScored] = useState<number>(0);
 
 	const [secondsLeft, setSecondsLeft] = useState<number>(15);
 	const [secondsLeftUlt, setSecondsLeftUlt] = useState<number>(15);
@@ -165,15 +169,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		console.error('Failed to start the game:', error);
 		}
 	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, scorpionSpecialSound, subZeroSpecialSound, raidenSpecialSound, soundGrenadeSound]);
-
-	const handleStopGame = async () => {
-		setGameStarted(false);
-		try {
-			await axios.post('/game/stop');
-		} catch (error) {
-			console.error('Failed to stop the game:', error);
-		}
-	};
 
 	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1, radius: number = 20) => {
 		const { coordinates, size, image, isFocused, selected } = button;
@@ -295,8 +290,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							setPlayerUlt(Images.RaidenSpecial);
 							break;
 					}
-					if (dodgeButton.selected)
+					if (dodgeButton.selected) {
 						setPlayerUlt(Images.RaidenSpecial);
+						setMaxTimerAnim(10);
+					} else if (hyperButton.selected)
+						setMaxTimerAnim(10);
 				}
 				setPlayerChose(true);
 				setGameSelection(false);
@@ -506,19 +504,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [dodgeButton.selected]);
 
 	const handleKeyDown = useCallback((event: KeyboardEvent) => {
-
-		const executeAbility = async (abilityName: string, endpoint: string) => {
-			try {
-				if (abilityName === "ScorpionSpecial" ||( abilityName === "Special Ability" && selectedCharacter === Character.Scorpion && hasUlt)) {
-					const sound = new Audio(GetOverHere);
-					sound.play();
-				}
-				await axios.post(`/game/ability/${endpoint}`);
-				console.log(abilityName);
-			} catch (error) {
-				console.error(`Failed to use ${abilityName} ability:`, error);
-			}
-		}
 		const moveUp = async () => {
 			try {
 				socket.current?.emit('moveUpEnable');
@@ -565,36 +550,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 		else if (!abilities)
 			return;
-		else if (event.key === 'z')
-			executeAbility("ScorpionSpecial", "Scorpion");
-		else if (event.key === 'x')
-			executeAbility("SubZeroSpecial", "SubZero");
-		else if (event.key === 'c')
-			executeAbility("RaidenSpecial", "Raiden");
- 		else if (event.key === 'q')
-			executeAbility("SoundGrenade", "soundgrenade");
-		else if (event.key === 'v')
-			executeAbility("BiggerBall", "biggerball");
-		else if (event.key === 'b')
-			executeAbility("SmallerBall", "smallerball");
-		else if (event.key === 't')
-			executeAbility("TimeWarp", "timewarp");
-		else if (event.key === 'n')
-			executeAbility("Freeze", "freeze");
-		else if (event.key === 'm')
-			executeAbility("Mirage", "mirage");
 		else if (event.key === 's')
 			socket.current?.emit('randomAbility');
 		else if (event.key === 'a')
 			socket.current?.emit('specialAbility');
-	}, [arrowDown, arrowUp, abilities, selectedCharacter, hasUlt, arrowLeft, arrowRight, dodgeButton.selected]);
+	}, [arrowDown, arrowUp, abilities, arrowLeft, arrowRight, dodgeButton.selected]);
 
 	useEffect(() => {
 		socket.current = io('http://localhost:8002');
-		// if (render === false)
-		// 	setRender(true);
-		// else
-		// 	setRender(false);
 		socket.current?.emit('loadWindow');
 		return () => {
 			if (socket.current) {
@@ -602,7 +565,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			}
 		};
 	}, []);
-	// !!!!! if we include the missing dependancies the canvas won't render on restart / refresh
 
 	useEffect(() => {
 		if (socket.current) {
@@ -631,43 +593,42 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setGameInit(true);
 				setPlayerWaiting(false);
 			});
-			socket.current.on('ballUpdate', (event: any) => {
-				console.log("Got the ball position update");
-				const { ball } = event;
-				setBallPosition(ball);
-			});
 			socket.current.on('scoreUpdate', (event: any) => {
-				const { score } = event;
-				setScore(score);
+				const { newScore } = event;
+				if (newScore.p1 > score.p1) {
+					setPlayerScored(1);
+				} else {
+					setPlayerScored(2);
+				}
+				setTimeout(() => {
+					setPlayerScored(0);
+				}, 1000);
+				setScore(newScore);
+				setAbilityFreeze(false);
+				setAbilityMirage(false);
 				setPlayer1Frozen(false);
 				setPlayer2Frozen(false);
 				setRaidenSpecial(false);
-				setAbilityFreeze(false);
 				setScorpionSpecial(false);
-				setAbilityMirage(false);
 				subZeroSpecialSound.muted = true;
 				scorpionSpecialSound.muted = true;
 				raidenSpecialSound.muted = true;
 			});
-			socket.current.on('player1Update', (event: any) => {
-				const { player1 } = event;
+			socket.current.on('positionsUpdate', (event: any) => {
+				const { player1, player2, ball } = event;
 				setPlayer1Position(player1);
-			});
-			socket.current.on('player2Update', (event: any) => {
-				const { player2 } = event;
 				setPlayer2Position(player2);
+				setBallPosition(ball);
 			});
-			socket.current.on('player1X', (event: any) => {
-				const { player1X } = event;
+			socket.current.on('positionXUpdate', (event: any) => {
+				const { player1X, player2X } = event;
 				setPlayer1PositionX(player1X);
-			});
-			socket.current.on('player2X', (event: any) => {
-				const { player2X } = event;
 				setPlayer2PositionX(player2X);
 			});
 			socket.current.on('winnerUpdate', (event: any) => {
 				const { winner } = event;
 				setWinner(winner);
+				setScore({p1: 0, p2: 0});
 			});
 			socket.current.on('gameStatus', (event: any) => {
 				const { gameStatus } = event;
@@ -678,7 +639,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setRender(load);
 			});
 			if (abilities) {
-				// Character special abilities
+				// Ability timers
 				socket.current.on('secondsLeft', (event: any) => {
 					const { secondsLeft } = event;
 					setSecondsLeft(secondsLeft);
@@ -687,6 +648,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					const { secondsLeftUlt } = event;
 					setSecondsLeftUlt(secondsLeftUlt);
 				});
+				// Character special abilities
 				socket.current.on('ScorpionSpecial', (event: any) => {
 					const { ScorpionSpecial, target } = event;
 					setScorpionSpecial(ScorpionSpecial);
@@ -743,17 +705,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current.on('hasAbility', (event: any) => {
 					const { hasAbility, ability } = event;
 					setHasAbility(hasAbility);
-					if (dodgeButton.selected)
-						setSecondsLeft(5);
-					else
-						setSecondsLeft(15);
 					if (!hasAbility) {
 						setAbilityCooldownImage(Images.Cooldown[0]);
 						var animFrame = 1;
 						const abilTimer = setInterval(() => {
 							setAbilityCooldownImage(Images.Cooldown[animFrame % Images.Cooldown.length]);
 							animFrame++;
-							if (animFrame >= 30)
+							if (animFrame >= maxTimerAnim)
 								clearInterval(abilTimer);
 						}, 500);
 					}
@@ -781,18 +739,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current.on('hasUlt', (event: any) => {
 					const { hasUlt } = event;
 					setHasUlt(hasUlt);
-					if (dodgeButton.selected)
-						setSecondsLeftUlt(5);
-					else
-						setSecondsLeftUlt(15);
 					if (!hasUlt) {
 						setUltimateCooldownImage(Images.Cooldown[0]);
 						var animFrame = 1;
 						let ultTimer = setInterval(() => {
 							setUltimateCooldownImage(Images.Cooldown[animFrame % Images.Cooldown.length]);
 							animFrame++;
-							console.log("frame:" + animFrame);
-							if (animFrame >= 30)
+							if (animFrame >= maxTimerAnim)
 								clearInterval(ultTimer);
 						}, 500);
 					}
@@ -910,12 +863,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					socket.current?.off('secondsLeftUlt');
 					socket.current?.off('gameStatus');
 					socket.current?.off('winnerUpdate');
-					socket.current?.off('player2Update');
-					socket.current?.off('player1Update');
-					socket.current?.off('player1X');
-					socket.current?.off('player2X');
 					socket.current?.off('scoreUpdate');
-					socket.current?.off('ballUpdate');
 					socket.current?.off('gameInit');
 					socket.current?.off('mirageUpdate');
 					socket.current?.off('AbilityMirage');
@@ -929,16 +877,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			return () => {
 				socket.current?.off('gameStatus');
 				socket.current?.off('winnerUpdate');
-				socket.current?.off('player2Update');
-				socket.current?.off('player1Update');
-				socket.current?.off('player1X');
-				socket.current?.off('player2X');
 				socket.current?.off('scoreUpdate');
-				socket.current?.off('ballUpdate');
 				socket.current?.off('gameInit');
 			}
 		}
-	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, subZeroSpecialSound, raidenSpecialSound]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, subZeroSpecialSound, raidenSpecialSound, maxTimerAnim, score.p1]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
@@ -957,25 +900,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	}, [canvas, handleMouseClick, handleMouseMove, handleKeyUp, handleKeyDown, isGameSelection]);
 
-	// function animateStartLoading() {
-	// 	if (canvas && ctx) {
-	// 		var startIndex = Images.YinYangEnd.length - 1;
-	// 		const animInterval = setInterval(() => {
-	// 			ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, canvas.width, canvas.height);
-	// 			console.log("Image : " + startIndex);
-	// 			startIndex--;
-	// 			if (startIndex < 0) {
-	// 				clearInterval(animInterval);
-	// 				setPlayerChose(false);
-	// 				handleStartGame();
-	// 				setPlayerWaiting(true);
-	// 				return;
-	// 			}
-	// 		}, 33);
-	// 		return () => clearInterval(animInterval);
-	// 	}
-	// }
-
 	useEffect(() => {
 		if (canvas) {
 			if (ctx) {
@@ -988,7 +912,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.fillStyle = 'white';
 					ctx.globalAlpha = 1;
-					console.log("Selected GameMode: " + selectedGamemode);
+					if (playerScored > 0) {
+						ctx.fillStyle = "red";
+						if (playerScored === 2) {
+							ctx.fillRect(0, 0, 7, canvas.height);
+						} else {
+							ctx.fillRect(1193, 0, 7, canvas.height);
+						}
+					}
 					if (selectedGamemode !== Mode.Regular) {
 						ctx.drawImage(player1Character, player1PositionX, player1Position);
 						ctx.drawImage(player2Character, player2PositionX, player2Position);
@@ -1050,12 +981,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 					if (player1Frozen) {
 							ctx.globalAlpha = 0.50;
-							ctx.drawImage(Images.iceBlock, 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
+							ctx.drawImage(Images.iceBlock, player1PositionX - 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
 							ctx.globalAlpha = 1;
 					}
 					if (player2Frozen) {
 						ctx.globalAlpha = 0.50;
-						ctx.drawImage(Images.iceBlock, 1165, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
+						ctx.drawImage(Images.iceBlock, player2PositionX - 5, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
 						ctx.globalAlpha = 1;
 					}
 			
@@ -1390,171 +1321,151 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						grd.addColorStop(0.5, "rgb(70, 70, 100)");
 						grd.addColorStop(1, "rgb(60, 60, 60)");
 					}
-					ctx.fillStyle = backgroundColor;
-					ctx.fillRect(0, 0, canvas.width, canvas.height);
 					ctx.font = 'bold 40px Arial';
-					let c1max = 700;
-					let c1min = 200;
-					let c1x = 200;
-					let c1behind = false;
-					let c2max = 800;
-					let c2min = 250;
-					let c2x = 700;
-					let c2behind = true;
-					let c3max = 800;
-					let c3min = 300;
-					let c3x = 800;
-					let c3behind = false;
 					let timer: NodeJS.Timeout;
 					if (winner === player) {
 						ctx.fillStyle = 'white';
 						ctx.fillText("You have reached transcendence", 600, 200);
-						ctx.drawImage(Images.Mountains, 100, 300);
-						ctx.drawImage(Images.Cloud1, c1x, 430);
-						ctx.drawImage(Images.Cloud2, c2x, 535);
-						ctx.drawImage(Images.Cloud3, c3x, 370);
+						ctx.drawImage(endScreen.Mountains, 100, 300);
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 						timer = setInterval(() => {
 							ctx.fillStyle = grd;
 							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							if (c1behind && c1x > c1min) {
-								c1x -= 1;
-								ctx.drawImage(Images.Cloud1, c1x, 430);
+							if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
+								endScreen.c1x -= 1;
+								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
 							}
-							if (c2behind && c2x < c2max) {
-								c2x += 1;
-								ctx.drawImage(Images.Cloud2, c2x, 535);
+							if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
+								endScreen.c2x += 1;
+								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
 							}
-							if (c3behind && c3x > c3min) {
-								c3x -= 1;
-								ctx.drawImage(Images.Cloud3, c3x, 370);
+							if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
+								endScreen.c3x -= 1;
+								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 							}
-							ctx.drawImage(Images.Mountains, 100, 300);
-							if (!c1behind && c1x < c1max) {
-								c1x += 1;
-								ctx.drawImage(Images.Cloud1, c1x, 430);
+							ctx.drawImage(endScreen.Mountains, 100, 300);
+							if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
+								endScreen.c1x += 1;
+								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
 							}
-							if (!c2behind && c2x > c2min) {
-								c2x -= 1;
-								ctx.drawImage(Images.Cloud2, c2x, 535);
+							if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
+								endScreen.c2x -= 1;
+								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
 							}
-							if (!c3behind && c3x < c3max) {
-								c3x += 1;
-								ctx.drawImage(Images.Cloud3, c3x, 370);
+							if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
+								endScreen.c3x += 1;
+								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 							}
 							ctx.fillStyle = 'white';
 							ctx.fillText("You have reached transcendence", 600, 200);
 							drawButton(ctx, resetButton, Mode.Reset);
-							if (c1x === c1max || c1x === c1min)
-								c1behind = !c1behind;
-							if (c2x === c2max || c2x === c2min)
-								c2behind = !c2behind;
-							if (c3x === c3max || c3x === c3min)
-								c3behind = !c3behind;
+							if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
+								endScreen.c1behind = !endScreen.c1behind;
+							if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
+								endScreen.c2behind = !endScreen.c2behind;
+							if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
+								endScreen.c3behind = !endScreen.c3behind;
 						}, 100);
 						drawButton(ctx, resetButton, Mode.Reset);
 					} else {
 						ctx.fillStyle = 'black';
 						ctx.fillText("Player " + winner + " reaches transcendence, leaving you in the dust.", 600, 200);
-						ctx.drawImage(Images.Mountains, 100, 300);
-						ctx.drawImage(Images.Cloud1, c1x, 430);
-						ctx.drawImage(Images.Cloud2, c2x, 535);
-						ctx.drawImage(Images.Cloud3, c3x, 370);
-						let lightningCounter = 0;
-						let c1LightningActive = false;
-						let c2LightningActive = false;
-						let c3LightningActive = false;
-						let lightningPosition = 0;
-						let lightningImage: HTMLImageElement;
+						ctx.drawImage(endScreen.Mountains, 100, 300);
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 						timer = setInterval(() => {
 							ctx.fillStyle = grd;
 							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							if (c1behind && c1x > c1min) {
-								c1x -= 1;
-								ctx.drawImage(Images.Cloud1, c1x, 430);
-								if (c1LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 506, 60, 180);
+							if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
+								endScreen.c1x -= 1;
+								if (endScreen.c1LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
 								}
+								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
 							}
-							if (c2behind && c2x < c2max) {
-								c2x += 1;
-								ctx.drawImage(Images.Cloud2, c2x, 535);
-								if (c2LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 575, 30, 90);
+							if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
+								endScreen.c2x += 1;
+								if (endScreen.c2LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
 								}
+								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
 							}
-							if (c3behind && c3x > c3min) {
-								c3x -= 1;
-								ctx.drawImage(Images.Cloud3, c3x, 370);
-								if (c3LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 412, 30, 90);
+							if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
+								endScreen.c3x -= 1;
+								if (endScreen.c3LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
 								}
+								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 							}
-							ctx.drawImage(Images.Mountains, 100, 300);
-							if (!c1behind && c1x < c1max) {
-								c1x += 1;
-								ctx.drawImage(Images.Cloud1, c1x, 430);
-								if (c1LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 506, 60, 180);
+							ctx.drawImage(endScreen.Mountains, 100, 300);
+							if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
+								endScreen.c1x += 1;
+								if (endScreen.c1LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
 								}
+								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
 							}
-							if (!c2behind && c2x > c2min) {
-								c2x -= 1;
-								ctx.drawImage(Images.Cloud2, c2x, 535);
-								if (c2LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 575, 30, 90);
+							if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
+								endScreen.c2x -= 1;
+								if (endScreen.c2LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
 								}
+								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
 							}
-							if (!c3behind && c3x < c3max) {
-								c3x += 1;
-								ctx.drawImage(Images.Cloud3, c3x, 370);
-								if (c3LightningActive) {
-									ctx.drawImage(lightningImage, lightningPosition, 412, 30, 90);
+							if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
+								endScreen.c3x += 1;
+								if (endScreen.c3LightningActive) {
+									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
 								}
+								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 							}
 							ctx.fillStyle = 'black';
 							ctx.fillText("Player " + winner + " reaches transcendence, leaving you in the dust.", 600, 200);
 							drawButton(ctx, resetButton, Mode.Reset);
-							if (c1x === c1max || c1x === c1min)
-								c1behind = !c1behind;
-							if (c2x === c2max || c2x === c2min)
-								c2behind = !c2behind;
-							if (c3x === c3max || c3x === c3min)
-								c3behind = !c3behind;
-							lightningCounter++;
-							if (lightningCounter === 50) {
-								lightningCounter = 0;
+							if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
+								endScreen.c1behind = !endScreen.c1behind;
+							if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
+								endScreen.c2behind = !endScreen.c2behind;
+							if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
+								endScreen.c3behind = !endScreen.c3behind;
+							endScreen.lightningCounter++;
+							if (endScreen.lightningCounter === 50) {
+								endScreen.lightningCounter = 0;
 								switch (Math.floor(Math.random() * 4)) {
 									case 0:
-										lightningImage = Images.Lightning1;
+										endScreen.lightningImage = endScreen.Lightning1;
 										break;
 									case 1:	
-										lightningImage = Images.Lightning2;
+										endScreen.lightningImage = endScreen.Lightning2;
 										break;	
 									case 2:
-										lightningImage = Images.Lightning3;
+										endScreen.lightningImage = endScreen.Lightning3;
 										break;
 									case 3:
-										lightningImage = Images.Lightning4;
+										endScreen.lightningImage = endScreen.Lightning4;
 										break;
 								}
 								switch (Math.floor(Math.random() * 3)) {
 									case 0:
-										lightningPosition = c1x + 20 + Math.random() * 200;
-										c1LightningActive = true;
+										endScreen.lightningPosition = endScreen.c1x + 20 + Math.random() * 200;
+										endScreen.c1LightningActive = true;
 										break;
 									case 1:
-										lightningPosition = c2x + 27 + Math.random() * 80;
-										c2LightningActive = true;
+										endScreen.lightningPosition = endScreen.c2x + 27 + Math.random() * 80;
+										endScreen.c2LightningActive = true;
 										break;
 									case 2:
-										lightningPosition = c3x + 23 + Math.random() * 42;
-										c3LightningActive = true;
+										endScreen.lightningPosition = endScreen.c3x + 23 + Math.random() * 42;
+										endScreen.c3LightningActive = true;
 										break;
 								}
-							} else if (lightningCounter === 5) {
-								c1LightningActive = false;
-								c2LightningActive = false;
-								c3LightningActive = false;
+							} else if (endScreen.lightningCounter === 5) {
+								endScreen.c1LightningActive = false;
+								endScreen.c2LightningActive = false;
+								endScreen.c3LightningActive = false;
 							}
 						}, 100);
 						drawButton(ctx, resetButton, Mode.Reset);
@@ -1567,7 +1478,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX]);
+	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen]);
 
 
 	return (

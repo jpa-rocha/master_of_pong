@@ -100,6 +100,55 @@ export class Options {
 	}
 }
 
+export class EndScreen {
+	public Mountains;
+	public Cloud1;
+	public Cloud2;
+	public Cloud3;
+	public Lightning1;
+	public Lightning2;
+	public Lightning3;
+	public Lightning4;
+	public c1max = 700;
+	public c1min = 200;
+	public c1x = 200;
+	public c1behind = false;
+	public c2max = 800;
+	public c2min = 250;
+	public c2x = 700;
+	public c2behind = true;
+	public c3max = 800;
+	public c3min = 300;
+	public c3x = 800;
+	public c3behind = false;
+	public lightningCounter = 0;
+	public c1LightningActive = false;
+	public c2LightningActive = false;
+	public c3LightningActive = false;
+	public lightningPosition = 0;
+	public lightningImage: HTMLImageElement;
+
+	constructor () {
+		this.Mountains = new Image();
+		this.Mountains.src = mountains;
+		this.Cloud1 = new Image();
+		this.Cloud1.src = cloud1;
+		this.Cloud2 = new Image();
+		this.Cloud2.src = cloud2;
+		this.Cloud3 = new Image();
+		this.Cloud3.src = cloud3;
+		this.Lightning1 = new Image();
+		this.Lightning1.src = lightning1;
+		this.Lightning2 = new Image();
+		this.Lightning2.src = lightning2;
+		this.Lightning3 = new Image();
+		this.Lightning3.src = lightning3;
+		this.Lightning4 = new Image();
+		this.Lightning4.src = lightning4;
+		this.lightningImage = this.Lightning1;
+	}
+}
+
 export class ImageContainer {
 	public totalImages: number;
 	public imagesLoaded: number;
@@ -150,14 +199,6 @@ export class ImageContainer {
 	public YinYangRotate: HTMLImageElement [] = [];
 	public YinYangEnd: HTMLImageElement [] = [];
 	public Cooldown: HTMLImageElement [] = [];
-	public Mountains;
-	public Cloud1;
-	public Cloud2;
-	public Cloud3;
-	public Lightning1;
-	public Lightning2;
-	public Lightning3;
-	public Lightning4;
 
 	importAll(r: any) {
 		return r.keys().map(r);
@@ -359,38 +400,6 @@ export class ImageContainer {
 			this.Cooldown[this.Cooldown.length - 1].onload = this.incrementCounter;
 			this.Cooldown[this.Cooldown.length - 1].src = image;
 		});
-		this.Mountains = new Image();
-		this.totalImages++;
-		this.Mountains.onload = this.incrementCounter;
-		this.Mountains.src = mountains;
-		this.Cloud1 = new Image();
-		this.totalImages++;
-		this.Cloud1.onload = this.incrementCounter;
-		this.Cloud1.src = cloud1;
-		this.Cloud2 = new Image();
-		this.totalImages++;
-		this.Cloud2.onload = this.incrementCounter;
-		this.Cloud2.src = cloud2;
-		this.Cloud3 = new Image();
-		this.totalImages++;
-		this.Cloud3.onload = this.incrementCounter;
-		this.Cloud3.src = cloud3;
-		this.Lightning1 = new Image();
-		this.totalImages++;
-		this.Lightning1.onload = this.incrementCounter;
-		this.Lightning1.src = lightning1;
-		this.Lightning2 = new Image();
-		this.totalImages++;
-		this.Lightning2.onload = this.incrementCounter;
-		this.Lightning2.src = lightning2;
-		this.Lightning3 = new Image();
-		this.totalImages++;
-		this.Lightning3.onload = this.incrementCounter;
-		this.Lightning3.src = lightning3;
-		this.Lightning4 = new Image();
-		this.totalImages++;
-		this.Lightning4.onload = this.incrementCounter;
-		this.Lightning4.src = lightning4;
 		this.buttonMenu = new Image();
 		this.totalImages++;
 		this.buttonMenu.onload = this.incrementCounter;
