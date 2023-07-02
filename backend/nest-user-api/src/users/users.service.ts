@@ -27,6 +27,11 @@ export class UsersService {
     return user;
   }
 
+  findFortyTwo(forty_two_id: number) {
+    const user = this.usersRepository.findOneBy({ forty_two_id });
+    return user;
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     return this.usersRepository.save({ ...user, ...updateUserDto });

@@ -35,25 +35,31 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
       })
       .toPromise();
 
-    console.log({ data: data }); // This is the data from the 42 API
+    // console.log({ data: data }); // This is the data from the 42 API
     // const user: User = await this.authService.login(data.id);
+    console.log("AT STRATEGY")
 
-    // if (user)
-    //   return user;
+    if (data) {
+      const user_dto: CreateUserDto = {
+        forty_two_id: data.id,
+        username: data.login,
+        email: data.email,
+        is_2fa_enabled: false,
+        refresh_token: accessToken,
+        avatar: '',
+        xp: 0,
+      };
 
-    const user_dto: CreateUserDto = {
-      forty_two_id: data.id,
-      username: data.login,
-      email: data.email,
-      is_2fa_enabled: false,
-      refresh_token: accessToken,
-      avatar: '',
-      xp: 0,
-    };
-
-    await this.usersService.create(user_dto);
-    console.log({ user_dto: user_dto });
-
-    return data;
+          // if (user)
+          //   return user;
+          let user: User = await this.usersService.findFortyTwo(user_dto.forty_two_id)
+          // console.log(user)
+          if (user === null) {
+              await this.usersService.create(user_dto);
+              // console.log({ user_dto: user_dto });
+              user = await this.usersService.findFortyTwo(user_dto.forty_two_id)
+          }
+        return user
+      }
   }
 }
