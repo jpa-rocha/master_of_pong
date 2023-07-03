@@ -51,6 +51,7 @@ services:
       - type: bind
         source: ./backend/nest-user-api/
         target: /backend
+    stop_grace_period: 1s
 
   frontend:
     image: frontend
@@ -68,6 +69,7 @@ services:
       - type: bind
         source: ./frontend/app
         target: /frontend
+    stop_grace_period: 1s
 
 volumes:
   db_volume:
