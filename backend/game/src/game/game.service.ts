@@ -3,7 +3,6 @@ import { GameObject } from './gameObject';
 import { GameCollection } from './gameCollection';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
-import { clear } from 'console';
 
 // @Injectable()
 export class GameService {
@@ -25,6 +24,7 @@ export class GameService {
   private lightningTimer: NodeJS.Timeout | null = null;
   private abilityTimer: NodeJS.Timeout | null = null;
   private ultimateTimer: NodeJS.Timeout | null = null;
+  private ventailTimer: NodeJS.Timeout | null = null;
 
   private readyToServe = true;
   private scored = false;
@@ -113,57 +113,35 @@ export class GameService {
     });
   }
 
-  moveUpEnable(): void {
-    if (this.moveUpTimer) return;
-    this.moveUpTimer = setInterval(() => {
-      this.moveUp();
-    }, 0.1);
-  }
-
-  moveUpDisable(): void {
-    if (this.moveUpTimer) {
-      clearInterval(this.moveUpTimer);
-      this.moveUpTimer = null;
-    }
-  }
-
-  moveUp(): void {
-    if (this.gameObject.gameStarted == false) return;
-    this.pressUp = 1;
-  }
-
-  stopUp(): void {
-    if (this.gameObject.gameStarted == false) return;
-    this.pressUp = 0;
-  }
-
-  moveDown(): void {
-    if (this.gameObject.gameStarted == false) return;
-    this.pressDown = 1;
-  }
-
-  stopDown(): void {
-    if (this.gameObject.gameStarted == false) return;
-    this.pressDown = 0;
-  }
-
-  ultScorpion(player: Player, opponent: Player): void {
+  ultVenomtail(player: Player, opponent: Player): void {
     if (this.gameObject.gameOptions.dodge) {
       player.getOverHere = false;
       opponent.getOverHere = true;
-      setTimeout(() => {
+      if (this.ventailTimer) clearTimeout(this.ventailTimer);
+      this.ventailTimer = setTimeout(() => {
         opponent.getOverHere = false;
+        this.ventailTimer = null;
       }, 3000);
     } else {
       player.getOverHere = true;
       opponent.getOverHere = false;
       this.gameObject.sendToClients<{
-        ScorpionSpecial: boolean;
+        VenomtailSpecial: boolean;
         target: number;
-      }>('ScorpionSpecial', {
-        ScorpionSpecial: true,
+      }>('VenomtailSpecial', {
+        VenomtailSpecial: true,
         target: player.player,
       });
+      if (this.ventailTimer) clearTimeout(this.ventailTimer);
+      this.ventailTimer = setTimeout(() => {
+        player.getOverHere = false;
+        this.gameObject.sendToClients<{
+          VenomtailSpecial: boolean;
+        }>('VenomtailSpecial', {
+          VenomtailSpecial: false,
+        });
+        this.ventailTimer = null;
+      }, 1000);
     }
   }
 
@@ -178,9 +156,9 @@ export class GameService {
     });
   }
 
-  ultSubZero(opponent: Player): void {
+  ultBelowZero(opponent: Player): void {
     opponent.freeze = true;
-    this.gameObject.sendToClients<{ target: number }>('SubZeroSpecial', {
+    this.gameObject.sendToClients<{ target: number }>('BelowZeroSpecial', {
       target: opponent.player,
     });
     opponent.freezeTimer = setTimeout(() => {
@@ -188,7 +166,7 @@ export class GameService {
       opponent.freezeTimer = null;
       this.gameObject.sendToClients<{
         target: number;
-      }>('SubZeroSpecial', {
+      }>('BelowZeroSpecial', {
         target: -opponent.player,
       });
     }, 1200);
@@ -211,8 +189,8 @@ export class GameService {
     this.gameObject.ballMagnitude = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
     );
-    this.gameObject.sendToClients<{ RaidenSpecial: boolean }>('RaidenSpecial', {
-      RaidenSpecial: true,
+    this.gameObject.sendToClients<{ RaivenSpecial: boolean }>('RaivenSpecial', {
+      RaivenSpecial: true,
     });
   }
 
@@ -302,19 +280,23 @@ export class GameService {
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
       console.log('Random ability');
-      this.BallSize();
-      // if (player.ability === 0) {
-      //   this.ballReset();
-      // } else if (player.ability === 1) {
-      //   this.abFreeze();
-      // } else if (player.ability === 2) {
-      //   opponent.SoundGrenade();
-      // } else if (player.ability === 3) {
-      // } else if (player.ability === 4) {
-      //   this.abMirage();
-      // } else if (player.ability === 5) {
-      //   this.ultScorpion(player, opponent);
-      // }
+      if (player.ability === 0) {
+        this.ballReset();
+      } else if (player.ability === 1) {
+        this.abFreeze();
+      } else if (player.ability === 2) {
+        opponent.SoundGrenade();
+      } else if (player.ability === 3) {
+        this.BallSize();
+      } else if (player.ability === 4) {
+        this.abMirage();
+      } else if (player.ability === 5) {
+        if (this.gameObject.gameOptions.dodge) {
+          this.ultVenomtail(player, opponent);
+        } else {
+          this.abDeflect(player);
+        }
+      }
       player.setAbility();
     }
   }
@@ -323,14 +305,14 @@ export class GameService {
     if (player.hasSpecial) {
       console.log('Special ability');
       if (
-        player.options.character === Character.Raiden ||
+        player.options.character === Character.Raiven ||
         this.gameObject.gameOptions.dodge
       ) {
         this.abLightning();
-      } else if (player.options.character === Character.Scorpion)
-        this.ultScorpion(player, opponent);
-      else if (player.options.character === Character.SubZero)
-        this.ultSubZero(opponent);
+      } else if (player.options.character === Character.Venomtail)
+        this.ultVenomtail(player, opponent);
+      else if (player.options.character === Character.BelowZero)
+        this.ultBelowZero(opponent);
       player.setSpecial();
     }
   }
@@ -376,7 +358,7 @@ export class GameService {
   }
 
   private movePlayer(player: Player) {
-    if (!player.freeze) {
+    if (!player.freeze && !player.deflect) {
       if (player.moveUp) {
         player.pos.y -= player.speed;
         if (player.pos.y < 0) player.pos.y = 0;
@@ -420,6 +402,29 @@ export class GameService {
     return false;
   }
 
+  private abDeflect(player: Player) {
+    player.deflect = true;
+    if (player.player === 1) {
+      player.pos.x = this.gameObject.ballPos.x - this.gameObject.ballSize;
+    } else {
+      player.pos.x = this.gameObject.ballPos.x + this.gameObject.ballSize;
+    }
+    player.posYOld = player.pos.y;
+    player.pos.y = this.gameObject.ballPos.y - player.height / 2;
+    setTimeout(() => {
+      player.deflect = false;
+      player.pos.y = player.posYOld;
+      player.pos.x = player.player === 1 ? 20 : 1170;
+      this.gameObject.sendToClients<{ player1X: number; player2X: number }>(
+        'positionXUpdate',
+        {
+          player1X: this.gameObject.player1.pos.x,
+          player2X: this.gameObject.player2.pos.x,
+        },
+      );
+    }, 300);
+  }
+
   private abilityFreeze() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.freeze == true) {
@@ -429,10 +434,10 @@ export class GameService {
         if (this.lightningTimer) {
           clearTimeout(this.lightningTimer);
           this.lightningTimer = null;
-          this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
-            'RaidenSpecial',
+          this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
+            'RaivenSpecial',
             {
-              RaidenSpecial: false,
+              RaivenSpecial: false,
             },
           );
           this.gameObject.ballVelOld.x =
@@ -480,7 +485,7 @@ export class GameService {
     }
   }
 
-  private abilityScorpion(player: Player) {
+  private abilityVenomtail(player: Player) {
     const speed = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
     );
@@ -581,10 +586,10 @@ export class GameService {
               this.gameObject.ballVel.y ** 2,
           );
         this.lightningTimer = setTimeout(() => {
-          this.gameObject.sendToClients<{ RaidenSpecial: boolean }>(
-            'RaidenSpecial',
+          this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
+            'RaivenSpecial',
             {
-              RaidenSpecial: false,
+              RaivenSpecial: false,
             },
           );
           this.gameObject.ballVel.x *=
@@ -769,9 +774,9 @@ export class GameService {
       if (this.gameObject.player1.getOverHere) {
         this.gameObject.player1.getOverHere = false;
         this.gameObject.sendToClients<{
-          ScorpionSpecial: boolean;
-        }>('ScorpionSpecial', {
-          ScorpionSpecial: false,
+          VenomtailSpecial: boolean;
+        }>('VenomtailSpecial', {
+          VenomtailSpecial: false,
         });
       }
       this.gameObject.freeze = false;
@@ -807,9 +812,9 @@ export class GameService {
       if (this.gameObject.player2.getOverHere) {
         this.gameObject.player2.getOverHere = false;
         this.gameObject.sendToClients<{
-          ScorpionSpecial: boolean;
-        }>('ScorpionSpecial', {
-          ScorpionSpecial: false,
+          VenomtailSpecial: boolean;
+        }>('VenomtailSpecial', {
+          VenomtailSpecial: false,
         });
       }
       const lengthNew = Math.sqrt(
@@ -884,9 +889,9 @@ export class GameService {
     this.movePlayer(this.gameObject.player2);
     this.abilityFreeze();
     if (this.gameObject.player1.getOverHere)
-      this.abilityScorpion(this.gameObject.player1);
+      this.abilityVenomtail(this.gameObject.player1);
     if (this.gameObject.player2.getOverHere)
-      this.abilityScorpion(this.gameObject.player2);
+      this.abilityVenomtail(this.gameObject.player2);
     this.abilityLightning();
 
     // Ball movement implementation
@@ -970,7 +975,11 @@ export class GameService {
       player2: this.gameObject.player2.pos.y,
       ball: this.gameObject.ballPos,
     });
-    if (this.gameObject.gameOptions.dodge) {
+    if (
+      this.gameObject.gameOptions.dodge ||
+      this.gameObject.player1.deflect ||
+      this.gameObject.player2.deflect
+    ) {
       this.gameObject.sendToClients<{ player1X: number; player2X: number }>(
         'positionXUpdate',
         {

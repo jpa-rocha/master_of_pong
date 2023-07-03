@@ -9,6 +9,7 @@ export class Player {
   public id: string;
   public ready: boolean;
   public pos: { x: number; y: number };
+  public posYOld: number;
   public character: HTMLImageElement;
   public height: number;
   public width: number;
@@ -16,6 +17,7 @@ export class Player {
   public getOverHere: boolean;
   public freeze: boolean;
   public freezeTimer: NodeJS.Timeout | null = null;
+  public deflect: boolean;
   public hasAbility: boolean;
   public abilityCooldown: number;
   public abilityCooldownS: number;
@@ -60,9 +62,11 @@ export class Player {
     }
     this.getOverHere = false;
     this.freeze = false;
+    this.deflect = false;
     this.hasAbility = true;
     this.hasSpecial = true;
-    this.ability = Math.floor(Math.random() * 5);
+    this.abilityCount = 6;
+    this.ability = Math.floor(Math.random() * this.abilityCount);
     this.moveUp = false;
     this.moveDown = false;
     this.moveLeft = false;
@@ -72,15 +76,12 @@ export class Player {
     if (options.dodge) {
       this.abilityCooldown = 5000;
       this.abilityCooldownS = 4;
-      this.abilityCount = 6;
     } else if (options.hyper) {
       this.abilityCooldown = 5000;
       this.abilityCooldownS = 4;
-      this.abilityCount = 5;
     } else {
       this.abilityCooldown = 15000;
       this.abilityCooldownS = 14;
-      this.abilityCount = 5;
     }
     this.options = options;
     this.id = null;
@@ -169,7 +170,6 @@ export class Player {
   }
 
   SoundGrenade(): void {
-    // this.gameObject.clients.get(client.id);
     this.sendToClient('SoundGrenade', {});
   }
 }

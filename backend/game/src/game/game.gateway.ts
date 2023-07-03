@@ -1,5 +1,4 @@
 import {
-  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -25,7 +24,7 @@ export class GameGateway
     // this.logger.log('Game server initialized !');
   }
 
-  async handleConnection(client: Socket, ...args: any[]): Promise<void> {
+  async handleConnection(client: Socket): Promise<void> {
     // Call initializers to set up socket
     this.gameCollection.initialiseSocket(client as AuthenticatedSocket);
   }

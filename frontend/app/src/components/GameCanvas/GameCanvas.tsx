@@ -16,9 +16,9 @@ axios.defaults.baseURL = 'http://localhost:3333';
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
-	const scorpionSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
-	const subZeroSpecialSound 	= useMemo(() => new Audio(IceSound), []);
-	const raidenSpecialSound 	= useMemo(() => new Audio(LightningSound), []);
+	const VenomtailSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
+	const BelowZeroSpecialSound 	= useMemo(() => new Audio(IceSound), []);
+	const raivenSpecialSound 	= useMemo(() => new Audio(LightningSound), []);
 	const soundGrenadeSound 	= useMemo(() => new Audio(SoundGrenade), []);
 
 	const Images = useMemo(() => new ImageContainer(), []);
@@ -59,11 +59,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [ultimateCooldownImage, setUltimateCooldownImage] = useState<HTMLImageElement>(new Image());
 
 	// Character special abilities
-	const [scorpionSpecial, setScorpionSpecial] = useState<boolean>(false);
-	const [scorpionTarget, setScorpionTarget] = useState<number>();
+	const [VenomtailSpecial, setVenomtailSpecial] = useState<boolean>(false);
+	const [VenomtailTarget, setVenomtailTarget] = useState<number>();
 	const [player1Frozen, setPlayer1Frozen] = useState<boolean>();
 	const [player2Frozen, setPlayer2Frozen] = useState<boolean>();
-	const [raidenSpecial, setRaidenSpecial] = useState<boolean>(false);
+	const [raivenSpecial, setRaivenSpecial] = useState<boolean>(false);
 
 	// Regular random abilities
 	const [abilityFreeze, setAbilityFreeze] = useState<boolean>(false);
@@ -140,26 +140,26 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas, Images.buttonPaddleBig, Images.buttonPaddleRegular, Images.buttonPaddleSmall]);
 
 	const characterButtons = useMemo(() => {
-		var Scorpion:Button = new Button("Scorpion", Character.Scorpion, {x:200, y:100}, {x:30, y:360}, Images.buttonCharVentail);
-		var SubZero:Button = new Button("SubZero", Character.SubZero, {x:200, y:100}, {x:300, y:360}, Images.buttonCharBz);
-		var Raiven:Button = new Button("Raiven", Character.Raiden, {x:200, y:100}, {x:300, y:360}, Images.buttonCharRaiven);
+		var Venomtail:Button = new Button("Venomtail", Character.Venomtail, {x:200, y:100}, {x:30, y:360}, Images.buttonCharVentail, Images.VenomtailSpecial, Images.VenomtailDesc);
+		var BelowZero:Button = new Button("BelowZero", Character.BelowZero, {x:200, y:100}, {x:300, y:360}, Images.buttonCharBz, Images.BelowZeroSpecial, Images.BelowZeroDesc);
+		var Raiven:Button = new Button("Raiven", Character.Raiven, {x:200, y:100}, {x:300, y:360}, Images.buttonCharRaiven, Images.RaivenSpecial, Images.RaivenDesc);
 		if (canvas)
 		{
-			Scorpion.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:490 * canvas.height / 800});
-			SubZero.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:490 * canvas.height / 800});
+			Venomtail.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:490 * canvas.height / 800});
+			BelowZero.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:450 * canvas.width / 1200, y:490 * canvas.height / 800});
 			Raiven.setSizeLocation({x:300 * canvas.width / 1200, y:150 * canvas.height / 800}, {x:825 * canvas.width / 1200, y:490 * canvas.height / 800});
 		}
-		return [Scorpion, SubZero, Raiven];
-	}, [canvas, Images.buttonCharBz, Images.buttonCharRaiven, Images.buttonCharVentail]);
+		return [Venomtail, BelowZero, Raiven];
+	}, [canvas, Images.buttonCharBz, Images.buttonCharRaiven, Images.buttonCharVentail, Images.BelowZeroSpecial, Images.VenomtailSpecial, Images.RaivenSpecial, Images.BelowZeroDesc, Images.VenomtailDesc, Images.RaivenDesc]);
 
 	const handleStartGame = useCallback(() => {
-		scorpionSpecialSound.preload = 'auto';
-		subZeroSpecialSound.preload = 'auto';
-		raidenSpecialSound.preload = 'auto';
+		VenomtailSpecialSound.preload = 'auto';
+		BelowZeroSpecialSound.preload = 'auto';
+		raivenSpecialSound.preload = 'auto';
 		soundGrenadeSound.preload = 'auto';
-		scorpionSpecialSound.load();
-		subZeroSpecialSound.load();
-		raidenSpecialSound.load();
+		VenomtailSpecialSound.load();
+		BelowZeroSpecialSound.load();
+		raivenSpecialSound.load();
 		soundGrenadeSound.load();
 		try {
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter, hyperButton.selected, dodgeButton.selected);
@@ -168,22 +168,22 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
-	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, scorpionSpecialSound, subZeroSpecialSound, raidenSpecialSound, soundGrenadeSound]);
+	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, VenomtailSpecialSound, BelowZeroSpecialSound, raivenSpecialSound, soundGrenadeSound]);
 
 	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1, radius: number = 20) => {
-		const { coordinates, size, image, isFocused, selected } = button;
+		const { coordinates, size, image, isFocused, selected, icon } = button;
 		const { x, y } = coordinates;
 		const { x: width, y: height } = size;
 		const otherButtonSelected = selectedOption > -1 && selectedOption !== Mode.Start && selectedOption !== Mode.Reset && !selected;
 
-		if (selectedOption !== Mode.Reset) {
-			ctx.fillStyle = backgroundColor;
-			ctx.fillRect(x, y, width, height);
-		}
+		ctx.globalAlpha = 1;
 		ctx.fillStyle = 'white';
 		roundedRect(ctx, x, y, width, height, radius);
-		if (selectedOption < Mode.Hyper) {
+		if (selectedOption < Mode.Hyper && image) {
 			ctx.drawImage(image, x, y, width, height);
+			if (icon) {
+				ctx.drawImage(icon, x + width / 2, y + height / 2);
+			}
 		} else {
 			ctx.fillStyle = backgroundColor;
 			ctx.fillRect(x - 2, y - 2, width + 190, height + 4);
@@ -196,11 +196,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			ctx.fillStyle = "black";
 			roundedRect(ctx, x, y, width, height, radius);
 			ctx.globalAlpha = 1;
-		} else if (selected && (!regular || button.id === Mode.Regular)) {
+		} else if (selected && (!regular || button.id === Mode.Regular || button.id === Mode.Hyper || button.id === Mode.Dodge)) {
 			ctx.strokeStyle = "red";
 			ctx.lineWidth = 2;
 			roundedRect(ctx, x, y, width, height, radius, true);
-		} else if (otherButtonSelected || (button.id !== Mode.Regular && regular && selectedOption !== Mode.Start)) {
+		} else if (otherButtonSelected || (button.id !== Mode.Regular && button.id < Mode.Hyper && regular && selectedOption !== Mode.Start)) {
 			ctx.globalAlpha = 0.5;
 			ctx.fillStyle = "black";
 			roundedRect(ctx, x, y, width, height, radius);
@@ -208,9 +208,28 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	}, [regular]);
 
-	function checkMouseOnButton(button: Button, e: MouseEvent, canvas: HTMLCanvasElement) {
-		var mouseX = e.clientX - canvas.offsetLeft;
-		var mouseY = e.clientY - canvas.offsetTop;
+	const drawAbilityInfo = useCallback((button: Button, mouseX: number, mouseY: number, ctx: CanvasRenderingContext2D) => {
+		ctx.fillStyle = "black";
+		ctx.globalAlpha = 0.7;
+		roundedRect(ctx, mouseX, mouseY, 200, 100, 15);
+		ctx.fillStyle = "white";
+		ctx.globalAlpha = 1;
+		ctx.font = '15px Arial';
+		const descArray = button.description.split("\n");
+		let y = mouseY + 100 / (descArray.length + 1);
+		for (let item in descArray) {
+			ctx.fillText(descArray[item], mouseX + 100, y, 200);
+			y += 100 / (descArray.length + 1);
+		}
+	}, []);
+
+	function mouseOnAbility(buttonX: number, buttonY: number, mouseX: number, mouseY: number) {
+		if (mouseX > buttonX + 150 && mouseX < buttonX + 182 && mouseY > buttonY + 75 && mouseY < buttonY + 107)
+			return true;
+		return false;
+	}
+
+	function checkMouseOnButton(button: Button, mouseX: number, mouseY: number) {
 		if (mouseX > button.coordinates.x && mouseX < button.coordinates.x + button.size.x &&
 			mouseY > button.coordinates.y && mouseY < button.coordinates.y + button.size.y)
 			return true;
@@ -220,43 +239,52 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const handleMouseMove = useCallback((e:MouseEvent) => {
 		if (!canvas || !ctx)
 			return;
-		if (checkMouseOnButton(startButton, e, canvas))
+		ctx.fillStyle = backgroundColor;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(Images.headGamemode, canvas.width / 2 - 150, 20, 300, 75);
+		ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
+		ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
+		const mouseX = e.clientX - canvas.offsetLeft;
+		const mouseY = e.clientY - canvas.offsetTop;
+		if (checkMouseOnButton(startButton, mouseX, mouseY))
 			startButton.isFocused = true;
 		else if (startButton.isFocused)
 			startButton.isFocused = false;
 		drawButton(ctx, startButton, Mode.Start);
-		if (checkMouseOnButton(hyperButton, e, canvas))
+		if (checkMouseOnButton(hyperButton, mouseX, mouseY))
 			hyperButton.isFocused = true;
 		else if (hyperButton.isFocused)
 			hyperButton.isFocused = false;
 		drawButton(ctx, hyperButton, Mode.Hyper, 5);
-		if (checkMouseOnButton(dodgeButton, e, canvas))
+		if (checkMouseOnButton(dodgeButton, mouseX, mouseY))
 			dodgeButton.isFocused = true;
 		else if (dodgeButton.isFocused)
 			dodgeButton.isFocused = false;
 		drawButton(ctx, dodgeButton, Mode.Dodge, 5);
 		for (var index in gamemodeButtons) {
-			if (checkMouseOnButton(gamemodeButtons[index], e, canvas))
+			if (checkMouseOnButton(gamemodeButtons[index], mouseX, mouseY))
 				gamemodeButtons[index].isFocused = true;
 			else if (gamemodeButtons[index].isFocused === true)
 				gamemodeButtons[index].isFocused = false;
 			drawButton(ctx, gamemodeButtons[index], selectedGamemode);
 		}
 		for (index in paddleButtons) {
-			if (checkMouseOnButton(paddleButtons[index], e, canvas))
+			if (checkMouseOnButton(paddleButtons[index], mouseX, mouseY))
 				paddleButtons[index].isFocused = true;
 			else if (paddleButtons[index].isFocused === true)
 				paddleButtons[index].isFocused = false;
 			drawButton(ctx, paddleButtons[index], selectedPaddle);
 		}
 		for (index in characterButtons) {
-			if (checkMouseOnButton(characterButtons[index], e, canvas))
+			if (checkMouseOnButton(characterButtons[index], mouseX, mouseY)) {
 				characterButtons[index].isFocused = true;
-			else if (characterButtons[index].isFocused === true)
-				characterButtons[index].isFocused = false;
+			} else if (characterButtons[index].isFocused === true)
+			characterButtons[index].isFocused = false;
 			drawButton(ctx, characterButtons[index], selectedCharacter);
+			if (mouseOnAbility(characterButtons[index].coordinates.x, characterButtons[index].coordinates.y, mouseX, mouseY))
+				drawAbilityInfo(characterButtons[index], mouseX, mouseY, ctx);
 		}
-	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton, hyperButton, dodgeButton]);
+	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton, hyperButton, dodgeButton, drawAbilityInfo, Images.headCharacter, Images.headGamemode, Images.headPaddle]);
 	
 	const clearSelection = useCallback(() => {
 		for (var index in paddleButtons) {
@@ -275,23 +303,25 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		console.log("Handle mouse click");
 		if (!canvas || !ctx)
 			return;
-		if (checkMouseOnButton(startButton, e, canvas)) {
+		const mouseX = e.clientX - canvas.offsetLeft;
+		const mouseY = e.clientY - canvas.offsetTop;
+		if (checkMouseOnButton(startButton, mouseX, mouseY)) {
 			if ((selectedGamemode !== -1 && selectedPaddle !== -1 && selectedCharacter !== -1) || selectedGamemode === Mode.Regular) {
 				if (selectedGamemode !== Mode.Regular) {
 					setAbilities(true);
 					switch (selectedCharacter) {
-						case Character.Scorpion:
-							setPlayerUlt(Images.ScorpionSpecial);
+						case Character.Venomtail:
+							setPlayerUlt(Images.VenomtailSpecial);
 							break;
-						case Character.SubZero:
-							setPlayerUlt(Images.SubZeroSpecial);
+						case Character.BelowZero:
+							setPlayerUlt(Images.BelowZeroSpecial);
 							break;
-						case Character.Raiden:
-							setPlayerUlt(Images.RaidenSpecial);
+						case Character.Raiven:
+							setPlayerUlt(Images.RaivenSpecial);
 							break;
 					}
 					if (dodgeButton.selected) {
-						setPlayerUlt(Images.RaidenSpecial);
+						setPlayerUlt(Images.RaivenSpecial);
 						setMaxTimerAnim(10);
 					} else if (hyperButton.selected)
 						setMaxTimerAnim(10);
@@ -308,7 +338,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				return;
 			}
 		}
-		if (checkMouseOnButton(hyperButton, e, canvas)) {
+		if (checkMouseOnButton(hyperButton, mouseX, mouseY)) {
 			if (hyperButton.selected) {
 				hyperButton.selected = false;
 			} else {
@@ -317,7 +347,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			drawButton(ctx, hyperButton, Mode.Hyper, 5);
 			return;
 		}
-		if (checkMouseOnButton(dodgeButton, e, canvas)) {
+		if (checkMouseOnButton(dodgeButton, mouseX, mouseY)) {
 			if (dodgeButton.selected) {
 				dodgeButton.selected = false;
 			} else {
@@ -327,7 +357,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			return;
 		}
 		for (var index in gamemodeButtons) {
-			if (checkMouseOnButton(gamemodeButtons[index], e, canvas)) {
+			if (checkMouseOnButton(gamemodeButtons[index], mouseX, mouseY)) {
 				if (selectedGamemode !== -1) {
 					if (gamemodeButtons[index].selected) {
 						gamemodeButtons[index].selected = false;
@@ -367,7 +397,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			}
 		}
 		for (index in paddleButtons) {
-			if (checkMouseOnButton(paddleButtons[index], e, canvas)) {
+			if (checkMouseOnButton(paddleButtons[index], mouseX, mouseY)) {
 				if (!regular) {
 					if (selectedPaddle !== -1) {
 						if (paddleButtons[index].selected) {
@@ -396,7 +426,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			}
 		}
 		for (index in characterButtons) {
-			if (checkMouseOnButton(characterButtons[index], e, canvas)) {
+			if (checkMouseOnButton(characterButtons[index], mouseX, mouseY)) {
 				if (!regular) {
 					if (selectedCharacter !== -1) {
 						if (characterButtons[index].selected) {
@@ -424,12 +454,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				return;
 			}
 		}
-	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, Images.RaidenSpecial, Images.SubZeroSpecial, Images.ScorpionSpecial, startButton, clearSelection, regular, hyperButton, dodgeButton]);
+	}, [canvas, drawButton, ctx, gamemodeButtons, paddleButtons, handleMouseMove, selectedGamemode, selectedPaddle, characterButtons, selectedCharacter, Images.RaivenSpecial, Images.BelowZeroSpecial, Images.VenomtailSpecial, startButton, clearSelection, regular, hyperButton, dodgeButton]);
 
 	const handleFinishClick = useCallback((e: MouseEvent) => {
 		if (!canvas || !ctx)
 			return;
-		if (checkMouseOnButton(resetButton, e, canvas)) {
+		const mouseX = e.clientX - canvas.offsetLeft;
+		const mouseY = e.clientY - canvas.offsetTop;
+		if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
 			setGameSelection(true);
 			setBallSize(15);
 		}
@@ -438,7 +470,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const handleFinishMove = useCallback((e: MouseEvent) => {
 		if (!canvas || !ctx)
 			return;
-		if (checkMouseOnButton(resetButton, e, canvas))
+		const mouseX = e.clientX - canvas.offsetLeft;
+		const mouseY = e.clientY - canvas.offsetTop;
+		if (checkMouseOnButton(resetButton, mouseX, mouseY))
 			resetButton.isFocused = true;
 		else if (resetButton.isFocused)
 			resetButton.isFocused = false;
@@ -608,11 +642,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setAbilityMirage(false);
 				setPlayer1Frozen(false);
 				setPlayer2Frozen(false);
-				setRaidenSpecial(false);
-				setScorpionSpecial(false);
-				subZeroSpecialSound.muted = true;
-				scorpionSpecialSound.muted = true;
-				raidenSpecialSound.muted = true;
+				setRaivenSpecial(false);
+				setVenomtailSpecial(false);
+				BelowZeroSpecialSound.muted = true;
+				VenomtailSpecialSound.muted = true;
+				raivenSpecialSound.muted = true;
 			});
 			socket.current.on('positionsUpdate', (event: any) => {
 				const { player1, player2, ball } = event;
@@ -649,14 +683,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					setSecondsLeftUlt(secondsLeftUlt);
 				});
 				// Character special abilities
-				socket.current.on('ScorpionSpecial', (event: any) => {
-					const { ScorpionSpecial, target } = event;
-					setScorpionSpecial(ScorpionSpecial);
-					setScorpionTarget(target);
-					scorpionSpecialSound.muted = false;
-					scorpionSpecialSound.play();
+				socket.current.on('VenomtailSpecial', (event: any) => {
+					const { VenomtailSpecial, target } = event;
+					setVenomtailSpecial(VenomtailSpecial);
+					setVenomtailTarget(target);
+					VenomtailSpecialSound.muted = false;
+					VenomtailSpecialSound.play();
 				});
-				socket.current.on('SubZeroSpecial', (event: any) => {
+				socket.current.on('BelowZeroSpecial', (event: any) => {
 					const { target } = event;
 					if (target === -1) {
 						setPlayer1Frozen(false);
@@ -664,20 +698,20 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						setPlayer2Frozen(false);
 					} else if (target === 1) {
 						setPlayer1Frozen(true);
-						subZeroSpecialSound.muted = false;
-						subZeroSpecialSound.play();
+						BelowZeroSpecialSound.muted = false;
+						BelowZeroSpecialSound.play();
 					} else if (target === 2) {
 						setPlayer2Frozen(true);
-						subZeroSpecialSound.muted = false;
-						subZeroSpecialSound.play();
+						BelowZeroSpecialSound.muted = false;
+						BelowZeroSpecialSound.play();
 					}
 				});
-				socket.current.on('RaidenSpecial', (event: any) => {
-					const { RaidenSpecial } = event;
-					setRaidenSpecial(RaidenSpecial);
-					if (RaidenSpecial) {
-						raidenSpecialSound.muted = false;
-						raidenSpecialSound.play();
+				socket.current.on('RaivenSpecial', (event: any) => {
+					const { RaivenSpecial } = event;
+					setRaivenSpecial(RaivenSpecial);
+					if (RaivenSpecial) {
+						raivenSpecialSound.muted = false;
+						raivenSpecialSound.play();
 					}
 				});
 
@@ -732,7 +766,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							setPlayerAbility(Images.MirageAbility);
 							break;
 						case 5:
-							setPlayerAbility(Images.HomingAbility);
+							if (dodgeButton.selected)
+								setPlayerAbility(Images.HomingAbility);
+							else
+								setPlayerAbility(Images.DeflectAbility);
 							break;
 					}
 				});
@@ -757,7 +794,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					console.log("player2Character: " + player2Character);
 					console.log("player2Size: " + player2Size);
 					switch (player2Character) {
-						case Character.Scorpion:
+						case Character.Venomtail:
 							switch (player2Size) {
 								case Paddles.Small:
 									setPlayer2Character(Images.paddleVentailS);
@@ -773,7 +810,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									break;
 								}
 								break;
-								case Character.SubZero:
+								case Character.BelowZero:
 									switch (player2Size) {
 								case Paddles.Small:
 									setPlayer2Character(Images.paddleBzS);
@@ -789,7 +826,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									break;
 							}
 							break;	
-						case Character.Raiden:
+						case Character.Raiven:
 							switch (player2Size) {
 								case Paddles.Small:
 									setPlayer2Character(Images.paddleRaivenS);
@@ -806,7 +843,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							}
 					}		
 					switch (player1Character) {
-						case Character.Scorpion:
+						case Character.Venomtail:
 							switch (player1Size) {
 								case Paddles.Small:
 									setPlayer1Character(Images.paddleVentailS);
@@ -822,7 +859,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									break;
 							}
 							break;
-						case Character.SubZero:
+						case Character.BelowZero:
 							switch (player1Size) {
 								case Paddles.Small:
 									setPlayer1Character(Images.paddleBzS);
@@ -838,7 +875,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 									break;
 							}
 							break;	
-						case Character.Raiden:
+						case Character.Raiven:
 							switch (player1Size) {
 								case Paddles.Small:
 									setPlayer1Character(Images.paddleRaivenS);
@@ -869,9 +906,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					socket.current?.off('AbilityMirage');
 					socket.current?.off('SoundGrenade');
 					socket.current?.off('BallSize');
-					socket.current?.off('ScorpionSpecial');
-					socket.current?.off('SubZeroSpecial');
-					socket.current?.off('RaidenSpecial');
+					socket.current?.off('VenomtailSpecial');
+					socket.current?.off('BelowZeroSpecial');
+					socket.current?.off('RaivenSpecial');
 				};
 			}
 			return () => {
@@ -881,7 +918,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current?.off('gameInit');
 			}
 		}
-	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, scorpionSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, subZeroSpecialSound, raidenSpecialSound, maxTimerAnim, score.p1]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, VenomtailSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, BelowZeroSpecialSound, raivenSpecialSound, maxTimerAnim, score.p1, Images.DeflectAbility]);
 
 	useEffect(() => {
 		document.addEventListener('keydown', handleKeyDown);
@@ -905,7 +942,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			if (ctx) {
 				if (isGameStarted) {
 					ctx.fillStyle = backgroundColor;
-					if (raidenSpecial) {
+					if (raivenSpecial) {
 						ctx.fillRect(10, player1Position - 10, 20, 120);
 						ctx.globalAlpha = 0.1;
 					}
@@ -1057,7 +1094,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.stroke();
 						ctx.fillStyle = 'white';
 
-						if (raidenSpecial) {
+						if (raivenSpecial) {
 							ctx.globalAlpha = 0.7;
 							ctx.fillStyle = 'rgb(255, 188, 0)';
 							ctx.strokeStyle = 'rgb(255, 188, 0)';
@@ -1074,13 +1111,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							ctx.globalAlpha = 1;
 						}
 				
-						// Draw the line to the ball, when scorpion ability is used
-						if (scorpionSpecial) {
+						// Draw the line to the ball, when Venomtail ability is used
+						if (VenomtailSpecial) {
 							// Draw a line between two points
 							ctx.beginPath();
-							if (scorpionTarget === 1)
+							if (VenomtailTarget === 1)
 								ctx.moveTo(player1Size.width + 10, player1Position + player1Size.height / 2);
-							else if (scorpionTarget === 2)
+							else if (VenomtailTarget === 2)
 								ctx.moveTo(1170, player2Position + player2Size.height / 2);
 							ctx.lineTo(ballPosition.x, ballPosition.y);
 							ctx.strokeStyle = 'white';
@@ -1478,7 +1515,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, scorpionSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raidenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, scorpionTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen]);
+	}, [player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen]);
 
 
 	return (
