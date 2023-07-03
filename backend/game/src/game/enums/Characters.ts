@@ -1,5 +1,5 @@
 export enum Character {
-  Scorpion = 7,
-  SubZero,
-  Raiden,
+  Venomtail = 7,
+  BelowZero,
+  Raiven,
 }

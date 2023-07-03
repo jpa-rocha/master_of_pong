@@ -94,7 +94,7 @@ export class GameObject {
         new Options(
           Mode.Singleplayer,
           Paddles.AverageJoe,
-          Math.floor(Math.random() * 3) + Character.Scorpion,
+          Math.floor(Math.random() * 3) + Character.Venomtail,
           options.hyper,
           options.dodge,
         ),
