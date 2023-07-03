@@ -361,12 +361,12 @@ export class ImageContainer {
 		this.totalImages++;
 		this.RaivenSpecial.onload = this.incrementCounter;
 		this.RaivenSpecial.src = raiven_special;
-		this.RaivenDesc = "Ability description placeholder";
+		this.RaivenDesc = "Raiven electrifies the ball\ncausing it to move in a\nzig-zag pattern.";
 		this.VenomtailSpecial = new Image();
 		this.totalImages++;
 		this.VenomtailSpecial.onload = this.incrementCounter;
 		this.VenomtailSpecial.src = ventail_special;
-		this.VenomtailDesc = "Ability description placeholder";
+		this.VenomtailDesc = "Venomtail spears the ball\nwith a chain, pulling\nit towards him.";
 		this.MirageAbility = new Image();
 		this.totalImages++;
 		this.MirageAbility.onload = this.incrementCounter;
