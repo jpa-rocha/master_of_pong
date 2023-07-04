@@ -24,6 +24,7 @@ export class AuthController {
   @UseGuards(oauth2Guard)
   handleRedirect(@Req() req: Request, @Res() res: Response) {
     // TODO: require Bearer token, validate token
+    // res.set('Access-Control-Allow-Origin', 'localhost:3000');
     console.log("AT REDIRECT")
 
 

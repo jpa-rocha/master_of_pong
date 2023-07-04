@@ -56,7 +56,7 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
           // console.log(user)
           if (user === null) {
               await this.usersService.create(user_dto);
-              // console.log({ user_dto: user_dto });
+              console.log({ user_dto: user_dto });
               user = await this.usersService.findFortyTwo(user_dto.forty_two_id)
           }
         return user

@@ -19,7 +19,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
 		This is the right option!
 		--> Or should it redirect to an intermediary page? that just stores the user in the db? */
 
-    const apiUrl = process.env.REACT_APP_API_URL ?? "";
+    const apiUrl = "http://localhost:5000/api/auth/rediret";
     if (!apiUrl) {
       console.error("REACT_APP_API_URL is not defined");
       return;
@@ -29,17 +29,13 @@ const NavBarLandingPage: React.FunctionComponent = () => {
       // Add necessary headers for the API request
       mode: "cors",
       headers: {
-        "Access-Control-Allow-Origin": "https://api.intra.42.fr/",
+        "Access-Control-Allow-Origin": "http://localhost:5000/api/auth/redirect/",
         // 		// Add other headers if needed
       },
     })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        // Use the data returned from the API call
-
-        // Redirect to the main page
-        //navigate('/main');
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
