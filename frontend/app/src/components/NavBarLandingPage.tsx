@@ -19,7 +19,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
 		This is the right option!
 		--> Or should it redirect to an intermediary page? that just stores the user in the db? */
 
-    const apiUrl = "http://localhost:5000/api/auth/rediret";
+    const apiUrl = "http://localhost:5000/api/auth/redirect";
     if (!apiUrl) {
       console.error("REACT_APP_API_URL is not defined");
       return;
@@ -29,8 +29,9 @@ const NavBarLandingPage: React.FunctionComponent = () => {
       // Add necessary headers for the API request
       mode: "cors",
       headers: {
-        "Access-Control-Allow-Origin": "http://localhost:5000/api/auth/redirect/",
+        "Access-Control-Allow-Origin": "*",
         // 		// Add other headers if needed
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
       },
     })
       .then((response) => response.json())
@@ -108,9 +109,10 @@ const NavBarLandingPage: React.FunctionComponent = () => {
             </Grid>
             <Grid item xs={3} textAlign="right">
               {/* <Link to="/login">  */}
+              <a href="http://localhost:5000/api/auth/redirect">
               <Button
                 variant="contained"
-                onClick={handleLogin}
+                // onClick={handleLogin}
                 sx={{
                   background:
                     "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
@@ -120,6 +122,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
               >
                 Login
               </Button>
+              </a>
               <Button
                 variant="contained"
                 onClick={handleGame}
