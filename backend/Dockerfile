@@ -5,4 +5,5 @@ FROM node:latest
 
 WORKDIR /backend
 EXPOSE 5000
+EXPOSE 8002
 CMD ["npm", "run", "start:dev"]

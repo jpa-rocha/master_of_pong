@@ -37,6 +37,7 @@ services:
       - master_of_pong
     ports:
       - "5000:5000"
+      - "8002:8002"
     environment:
       DB_HOST: ${DB_HOST}
       POSTGRES_USER: ${POSTGRES_USER}

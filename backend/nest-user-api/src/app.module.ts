@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GameModule } from './game/game.module';
+import { Server } from 'socket.io';
 
 @Module({
   imports: [
+    GameModule,
     ConfigModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -25,7 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
       UsersModule, AuthModule],
       controllers: [AppController],
-      providers: [AppService],
+      providers: [AppService, Server],
 
 },
 

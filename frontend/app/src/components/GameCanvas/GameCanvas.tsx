@@ -11,7 +11,7 @@ import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
 import { EndScreen } from './Canvas';
 
-axios.defaults.baseURL = 'http://localhost:3333';
+axios.defaults.baseURL = 'http://localhost:5000';
 
 type GameComponentProps = {};
 
@@ -592,6 +592,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	useEffect(() => {
 		socket.current = io('http://localhost:8002');
+		console.log("Trying to load the window");
 		socket.current?.emit('loadWindow');
 		return () => {
 			if (socket.current) {
