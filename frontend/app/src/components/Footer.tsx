@@ -7,13 +7,13 @@ const Footer: React.FunctionComponent = () => {
   return (
     <Box>
       <AppBar
-        position="fixed"
+     /*    position="fixed" */
         style={{
           backgroundColor: "#09090C",
           height: "6vh",
-          minHeight: "50px",
-          zIndex: "0",
-          fontSize: "30px",
+       /*    minHeight: "50px", */
+      /*     zIndex: "0", */
+          fontSize: "20px",
         }}
         sx={{ top: "auto", bottom: 0 }}
       >
