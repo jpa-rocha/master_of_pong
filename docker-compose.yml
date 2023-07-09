@@ -37,6 +37,8 @@ services:
       - master_of_pong
     ports:
       - "5000:5000"
+      - "8002:8002"
+      - "4000:4000"
     environment:
       DB_HOST: ${DB_HOST}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -49,7 +51,7 @@ services:
       SECRET: ${SECRET}
     volumes:
       - type: bind
-        source: ./backend/nest-user-api/
+        source: ./backend/app/
         target: /backend
     stop_grace_period: 1s
 
