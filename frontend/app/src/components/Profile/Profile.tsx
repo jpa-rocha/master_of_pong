@@ -17,6 +17,55 @@ const ProfilePage: React.FC = () => {
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   // const [profileImg, setProfileImg] = useState("../../images/Profile/default_profile_image.jpg");
   // const profileImg: string = "../../images/Profile/default_profile_image.jpg";
+
+  const handleProfileImgChange = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+    };
+    fileInput.click();
+  };
+
+  const handleUserNameChange = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    const dialog = document.createElement("div");
+    dialog.classList.add("dialog");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Enter new username";
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.addEventListener("click", () => {
+      const newUserName = input.value;
+      if (newUserName) {
+        // update database
+        setUserName(newUserName);
+      }
+      document.body.removeChild(dialog);
+    });
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", () => {
+      document.body.removeChild(dialog);
+    });
+    dialog.appendChild(input);
+    dialog.appendChild(okButton);
+    dialog.appendChild(cancelButton);
+    document.body.appendChild(dialog);
+    const rect = e.currentTarget.getBoundingClientRect();
+    dialog.style.position = "absolute";
+    dialog.style.top = `${rect.bottom}px`;
+    dialog.style.left = `${rect.left}px`;
+    input.focus();
+  };
+
   useEffect(() => {
     // fetch(`http://localhost:4000/api/user/${userName}`)
     //     .then(res => res.json())
@@ -26,7 +75,7 @@ const ProfilePage: React.FC = () => {
     //         setUserPassword(data.password);
     //     })
     //     .catch(err => console.log(err));
-  }, []);
+  }, [handleProfileImgChange]);
 
   return (
     <>
@@ -38,13 +87,17 @@ const ProfilePage: React.FC = () => {
         <Grid item xs={12}>
           <div className="userInfo">
             <h1>Profile Page</h1>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "block", alignItems: "center" }}>
               <img src={profileImg} alt="profile_picture"></img>
-              <button>Change Profile picture</button>
+              <button type="submit" onClick={handleProfileImgChange}>
+                Change Profile Picture
+              </button>
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "block", alignItems: "center" }}>
               <h2 style={{ marginRight: "10px" }}>Username: {userName}</h2>
-              <button>Change Username</button>
+              <button type="submit" onClick={handleUserNameChange}>
+                Change Username
+              </button>
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>
               <h2>Rank: {rank} </h2>
