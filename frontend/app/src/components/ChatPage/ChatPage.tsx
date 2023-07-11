@@ -23,33 +23,33 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   }, [socket, messages]);
 
   return (
-<>
-<Grid container>
+    <>
+      <Grid container>
         {/* This is navigation */}
 
-  	<Grid item xs={12}>
+        <Grid item xs={12}>
           <NavBarMainPage></NavBarMainPage>
-    </Grid>
+        </Grid>
 
-	<Grid item xs={12}>
-        <div className="chatPageContainer">
-          <div className="chatSide">
-            <ChatBar socket={socket} />
+        <Grid item xs={12}>
+          <div className="chatPageContainer">
+            <div className="chatSide">
+              <ChatBar socket={socket} />
+            </div>
+            <div className="chatMain">
+              <ChatBody messages={messages} />
+              <ChatFooter socket={socket} />
+            </div>
           </div>
-          <div className="chatMain">
-            <ChatBody messages={messages} />
-            <ChatFooter socket={socket} />
-          </div>
-        </div>
-    </Grid>
+        </Grid>
 
         {/* This is footer */}
-	<Grid item xs={12}>
+        <Grid item xs={12}>
           <Footer></Footer>
-    </Grid>
-</Grid>
-</>
-);
+        </Grid>
+      </Grid>
+    </>
+  );
 };
 
 export default ChatPage;

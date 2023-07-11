@@ -1,0 +1,78 @@
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.userInfo img {
+  display: block;
+  margin: auto;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  border: 2px solid #161717;
+}
+
+.userInfo h2 {
+  margin: 10px 10px;
+  color: #161717;
+  font-size: 1.5rem;
+}
+
+.userInfo button {
+  margin: auto;
+  padding: 3px;
+  font-size: 3px;
+  border: none;
+  border-radius: 5px;
+  background-color: #161717;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.userInfo button:hover {
+  background-color: #4d4848;
+  color: #fff;
+}
+
+.userInfo button:active {
+  background-color: #b79e1e;
+  color: #fff;
+  transform: scale(0.98);
+}
+
+.dialog {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+.matchHistory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}

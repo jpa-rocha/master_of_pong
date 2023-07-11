@@ -1,60 +1,56 @@
-
 /* Chat Page */
-*{
-	box-sizing: border-box;
+* {
+  box-sizing: border-box;
 }
 
-
-:root{
-	--bg-body: linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%);
-	--bg-chat:linear-gradient(#f00202 0%, #bd0404 10%, #7d0404 50%, #4a0202 100%);
-
-
+:root {
+  --bg-body: linear-gradient(to right, #ea4224 0%, #edc24f 50%, #ea4224 100%);
+  --bg-chat: linear-gradient(
+    #f00202 0%,
+    #bd0404 10%,
+    #7d0404 50%,
+    #4a0202 100%
+  );
 }
- body{
-	
-	margin: 0;
-	padding: 0;
-	background: var(--bg-body);
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-body);
 }
-
-
 
 .chatPageContainer {
-	display: grid;
-	grid-template-columns: 1fr 3fr;
-	justify-content: center;
-	align-items: center;  
-	padding: 6rem 2rem;
-	margin: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem 2rem;
+  margin: 1rem;
 }
 
-
-.chatMain, .chatSide {
-	height: 100vh;
-} 
-
+.chatMain,
+.chatSide {
+  height: 100vh;
+}
 
 /* Chat Side Bar */
- .chatSidebar {
+.chatSidebar {
+  height: 100%;
+  padding: 1rem;
+  /* background-color: #0C4160; */
+  background: var(--bg-chat);
 
-	height: 100%;
-	padding: 1rem;
-	/* background-color: #0C4160; */
-	background: var(--bg-chat);
-	
-	padding: 1rem;
-	border: 1px solid #000;
-	border-radius: 1rem;
-	margin-right: 1rem;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	text-align: center;
+  padding: 1rem;
+  border: 1px solid #000;
+  border-radius: 1rem;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
 }
 
-.chatSidebar h2{
-	color: rgba(234, 232, 232, 0.9);
+.chatSidebar h2 {
+  color: rgba(234, 232, 232, 0.9);
 }
 
 .chatHeader {
@@ -63,10 +59,11 @@
   border-bottom: 1px solid rgba(41, 39, 33, 0.5);
 }
 
-.activeUsers, .allUsers{
-	padding-bottom: 2rem;
-	background-color: #f4f2ef;
-	height: 70%;
+.activeUsers,
+.allUsers {
+  padding-bottom: 2rem;
+  background-color: #f4f2ef;
+  height: 70%;
 }
 
 .chatUsers > * {
@@ -76,18 +73,17 @@
 }
 
 .onlineUsers > * {
-
   margin-bottom: 10px;
   color: #21772e;
   font-style: italic;
 }
 
 /* This is for main chat */
-.chatMainContainer{
-	border-radius: 1rem;
-	width: 80%;
-	margin-left: 5rem;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+.chatMainContainer {
+  border-radius: 1rem;
+  width: 80%;
+  margin-left: 5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .chatMainHeader {
@@ -97,13 +93,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-/*  background-color:  #08334c; */
-background: var(--bg-chat);
- color: #fff;
+  /*  background-color:  #08334c; */
+  background: var(--bg-chat);
+  color: #fff;
 }
 
 .leaveChatBtn {
-	padding: 0.6rem 1rem;
+  padding: 0.6rem 1rem;
   border: none;
   border-radius: 10px;
   outline: none;
@@ -113,28 +109,24 @@ background: var(--bg-chat);
   text-transform: uppercase;
 }
 
-.leaveChatBtn:hover{
-	background-color: #f84444;
+.leaveChatBtn:hover {
+  background-color: #f84444;
 }
 
 .messageContainer {
-
   width: 100%;
   height: 80vh;
   padding: 2rem;
   background-color: #ede0daf3;
   overflow-y: scroll;
-
 }
 
-
 .messageContainer > * {
-	margin-bottom: 0.4rem;
+  margin-bottom: 0.4rem;
 }
 
 /* Chat Footer Form */
 .chatFooter {
-
   padding: 10px;
   /* background-color: #08334c; */
   background: var(--bg-chat);
@@ -147,13 +139,12 @@ background: var(--bg-chat);
 }
 
 .chatForm {
-
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-} 
+}
 
 .message {
   width: 80%;
@@ -176,13 +167,10 @@ background: var(--bg-chat);
 }
 
 .sendBtn:hover {
-
   background-color: #81c981;
-
 }
 
 .messageRecipient {
-
   background-color: #f5ccc2;
   width: 300px;
   padding: 10px;
@@ -191,7 +179,6 @@ background: var(--bg-chat);
 }
 
 .messageSender {
-
   background-color: #e1ede6;
   max-width: 300px;
   padding: 10px;
@@ -208,18 +195,14 @@ background: var(--bg-chat);
   text-align: right;
 }
 
-
 .typing {
-	transition: all ease 0.5s;
-	color: #282727;
-	position: absolute;
-	bottom: 6%;
-	opacity: 0;
+  transition: all ease 0.5s;
+  color: #282727;
+  position: absolute;
+  bottom: 6%;
+  opacity: 0;
 }
 
-
 .typing.active {
-	opacity: 1;
-} 
-
-
+  opacity: 1;
+}
