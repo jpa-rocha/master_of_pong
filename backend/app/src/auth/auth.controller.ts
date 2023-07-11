@@ -10,13 +10,16 @@ import { encode } from 'punycode';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
   // api/auth/signin
   @Get('signin')
-  handleLogin(@Query('param') param: string) {
-    console.log(param)
+  async handleLogin(@Query('param') param: string, @Res() res: Response) {
+    console.log(param);
     const data = JSON.parse(decodeURIComponent(param));
-    return this.authService.signin(data);
-    // return this.authService.signin(); // TODO: return JWT access token
+    const token = await this.authService.signin(data);
+
+    res.cookie('jwtToken', token, { httpOnly: true });
+    return res.redirect('https://localhost:3000/home');
   }
 
   // api/auth/redirect
@@ -25,15 +28,13 @@ export class AuthController {
   handleRedirect(@Req() req: Request, @Res() res: Response) {
     // TODO: require Bearer token, validate token
     // res.set('Access-Control-Allow-Origin', 'localhost:3000');
-    console.log("AT REDIRECT")
-
+    console.log('AT REDIRECT');
 
     // Send the response.
-    console.log("AT REDIRECT: %s", req.user)
+    console.log('AT REDIRECT: %s', req.user);
     const encodedData = encodeURIComponent(JSON.stringify(req.user));
     const redirectUrl = `signin?param=${encodedData}`;
-    console.log("AT REDIRECT: %s", encodedData)
-    return res.redirect(redirectUrl)
-
+    console.log('AT REDIRECT: %s', encodedData);
+    return res.redirect(redirectUrl);
   }
 }

@@ -4,6 +4,8 @@ import { AuthenticatedSocket } from './dto/types';
 import { Options } from './movement.dto';
 import { Mode } from './enums/Modes';
 import { Player } from './dto/player.dto';
+import { Inject, forwardRef } from '@nestjs/common';
+import { GameGateway } from './game.gateway';
 
 export class GameCollection {
   public server: Server;
@@ -121,7 +123,7 @@ export class GameCollection {
       }
     }
     console.log('creating a new game');
-    const game = new GameObject(this.server, options);
+    const game = new GameObject(this.server, options, this.gameGateway);
     this.gameObjects.set(game.gameID, game);
     this.totalGameCount++;
     game.addClient(client);
@@ -146,7 +148,10 @@ export class GameCollection {
   }
 
   public totalGameCount: number;
-  constructor() {
+  constructor(
+    @Inject(forwardRef(() => GameGateway))
+    private readonly gameGateway: GameGateway,
+  ) {
     this.totalGameCount = 0;
   }
 

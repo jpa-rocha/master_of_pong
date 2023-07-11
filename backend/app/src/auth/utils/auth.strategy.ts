@@ -37,7 +37,7 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
 
     // console.log({ data: data }); // This is the data from the 42 API
     // const user: User = await this.authService.login(data.id);
-    console.log("AT STRATEGY")
+    console.log('AT STRATEGY');
 
     if (data) {
       const user_dto: CreateUserDto = {
@@ -50,16 +50,18 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         xp: 0,
       };
 
-          // if (user)
-          //   return user;
-          let user: User = await this.usersService.findFortyTwo(user_dto.forty_two_id)
-          // console.log(user)
-          if (user === null) {
-              await this.usersService.create(user_dto);
-              console.log({ user_dto: user_dto });
-              user = await this.usersService.findFortyTwo(user_dto.forty_two_id)
-          }
-        return user
+      // if (user)
+      //   return user;
+      let user: User = await this.usersService.findFortyTwo(
+        user_dto.forty_two_id,
+      );
+      // console.log(user)
+      if (user === null) {
+        await this.usersService.create(user_dto);
+        console.log({ user_dto: user_dto });
+        user = await this.usersService.findFortyTwo(user_dto.forty_two_id);
       }
+      return user;
+    }
   }
 }
