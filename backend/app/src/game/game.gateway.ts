@@ -10,12 +10,20 @@ import { Options } from './movement.dto';
 import { GameCollection } from './gameCollection';
 import { Server, Socket } from 'socket.io';
 import { AuthenticatedSocket } from './dto/types';
+import { UsersService } from 'src/users/users.service';
+import { GameDataService } from 'src/game-data/game-data.service';
+import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @WebSocketGateway(8002, { cors: '*' })
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly gameCollection: GameCollection) {}
+  constructor(
+    private readonly gameCollection: GameCollection,
+    private usersService: UsersService,
+    private gameDataService: GameDataService,
+  ) {}
 
   afterInit(server: Server): any {
     // Pass server instance to managers
@@ -119,8 +127,20 @@ export class GameGateway
     console.log('start message received...');
     this.gameCollection.createGame(client, options);
     console.log(this.gameCollection.totalGameCount);
+    this.addGameData();
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
+  }
+
+  async addGameData() {
+    const user: User = await this.usersService.findOne(1);
+    const gameDataDto: CreateGameDto = {
+      userOne: user,
+      userTwo: user,
+      winner: user,
+      timestamp: new Date(),
+    };
+    await this.gameDataService.create(gameDataDto);
   }
 }

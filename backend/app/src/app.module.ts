@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GameModule } from './game/game.module';
 import { Server } from 'socket.io';
+import { GameDataModule } from './game-data/game-data.module';
 
 @Module({
   imports: [
@@ -26,11 +27,11 @@ import { Server } from 'socket.io';
       }),
       inject: [ConfigService],
     }),
-      UsersModule, AuthModule],
-      controllers: [AppController],
-      providers: [AppService, Server],
-
-},
-
-)
+    UsersModule,
+    AuthModule,
+    GameDataModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService, Server],
+})
 export class AppModule {}

@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Not, Repository } from 'typeorm';
 import { type } from 'os';
+import { use } from 'passport';
 
 @Injectable()
 export class UsersService {

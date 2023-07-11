@@ -11,7 +11,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
 
-
 @Module({
   imports: [
     JwtAuthModule,

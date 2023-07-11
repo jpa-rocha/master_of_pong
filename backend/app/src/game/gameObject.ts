@@ -48,7 +48,7 @@ export class GameObject {
 
   // player1
   public player1: Player;
-  // player2
+  // player2= new
   public player2: Player;
   constructor(private readonly server: Server, options: Options) {
     this.allowAbilities = false;

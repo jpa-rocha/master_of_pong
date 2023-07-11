@@ -2,7 +2,7 @@ import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Game {
+export class GameData {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,5 +17,4 @@ export class Game {
 
   @ManyToOne(() => User, (user) => user.gamesAsWinner, { onDelete: 'CASCADE' })
   winner: User;
-
 }

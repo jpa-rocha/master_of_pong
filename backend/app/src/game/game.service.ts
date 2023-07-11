@@ -29,11 +29,11 @@ export class GameService {
   private readyToServe = true;
   private scored = false;
 
-  private gameCollection = new GameCollection();
-
   constructor(private readonly gameObject: GameObject) {
     console.log('new gameservice class created');
   }
+
+  private gameCollection = new GameCollection();
 
   initGame(): void {
     if (this.gameObject.gameStarted) return;
