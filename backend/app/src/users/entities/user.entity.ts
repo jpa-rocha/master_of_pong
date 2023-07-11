@@ -19,7 +19,7 @@ export class User {
   @Column({ type: 'varchar', length: 50, nullable: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 70, nullable: true })
+  @Column({ type: 'varchar', length: 250, nullable: true })
   avatar: string;
 
   @Column({ type: 'boolean', default: false })

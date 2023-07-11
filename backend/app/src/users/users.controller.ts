@@ -17,19 +17,20 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { of } from 'rxjs';
+import { User } from './entities/user.entity';
 
-const storage = {
-  storage: diskStorage({
-    destination: './src/uploads/avatars',
-    filename: (req, file, cb) => {
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension: string = path.parse(file.originalname).ext;
+// const storage = {
+//   storage: diskStorage({
+//     destination: './src/uploads/avatars',
+//     filename: (req, file, cb) => {
+//       const filename: string =
+//         path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+//       const extension: string = path.parse(file.originalname).ext;
 
-      cb(null, `${filename}${extension}`);
-    },
-  }),
-};
+//       cb(null, `${filename}${extension}`);
+//     },
+//   }),
+// };
 
 @Controller('users')
 export class UsersController {
@@ -60,13 +61,31 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
+  async getUser(id: string): Promise<UpdateUserDto> {
+    return await this.usersService.findOne(+id);
+  }
+
   @Post('upload/:id')
-  @UseInterceptors(FileInterceptor('file', storage))
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string) {
-    console.log('-------------------------------');
-    console.log(file);
-    console.log('-------------------------------');
-    console.log(+id);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './src/assets/avatars',
+        filename: (req, file, cb) => {
+          const filename: string = req.params.id + '_avatar_' + uuidv4();
+          const extension: string = path.parse(file.originalname).ext;
+
+          cb(null, `${filename}${extension}`);
+        },
+      }),
+    }),
+  )
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    const user = await this.findOne(id);
+    this.usersService.update(+id, { avatar: file.filename });
+
     return of({ imagePath: file.filename });
   }
 }

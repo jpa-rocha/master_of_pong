@@ -46,7 +46,7 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         email: data.email,
         is_2fa_enabled: false,
         refresh_token: accessToken,
-        avatar: '',
+        avatar: 'default-avatar.jpg',
         xp: 0,
       };
 
