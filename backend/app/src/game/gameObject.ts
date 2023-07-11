@@ -1,13 +1,14 @@
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { Player } from './dto/player.dto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Options } from './movement.dto';
 import { AuthenticatedSocket } from './dto/types';
 import { v4 } from 'uuid';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
+import { GameGateway } from './game.gateway';
 
 @Injectable()
 export class GameObject {
@@ -17,7 +18,7 @@ export class GameObject {
     Socket['id'],
     AuthenticatedSocket
   >();
-  public readonly gameService = new GameService(this);
+  public readonly gameService: GameService;
   public gameStarted: boolean;
   public score: { p1: number; p2: number };
 
@@ -50,7 +51,13 @@ export class GameObject {
   public player1: Player;
   // player2= new
   public player2: Player;
-  constructor(private readonly server: Server, options: Options) {
+  constructor(
+    private readonly server: Server,
+    options: Options,
+    @Inject(forwardRef(() => GameGateway))
+    private readonly gameGateway: GameGateway,
+  ) {
+    this.gameService = new GameService(this, this.gameGateway);
     this.allowAbilities = false;
     this.Width = 1200;
     this.Height = 800;

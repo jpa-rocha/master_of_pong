@@ -3,6 +3,8 @@ import { GameObject } from './gameObject';
 import { GameCollection } from './gameCollection';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
+import { Inject, forwardRef } from '@nestjs/common';
+import { GameGateway } from './game.gateway';
 
 // @Injectable()
 export class GameService {
@@ -29,11 +31,16 @@ export class GameService {
   private readyToServe = true;
   private scored = false;
 
-  constructor(private readonly gameObject: GameObject) {
+  constructor(
+    private readonly gameObject: GameObject,
+    @Inject(forwardRef(() => GameGateway))
+    private readonly gameGateway: GameGateway,
+  ) {
     console.log('new gameservice class created');
   }
 
-  private gameCollection = new GameCollection();
+  // TODO I dont knw if we need this, seems to  work without it
+  // private gameCollection = new GameCollection();
 
   initGame(): void {
     if (this.gameObject.gameStarted) return;
@@ -105,6 +112,7 @@ export class GameService {
     this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
       winner: winningPlayer,
     });
+    this.gameGateway.addGameData(1, 1, 1, this.gameObject.createdAt);
 
     // Reset player, ball and score
     this.gameObject.default();

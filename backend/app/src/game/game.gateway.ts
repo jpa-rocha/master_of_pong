@@ -127,19 +127,18 @@ export class GameGateway
     console.log('start message received...');
     this.gameCollection.createGame(client, options);
     console.log(this.gameCollection.totalGameCount);
-    this.addGameData();
+    // this.addGameData(1, 1, 1, new Date());
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
   }
 
-  async addGameData() {
-    const user: User = await this.usersService.findOne(1);
+  async addGameData(p1: number, p2: number, winner: number, date: Date) {
     const gameDataDto: CreateGameDto = {
-      userOne: user,
-      userTwo: user,
-      winner: user,
-      timestamp: new Date(),
+      userOne: await this.usersService.findOne(p1),
+      userTwo: await this.usersService.findOne(p2),
+      winner: await this.usersService.findOne(winner),
+      timestamp: date,
     };
     await this.gameDataService.create(gameDataDto);
   }
