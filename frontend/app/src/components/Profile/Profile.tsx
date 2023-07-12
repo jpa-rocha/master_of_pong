@@ -1,22 +1,61 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Grid, Box } from "@mui/material";
 import NavBarMainPage from "../NavBarMainPage";
 import Footer from "../Footer";
 import "./profileStyle/profile.css";
 import profileImg from "../../images/Profile/default_profile_image.jpg";
+import io, { Socket } from "socket.io-client";
+import axios from "axios";
+import { get } from "http";
 
 // interface ProfileProps {}
+axios.defaults.baseURL = "http://localhost:5000/";
+
+interface User {
+  forty_two_id: number;
+  username: string;
+  refresh_token: string;
+  email: string;
+  avatar: string;
+  is_2fa_enabled: boolean;
+  xp: number;
+}
 
 const ProfilePage: React.FC = () => {
-  // let profileImg: HTMLImageElement = new Image();
-  // profileImg.src = "../../images/Profile/default_profile_image.jpg";
-  const [userName, setUserName] = useState("Bob");
+  const socket = useRef<Socket | null>(null);
+  const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(1);
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   // const [profileImg, setProfileImg] = useState("../../images/Profile/default_profile_image.jpg");
   // const profileImg: string = "../../images/Profile/default_profile_image.jpg";
+
+  const getUser = async () => {
+    const user = await axios.get("api/users/1");
+    return user.data;
+  };
+
+  const setUser = async (userName: string) => {
+    console.log("user name: ", userName);
+    const data = { username: userName };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        " Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+      },
+    };
+    await axios.patch("api/users/1", data, config).then((res) => res.data);
+    setUserName(userName);
+  };
+  useEffect(() => {
+    const getProfile = async () => {
+      const user: User = await getUser();
+      setUserName(user.username);
+    };
+    getProfile();
+  }, []);
 
   const handleProfileImgChange = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -46,7 +85,7 @@ const ProfilePage: React.FC = () => {
       const newUserName = input.value;
       if (newUserName) {
         // update database
-        setUserName(newUserName);
+        setUser(newUserName);
       }
       document.body.removeChild(dialog);
     });
@@ -76,6 +115,10 @@ const ProfilePage: React.FC = () => {
     //     })
     //     .catch(err => console.log(err));
   }, [handleProfileImgChange]);
+
+  if (!userName) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
