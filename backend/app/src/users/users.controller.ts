@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -59,6 +60,12 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Get('avatars/:id')
+  async serveAvatar(@Param('id') id: string, @Res() res: any): Promise<any> {
+    const user = await this.usersService.findOne(+id);
+    res.sendFile(user.avatar, { root: 'src/assets/avatars' });
   }
 
   async getUser(id: string): Promise<UpdateUserDto> {
