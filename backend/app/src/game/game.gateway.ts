@@ -14,6 +14,8 @@ import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Req } from '@nestjs/common';
+import { parse } from 'cookie';
 
 @WebSocketGateway(8002, { cors: '*' })
 export class GameGateway
@@ -124,13 +126,30 @@ export class GameGateway
   // }
   @SubscribeMessage('start')
   initGame(client: AuthenticatedSocket, options: Options) {
+    console.log('Getting the cookie test ------------------------------------');
+    const cookie: string = client.handshake.headers.cookie;
+    console.log('cookie: ' + cookie);
+    const token = parse(cookie)['jwtToken'];
+    console.log('token: ' + token);
+    console.log('------------------------------------------------------------');
     console.log('start message received...');
     this.gameCollection.createGame(client, options);
     console.log(this.gameCollection.totalGameCount);
-    // this.addGameData(1, 1, 1, new Date());
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
+  }
+
+  private parseCookieValue(cookie: string, name: string): string | undefined {
+    const cookiePairs = cookie.split(';');
+
+    for (const cookiePair of cookiePairs) {
+      const [cookieName, cookieValue] = cookiePair.split('=');
+      if (cookieName.trim() === name) {
+        return cookieValue;
+      }
+    }
+    return undefined;
   }
 
   async addGameData(p1: number, p2: number, winner: number, date: Date) {
