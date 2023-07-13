@@ -8,8 +8,7 @@ export class JwtAuthService {
 
   login(user) {
     const payload: JwtPayload = {
-      username: user.username,
-      forty_two_id: user.forty_two_id,
+      id: user.id,
     };
     console.log('AT SIGN PAYLOAD');
     console.log(user.username);
