@@ -37,4 +37,11 @@ export class AuthController {
     console.log('AT REDIRECT: %s', encodedData);
     return res.redirect(redirectUrl);
   }
+
+  @Get('signout')
+  handleSignout(@Res() res: Response) {
+    console.log('signout BACKEND');
+    res.cookie('jwtToken', '', { expires: new Date(0) });
+    return res.redirect('https://localhost:3000/');
+  }
 }

@@ -164,7 +164,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		try {
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter, hyperButton.selected, dodgeButton.selected);
 			console.log('Socket:', socket);
-			socket.current?.emit('start', opt);
+			console.log("TOKEN TEST " + getToken("jwtToken"));
+			socket.current?.emit('start', {opt: opt, token: getToken("jwtToken")});
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
@@ -172,10 +173,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 
 	function getToken(tokenName: string): string | null {
 		const cookies = document.cookie.split(';');
-		console.log("cookies : " + cookies);
 		for (let i = 0; i < cookies.length; i++) {
 			const cookie = cookies[i].trim();
-			console.log("separated cookies : " + cookie);
 			if (cookie.startsWith(tokenName + '=')) {
 				return cookie.substring(tokenName.length + 1);
 			}
@@ -606,8 +605,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		socket.current = io('http://localhost:8002');
 		console.log("Trying to load the window");
 		socket.current?.emit('loadWindow');
-		const token = getToken("jwtToken");
-		console.log("Token = " + token);
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();

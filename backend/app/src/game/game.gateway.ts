@@ -125,10 +125,11 @@ export class GameGateway
   //   return data;
   // }
   @SubscribeMessage('start')
-  initGame(client: AuthenticatedSocket, options: Options) {
+  initGame(client: AuthenticatedSocket, data: { opt: Options; token: string }) {
     console.log('start message received...');
-    this.gameCollection.createGame(client, options);
+    this.gameCollection.createGame(client, data.opt);
     console.log(this.gameCollection.totalGameCount);
+    console.log('TOKEN = ' + data.token);
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
