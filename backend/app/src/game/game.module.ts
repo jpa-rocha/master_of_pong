@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 // import { GameController } from './game.controller';
 import { GameGateway } from './game.gateway';
 import { GameCollection } from './gameCollection';
@@ -27,4 +27,5 @@ import { GameDataService } from 'src/game-data/game-data.service';
   ],
   //   controllers: [GameController],
 })
+// export class GameModule {}
 export class GameModule {}
