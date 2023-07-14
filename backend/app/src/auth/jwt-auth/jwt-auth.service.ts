@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-auth.strategy';
+import { identity } from 'rxjs';
 
 @Injectable()
 export class JwtAuthService {
@@ -15,5 +16,11 @@ export class JwtAuthService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+
+  getTokenInformation(token: string): any {
+    const decodedToken = this.jwtService.decode(token) as { id?: string };
+    const decodedId = decodedToken?.id;
+    return decodedId;
   }
 }

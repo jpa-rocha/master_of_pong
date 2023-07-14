@@ -13,9 +13,11 @@ import { AuthenticatedSocket } from './dto/types';
 import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
+import * as jwt from 'jsonwebtoken';
 import { User } from 'src/users/entities/user.entity';
 import { Req } from '@nestjs/common';
 import { parse } from 'cookie';
+import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 
 @WebSocketGateway(8002, { cors: '*' })
 export class GameGateway
@@ -25,6 +27,7 @@ export class GameGateway
     private readonly gameCollection: GameCollection,
     private usersService: UsersService,
     private gameDataService: GameDataService,
+    private jwtAuthService: JwtAuthService,
   ) {}
 
   afterInit(server: Server): any {
@@ -127,9 +130,14 @@ export class GameGateway
   @SubscribeMessage('start')
   initGame(client: AuthenticatedSocket, data: { opt: Options; token: string }) {
     console.log('start message received...');
-    this.gameCollection.createGame(client, data.opt);
+    this.gameCollection.createGame(
+      client,
+      data.opt,
+      this.jwtAuthService.getTokenInformation(data.token),
+    );
     console.log(this.gameCollection.totalGameCount);
     console.log('TOKEN = ' + data.token);
+    console.log('ID = ' + this.jwtAuthService.getTokenInformation(data.token));
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
