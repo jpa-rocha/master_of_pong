@@ -100,7 +100,11 @@ export class GameCollection {
     if (this.gameObjects.delete(id)) this.totalGameCount--;
   }
 
-  public createGame(client: AuthenticatedSocket, options: Options): void {
+  public createGame(
+    client: AuthenticatedSocket,
+    options: Options,
+    playerID: string,
+  ): void {
     if (options.gameMode !== Mode.Singleplayer) {
       console.log('total game count: ' + this.totalGameCount);
       const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
@@ -117,7 +121,7 @@ export class GameCollection {
           current.player2 = new Player(this.server, options);
           current.player2.pos.x = 1170;
           console.log('Returning an already created game');
-          current.addClient(client);
+          current.addClient(client, playerID);
           return;
         }
       }
@@ -126,11 +130,15 @@ export class GameCollection {
     const game = new GameObject(this.server, options, this.gameGateway);
     this.gameObjects.set(game.gameID, game);
     this.totalGameCount++;
-    game.addClient(client);
+    game.addClient(client, playerID);
     return;
   }
 
-  public joinGame(gameID: string, client: AuthenticatedSocket) {
+  public joinGame(
+    gameID: string,
+    client: AuthenticatedSocket,
+    playerID: string,
+  ) {
     const game = this.gameObjects.get(gameID);
     if (!game) {
       console.log('oh no');
@@ -142,7 +150,7 @@ export class GameCollection {
       console.log('oh no');
     }
     console.log('Adding client...');
-    game.addClient(client);
+    game.addClient(client, playerID);
     // console.log('Starting game...');
     // game.gameService.startGame();
   }
