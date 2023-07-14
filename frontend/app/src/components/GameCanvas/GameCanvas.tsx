@@ -164,12 +164,23 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		try {
 			var opt = new Options(selectedGamemode, selectedPaddle, selectedCharacter, hyperButton.selected, dodgeButton.selected);
 			console.log('Socket:', socket);
-			socket.current?.emit('start', opt);
+			console.log("TOKEN TEST " + getToken("jwtToken"));
+			socket.current?.emit('start', {opt: opt, token: getToken("jwtToken")});
 		} catch (error) {
 		console.error('Failed to start the game:', error);
 		}
 	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, VenomtailSpecialSound, BelowZeroSpecialSound, raivenSpecialSound, soundGrenadeSound]);
 
+	function getToken(tokenName: string): string | null {
+		const cookies = document.cookie.split(';');
+		for (let i = 0; i < cookies.length; i++) {
+			const cookie = cookies[i].trim();
+			if (cookie.startsWith(tokenName + '=')) {
+				return cookie.substring(tokenName.length + 1);
+			}
+		}
+		return null;
+	}
 	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1, radius: number = 20) => {
 		const { coordinates, size, image, isFocused, selected, icon } = button;
 		const { x, y } = coordinates;

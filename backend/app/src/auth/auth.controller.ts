@@ -18,8 +18,8 @@ export class AuthController {
     const data = JSON.parse(decodeURIComponent(param));
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: true });
-    return res.redirect('https://localhost:3000/home');
+    res.cookie('jwtToken', token, { httpOnly: false });
+    return res.redirect('https://localhost:3000/main');
   }
 
   // api/auth/redirect
@@ -36,5 +36,12 @@ export class AuthController {
     const redirectUrl = `signin?param=${encodedData}`;
     console.log('AT REDIRECT: %s', encodedData);
     return res.redirect(redirectUrl);
+  }
+
+  @Get('signout')
+  handleSignout(@Res() res: Response) {
+    console.log('signout BACKEND');
+    res.cookie('jwtToken', '', { expires: new Date(0) });
+    return res.redirect('https://localhost:3000/');
   }
 }

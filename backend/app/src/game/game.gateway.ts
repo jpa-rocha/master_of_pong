@@ -14,6 +14,8 @@ import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Req } from '@nestjs/common';
+import { parse } from 'cookie';
 
 @WebSocketGateway(8002, { cors: '*' })
 export class GameGateway
@@ -123,11 +125,11 @@ export class GameGateway
   //   return data;
   // }
   @SubscribeMessage('start')
-  initGame(client: AuthenticatedSocket, options: Options) {
+  initGame(client: AuthenticatedSocket, data: { opt: Options; token: string }) {
     console.log('start message received...');
-    this.gameCollection.createGame(client, options);
+    this.gameCollection.createGame(client, data.opt);
     console.log(this.gameCollection.totalGameCount);
-    // this.addGameData(1, 1, 1, new Date());
+    console.log('TOKEN = ' + data.token);
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
