@@ -111,6 +111,7 @@ export class GameGateway
 
   @SubscribeMessage('loadWindow')
   loadWindow(client: AuthenticatedSocket): void {
+    console.log("Load window in the backend");
     this.server.to(client.id).emit('loadWindow', true);
   }
 
