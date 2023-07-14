@@ -1,32 +1,94 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Grid, Box } from "@mui/material";
 import NavBarMainPage from "../NavBarMainPage";
 import Footer from "../Footer";
 import "./profileStyle/profile.css";
-import profileImg from "../../images/Profile/default_profile_image.jpg";
+// import profileImg from "../../images/Profile/default_profile_image.jpg";
+import io, { Socket } from "socket.io-client";
+import axios from "axios";
+import { get } from "http";
 
 // interface ProfileProps {}
+axios.defaults.baseURL = "http://localhost:5000/";
+
+interface UserProps {
+  forty_two_id: number;
+  username: string;
+  refresh_token: string;
+  email: string;
+  avatar: string;
+  is_2fa_enabled: boolean;
+  xp: number;
+}
 
 const ProfilePage: React.FC = () => {
-  // let profileImg: HTMLImageElement = new Image();
-  // profileImg.src = "../../images/Profile/default_profile_image.jpg";
-  const [userName, setUserName] = useState("Bob");
+  const socket = useRef<Socket | null>(null);
+  const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(1);
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
-  // const [profileImg, setProfileImg] = useState("../../images/Profile/default_profile_image.jpg");
-  // const profileImg: string = "../../images/Profile/default_profile_image.jpg";
+  const [profileImg, setProfileImg] = useState("");
 
-  const handleProfileImgChange = (
+  const getUser = async () => {
+    const user = await axios.get("api/users/1");
+    return user.data;
+  };
+
+  const setUser = async (userName: string) => {
+    console.log("user name: ", userName);
+    const data = { username: userName };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        " Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+      },
+    };
+    await axios.patch("api/users/1", data, config).then((res) => res.data);
+    setUserName(userName);
+  };
+
+  useEffect(() => {
+    const getProfile = async () => {
+      const user: UserProps = await getUser();
+      setUserName(user.username);
+    };
+    getProfile();
+  }, []);
+
+  const handleProfileImgChange = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
-    fileInput.onchange = (e) => {
+    fileInput.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file, file.name);
+        const config = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+        try {
+          console.log(formData);
+          // const data = { file: formData };
+          const response = await axios
+            .post("api/users/upload/1", formData, config)
+            .then((res) => {
+              console.log(res);
+            });
+          console.log(response);
+          window.location.reload();
+        } catch (error: any) {
+          console.error((error as Error).message);
+          // console.error((error as any).response.data);
+        }
+      }
     };
     fileInput.click();
   };
@@ -46,7 +108,7 @@ const ProfilePage: React.FC = () => {
       const newUserName = input.value;
       if (newUserName) {
         // update database
-        setUserName(newUserName);
+        setUser(newUserName);
       }
       document.body.removeChild(dialog);
     });
@@ -67,15 +129,12 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    // fetch(`http://localhost:4000/api/user/${userName}`)
-    //     .then(res => res.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         setUserEmail(data.email);
-    //         setUserPassword(data.password);
-    //     })
-    //     .catch(err => console.log(err));
+    setProfileImg("http://localhost:5000/api/users/avatars/1");
   }, [handleProfileImgChange]);
+
+  if (!userName) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>

@@ -5,6 +5,7 @@ import * as cors from 'cors';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.use(cors());
   app.enableCors({
     "origin": ["https://localhost:3000", "http://localhost:3000", "https://api.intra.42.fr/"],
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
