@@ -10,7 +10,6 @@ import { UsersModule } from 'src/users/users.module';
 import { GameData } from 'src/game-data/entities/game-data.entity';
 import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
-import * as cookieParser from 'cookie-parser';
 
 @Module({
   imports: [
@@ -29,8 +28,4 @@ import * as cookieParser from 'cookie-parser';
   //   controllers: [GameController],
 })
 // export class GameModule {}
-export class GameModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser()).forRoutes(GameGateway);
-  }
-}
+export class GameModule {}
