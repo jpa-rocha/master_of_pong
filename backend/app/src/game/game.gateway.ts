@@ -144,7 +144,7 @@ export class GameGateway
     // this.gameService.startGame(client.id, options);
   }
 
-  async addGameData(p1: number, p2: number, winner: number, date: Date) {
+  async addGameData(p1: string, p2: string, winner: string, date: Date) {
     const gameDataDto: CreateGameDto = {
       userOne: await this.usersService.findOne(p1),
       userTwo: await this.usersService.findOne(p2),
