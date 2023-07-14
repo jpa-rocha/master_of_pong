@@ -170,6 +170,18 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		}
 	}, [selectedCharacter, selectedGamemode, selectedPaddle, hyperButton.selected, dodgeButton.selected, VenomtailSpecialSound, BelowZeroSpecialSound, raivenSpecialSound, soundGrenadeSound]);
 
+	function getToken(tokenName: string): string | null {
+		const cookies = document.cookie.split(';');
+		console.log("cookies : " + cookies);
+		for (let i = 0; i < cookies.length; i++) {
+			const cookie = cookies[i].trim();
+			console.log("separated cookies : " + cookie);
+			if (cookie.startsWith(tokenName + '=')) {
+				return cookie.substring(tokenName.length + 1);
+			}
+		}
+		return null;
+	}
 	const drawButton = useCallback((ctx: CanvasRenderingContext2D, button: Button, selectedOption: number = -1, radius: number = 20) => {
 		const { coordinates, size, image, isFocused, selected, icon } = button;
 		const { x, y } = coordinates;
@@ -594,6 +606,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		socket.current = io('http://localhost:8002');
 		console.log("Trying to load the window");
 		socket.current?.emit('loadWindow');
+		const token = getToken("jwtToken");
+		console.log("Token = " + token);
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();

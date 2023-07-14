@@ -18,8 +18,8 @@ export class AuthController {
     const data = JSON.parse(decodeURIComponent(param));
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: true });
-    return res.redirect('https://localhost:3000/home');
+    res.cookie('jwtToken', token, { httpOnly: false });
+    return res.redirect('https://localhost:3000/main');
   }
 
   // api/auth/redirect
