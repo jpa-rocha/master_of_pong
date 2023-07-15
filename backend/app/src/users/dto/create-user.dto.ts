@@ -5,5 +5,6 @@ export class CreateUserDto {
   email: string;
   avatar: string;
   is_2fa_enabled: boolean;
+  twofa_secret:string;
   xp: number;
 }

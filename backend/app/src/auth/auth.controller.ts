@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -6,10 +6,12 @@ import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { encode } from 'punycode';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+              private usersService: UsersService) {}
 
   // api/auth/signin
   @Get('signin')
@@ -44,4 +46,13 @@ export class AuthController {
     res.cookie('jwtToken', '', { expires: new Date(0) });
     return res.redirect('https://localhost:3000/');
   }
+
+  @Post('2fa/turn-on')
+  @UseGuards(JwtAuthGuard)
+  async turnOnTwoFactorAuthentication(id: string) {
+    let user = await this.usersService.findOne(id)
+    user.is_2fa_enabled = true;
+    this.usersService.update(user.id, user);
+    return user
+  };
 }

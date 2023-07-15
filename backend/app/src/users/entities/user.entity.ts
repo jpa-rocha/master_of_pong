@@ -28,6 +28,9 @@ export class User {
   @Column({ type: 'float', default: 0.0, nullable: true })
   xp: number;
 
+  @Column({ type: 'varchar', length: 250, nullable: true})
+  twofa_secret: string;
+  
   /* Friends Relations */
   @OneToMany(() => Friend, (friend) => friend.friend, { onDelete: 'CASCADE' })
   friends: Friend[];

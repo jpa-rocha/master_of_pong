@@ -33,6 +33,7 @@ export class UsersService {
     return user;
   }
 
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     return this.usersRepository.save({ ...user, ...updateUserDto });
