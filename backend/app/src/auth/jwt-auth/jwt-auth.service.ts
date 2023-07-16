@@ -10,6 +10,7 @@ export class JwtAuthService {
   login(user) {
     const payload: JwtPayload = {
       id: user.id,
+      is_2fa_enabled: user.is_2fa_enabled
     };
     console.log('AT SIGN PAYLOAD');
     console.log(user.username);

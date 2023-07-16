@@ -7,6 +7,7 @@ import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { authenticator } from 'otplib';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { toDataURL } from 'qrcode'
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
@@ -15,6 +16,7 @@ export class AuthService {
     private usersService: UsersService,
     private configService: ConfigService,
     private jwtAuthService: JwtAuthService,
+    private jwtService: JwtService
   ) {}
 
   async signin(user: AuthDto): Promise<string> {
@@ -61,4 +63,18 @@ export class AuthService {
       secret: user.twofa_secret
     });
   }
+
+  async loginWithTwoFactorAuthentication(user: User) {
+    const payload = {
+      email: user.email,
+      id: user.id,
+      is_2fa_enabled: user.is_2fa_enabled,
+      isTwoFactorAuthenticated: true,
+    };
+
+    return {
+      email: payload.email,
+      access_token: this.jwtService.sign(payload)
+    }
+  };
 }

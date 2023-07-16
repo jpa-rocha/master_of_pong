@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -54,5 +54,22 @@ export class AuthController {
     user.is_2fa_enabled = true;
     this.usersService.update(user.id, user);
     return user
-  };
+  }
+
+  @Post('2fa/authenticate')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  async authenticate(@Req() req: Request, @Body() body) {
+    const user: User = req.user
+    console.log(user)
+    const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
+      body.twoFactorAuthenticationCode,
+      user
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code.')
+    }
+
+    return this.authService.loginWithTwoFactorAuthentication(user)
+  }
 }
