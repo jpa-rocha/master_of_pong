@@ -109,8 +109,8 @@ const ProfilePage: React.FC = () => {
       if (newUserName) {
         // update database
         setUser(newUserName);
+		document.body.removeChild(dialog);
       }
-      document.body.removeChild(dialog);
     });
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "Cancel";
@@ -138,36 +138,36 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <Grid container spacing={6}>
+      <Grid container >
         <Grid item xs={12}>
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
         <Grid item xs={12}>
+			<div className="all">
+
+			
           <div className="userInfo">
-            <h1>Profile Page</h1>
-            <div style={{ display: "block", alignItems: "center" }}>
+            <div className="img-div">
               <img src={profileImg} alt="profile_picture"></img>
-              <button type="submit" onClick={handleProfileImgChange}>
-                Change Profile Picture
-              </button>
+			  <h2>{userName}</h2>
             </div>
-            <div style={{ display: "block", alignItems: "center" }}>
-              <h2 style={{ marginRight: "10px" }}>Username: {userName}</h2>
-              <button type="submit" onClick={handleUserNameChange}>
-                Change Username
-              </button>
-            </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+
+            <div className="ranks">
               <h2>Rank: {rank} </h2>
               <h2>Wins: {wins} </h2>
               <h2>Losses: {losses}</h2>
             </div>
-          </div>
-        </Grid>
-        <Grid item xs={12}>
-          <div className="matchHistory">
-            <h1> Match History</h1>
+			<div className="btns">
+			<button type="submit" onClick={handleProfileImgChange}>
+                Change Profile Picture
+              </button>
+              <button type="submit" onClick={handleUserNameChange}>
+                Change Username
+              </button>
+            </div>
+			<div className="matchHistory">
+            <h2> Match History</h2>
             <table>
               <tr>
                 <th>Opponent</th>
@@ -181,7 +181,13 @@ const ProfilePage: React.FC = () => {
               ))}
             </table>
           </div>
-        </Grid>
+          </div>
+		  </div>
+
+   </Grid>
+     {/*    <Grid item xs={12}>
+		
+        </Grid> */}
         {/* This is footer */}
         <Grid item xs={12}>
           <Footer></Footer>

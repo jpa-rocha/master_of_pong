@@ -10,6 +10,7 @@ import { UsersModule } from 'src/users/users.module';
 import { GameData } from 'src/game-data/entities/game-data.entity';
 import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
+import { JwtAuthModule } from 'src/auth/jwt-auth/jwt-auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { GameDataService } from 'src/game-data/game-data.service';
     UsersModule,
     TypeOrmModule.forFeature([GameData]),
     TypeOrmModule.forFeature([User]),
+    JwtAuthModule,
   ],
   providers: [
     GameGateway,

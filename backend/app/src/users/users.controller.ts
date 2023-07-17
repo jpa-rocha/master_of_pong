@@ -49,27 +49,27 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 
   @Get('avatars/:id')
   async serveAvatar(@Param('id') id: string, @Res() res: any): Promise<any> {
-    const user = await this.usersService.findOne(+id);
+    const user = await this.usersService.findOne(id);
     res.sendFile(user.avatar, { root: 'src/assets/avatars' });
   }
 
   async getUser(id: string): Promise<UpdateUserDto> {
-    return await this.usersService.findOne(+id);
+    return await this.usersService.findOne(id);
   }
 
   @Post('upload/:id')
@@ -91,7 +91,7 @@ export class UsersController {
     @Param('id') id: string,
   ) {
     const user = await this.findOne(id);
-    this.usersService.update(+id, { avatar: file.filename });
+    this.usersService.update(id, { avatar: file.filename });
 
     return of({ imagePath: file.filename });
   }

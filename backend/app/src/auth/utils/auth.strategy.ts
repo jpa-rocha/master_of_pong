@@ -45,13 +45,12 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         username: data.login,
         email: data.email,
         is_2fa_enabled: false,
+        twofa_secret: null,
         refresh_token: accessToken,
         avatar: 'default-avatar.jpg',
         xp: 0,
       };
 
-      // if (user)
-      //   return user;
       let user: User = await this.usersService.findFortyTwo(
         user_dto.forty_two_id,
       );

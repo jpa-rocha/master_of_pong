@@ -109,7 +109,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
             </Grid>
             <Grid item xs={3} textAlign="right">
               {/* <Link to="/login">  */}
-              <a href="http://localhost:5000/api/auth/redirect">
+              <a href="http://localhost:5000/api/auth/redirect" style={{textDecoration: "none"}}>
               <Button
                 variant="contained"
                 // onClick={handleLogin}

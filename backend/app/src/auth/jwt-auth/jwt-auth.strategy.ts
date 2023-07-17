@@ -2,12 +2,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from 'src/users/users.service';
 
-export type JwtPayload = { forty_two_id: number; username: string };
+export type JwtPayload = { id: string, is_2fa_enabled: boolean};
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService) {
+  constructor(private configService: ConfigService, ){
+              // private usersService: UsersService) {
     const extractJwtFromCookie = (req) => {
       let token = null;
 
@@ -24,9 +26,16 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
-    console.log('AT VALIDATE JWT');
+  // async validate(payload: JwtPayload) {
+  //   console.log('AT VALIDATE JWT');
+  //   const user = await this.usersService.findOne(payload.id)
 
-    return { id: payload.forty_two_id, username: payload.username };
-  }
+  //   if (!user.is_2fa_enabled)
+  //     return user
+
+  //   if (payload.is_2fa_enabled)
+  //     return user
+
+  //   // return { id: payload.id};
+  // }
 }

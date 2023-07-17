@@ -107,12 +107,30 @@ export class GameService {
       this.botTimer = null;
     }
     let winningPlayer: number;
-    if (this.gameObject.score.p1 === 11) winningPlayer = 1;
-    else if (this.gameObject.score.p2 === 11) winningPlayer = 2;
+    let winningPlayerId: string;
+    if (this.gameObject.score.p1 === 11) {
+      winningPlayer = 1;
+      if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+        winningPlayerId = this.gameObject.player1.databaseId;
+    } else if (this.gameObject.score.p2 === 11) {
+      winningPlayer = 2;
+      if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+        winningPlayerId = this.gameObject.player2.databaseId;
+    }
     this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
       winner: winningPlayer,
     });
-    this.gameGateway.addGameData(1, 1, 1, this.gameObject.createdAt);
+    if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
+      this.gameGateway.addGameData(
+        this.gameObject.player1.databaseId,
+        this.gameObject.player2.databaseId,
+        winningPlayerId,
+        this.gameObject.createdAt,
+      );
+      console.log('P1 = ' + this.gameObject.player1.databaseId);
+      console.log('P2 = ' + this.gameObject.player2.databaseId);
+      console.log('Winner = ' + winningPlayerId);
+    }
 
     // Reset player, ball and score
     this.gameObject.default();

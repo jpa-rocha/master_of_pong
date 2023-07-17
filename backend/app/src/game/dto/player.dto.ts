@@ -7,6 +7,7 @@ import { Paddles } from '../enums/Paddles';
 @Injectable()
 export class Player {
   public id: string;
+  public databaseId: string;
   public ready: boolean;
   public pos: { x: number; y: number };
   public posYOld: number;

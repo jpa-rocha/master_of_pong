@@ -128,13 +128,18 @@ export class GameObject {
     this.player2.pos.y = 350;
   }
 
-  addClient(client: AuthenticatedSocket) {
+  addClient(client: AuthenticatedSocket, databaseId: string) {
     console.log('adding client...');
     this.clients.set(client.id, client);
     client.join(this.gameID);
     client.data.lobby = this;
-    if (!this.player1.id) this.player1.id = client.id;
-    else if (!this.player2.id) this.player2.id = client.id;
+    if (!this.player1.id) {
+      this.player1.id = client.id;
+      this.player1.databaseId = databaseId;
+    } else if (!this.player2.id) {
+      this.player2.id = client.id;
+      this.player2.databaseId = databaseId;
+    }
     if (
       (this.clients.size === 1 &&
         this.player1.options.gameMode === Mode.Singleplayer) ||

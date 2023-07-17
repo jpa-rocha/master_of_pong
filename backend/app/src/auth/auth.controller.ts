@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -6,10 +6,12 @@ import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { encode } from 'punycode';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+              private usersService: UsersService) {}
 
   // api/auth/signin
   @Get('signin')
@@ -36,5 +38,38 @@ export class AuthController {
     const redirectUrl = `signin?param=${encodedData}`;
     console.log('AT REDIRECT: %s', encodedData);
     return res.redirect(redirectUrl);
+  }
+
+  @Get('signout')
+  handleSignout(@Res() res: Response) {
+    console.log('signout BACKEND');
+    res.cookie('jwtToken', '', { expires: new Date(0) });
+    return res.redirect('https://localhost:3000/');
+  }
+
+  @Post('2fa/turn-on')
+  @UseGuards(JwtAuthGuard)
+  async turnOnTwoFactorAuthentication(id: string) {
+    let user = await this.usersService.findOne(id)
+    user.is_2fa_enabled = true;
+    this.usersService.update(user.id, user);
+    return user
+  }
+
+  @Post('2fa/authenticate')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  async authenticate(@Req() req: Request, @Body() body) {
+    const user: User = req.user
+    console.log(user)
+    const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
+      body.twoFactorAuthenticationCode,
+      user
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code.')
+    }
+
+    return this.authService.loginWithTwoFactorAuthentication(user)
   }
 }
