@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -10,8 +21,12 @@ import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService,
-              private usersService: UsersService) {}
+  jwtAuthService: any;
+  constructor(
+    private authService: AuthService,
+    private usersService: UsersService,
+    private jwtService: JwtAuthService,
+  ) {}
 
   // api/auth/signin
   @Get('signin')
@@ -50,26 +65,43 @@ export class AuthController {
   @Post('2fa/turn-on')
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(id: string) {
-    let user = await this.usersService.findOne(id)
+    console.log('2fa/turn-on');
+    let user = await this.usersService.findOne(id);
     user.is_2fa_enabled = true;
     this.usersService.update(user.id, user);
-    return user
+    return user;
   }
 
   @Post('2fa/authenticate')
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   async authenticate(@Req() req: Request, @Body() body) {
-    const user: User = req.user
-    console.log(user)
+    const cookieHeader = req.headers.cookie;
+    const cookie = cookieHeader
+      .split(';')
+      .find((cookie) => cookie.trim().startsWith('jwtToken='));
+    const token = cookie.split('=')[1];
+
+    console.log('Token = ', token);
+
+    const id = this.jwtService.getTokenInformation(token);
+    console.log('ID = ', id);
+    // const jwtToken = req.header.cookie;
+    // console.log('cookies: ', req.cookies);
+    // this.jwtService.return;
+    // console.log(user);
+    const user: User = await this.usersService.findOne(id);
+    console.log('User: ', user);
+    console.log('Body: ', body);
     const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
       body.twoFactorAuthenticationCode,
-      user
+      user,
     );
+    console.log('We reached this part! 111');
     if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code.')
+      throw new UnauthorizedException('Wrong authentication code.');
     }
-
-    return this.authService.loginWithTwoFactorAuthentication(user)
+    console.log('We reached this part! 222');
+    return this.authService.loginWithTwoFactorAuthentication(user);
   }
 }
