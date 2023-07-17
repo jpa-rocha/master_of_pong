@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GameModule } from './game/game.module';
 import { Server } from 'socket.io';
 import { GameDataModule } from './game-data/game-data.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GameDataModule } from './game-data/game-data.module';
     UsersModule,
     AuthModule,
     GameDataModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService, Server],
