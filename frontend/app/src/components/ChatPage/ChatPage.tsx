@@ -17,7 +17,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
-    socket.on("messageResponse", (data: any) =>
+    socket.on("message", (data: any) =>
       setMessages([...messages, data])
     );
   }, [socket, messages]);

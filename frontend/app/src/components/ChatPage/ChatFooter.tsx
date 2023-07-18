@@ -11,6 +11,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log(socket.id);
     if (message.trim() && localStorage.getItem('userName')) {
       socket.emit('message', {
         text: message,

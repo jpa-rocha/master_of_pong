@@ -19,30 +19,30 @@ export class ChatGateway {
 
   constructor(private readonly chatService: ChatService) {}
 
-  @SubscribeMessage('createChat')
-  create(@MessageBody() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
-  }
+  // @SubscribeMessage('createChat')
+  // create(@MessageBody() createChatDto: CreateChatDto) {
+  //   return this.chatService.create(createChatDto);
+  // }
 
-  @SubscribeMessage('findAllChat')
-  findAll() {
-    return this.chatService.findAll();
-  }
+  // @SubscribeMessage('findAllChat')
+  // findAll() {
+  //   return this.chatService.findAll();
+  // }
 
-  @SubscribeMessage('findOneChat')
-  findOne(@MessageBody() id: number) {
-    return this.chatService.findOne(id);
-  }
+  // @SubscribeMessage('findOneChat')
+  // findOne(@MessageBody() id: number) {
+  //   return this.chatService.findOne(id);
+  // }
 
-  @SubscribeMessage('updateChat')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(updateChatDto.id, updateChatDto);
-  }
+  // @SubscribeMessage('updateChat')
+  // update(@MessageBody() updateChatDto: UpdateChatDto) {
+  //   return this.chatService.update(updateChatDto.id, updateChatDto);
+  // }
 
-  @SubscribeMessage('removeChat')
-  remove(@MessageBody() id: number) {
-    return this.chatService.remove(id);
-  }
+  // @SubscribeMessage('removeChat')
+  // remove(@MessageBody() id: number) {
+  //   return this.chatService.remove(id);
+  // }
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: any): void {
@@ -61,9 +61,11 @@ export class ChatGateway {
     this.server.emit('user disconnected');
   }
 
+  @SubscribeMessage('newUser')
   handleNewUser(client: Socket, username: string) {
     console.log('new user');
     users.push(username);
+    console.log("users: ", users)
     this.server.emit('newUserResponse', users);
   }
 }

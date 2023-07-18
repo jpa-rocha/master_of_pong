@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
@@ -14,10 +14,14 @@ import { Socket } from "socket.io-client";
 import UserProfile from "./components/UserProfile/UserProfile";
 import PrivateRoutes from "./utils/PrivateRoutes";
 
-const URI = "http://localhost:4000";
+const URI = "http://localhost:5050";
 
 const socket: Socket = socketIO.connect(URI);
 // @ts-ignore
+// const [auth, setAuth] = React.useState({ token: false });
+
+
+
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

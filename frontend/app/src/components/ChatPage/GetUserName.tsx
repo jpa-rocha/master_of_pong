@@ -17,7 +17,7 @@ const GetUserName: React.FunctionComponent<GetUserNameProps> = ( { socket} ) => 
 
 		e.preventDefault();
 		localStorage.setItem('userName', userName);
-	
+		console.log("username:", userName);
 		//sends the username and socket ID to the Node.js server
 		socket.emit('newUser', { userName, socketID: socket.id });
 		navigate('/chatPage');

@@ -16,6 +16,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   useEffect(() => {
     socket.on('newUserResponse', (data: User[]) => setUsers(data));
+	console.log(users);
   }, [socket]);
 
   return (
