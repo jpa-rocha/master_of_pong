@@ -9,6 +9,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
+import { UsersService } from 'src/users/users.service';
 
 let users = [];
 
@@ -17,7 +18,10 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private userService: UsersService,
+  ) {}
 
   // @SubscribeMessage('createChat')
   // create(@MessageBody() createChatDto: CreateChatDto) {
@@ -46,7 +50,7 @@ export class ChatGateway {
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: any): void {
-    console.log("message received");
+    console.log('message received');
     console.log(message);
     this.server.emit('message', message);
   }
@@ -62,10 +66,15 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('newUser')
-  handleNewUser(client: Socket, username: string) {
+  async handleNewUser(client: Socket, username: string) {
     console.log('new user');
+    const allusers = await this.userService.findAll();
+    // get all the usernames from all the users in the json file and create an array of usernames
+    const usernames = allusers.map((user) => user.username);
+
     users.push(username);
-    console.log("users: ", users)
-    this.server.emit('newUserResponse', users);
+    console.log('allUsers: ', usernames);
+    console.log('users: ', users);
+    this.server.emit('newUserResponse', usernames);
   }
 }
