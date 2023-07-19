@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
 import "./chatPageStyle/chat.css";
-import { jwtVerify } from "jose";
+import { jwtVerify, decode } from "jose";
+import axios from "axios";
 
 interface GetUserNameProps {
   socket: Socket;
@@ -37,12 +38,39 @@ function getToken(tokenName: string): string {
 
 function GetUserName({ socket }: GetUserNameProps) {
   const [userName, setUserName] = useState("");
+  const [data, setData] = useState([]);
+
   const navigate = useNavigate();
 
-  // const token: string = getToken("jwtToken");
+  /* 
+    1. get the token -- DONE
+    2. get token is valid
+    3. decode the token
+    4. get user ID
+    5. get info from database
+    6. store user and socket ID in array
+  */
+
+
+  const token: string = getToken("jwtToken");
   // console.log("token : " + token);
 
   // console.log("decodedToken: ", decodedToken);
+
+  const id = 1;
+  
+
+  const user = axios.get("/api/users/"+ id)
+  .then( (response) => {
+	console.log(response.data);
+	return response.data.username;
+  }).catch( (error) => {
+	console.error("Invalid user:", error);
+	return([]);
+  });
+
+
+ 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +80,10 @@ function GetUserName({ socket }: GetUserNameProps) {
     socket.emit("newUser", { userName, socketID: socket.id });
     navigate("/chatPage");
   };
+
+  useEffect( () => {
+	
+  }, []);
 
   return (
     <>

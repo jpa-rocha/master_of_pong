@@ -1,37 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
-
 interface User {
   id: string;
   username: string;
-
 }
 
 const FetchUserData: React.FunctionComponent = () => {
 
 	const [users, setUsers] = useState<User[]>([]);
 	
-	const baseURL = "https://api.intra.42.fr/oauth/authorize";
+	
+	const baseURL = `http://localhost:5000/api/users/`;
 
 	useEffect(() => {
     	const fetchData = async () => {
       		try 
 			{
-        		const headers = new Headers();
-        		headers.append('Content-Type', 'application/json');
-				headers.append('Access-Control-Allow-Origin', '*');
-				
-
-        		const requestOptions = {
-          			method: 'GET',
-          			headers: headers,
-        		};
-
-        		const response = await fetch(baseURL, requestOptions);
+        		const response = await fetch(baseURL);
         		const data = await response.json();
         		setUsers(data);
       		}
-			catch (error) 
+			catch (error)
 			{
         		console.error('Error fetching user data:', error);
       		}

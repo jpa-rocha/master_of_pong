@@ -36,7 +36,7 @@ root.render(
           {/* <Route path="/profile" element={<UserProfile userName={'Bob'} image={'./src/images/Profile/default_profile_image.jpg'} friends={[]}/>} /> */}
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/chat" element={<GetUserName socket={socket} />} />
-          <Route path="/chatPage" element={<ChatPage socket={socket} />} />
+          <Route path="/chatPage" element={<ChatPage socket={socket} user={user}/>} />
         </Route>
         <Route path="/" element={<App />} />
       </Routes>
