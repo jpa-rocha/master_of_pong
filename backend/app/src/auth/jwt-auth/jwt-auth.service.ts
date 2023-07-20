@@ -19,7 +19,7 @@ export class JwtAuthService {
     };
   }
 
-  getTokenInformation(token: string): any {
+  getTokenInformation(token: string) {
     const decodedToken = this.jwtService.decode(token) as { id?: string };
     const decodedId = decodedToken?.id;
     return decodedId;

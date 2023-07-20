@@ -45,10 +45,19 @@ export class AuthController {
     const token = body.token;
     const secret = 'alsosecret';
 
+    console.log('Verify TOKEN START --------------------');
     console.log('token = ' + token);
     console.log('secret = ' + secret);
+    console.log('Verify TOKEN END   --------------------');
 
     return this.jwtService.verifyToken(token, secret);
+  }
+
+  @Post('getUserID')
+  async getUserID(@Body() body) {
+    const token = body.token;
+
+    return this.jwtService.getTokenInformation(token);
   }
 
   // api/auth/redirect

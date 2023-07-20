@@ -7,6 +7,7 @@ import "./profileStyle/profile.css";
 import io, { Socket } from "socket.io-client";
 import axios from "axios";
 import { get } from "http";
+import { getToken } from "../../utils/Utils";
 
 // interface ProfileProps {}
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -19,6 +20,7 @@ interface UserProps {
   avatar: string;
   is_2fa_enabled: boolean;
   xp: number;
+  id: string;
 }
 
 const ProfilePage: React.FC = () => {
@@ -30,14 +32,31 @@ const ProfilePage: React.FC = () => {
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [profileImg, setProfileImg] = useState("");
 
+  const token: string = getToken("jwtToken");
+  const [userID, setUserID] = useState("");
+  (async () => {
+    try {
+      setUserID(await axios.post("api/auth/getUserID", { token }).then((res) => res.data));
+      console.log("USER ID data   : " + userID);
+    } catch (error) {
+      console.error('Error getting user ID:', error);
+    }
+  })();
+  console.log(`api/users/${userID}`);
+
   const getUser = async () => {
-    const user = await axios.get("api/users/1");
+    if (userID === undefined) {
+      console.log("Couldn't get the user");
+      return(<div>Loading...</div>)
+    }
+    console.log("Got the user");
+    const user = await axios.get(`api/users/${userID}`);
     return user.data;
   };
 
-  const setUser = async (userName: string) => {
-    console.log("user name: ", userName);
-    const data = { username: userName };
+  const setUser = async (newName: string) => {
+    console.log("newName: ", newName);
+    const data = { username: newName };
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -45,8 +64,11 @@ const ProfilePage: React.FC = () => {
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
       },
     };
-    await axios.patch("api/users/1", data, config).then((res) => res.data);
-    setUserName(userName);
+    if (userID !== undefined) {
+      console.log("data: ", data);
+      await axios.patch(`api/users/${userID}`, data, config).then((res) => res.data);
+      setUserName(newName);
+    }
   };
 
   useEffect(() => {
@@ -54,8 +76,9 @@ const ProfilePage: React.FC = () => {
       const user: UserProps = await getUser();
       setUserName(user.username);
     };
+    console.log("Main use Effect");
     getProfile();
-  }, []);
+  }, [userID]);
 
   const handleProfileImgChange = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -78,7 +101,7 @@ const ProfilePage: React.FC = () => {
           console.log(formData);
           // const data = { file: formData };
           const response = await axios
-            .post("api/users/upload/1", formData, config)
+            .post(`api/users/upload/${userID}`, formData, config)
             .then((res) => {
               console.log(res);
             });
@@ -129,7 +152,7 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    setProfileImg("http://localhost:5000/api/users/avatars/1");
+    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [handleProfileImgChange]);
 
   if (!userName) {
