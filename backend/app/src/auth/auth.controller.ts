@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { encode } from 'punycode';
 import { UsersService } from 'src/users/users.service';
+import { strict } from 'assert';
 
 @Controller('auth')
 export class AuthController {
@@ -37,6 +38,17 @@ export class AuthController {
 
     res.cookie('jwtToken', token, { httpOnly: false });
     return res.redirect('https://localhost:3000/main');
+  }
+
+  @Post('verifyToken')
+  async verifyToken(@Body() body) {
+    const token = body.token;
+    const secret = 'alsosecret';
+
+    console.log('token = ' + token);
+    console.log('secret = ' + secret);
+
+    return this.jwtService.verifyToken(token, secret);
   }
 
   // api/auth/redirect
@@ -66,7 +78,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(id: string) {
     console.log('2fa/turn-on');
-    let user = await this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id);
     user.is_2fa_enabled = true;
     this.usersService.update(user.id, user);
     return user;

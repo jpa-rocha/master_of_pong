@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
 import "./chatPageStyle/chat.css";
-import { jwtVerify, decode } from "jose";
+// import { jwtVerify, decode } from "jose";
 import axios from "axios";
 
 interface GetUserNameProps {
