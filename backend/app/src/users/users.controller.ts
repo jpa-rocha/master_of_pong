@@ -52,6 +52,11 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Get('name/:userName')
+  findAllName(@Param('userName') userName: string) {
+    return this.usersService.findAllName(userName);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
@@ -94,5 +99,14 @@ export class UsersController {
     this.usersService.update(id, { avatar: file.filename });
 
     return of({ imagePath: file.filename });
+  }
+
+  @Post('addFriend/:userId/:friendId')
+  async addFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    console.log("addFriend");
+    return this.usersService.addFriend(userId, friendId);
   }
 }
