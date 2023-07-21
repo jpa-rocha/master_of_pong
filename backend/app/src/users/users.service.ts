@@ -68,6 +68,20 @@ export class UsersService {
     return this.friendsRepository.save(newFriend);
   }
 
+  async checkFriend(userId: string, friendId: string) {
+    // const friends = await this.friendsRepository.find();
+
+    // const temporary = friends.filter((friend) =>
+    // friend..startsWith(userName),
+    // );
+
+    const user = await this.usersRepository.find({
+      where: { id: userId },
+      relations: ['senders', 'receivers'],
+    });
+    return user;
+  }
+
   // createFriend(createFriendDto: CreateFriendDto) {
   //   const newFriend = this.friendsRepository.create(createFriendDto);
 

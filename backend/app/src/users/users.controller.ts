@@ -106,7 +106,16 @@ export class UsersController {
     @Param('userId') userId: string,
     @Param('friendId') friendId: string,
   ) {
-    console.log("addFriend");
+    console.log('addFriend');
     return this.usersService.addFriend(userId, friendId);
+  }
+
+  @Post('checkFriend/:userId/:friendId')
+  async checkFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    console.log('checkFriend');
+    return this.usersService.checkFriend(userId, friendId);
   }
 }

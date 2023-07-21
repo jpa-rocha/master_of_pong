@@ -4,7 +4,7 @@ import { GameData } from 'src/game-data/entities/game-data.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -28,15 +28,15 @@ export class User {
   @Column({ type: 'float', default: 0.0, nullable: true })
   xp: number;
 
-  @Column({ type: 'varchar', length: 250, nullable: true})
+  @Column({ type: 'varchar', length: 250, nullable: true })
   twofa_secret: string;
-  
-  /* Friends Relations */
-  @OneToMany(() => Friend, (friend) => friend.friend, { onDelete: 'CASCADE' })
-  friends: Friend[];
 
-  @OneToMany(() => Friend, (friend) => friend.user, { onDelete: 'CASCADE' })
-  followers: Friend[];
+  /* Friends Relations */
+  @OneToMany(() => Friend, (friend) => friend.receiver, { onDelete: 'CASCADE' })
+  senders: Friend[];
+
+  @OneToMany(() => Friend, (friend) => friend.sender, { onDelete: 'CASCADE' })
+  receivers: Friend[];
 
   /* Games Relations */
   @OneToMany(() => GameData, (game) => game.userOne, { onDelete: 'CASCADE' })

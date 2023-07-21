@@ -11,10 +11,12 @@ import { Box } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./FriendsStyle.css";
+import { getToken } from "../../utils/Utils";
 
 interface UserProps {
     username: string;
     id: string;
+	isFriend: boolean;
 }
 
 axios.defaults.baseURL = "http://localhost:5000/"
@@ -22,6 +24,7 @@ axios.defaults.baseURL = "http://localhost:5000/"
 const FriendsPage: React.FC = () => {
     const [users, setUsers] = useState<UserProps[]>([]);
 	const [input, setInput] = useState<string>("");
+	const [ButtonText, setButtonText] = useState<string>("Add Friend");
 
 	async function getUsers( input: string) {
 		if (input === "")
@@ -34,6 +37,16 @@ const FriendsPage: React.FC = () => {
 		setInput(event.target.value);
 	}
     
+	const handleSendFriendRequest = async (friendID: string)=> {
+		const token = getToken("jwtToken");
+		const userID = await axios.post("api/auth/getUserID", { token }).then((res) => res.data);
+		console.log("UserID = " + userID);
+		console.log("FriendID = " + friendID);
+		await axios.post(`api/users/addFriend/${userID}/${friendID}`)
+		
+		setButtonText("Friend Request Sent");
+	}
+
 	useEffect(() => {
         getUsers(input);
 	}, [input])
@@ -49,7 +62,7 @@ const FriendsPage: React.FC = () => {
 					<Box className="User">
                         <li key={index}>
                             {item.username}
-                            <button>Add Friend</button>
+                            <button onClick={() => handleSendFriendRequest(item.id)}>{`${ButtonText}`}</button>
                         </li>
                     </Box>
 				))}
