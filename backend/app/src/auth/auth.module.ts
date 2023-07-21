@@ -10,6 +10,7 @@ import { UsersService } from 'src/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
+import { Friend } from 'src/users/entities/friend.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { JwtAuthModule } from './jwt-auth/jwt-auth.module';
     ConfigModule,
     UsersModule,
     HttpModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Friend]),
     PassportModule.register({ OAuth2Strategy: 'oauth2' }),
   ],
   controllers: [AuthController],

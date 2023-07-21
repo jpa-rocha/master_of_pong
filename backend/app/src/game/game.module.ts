@@ -11,6 +11,7 @@ import { GameData } from 'src/game-data/entities/game-data.entity';
 import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
 import { JwtAuthModule } from 'src/auth/jwt-auth/jwt-auth.module';
+import { Friend } from 'src/users/entities/friend.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { JwtAuthModule } from 'src/auth/jwt-auth/jwt-auth.module';
     UsersModule,
     TypeOrmModule.forFeature([GameData]),
     TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Friend]),
     JwtAuthModule,
   ],
   providers: [
