@@ -13,6 +13,7 @@ import * as socketIO from "socket.io-client";
 import { Socket } from "socket.io-client";
 import UserProfile from "./components/UserProfile/UserProfile";
 import PrivateRoutes from "./utils/PrivateRoutes";
+import FriendsPage from "./components/Friends/Friends";
 
 const URI = "http://localhost:5050";
 
@@ -37,6 +38,7 @@ root.render(
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/chat" element={<GetUserName socket={socket} />} />
           <Route path="/chatPage" element={<ChatPage socket={socket} />} />
+          <Route path="/friends" element={<FriendsPage />} />
         </Route>
         <Route path="/" element={<App />} />
       </Routes>
