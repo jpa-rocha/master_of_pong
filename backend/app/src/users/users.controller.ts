@@ -118,4 +118,14 @@ export class UsersController {
     console.log('checkFriend');
     return this.usersService.checkFriend(userId, friendId);
   }
+
+  @Get('friends/:user')
+  async getFriends(@Param('user') user: string) {
+    return this.usersService.getFriends(user);
+  }
+
+  @Get('friends/name/:user/:input')
+  async getNamedFriends(@Param('user') user: string, @Param('input') input: string) {
+    return this.usersService.getNamedFriends(user, input);
+  }
 }

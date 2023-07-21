@@ -45,11 +45,6 @@ export class AuthController {
     const token = body.token;
     const secret = 'alsosecret';
 
-    console.log('Verify TOKEN START --------------------');
-    console.log('token = ' + token);
-    console.log('secret = ' + secret);
-    console.log('Verify TOKEN END   --------------------');
-
     return this.jwtService.verifyToken(token, secret);
   }
 
@@ -78,7 +73,6 @@ export class AuthController {
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    console.log('signout BACKEND');
     res.cookie('jwtToken', '', { expires: new Date(0) });
     return res.redirect('https://localhost:3000/');
   }
@@ -106,14 +100,7 @@ export class AuthController {
     console.log('Token = ', token);
 
     const id = this.jwtService.getTokenInformation(token);
-    console.log('ID = ', id);
-    // const jwtToken = req.header.cookie;
-    // console.log('cookies: ', req.cookies);
-    // this.jwtService.return;
-    // console.log(user);
     const user: User = await this.usersService.findOne(id);
-    console.log('User: ', user);
-    console.log('Body: ', body);
     const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
       body.twoFactorAuthenticationCode,
       user,

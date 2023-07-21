@@ -82,6 +82,23 @@ export class UsersService {
     return user;
   }
 
+  async getFriends(userID: string) {
+    const allUsers = (await this.usersRepository.find()).filter(
+      (user) => user.id !== userID,
+    );
+    console.log("userID = " + userID);
+    // console.log('user: ', allUsers);
+    return allUsers;
+    // add friend status to all the results
+  }
+
+  async getNamedFriends(userID: string, userName: string) {
+    const result = (await this.getFriends(userID)).filter((user) =>
+      user.username.startsWith(userName),
+    );
+    return result;
+  }
+
   // createFriend(createFriendDto: CreateFriendDto) {
   //   const newFriend = this.friendsRepository.create(createFriendDto);
 
