@@ -27,7 +27,6 @@ const FriendsPage: React.FC = () => {
 	const [input, setInput] = useState<string>("");
 	const [ButtonText, setButtonText] = useState<string>("Add Friend");
 	
-	
 	async function getUsers( input: string) {
 		const id = await axios.post("api/auth/getUserID", { token }).then((res) => res.data);
 		if (input === "")
@@ -64,9 +63,11 @@ const FriendsPage: React.FC = () => {
 					<Box className="User">
 						<li key={index}>
 							{item.username}
-							<button onClick={() => handleSendFriendRequest(item.id)}>
-								{`${ButtonText}`}
-							</button>
+							{!item.isFriend && (
+								<button onClick={() => handleSendFriendRequest(item.id)}>
+									{`${ButtonText}`}
+								</button>
+							)}
 						</li>
 					</Box>
 				))}

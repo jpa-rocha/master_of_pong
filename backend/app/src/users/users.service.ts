@@ -79,6 +79,7 @@ export class UsersService {
       where: { id: userId },
       relations: ['senders', 'receivers'],
     });
+
     return user;
   }
 
@@ -86,11 +87,44 @@ export class UsersService {
     const allUsers = (await this.usersRepository.find()).filter(
       (user) => user.id !== userID,
     );
-    console.log("userID = " + userID);
+    // console.log('userID = ' + userID);
+    // console.log(
+    //   'RECEIVERS = ' +
+    //     (await this.usersRepository.find({ relations: ['receivers'] })),
+    // );
+    // console.log('SENDERS = ' + (await this.findOne(userID)).senders);
     // console.log('user: ', allUsers);
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
+      .leftJoinAndSelect('user.senders', 'senders')
+      .leftJoinAndSelect('user.receivers', 'receivers')
+      .leftJoinAndSelect('senders.sender', 'sender') // Load the related sender User entity
+      .leftJoinAndSelect('receivers.receiver', 'receiver') // Load the related receiver User entity
+      .getOne();
+
+    if (user) {
+      const friends = [...user.senders, ...user.receivers];
+
+      console.log('friends = ' + friends);
+      console.log('id       : ' + friends[1].id);
+      console.log('isFriend : ' + friends[1].isFriend);
+      console.log('receiver : ' + friends[1].receiver?.username);
+      console.log('sender   : ' + friends[1].sender?.username);
+    } else {
+      console.log('User not found');
+    }
     return allUsers;
     // add friend status to all the results
   }
+
+  // async getUserWithFriends(userId: string): Promise<User> {
+  //   return this.createQueryBuilder('user')
+  //     .leftJoinAndSelect('user.senders', 'friendSenders')
+  //     .leftJoinAndSelect('user.receivers', 'friendReceivers')
+  //     .where('user.id = :id', { id: userId })
+  //     .getOne();
+  // }
 
   async getNamedFriends(userID: string, userName: string) {
     const result = (await this.getFriends(userID)).filter((user) =>
