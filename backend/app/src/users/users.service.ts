@@ -94,6 +94,7 @@ export class UsersService {
     // );
     // console.log('SENDERS = ' + (await this.findOne(userID)).senders);
     // console.log('user: ', allUsers);
+
     const user = await this.usersRepository
       .createQueryBuilder('user')
       .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
@@ -138,4 +139,28 @@ export class UsersService {
 
   //   return this.friendsRepository.save(newFriend);
   // }
+
+  // function (userID)
+  // returns friends[] => ids of all friends  
+
+  async getUsersWithFriends(userId: string) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id != :userId', { userId })
+      .leftJoinAndSelect(
+        'user.senders',
+        'friend',
+        'friend.receiverId = :userId',
+        { userId },
+      )
+      .leftJoinAndSelect(
+        'user.receivers',
+        'friend2',
+        'friend2.senderId = :userId',
+        { userId },
+      )
+      .addSelect('friend.isFriend')
+      .addSelect('friend2.isFriend')
+      .getMany();
+  }
 }

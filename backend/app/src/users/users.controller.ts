@@ -128,4 +128,9 @@ export class UsersController {
   async getNamedFriends(@Param('user') user: string, @Param('input') input: string) {
     return this.usersService.getNamedFriends(user, input);
   }
+
+  @Get('testFriends/:user')
+  async testFriends(@Param('user') user: string) {
+    return this.usersService.getUsersWithFriends(user);
+  }
 }
