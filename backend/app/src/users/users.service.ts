@@ -55,11 +55,11 @@ export class UsersService {
   async sendFriendRequest(userId: string, friendId: string) {
     const sender = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['friends'],
+      relations: ['sentFriendRequests', 'receivedFriendRequests'],
     });
     const receiver = await this.usersRepository.findOne({
       where: { id: friendId },
-      relations: ['friends'],
+      relations: ['sentFriendRequests', 'receivedFriendRequests'],
     });
 
     if (!sender || !receiver) {
@@ -73,11 +73,13 @@ export class UsersService {
 
     console.log('Friend Request sent: ' + friendRequest);
     // return this.friendsRepository.save(friendRequest);
-    this.friendsRepository.save(friendRequest);
+    await this.friendsRepository.save(friendRequest);
     return this.acceptFriendRequest(userId, friendId);
   }
 
   async acceptFriendRequest(userId: string, friendId: string) {
+    console.log('userId ' + userId);
+    console.log('friendId ' + friendId);
     const friendRequest = await this.friendsRepository.findOne({
       where: {
         sender: { id: userId },
@@ -85,6 +87,7 @@ export class UsersService {
       },
     });
 
+    console.log('friendRequest ' + friendRequest);
     if (!friendRequest) {
       throw new Error('Friend request not found.');
     }
@@ -92,18 +95,39 @@ export class UsersService {
     friendRequest.isFriend = true;
     await this.friendsRepository.save(friendRequest);
 
+    const sender = await this.usersRepository.findOne({
+      where: { id: friendId },
+      relations: ['sentFriendRequests', 'receivedFriendRequests'],
+    });
+    const receiver = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['sentFriendRequests', 'receivedFriendRequests'],
+    });
+    const newFriendRequest = new Friend();
+    newFriendRequest.sender = sender;
+    newFriendRequest.receiver = receiver;
+    newFriendRequest.isFriend = true;
+
+    await this.friendsRepository.save(newFriendRequest);
+
     return friendRequest;
   }
 
-  async getUserFriends(userID: string): Promise<User[]> {
+  async getUserFriends(userID: string) {
     const user = await this.usersRepository.findOne({
       where: { id: userID },
-      relations: ['friends'],
+      relations: ['sentFriendRequests', 'receivedFriendRequests'],
     });
     if (!user) {
       throw new Error('User not found.');
     }
-    return user.friends;
+    console.log(
+      'Friends (hopefully) sender = ' + user.sentFriendRequests[0].sender,
+    );
+    console.log(
+      'Friends (hopefully) receiver = ' + user.sentFriendRequests[0].receiver,
+    );
+    return user.sentFriendRequests;
   }
 
   async checkFriend(userId: string, friendId: string) {
@@ -120,33 +144,37 @@ export class UsersService {
       (user) => user.id !== userID,
     );
 
-    const usersFriends = await this.getUserFriends(userID);
-    console.log('Friends = ' + usersFriends);
-    // const user = await this.usersRepository
-    //   .createQueryBuilder('user')
-    //   .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
-    //   .leftJoinAndSelect('user.senders', 'senders')
-    //   .leftJoinAndSelect('user.receivers', 'receivers')
-    //   .leftJoinAndSelect('senders.sender', 'sender') // Load the related sender User entity
-    //   .leftJoinAndSelect('receivers.receiver', 'receiver') // Load the related receiver User entity
-    //   .getOne();
+    // const usersFriends = await this.getUserFriends(userID);
+    // console.log('Friends = ' + usersFriends);
+    // console.log('TEST = ' + usersFriends[1].receiver);
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
+      .leftJoinAndSelect('user.sentFriendRequests', 'sentFriendRequests')
+      .leftJoinAndSelect('sentFriendRequests.sender', 'sender') // Load the related sender User entity
+      .leftJoinAndSelect(
+        'user.receivedFriendRequests',
+        'receivedFriendRequests',
+      )
+      .leftJoinAndSelect('receivedFriendRequests.sender', 'receiver') // Load the related sender User entity
+      .getMany();
 
-    // if (user) {
-    //   const friends = [
-    //     ...user.sentFriendRequests,
-    //     ...user.receivedFriendRequests,
-    //   ];
+    if (user) {
+      const friends = [
+        ...user[0].sentFriendRequests,
+        ...user[0].receivedFriendRequests,
+      ];
 
-    //   if (friends) {
-    //     console.log('friends = ' + friends);
-    //     console.log('id       : ' + friends[1].id);
-    //     console.log('isFriend : ' + friends[1].isFriend);
-    //     console.log('receiver : ' + friends[1].receiver?.username);
-    //     console.log('sender   : ' + friends[1].sender?.username);
-    //   }
-    // } else {
-    //   console.log('User not found');
-    // }
+      if (friends) {
+        console.log('friends = ' + friends);
+        console.log('id       : ' + friends[0].id);
+        console.log('isFriend : ' + friends[0].isFriend);
+        console.log('receiver : ' + friends[0].receiver?.username);
+        console.log('sender   : ' + friends[0].sender?.username);
+      }
+    } else {
+      console.log('User not found');
+    }
     return allUsers;
   }
 
@@ -164,7 +192,7 @@ export class UsersService {
   // }
 
   // function (userID)
-  // returns friends[] => ids of all friends  
+  // returns friends[] => ids of all friends
 
   async getUsersWithFriends(userId: string) {
     return this.usersRepository
