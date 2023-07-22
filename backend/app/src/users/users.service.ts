@@ -143,38 +143,49 @@ export class UsersService {
     const allUsers = (await this.usersRepository.find()).filter(
       (user) => user.id !== userID,
     );
-
-    // const usersFriends = await this.getUserFriends(userID);
-    // console.log('Friends = ' + usersFriends);
-    // console.log('TEST = ' + usersFriends[1].receiver);
     const user = await this.usersRepository
       .createQueryBuilder('user')
-      .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
+      .where('user.id = :userID', { userID })
       .leftJoinAndSelect('user.sentFriendRequests', 'sentFriendRequests')
-      .leftJoinAndSelect('sentFriendRequests.sender', 'sender') // Load the related sender User entity
+      .leftJoinAndSelect('sentFriendRequests.receiver', 'receiver')
       .leftJoinAndSelect(
         'user.receivedFriendRequests',
         'receivedFriendRequests',
       )
-      .leftJoinAndSelect('receivedFriendRequests.sender', 'receiver') // Load the related sender User entity
-      .getMany();
+      .leftJoinAndSelect('receivedFriendRequests.sender', 'sender')
+      .getOne();
 
     if (user) {
       const friends = [
-        ...user[0].sentFriendRequests,
-        ...user[0].receivedFriendRequests,
+        ...user.sentFriendRequests.map((friend) => ({
+          ...friend,
+          isFriend: friend.isFriend,
+          friendUser: friend.receiver,
+        })),
+        ...user.receivedFriendRequests.map((friend) => ({
+          ...friend,
+          isFriend: friend.isFriend,
+          friendUser: friend.sender,
+        })),
       ];
 
-      if (friends) {
-        console.log('friends = ' + friends);
-        console.log('id       : ' + friends[0].id);
-        console.log('isFriend : ' + friends[0].isFriend);
-        console.log('receiver : ' + friends[0].receiver?.username);
-        console.log('sender   : ' + friends[0].sender?.username);
+      console.log('Friends NAMES --------------------------------------------');
+      const confirmedFriends = friends.filter(
+        (friend) => friend.isFriend === true,
+      );
+
+      if (confirmedFriends.length > 0) {
+        console.log('Confirmed friends:');
+        confirmedFriends.forEach((friend) => {
+          console.log('friendUser : ' + friend.friendUser?.username);
+        });
+      } else {
+        console.log('No confirmed friends found.');
       }
     } else {
       console.log('User not found');
     }
+    console.log('------------------------------------------------------------');
     return allUsers;
   }
 
