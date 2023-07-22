@@ -71,15 +71,14 @@ export class UsersService {
     friendRequest.receiver = receiver;
     friendRequest.isFriend = false;
 
-    console.log('Friend Request sent: ' + friendRequest);
-    // return this.friendsRepository.save(friendRequest);
+    console.log('sendFriendRequest => Friend request sent');
     await this.friendsRepository.save(friendRequest);
+
+    console.log('sendFriendRequest => Automatically accepting friend request');
     return this.acceptFriendRequest(userId, friendId);
   }
 
   async acceptFriendRequest(userId: string, friendId: string) {
-    console.log('userId ' + userId);
-    console.log('friendId ' + friendId);
     const friendRequest = await this.friendsRepository.findOne({
       where: {
         sender: { id: userId },
@@ -87,13 +86,13 @@ export class UsersService {
       },
     });
 
-    console.log('friendRequest ' + friendRequest);
     if (!friendRequest) {
       throw new Error('Friend request not found.');
     }
 
     friendRequest.isFriend = true;
     await this.friendsRepository.save(friendRequest);
+    console.log('acceptFriendRequest => Updated friend instance');
 
     const sender = await this.usersRepository.findOne({
       where: { id: friendId },
@@ -107,39 +106,16 @@ export class UsersService {
     newFriendRequest.sender = sender;
     newFriendRequest.receiver = receiver;
     newFriendRequest.isFriend = true;
-
     await this.friendsRepository.save(newFriendRequest);
+    console.log('acceptFriendRequest => Second instance of friend created');
 
     return friendRequest;
   }
 
-  async getUserFriends(userID: string) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userID },
-      relations: ['sentFriendRequests', 'receivedFriendRequests'],
-    });
-    if (!user) {
-      throw new Error('User not found.');
-    }
-    console.log(
-      'Friends (hopefully) sender = ' + user.sentFriendRequests[0].sender,
-    );
-    console.log(
-      'Friends (hopefully) receiver = ' + user.sentFriendRequests[0].receiver,
-    );
-    return user.sentFriendRequests;
-  }
-
-  async checkFriend(userId: string, friendId: string) {
-    const user = await this.usersRepository.find({
-      where: { id: userId },
-      relations: ['senders', 'receivers'],
-    });
-
-    return user;
-  }
-
   async getFriends(userID: string) {
+    interface ExtendedUser extends User {
+      isFriend?: boolean;
+    }
     const allUsers = (await this.usersRepository.find()).filter(
       (user) => user.id !== userID,
     );
@@ -169,23 +145,31 @@ export class UsersService {
         })),
       ];
 
-      console.log('Friends NAMES --------------------------------------------');
       const confirmedFriends = friends.filter(
         (friend) => friend.isFriend === true,
       );
 
       if (confirmedFriends.length > 0) {
-        console.log('Confirmed friends:');
+        console.log('getFriends => Confirmed friends:');
         confirmedFriends.forEach((friend) => {
           console.log('friendUser : ' + friend.friendUser?.username);
         });
+
+        console.log('getFriends => Adding isFriend property to friends');
+        const extendedAllUsers: ExtendedUser[] = allUsers.map((user) => ({
+          ...user,
+          isFriend: confirmedFriends.some(
+            (friend) => friend.friendUser.id === user.id,
+          ),
+        }));
+
+        return extendedAllUsers;
       } else {
-        console.log('No confirmed friends found.');
+        console.log('getFriends => No confirmed friends found.');
       }
     } else {
-      console.log('User not found');
+      console.log('getFriends => User not found');
     }
-    console.log('------------------------------------------------------------');
     return allUsers;
   }
 
