@@ -1,13 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Friend } from './entities/friend.entity';
-import { Not, Repository } from 'typeorm';
-import { type } from 'os';
-import { use } from 'passport';
-import { CreateFriendDto } from './dto/create-friend.dto';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -55,26 +52,61 @@ export class UsersService {
     return this.usersRepository.remove(user);
   }
 
-  async addFriend(userId: string, friendId: string) {
-    const user = await this.findOne(userId);
-    const friend = await this.findOne(friendId);
+  async sendFriendRequest(userId: string, friendId: string) {
+    const sender = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['friends'],
+    });
+    const receiver = await this.usersRepository.findOne({
+      where: { id: friendId },
+      relations: ['friends'],
+    });
 
-    const createFriendDto: CreateFriendDto = {
-      isFriend: false,
-      user: user,
-      friend: friend,
-    };
-    const newFriend = this.friendsRepository.create(createFriendDto);
-    return this.friendsRepository.save(newFriend);
+    if (!sender || !receiver) {
+      throw new Error('Sender or receiver not found.');
+    }
+
+    const friendRequest = new Friend();
+    friendRequest.sender = sender;
+    friendRequest.receiver = receiver;
+    friendRequest.isFriend = false;
+
+    console.log('Friend Request sent: ' + friendRequest);
+    // return this.friendsRepository.save(friendRequest);
+    this.friendsRepository.save(friendRequest);
+    return this.acceptFriendRequest(userId, friendId);
+  }
+
+  async acceptFriendRequest(userId: string, friendId: string) {
+    const friendRequest = await this.friendsRepository.findOne({
+      where: {
+        sender: { id: userId },
+        receiver: { id: friendId },
+      },
+    });
+
+    if (!friendRequest) {
+      throw new Error('Friend request not found.');
+    }
+
+    friendRequest.isFriend = true;
+    await this.friendsRepository.save(friendRequest);
+
+    return friendRequest;
+  }
+
+  async getUserFriends(userID: string): Promise<User[]> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userID },
+      relations: ['friends'],
+    });
+    if (!user) {
+      throw new Error('User not found.');
+    }
+    return user.friends;
   }
 
   async checkFriend(userId: string, friendId: string) {
-    // const friends = await this.friendsRepository.find();
-
-    // const temporary = friends.filter((friend) =>
-    // friend..startsWith(userName),
-    // );
-
     const user = await this.usersRepository.find({
       where: { id: userId },
       relations: ['senders', 'receivers'],
@@ -87,44 +119,36 @@ export class UsersService {
     const allUsers = (await this.usersRepository.find()).filter(
       (user) => user.id !== userID,
     );
-    // console.log('userID = ' + userID);
-    // console.log(
-    //   'RECEIVERS = ' +
-    //     (await this.usersRepository.find({ relations: ['receivers'] })),
-    // );
-    // console.log('SENDERS = ' + (await this.findOne(userID)).senders);
-    // console.log('user: ', allUsers);
-    const user = await this.usersRepository
-      .createQueryBuilder('user')
-      .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
-      .leftJoinAndSelect('user.senders', 'senders')
-      .leftJoinAndSelect('user.receivers', 'receivers')
-      .leftJoinAndSelect('senders.sender', 'sender') // Load the related sender User entity
-      .leftJoinAndSelect('receivers.receiver', 'receiver') // Load the related receiver User entity
-      .getOne();
 
-    if (user) {
-      const friends = [...user.senders, ...user.receivers];
+    const usersFriends = await this.getUserFriends(userID);
+    console.log('Friends = ' + usersFriends);
+    // const user = await this.usersRepository
+    //   .createQueryBuilder('user')
+    //   .where('user.id = :userID', { userID }) // Assuming userID is the ID of the user you want to fetch
+    //   .leftJoinAndSelect('user.senders', 'senders')
+    //   .leftJoinAndSelect('user.receivers', 'receivers')
+    //   .leftJoinAndSelect('senders.sender', 'sender') // Load the related sender User entity
+    //   .leftJoinAndSelect('receivers.receiver', 'receiver') // Load the related receiver User entity
+    //   .getOne();
 
-      console.log('friends = ' + friends);
-      console.log('id       : ' + friends[1].id);
-      console.log('isFriend : ' + friends[1].isFriend);
-      console.log('receiver : ' + friends[1].receiver?.username);
-      console.log('sender   : ' + friends[1].sender?.username);
-    } else {
-      console.log('User not found');
-    }
+    // if (user) {
+    //   const friends = [
+    //     ...user.sentFriendRequests,
+    //     ...user.receivedFriendRequests,
+    //   ];
+
+    //   if (friends) {
+    //     console.log('friends = ' + friends);
+    //     console.log('id       : ' + friends[1].id);
+    //     console.log('isFriend : ' + friends[1].isFriend);
+    //     console.log('receiver : ' + friends[1].receiver?.username);
+    //     console.log('sender   : ' + friends[1].sender?.username);
+    //   }
+    // } else {
+    //   console.log('User not found');
+    // }
     return allUsers;
-    // add friend status to all the results
   }
-
-  // async getUserWithFriends(userId: string): Promise<User> {
-  //   return this.createQueryBuilder('user')
-  //     .leftJoinAndSelect('user.senders', 'friendSenders')
-  //     .leftJoinAndSelect('user.receivers', 'friendReceivers')
-  //     .where('user.id = :id', { id: userId })
-  //     .getOne();
-  // }
 
   async getNamedFriends(userID: string, userName: string) {
     const result = (await this.getFriends(userID)).filter((user) =>

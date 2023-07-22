@@ -107,7 +107,7 @@ export class UsersController {
     @Param('friendId') friendId: string,
   ) {
     console.log('addFriend');
-    return this.usersService.addFriend(userId, friendId);
+    return this.usersService.sendFriendRequest(userId, friendId);
   }
 
   @Post('checkFriend/:userId/:friendId')
@@ -125,7 +125,10 @@ export class UsersController {
   }
 
   @Get('friends/name/:user/:input')
-  async getNamedFriends(@Param('user') user: string, @Param('input') input: string) {
+  async getNamedFriends(
+    @Param('user') user: string,
+    @Param('input') input: string,
+  ) {
     return this.usersService.getNamedFriends(user, input);
   }
 }

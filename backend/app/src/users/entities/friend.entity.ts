@@ -9,9 +9,13 @@ export class Friend {
   @Column({ type: 'boolean', default: false })
   isFriend: boolean;
 
-  @ManyToOne(() => User, (user) => user.senders, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.sentFriendRequests, {
+    onDelete: 'CASCADE',
+  })
   sender: User;
 
-  @ManyToOne(() => User, (user) => user.receivers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.receivedFriendRequests, {
+    onDelete: 'CASCADE',
+  })
   receiver: User;
 }
