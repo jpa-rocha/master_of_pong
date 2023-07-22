@@ -1,6 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Friend } from './friend.entity';
 import { GameData } from 'src/game-data/entities/game-data.entity';
+import { use } from 'passport';
 
 @Entity()
 export class User {
@@ -32,11 +40,15 @@ export class User {
   twofa_secret: string;
 
   /* Friends Relations */
-  @OneToMany(() => Friend, (friend) => friend.receiver, { onDelete: 'CASCADE' })
-  senders: Friend[];
-
   @OneToMany(() => Friend, (friend) => friend.sender, { onDelete: 'CASCADE' })
-  receivers: Friend[];
+  sentFriendRequests: Friend[];
+
+  @OneToMany(() => Friend, (friend) => friend.receiver, { onDelete: 'CASCADE' })
+  receivedFriendRequests: Friend[];
+
+  @ManyToMany(() => User, (user) => user.friends)
+  @JoinTable()
+  friends: User[];
 
   /* Games Relations */
   @OneToMany(() => GameData, (game) => game.userOne, { onDelete: 'CASCADE' })
