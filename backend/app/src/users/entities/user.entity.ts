@@ -9,6 +9,8 @@ import {
 import { Friend } from './friend.entity';
 import { GameData } from 'src/game-data/entities/game-data.entity';
 import { use } from 'passport';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { Channel } from 'src/chat/entities/channel.entity';
 
 @Entity()
 export class User {
@@ -59,4 +61,13 @@ export class User {
 
   @OneToMany(() => GameData, (game) => game.winner, { onDelete: 'CASCADE' })
   gamesAsWinner: GameData[];
+
+  /* Chat Relations */
+  @OneToMany(() => Chat, (chat) => chat)
+  chats: Chat[];
+
+  /* Channel Relations */
+  @OneToMany(() => Channel, (channel) => channel.owner)
+  channels: Channel[];
+
 }
