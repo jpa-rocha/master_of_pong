@@ -15,7 +15,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    socket.on("newUserResponse", (data: User[]) => {
+    socket.on("newUserResponse", (data: {username: string, socketID: string}[]) => {
       setUsers(data);
 	  console.log("Data");
 	  console.log(data);
@@ -23,6 +23,10 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 	  console.log(users);
     });
   }, [socket]);
+
+  useEffect(() => {
+    console.log("Users changed");
+  }, [users]);
 
   return (
     <>
@@ -33,7 +37,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
           <div className="onlineUsers">
             <ul>
               {users.map((user) => (
-                <li key={user.socketID}>{user.socketID}</li>
+                <li key={user.socketID}>{user.username}</li>
               ))}
             </ul>
             {/* {users.map((user) => (

@@ -10,8 +10,15 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
+import { use } from 'passport';
+import { get } from 'http';
 
 let users = [];
+
+interface UsersProps {
+  username: string;
+  socketId: string;
+}
 
 @WebSocketGateway(5050, { cors: '*' })
 export class ChatGateway {
@@ -57,24 +64,37 @@ export class ChatGateway {
 
   handleConnection(client: Socket) {
     console.log('user connected');
+    console.log("jwtToken: ", )
+    //user is online
+    //Update database
     this.server.emit('user connected');
   }
 
   handleDisconnect(client: Socket) {
     console.log('user disconnected');
+    //user is offline
     this.server.emit('user disconnected');
   }
 
   @SubscribeMessage('newUser')
-  async handleNewUser(client: Socket, username: string) {
-    const allusers = await this.userService.findAll();
-    // get all the usernames from all the users in the json file and create an array of usernames
-    const usernames = allusers.map((user) => user.username);
-
-    console.log("username: ", username);
-    users.push(username);
-    // console.log('allUsers: ', usernames);
-    // console.log('users: ', users);
+  async handleNewUser(
+    client: Socket,
+    data: { username: string; socketID: string },
+  ) {
+    console.log('Socket : ', data.socketID);
+    console.log('Users  : ', data.username);
+    if (users.some((user) => user.socketId === data.socketID)) {
+      users.push(data);
+      console.log('users (if): ', users);
+    } else {
+      // if that user has another socket assigned to him, remove it from users[]
+      users = users.map((user) =>
+        user.username === data.username
+          ? { ...user, socketID: data.socketID }
+          : user,
+      );
+      console.log('users (else): ', users);
+    }
     this.server.emit('newUserResponse', users);
   }
 }
