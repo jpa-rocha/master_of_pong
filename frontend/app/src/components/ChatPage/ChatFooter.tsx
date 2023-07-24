@@ -33,22 +33,21 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
       .post("api/auth/getUserID", { token })
       .then((res) => res.data);
     const user = await axios.get(`api/users/${id}`);
-
     return user.data;
   };
   useEffect(() => {
     const getUserEffect = async () => {
       setUser(await getUser());
-      console.log("User = " + user?.username);
-      socket.emit("newUser", { username: user?.username, socketID: socket.id });
+      socket.emit("newUser", { username: user?.username });
+      // console.log("User = " + user?.username);
     };
     getUserEffect();
   }, []);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("handleSendMessage = " + user?.username);
-    console.log(socket.id);
+    // console.log("handleSendMessage = " + user?.username);
+    // console.log(socket.id);
     if (message.trim() && user?.username) {
       socket.emit("message", {
         text: message,

@@ -50,8 +50,8 @@ export class ChatGateway {
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: any): void {
-    console.log('message received');
-    console.log(message);
+    // console.log('message received');
+    // console.log(message);
     this.server.emit('message', message);
   }
 
@@ -67,14 +67,14 @@ export class ChatGateway {
 
   @SubscribeMessage('newUser')
   async handleNewUser(client: Socket, username: string) {
-    console.log('new user');
     const allusers = await this.userService.findAll();
     // get all the usernames from all the users in the json file and create an array of usernames
     const usernames = allusers.map((user) => user.username);
 
+    console.log("username: ", username);
     users.push(username);
-    console.log('allUsers: ', usernames);
-    console.log('users: ', users);
-    this.server.emit('newUserResponse', usernames);
+    // console.log('allUsers: ', usernames);
+    // console.log('users: ', users);
+    this.server.emit('newUserResponse', users);
   }
 }
