@@ -7,6 +7,7 @@ import "./chatPageStyle/chat.css";
 import { Grid, Box } from "@mui/material";
 import NavBarMainPage from "../NavBarMainPage";
 import Footer from "../Footer";
+import { getUserID, getToken } from "../../utils/Utils";
 // import calm from "../../images/CalmScorpion.gif";
 
 interface ChatPageProps {
@@ -15,11 +16,16 @@ interface ChatPageProps {
 
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   const [messages, setMessages] = useState<any[]>([]);
+  let userID: string = "";
+
+  (async () => {
+    userID = await getUserID(getToken("jwtToken"));
+    console.log("UserID: " + userID);
+    socket.emit("activityStatus", { userID: userID, status: "online" });
+  })();
 
   useEffect(() => {
-    socket.on("message", (data: any) =>
-      setMessages([...messages, data])
-    );
+    socket.on("message", (data: any) => setMessages([...messages, data]));
   }, [socket, messages]);
 
   return (

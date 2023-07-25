@@ -64,16 +64,35 @@ export class ChatGateway {
 
   handleConnection(client: Socket) {
     console.log('user connected');
-    console.log("jwtToken: ", )
     //user is online
     //Update database
     this.server.emit('user connected');
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('user disconnected');
-    //user is offline
+    // user is offline
+    // Find whitch user is using this socket and update their status to offline
+    try {
+      await this.userService.updateSocket(client.id, {
+        status: 'offline',
+        socketID: null,
+      });
+    } catch (e) {
+      console.log(e);
+    }
     this.server.emit('user disconnected');
+  }
+
+  @SubscribeMessage('activityStatus')
+  async handleActivityStatus(
+    client: Socket,
+    data: { userID: string; status: string },
+  ) {
+    this.userService.update(data.userID, {
+      socketID: client.id,
+      status: data.status,
+    });
   }
 
   @SubscribeMessage('newUser')

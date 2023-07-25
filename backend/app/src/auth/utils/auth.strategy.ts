@@ -49,6 +49,8 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         refresh_token: accessToken,
         avatar: 'default-avatar.jpg',
         xp: 0,
+        status: 'offline',
+        socketID: null,
       };
 
       let user: User = await this.usersService.findFortyTwo(

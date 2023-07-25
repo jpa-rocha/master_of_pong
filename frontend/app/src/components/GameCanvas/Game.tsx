@@ -6,15 +6,23 @@ import NavBarLandingPage from "../NavBarLandingPage";
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../NavBarMainPage";
+import { Socket } from "socket.io-client";
+import { getUserID, getToken } from "../../utils/Utils";
+import { useState } from "react";
 
-/* import * as socketIO  from "socket.io-client"; 
-import { Socket } from 'socket.io-client';
+/* import * as socketIO  from "socket.io-client"; */
 
-const URI = 'http://localhost:4000';
+interface GamePageProps {
+  socket: Socket;
+}
 
-const socket: Socket = socketIO.connect(URI); */
+const Game: React.FunctionComponent<GamePageProps> = ({ socket }) => {
+  const [userID, setUserID] = useState<string>("");
+  (async () => {
+    setUserID(await getUserID(getToken("jwtToken")));
+    socket.emit("activityStatus", { userID: userID, status: "online" });
+  })();
 
-const Game = () => {
   return (
     <>
       <Grid container>

@@ -41,16 +41,18 @@ export class User {
   @Column({ type: 'varchar', length: 250, nullable: true })
   twofa_secret: string;
 
+  @Column({ type: 'varchar', default: 'offline' })
+  status: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  socketID: string;
+
   /* Friends Relations */
   @OneToMany(() => Friend, (friend) => friend.sender, { onDelete: 'CASCADE' })
   sentFriendRequests: Friend[];
 
   @OneToMany(() => Friend, (friend) => friend.receiver, { onDelete: 'CASCADE' })
   receivedFriendRequests: Friend[];
-
-  // @ManyToMany(() => User, (user) => user.friends)
-  // @JoinTable()
-  // friends: User[];
 
   /* Games Relations */
   @OneToMany(() => GameData, (game) => game.userOne, { onDelete: 'CASCADE' })
@@ -69,5 +71,4 @@ export class User {
   /* Channel Relations */
   @OneToMany(() => Channel, (channel) => channel.owner)
   channels: Channel[];
-
 }

@@ -8,18 +8,20 @@ const PrivateRoutes = () => {
 
   (async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/verifyToken", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
+      const response = await fetch(
+        "http://localhost:5000/api/auth/verifyToken",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
+        }
+      );
       const data = await response.json();
       setTokenValid(data);
     } catch (error) {
-      console.error('Error verifying token:', error);
+      console.error("Error verifying token:", error);
       setTokenValid(false);
     }
   })();
@@ -34,4 +36,3 @@ const PrivateRoutes = () => {
 };
 
 export default PrivateRoutes;
-

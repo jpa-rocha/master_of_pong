@@ -18,11 +18,6 @@ import FriendsPage from "./components/Friends/Friends";
 const URI = "http://localhost:5050";
 
 const socket: Socket = socketIO.connect(URI);
-// @ts-ignore
-// const [auth, setAuth] = React.useState({ token: false });
-
-
-
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -32,13 +27,13 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes />}>
-          <Route path="/game" element={<Game />} />
-          <Route path="/main" element={<MainPage />} />
+          <Route path="/game" element={<Game socket={socket} />} />
+          <Route path="/main" element={<MainPage socket={socket} />} />
           {/* <Route path="/profile" element={<UserProfile userName={'Bob'} image={'./src/images/Profile/default_profile_image.jpg'} friends={[]}/>} /> */}
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<ProfilePage socket={socket} />} />
           {/* <Route path="/chat" element={<GetUserName socket={socket} />} /> */}
           <Route path="/chat" element={<ChatPage socket={socket} />} />
-          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/friends" element={<FriendsPage socket={socket} />} />
         </Route>
         <Route path="/" element={<App />} />
       </Routes>

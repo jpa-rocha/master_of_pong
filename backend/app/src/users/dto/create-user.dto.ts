@@ -7,4 +7,6 @@ export class CreateUserDto {
   is_2fa_enabled: boolean;
   twofa_secret: string;
   xp: number;
+  status: string;
+  socketID: string;
 }

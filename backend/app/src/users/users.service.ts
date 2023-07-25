@@ -42,6 +42,16 @@ export class UsersService {
     return user;
   }
 
+  async updateSocket(socketID: string, updateUserDto: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({ where: { socketID } });
+
+    if (!user) {
+      throw new Error("Couldn't find user");
+    }
+    Object.assign(user, updateUserDto);
+    return this.usersRepository.save(user);
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
     return this.usersRepository.save({ ...user, ...updateUserDto });

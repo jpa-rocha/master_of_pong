@@ -7,7 +7,7 @@ import "./profileStyle/profile.css";
 import io, { Socket } from "socket.io-client";
 import axios from "axios";
 import { get } from "http";
-import { getToken } from "../../utils/Utils";
+import { getToken, getUserID } from "../../utils/Utils";
 
 // interface ProfileProps {}
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -23,8 +23,11 @@ interface UserProps {
   id: string;
 }
 
-const ProfilePage: React.FC = () => {
-  const socket = useRef<Socket | null>(null);
+interface ProfilePageProps {
+  socket: Socket;
+}
+
+const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(1);
   const [wins, setWins] = useState(0);
@@ -36,10 +39,10 @@ const ProfilePage: React.FC = () => {
   const [userID, setUserID] = useState("");
   (async () => {
     try {
-      setUserID(await axios.post("api/auth/getUserID", { token }).then((res) => res.data));
-      console.log("USER ID data   : " + userID);
+      setUserID(await getUserID(getToken("jwtToken")));
+      socket.emit("activityStatus", { userID: userID, status: "online" });
     } catch (error) {
-      console.error('Error getting user ID:', error);
+      console.error("Error getting user ID:", error);
     }
   })();
   console.log(`api/users/${userID}`);
@@ -47,7 +50,7 @@ const ProfilePage: React.FC = () => {
   const getUser = async () => {
     if (userID === undefined) {
       console.log("Couldn't get the user");
-      return(<div>Loading...</div>)
+      return <div>Loading...</div>;
     }
     console.log("Got the user");
     const user = await axios.get(`api/users/${userID}`);
@@ -66,7 +69,9 @@ const ProfilePage: React.FC = () => {
     };
     if (userID !== undefined) {
       console.log("data: ", data);
-      await axios.patch(`api/users/${userID}`, data, config).then((res) => res.data);
+      await axios
+        .patch(`api/users/${userID}`, data, config)
+        .then((res) => res.data);
       setUserName(newName);
     }
   };
@@ -132,7 +137,7 @@ const ProfilePage: React.FC = () => {
       if (newUserName) {
         // update database
         setUser(newUserName);
-		document.body.removeChild(dialog);
+        document.body.removeChild(dialog);
       }
     });
     const cancelButton = document.createElement("button");
@@ -161,54 +166,51 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <Grid container >
+      <Grid container>
         <Grid item xs={12}>
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
         <Grid item xs={12}>
-			<div className="all">
+          <div className="all">
+            <div className="userInfo">
+              <div className="img-div">
+                <img src={profileImg} alt="profile_picture"></img>
+                <h2>{userName}</h2>
+              </div>
 
-			
-          <div className="userInfo">
-            <div className="img-div">
-              <img src={profileImg} alt="profile_picture"></img>
-			  <h2>{userName}</h2>
+              <div className="ranks">
+                <h2>Rank: {rank} </h2>
+                <h2>Wins: {wins} </h2>
+                <h2>Losses: {losses}</h2>
+              </div>
+              <div className="btns">
+                <button type="submit" onClick={handleProfileImgChange}>
+                  Change Profile Picture
+                </button>
+                <button type="submit" onClick={handleUserNameChange}>
+                  Change Username
+                </button>
+              </div>
+              <div className="matchHistory">
+                <h2> Match History</h2>
+                <table>
+                  <tr>
+                    <th>Opponent</th>
+                    <th>Result</th>
+                  </tr>
+                  {matches.map((match) => (
+                    <tr>
+                      <td>{match.opponent}</td>
+                      <td>{match.result}</td>
+                    </tr>
+                  ))}
+                </table>
+              </div>
             </div>
-
-            <div className="ranks">
-              <h2>Rank: {rank} </h2>
-              <h2>Wins: {wins} </h2>
-              <h2>Losses: {losses}</h2>
-            </div>
-			<div className="btns">
-			<button type="submit" onClick={handleProfileImgChange}>
-                Change Profile Picture
-              </button>
-              <button type="submit" onClick={handleUserNameChange}>
-                Change Username
-              </button>
-            </div>
-			<div className="matchHistory">
-            <h2> Match History</h2>
-            <table>
-              <tr>
-                <th>Opponent</th>
-                <th>Result</th>
-              </tr>
-              {matches.map((match) => (
-                <tr>
-                  <td>{match.opponent}</td>
-                  <td>{match.result}</td>
-                </tr>
-              ))}
-            </table>
           </div>
-          </div>
-		  </div>
-
-   </Grid>
-     {/*    <Grid item xs={12}>
+        </Grid>
+        {/*    <Grid item xs={12}>
 		
         </Grid> */}
         {/* This is footer */}
