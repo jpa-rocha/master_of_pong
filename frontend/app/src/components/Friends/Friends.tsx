@@ -19,6 +19,7 @@ interface UserProps {
   username: string;
   id: string;
   isFriend: boolean;
+  status: string;
 }
 
 interface FriendsPageProps {
@@ -100,6 +101,8 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 >
                   <li>{item.username}</li>
                   <Box flex="1" />
+                  <li>{item.status}</li>
+                  <Box flex="2" />
                   {!item.isFriend ? (
                     <button onClick={() => handleSendFriendRequest(item.id)}>
                       Add Friend
