@@ -39,10 +39,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
     const getUserEffect = async () => {
       const user = await getUser();
       setUser(user);
-      // console.log("HERE");
-      // console.log("Username that's being sent : ", user?.username);
-      // console.log("SocketID that is being sent : ", socket.id);
-      socket.emit("newUser", { username: user?.username, socketID: socket.id });
+      socket.emit("newUser");
     };
 
     getUserEffect();

@@ -5,6 +5,8 @@ import "./chatPageStyle/chat.css";
 interface User {
   socketID: string;
   username: string;
+  isFriend: boolean;
+  status: string;
 }
 
 interface ChatBarProps {
@@ -13,16 +15,30 @@ interface ChatBarProps {
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const [render, setRender] = useState<boolean>(false);
+
+  socket.on("user disconnected", () => {
+    console.log("INSIDE user disconnect");
+    if (render !== true) setRender(true);
+    else setRender(false);
+  });
+
+  socket.on("NewConnection", () => {
+    console.log("INSIDE user connected");
+    if (render !== true) setRender(true);
+    else setRender(false);
+  });
 
   useEffect(() => {
-    socket.on("newUserResponse", (data: {username: string, socketID: string}[]) => {
+    socket.on("newUserResponse", (data) => {
       setUsers(data);
-	  console.log("Data");
-	  console.log(data);
+      console.log("Data");
+      console.log(data);
       console.log("User BAR users: ");
-	  console.log(users);
+      console.log(users);
     });
-  }, [socket]);
+    socket.emit("newUser");
+  }, [render]);
 
   useEffect(() => {
     console.log("Users changed");
@@ -37,23 +53,28 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
           <div className="onlineUsers">
             <ul>
               {users.map((user) => (
-                <li key={user.socketID}>{user.username}</li>
+                <div key={user.username}>
+                  {user.isFriend && user.status === "online"
+                    ? `${user.username}`
+                    : null}
+                </div>
               ))}
             </ul>
-            {/* {users.map((user) => (
-            <p key={user.socketID}>{user.username}</p>
-          ))} */}
           </div>
         </div>
-        {/* <div className="allUsers">
-        <h4 className="chatHeader">Friends</h4>
-        <div className="chatUsers">
-          instead of socketID, need friendsID
-          {users.map((user) => (
-            <p key={user.socketID}>{user.username}</p>
-          ))}
+
+        <div className="allUsers">
+          <h4 className="chatHeader">Friends</h4>
+          <div className="chatUsers">
+            {users.map((user) => (
+              <div key={user.username}>
+                {user.isFriend && user.status === "offline"
+                  ? `${user.username}`
+                  : null}
+              </div>
+            ))}
+          </div>
         </div>
-      </div> */}
       </div>
     </>
   );

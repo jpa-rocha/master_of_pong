@@ -37,6 +37,11 @@ export class UsersService {
     return user;
   }
 
+  async findIDbySocketID(socketID: string) {
+    const user = await this.usersRepository.findOne({ where: { socketID } });
+    return user.id;
+  }
+
   findFortyTwo(forty_two_id: number) {
     const user = this.usersRepository.findOneBy({ forty_two_id });
     return user;

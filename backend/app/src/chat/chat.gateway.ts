@@ -5,15 +5,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
-import { use } from 'passport';
-import { get } from 'http';
-
-let users = [];
 
 interface UsersProps {
   username: string;
@@ -93,27 +87,14 @@ export class ChatGateway {
       socketID: client.id,
       status: data.status,
     });
+    this.server.emit('NewConnection');
   }
 
   @SubscribeMessage('newUser')
-  async handleNewUser(
-    client: Socket,
-    data: { username: string; socketID: string },
-  ) {
-    console.log('Socket : ', data.socketID);
-    console.log('Users  : ', data.username);
-    if (users.some((user) => user.socketId === data.socketID)) {
-      users.push(data);
-      console.log('users (if): ', users);
-    } else {
-      // if that user has another socket assigned to him, remove it from users[]
-      users = users.map((user) =>
-        user.username === data.username
-          ? { ...user, socketID: data.socketID }
-          : user,
-      );
-      console.log('users (else): ', users);
-    }
-    this.server.emit('newUserResponse', users);
+  async handleNewUser(client: Socket) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    this.server
+      .to(client.id)
+      .emit('newUserResponse', await this.userService.getFriends(userID));
   }
 }
