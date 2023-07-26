@@ -11,7 +11,7 @@ export class ChatService {
     @InjectRepository(Chat) private chatRepository: Repository<Chat>,
   ) {}
 
-  createChat(chatData: Partial<Chat>) {
+  createChat(chatData: CreateChatDto) {
     const newChat = this.chatRepository.create(chatData);
     return this.chatRepository.save(newChat);
   }
@@ -20,9 +20,36 @@ export class ChatService {
     return this.chatRepository.find();
   }
 
-  findDirectChat(user1: string, user2: string) {
+  async findDirectChat(user1: string, user2: string) {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
+    const chat = await this.chatRepository
+      .createQueryBuilder('chat')
+      .innerJoin('chat.users', 'users')
+      .where('users.id IN (:...usersIds)', { usersIds: [user1, user2] })
+      .groupBy('chat.id')
+      .having('COUNT(users.id) = 2')
+      .getOne();
+
+    return chat;
+  }
+
+  getChatMessages(chatID: number) {
+    /* 
+        Think about a user that is blocked by another user.  
+      */
+  }
+
+  sendMessage(clientID: number, message: string) {
+    /* 
+      User sends a message to a chat and the message is saved in the database.
+    */
+  }
+
+  updateChat(id: number, message: string, updateData: Partial<Chat>) {
+    /* 
+      Update the general information about a chat. eg. banned users, muted users, etc.
+    */
   }
 }
