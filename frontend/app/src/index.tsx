@@ -27,7 +27,7 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route element={<PrivateRoutes />}>
-          <Route path="/game" element={<Game socket={socket} />} />
+          <Route path="/game" element={<Game/>} />
           <Route path="/main" element={<MainPage socket={socket} />} />
           {/* <Route path="/profile" element={<UserProfile userName={'Bob'} image={'./src/images/Profile/default_profile_image.jpg'} friends={[]}/>} /> */}
           <Route path="/profile" element={<ProfilePage socket={socket} />} />

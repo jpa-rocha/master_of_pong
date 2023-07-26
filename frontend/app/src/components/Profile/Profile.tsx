@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Grid, Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Grid } from "@mui/material";
 import NavBarMainPage from "../NavBarMainPage";
 import Footer from "../Footer";
 import "./profileStyle/profile.css";
-// import profileImg from "../../images/Profile/default_profile_image.jpg";
-import io, { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import axios from "axios";
-import { get } from "http";
-import { getToken, getUserID } from "../../utils/Utils";
+import { getToken } from "../../utils/Utils";
 
-// interface ProfileProps {}
 axios.defaults.baseURL = "http://localhost:5000/";
 
 interface UserProps {
@@ -20,7 +17,6 @@ interface UserProps {
   avatar: string;
   is_2fa_enabled: boolean;
   xp: number;
-  id: string;
 }
 
 interface ProfilePageProps {
@@ -34,31 +30,35 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [losses, setLosses] = useState(0);
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [profileImg, setProfileImg] = useState("");
-
   const token: string = getToken("jwtToken");
-  const [userID, setUserID] = useState("");
-  (async () => {
-    try {
-      setUserID(await getUserID(getToken("jwtToken")));
-      socket.emit("activityStatus", { userID: userID, status: "online" });
-    } catch (error) {
-      console.error("Error getting user ID:", error);
-    }
-  })();
-  console.log(`api/users/${userID}`);
+  const [userID, setUserID] = useState<string | undefined>(undefined);
 
-  const getUser = async () => {
-    if (userID === undefined) {
-      console.log("Couldn't get the user");
-      return <div>Loading...</div>;
+    useEffect(() => {
+    async function getUsersID() {
+      const id = await axios.post("api/auth/getUserID", { token });
+      console.log("received id = ", id);
+      setUserID(id.data);
+    }    
+    console.log("getting user ID and updating...");
+    getUsersID();
+  }, [socket, token]);
+  
+  useEffect(() => {
+    async function getUserName() {
+      console.log("userID (getUserName()) = ", userID);
+      if (userID) {
+        const user = await axios.get(`api/users/${userID}`);
+        const userData : UserProps = user.data;
+        setUserName(userData.username);
+      }
     }
-    console.log("Got the user");
-    const user = await axios.get(`api/users/${userID}`);
-    return user.data;
-  };
+    console.log("userID = ", userID);
+    getUserName();
+    socket.emit("activityStatus", { userID: userID, status: "online" });
+  }, [userID, socket]);
 
   const setUser = async (newName: string) => {
-    console.log("newName: ", newName);
+    console.log("SetUser function called");
     const data = { username: newName };
     const config = {
       headers: {
@@ -68,22 +68,12 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
       },
     };
     if (userID !== undefined) {
-      console.log("data: ", data);
-      await axios
-        .patch(`api/users/${userID}`, data, config)
-        .then((res) => res.data);
+      console.log("userID (setUser()) = ", userID);
+      const response = await axios.patch(`api/users/${userID}`, data, config);
+      console.log("response data: ", response.data);
       setUserName(newName);
     }
   };
-
-  useEffect(() => {
-    const getProfile = async () => {
-      const user: UserProps = await getUser();
-      setUserName(user.username);
-    };
-    console.log("Main use Effect");
-    getProfile();
-  }, [userID]);
 
   const handleProfileImgChange = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -103,18 +93,14 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           },
         };
         try {
-          console.log(formData);
-          // const data = { file: formData };
           const response = await axios
             .post(`api/users/upload/${userID}`, formData, config)
             .then((res) => {
               console.log(res);
             });
-          console.log(response);
           window.location.reload();
         } catch (error: any) {
           console.error((error as Error).message);
-          // console.error((error as any).response.data);
         }
       }
     };
@@ -158,7 +144,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
 
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
-  }, [handleProfileImgChange]);
+  }, [userID]);
 
   if (!userName) {
     return <div>Loading...</div>;
@@ -195,16 +181,18 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
               <div className="matchHistory">
                 <h2> Match History</h2>
                 <table>
+                  <tbody>
                   <tr>
                     <th>Opponent</th>
                     <th>Result</th>
                   </tr>
-                  {matches.map((match) => (
-                    <tr>
+                  {matches.map((match, index) => (
+                    <tr key={index}>
                       <td>{match.opponent}</td>
                       <td>{match.result}</td>
                     </tr>
                   ))}
+                  </tbody>
                 </table>
               </div>
             </div>

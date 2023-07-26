@@ -16,16 +16,16 @@ interface MainPageProps {
 
 const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   //socket.emit("activityStatus", {userID: userID, status: activityStatus});
-  const [data, setData] = React.useState("");
+  // const [data, setData] = React.useState("");
   // const [userID, setUserID] = React.useState<string>("");
   let userID: string = "";
 
-  React.useEffect(() => {
-    fetch("https://api.intra.42.fr/v2/accreditations")
-      .then((response) => response.json())
-      .then((json) => setData(json))
-      .catch((error) => console.error(error));
-  }, []);
+  // React.useEffect(() => {
+  //   fetch("https://api.intra.42.fr/v2/accreditations")
+  //     .then((response) => response.json())
+  //     .then((json) => setData(json))
+  //     .catch((error) => console.error(error));
+  // }, []);
 
   (async () => {
     userID = await getUserID(getToken("jwtToken"));

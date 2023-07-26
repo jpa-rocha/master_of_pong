@@ -42,6 +42,9 @@ export class AuthController {
 
   @Post('verifyToken')
   async verifyToken(@Body() body) {
+    console.log(
+      'HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE',
+    );
     const token = body.token;
     const secret = 'alsosecret';
 
@@ -50,6 +53,7 @@ export class AuthController {
 
   @Post('getUserID')
   async getUserID(@Body() body) {
+    console.log('GETUSERID backend');
     const token = body.token;
 
     return this.jwtService.getTokenInformation(token);

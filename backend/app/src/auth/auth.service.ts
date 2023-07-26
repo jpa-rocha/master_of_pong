@@ -6,9 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { authenticator } from 'otplib';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
-import { toDataURL } from 'qrcode'
+import { toDataURL } from 'qrcode';
 import { JwtService } from '@nestjs/jwt';
-
 
 @Injectable()
 export class AuthService {
@@ -16,7 +15,7 @@ export class AuthService {
     private usersService: UsersService,
     private configService: ConfigService,
     private jwtAuthService: JwtAuthService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async signin(user: AuthDto): Promise<string> {
@@ -31,10 +30,13 @@ export class AuthService {
     return accessToken;
   }
 
-
   async generateTwoFactorAuthenticationSecret(user: User) {
-    const secret = authenticator.generateSecret()
-    const otpauthUrl = authenticator.keyuri(user.email, "master_of_pong", secret)
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(
+      user.email,
+      'master_of_pong',
+      secret,
+    );
     const updated_user: UpdateUserDto = {
       forty_two_id: user.forty_two_id,
       username: user.username,
@@ -43,24 +45,27 @@ export class AuthService {
       avatar: user.avatar,
       is_2fa_enabled: user.is_2fa_enabled,
       twofa_secret: secret,
-      xp: user.xp
-    }
+      xp: user.xp,
+    };
     await this.usersService.update(user.id, updated_user);
 
     return {
       secret,
-      otpauthUrl
+      otpauthUrl,
     };
   }
 
   async generateQrCodeDataURL(optAuthUrl: string) {
-    return toDataURL(optAuthUrl)
+    return toDataURL(optAuthUrl);
   }
 
-  isTwoFactorAuthenticationValid(twoFactorAuthenticationCode: string, user: User) {
+  isTwoFactorAuthenticationValid(
+    twoFactorAuthenticationCode: string,
+    user: User,
+  ) {
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
-      secret: user.twofa_secret
+      secret: user.twofa_secret,
     });
   }
 
@@ -74,7 +79,7 @@ export class AuthService {
 
     return {
       email: payload.email,
-      access_token: this.jwtService.sign(payload)
-    }
-  };
+      access_token: this.jwtService.sign(payload),
+    };
+  }
 }

@@ -43,6 +43,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     socket.emit("activityStatus", { userID: userID, status: "online" });
   }
   useEffect(() => {
+    console.log("USERID = ", userID);
     async function getUsers(input: string) {
       const id = await axios
         .post("api/auth/getUserID", { token })

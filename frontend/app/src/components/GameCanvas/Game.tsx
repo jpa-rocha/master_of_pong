@@ -12,15 +12,15 @@ import { useState } from "react";
 
 /* import * as socketIO  from "socket.io-client"; */
 
-interface GamePageProps {
-  socket: Socket;
-}
+// interface GamePageProps {
+//   socket: Socket;
+// }
 
-const Game: React.FunctionComponent<GamePageProps> = ({ socket }) => {
+const Game = () => {
   const [userID, setUserID] = useState<string>("");
   (async () => {
     setUserID(await getUserID(getToken("jwtToken")));
-    socket.emit("activityStatus", { userID: userID, status: "online" });
+    // socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
 
   return (
