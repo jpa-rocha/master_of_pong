@@ -86,7 +86,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
         <Toolbar>
           <Grid container justifyContent="center" alignItems="center">
             <Grid item xs={3} textAlign="left">
-              <Button
+              {/* <Button
                 variant="contained"
                 onClick={handleReturnHome}
                 sx={{
@@ -97,7 +97,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
                 }}
               >
                 Main
-              </Button>
+              </Button> */}
             </Grid>
             <Grid item xs={6} textAlign="center">
               <Box
@@ -123,7 +123,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
                 Login
               </Button>
               </a>
-              <Button
+              {/* <Button
                 variant="contained"
                 onClick={handleGame}
                 sx={{
@@ -134,8 +134,8 @@ const NavBarLandingPage: React.FunctionComponent = () => {
                 }}
               >
                 Game
-              </Button>
-              <Button
+              </Button> */}
+              {/* <Button
                 variant="contained"
                 onClick={handleChat}
                 sx={{
@@ -146,7 +146,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
                 }}
               >
                 Chat
-              </Button>
+              </Button> */}
               {/*  </Link>  */}
             </Grid>
           </Grid>
