@@ -44,7 +44,26 @@ export class GameGateway
 
   async handleDisconnect(client: AuthenticatedSocket): Promise<void> {
     // Handle termination of socket
+    try {
+      await this.usersService.updateSocket(client.id, {
+        status: 'offline',
+        socketID: null,
+      });
+    } catch (e) {
+      console.log(e);
+    }
     this.gameCollection.terminateSocket(client);
+  }
+
+  @SubscribeMessage('activityStatus')
+  async handleActivityStatus(
+    client: Socket,
+    data: { userID: string; status: string },
+  ) {
+    this.usersService.update(data.userID, {
+      socketID: client.id,
+      status: data.status,
+    });
   }
 
   @WebSocketServer()
@@ -108,13 +127,20 @@ export class GameGateway
   }
 
   @SubscribeMessage('readyToPlay')
-  readyToPlay(client: AuthenticatedSocket): void {
+  async readyToPlay(client: AuthenticatedSocket) {
     this.gameCollection.playerReady(client);
+    try {
+      await this.usersService.updateSocket(client.id, {
+        status: 'in game',
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   @SubscribeMessage('loadWindow')
   loadWindow(client: AuthenticatedSocket): void {
-    console.log("Load window in the backend");
+    console.log('Load window in the backend');
     this.server.to(client.id).emit('loadWindow', true);
   }
 

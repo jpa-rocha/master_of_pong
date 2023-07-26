@@ -10,12 +10,15 @@ import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
 import { EndScreen } from './Canvas';
+import { getUserID, getToken } from '../../utils/Utils';
 
 axios.defaults.baseURL = 'http://localhost:5000';
 
 type GameComponentProps = {};
 
 const GameComponent: React.FC<GameComponentProps> = () => {
+	const [userID, setUserID] = useState<string>("");
+
 	const VenomtailSpecialSound 	= useMemo(() => new Audio(GetOverHere), []);
 	const BelowZeroSpecialSound 	= useMemo(() => new Audio(IceSound), []);
 	const raivenSpecialSound 	= useMemo(() => new Audio(LightningSound), []);
@@ -605,6 +608,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		socket.current = io('http://localhost:8002');
 		console.log("Trying to load the window");
 		socket.current?.emit('loadWindow');
+		// emitActivityStatus();
 		return () => {
 			if (socket.current) {
 				socket.current.disconnect();
@@ -933,9 +937,19 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, VenomtailSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, BelowZeroSpecialSound, raivenSpecialSound, maxTimerAnim, score.p1, Images.DeflectAbility]);
 
 	useEffect(() => {
+		async function emitActivityStatus() {
+			const token = getToken("jwtToken");
+			if (token) {
+				const userID = await getUserID(token);
+				setUserID(userID);
+				socket.current?.emit("activityStatus", { userID: userID, status: "online" });
+			}
+		}
+
 		document.addEventListener('keydown', handleKeyDown);
 		document.addEventListener('keyup', handleKeyUp);
 		if (isGameSelection) {
+			emitActivityStatus();
 			canvas?.addEventListener("click", handleMouseClick);
 			canvas?.addEventListener("mousemove", handleMouseMove);
 		}

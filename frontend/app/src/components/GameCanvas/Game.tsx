@@ -17,11 +17,11 @@ import { useState } from "react";
 // }
 
 const Game = () => {
-  const [userID, setUserID] = useState<string>("");
-  (async () => {
-    setUserID(await getUserID(getToken("jwtToken")));
-    // socket.emit("activityStatus", { userID: userID, status: "online" });
-  })();
+  // const [userID, setUserID] = useState<string>("");
+  // (async () => {
+  //   setUserID(await getUserID(getToken("jwtToken")));
+  //   socket.emit("activityStatus", { userID: userID, status: "online" });
+  // })();
 
   return (
     <>
