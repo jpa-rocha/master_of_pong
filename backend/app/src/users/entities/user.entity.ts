@@ -11,6 +11,7 @@ import { GameData } from 'src/game-data/entities/game-data.entity';
 import { use } from 'passport';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { Channel } from 'src/chat/entities/channel.entity';
+import { Message } from 'src/chat/entities/message.entity';
 
 @Entity()
 export class User {
@@ -67,6 +68,10 @@ export class User {
   /* Chat Relations */
   @OneToMany(() => Chat, (chat) => chat)
   chats: Chat[];
+
+  /* Message Relations */
+  @OneToMany(() => Message, (message) => message.sender)
+  messages: Message[];
 
   /* Channel Relations */
   @OneToMany(() => Channel, (channel) => channel.owner)

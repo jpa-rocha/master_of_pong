@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Chat } from './entities/chat.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ChatService {
-  create(createChatDto: CreateChatDto) {
-    return 'This action adds a new chat';
+  constructor(
+    @InjectRepository(Chat) private chatRepository: Repository<Chat>,
+  ) {}
+
+  createChat(chatData: Partial<Chat>) {
+    const newChat = this.chatRepository.create(chatData);
+    return this.chatRepository.save(newChat);
   }
 
-  findAll() {
-    return `This action returns all chat`;
+  findAllChat() {
+    return this.chatRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chat`;
-  }
-
-  update(id: number, updateChatDto: UpdateChatDto) {
-    return `This action updates a #${id} chat`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} chat`;
+  findDirectChat(user1: string, user2: string) {
+    // after pressing on a friend in /chat it sends clientID and userID
+    // to check if a chat entity containing them exists and returns it
+    // maybe create the direct chat entity after accepting a friend request???
   }
 }

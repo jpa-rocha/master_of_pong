@@ -1,5 +1,15 @@
 import { User } from 'src/users/entities/user.entity';
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Message } from './message.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Chat {
@@ -9,16 +19,16 @@ export class Chat {
   @ManyToOne(() => User, (user) => user.chats)
   creator: User;
 
+  @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
+  users: User[];
+
+  @OneToMany(() => Message, (message) => message.chat)
+  messages: Message[];
+
   @Column()
   channel: string;
 
   @CreateDateColumn()
   timestamp: string;
-
-  @Column({ type: 'text'})
-  message: string;
-
-  // TODO
-  // Users (array)
-  // @ManyToMany
 }
