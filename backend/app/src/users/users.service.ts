@@ -5,12 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Friend } from './entities/friend.entity';
 import { Repository } from 'typeorm';
+import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
+import { Chat } from 'src/chat/entities/chat.entity';
+import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Friend) private friendsRepository: Repository<Friend>,
+    // private chatService: ChatService,
   ) {}
 
   create(createUserDto: CreateUserDto) {
@@ -126,6 +130,12 @@ export class UsersService {
     newFriendRequest.isFriend = true;
     await this.friendsRepository.save(newFriendRequest);
     console.log('acceptFriendRequest => Second instance of friend created');
+
+    // const newChat = new Chat();
+    // newChat.creator = sender;
+    // newChat.users.push(sender);
+    // newChat.users.push(receiver);
+    // this.chatService.saveChat(newChat);
 
     return friendRequest;
   }

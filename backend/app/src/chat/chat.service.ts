@@ -16,6 +16,10 @@ export class ChatService {
     return this.chatRepository.save(newChat);
   }
 
+  saveChat(newChat: Chat) {
+    return this.chatRepository.save(newChat);
+  }
+
   findAllChat() {
     return this.chatRepository.find();
   }

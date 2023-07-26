@@ -30,5 +30,5 @@ export class Chat {
   channel: string;
 
   @CreateDateColumn()
-  timestamp: string;
+  timestamp: Date;
 }
