@@ -97,4 +97,17 @@ export class ChatGateway {
       .to(client.id)
       .emit('newUserResponse', await this.userService.getFriends(userID));
   }
+
+  @SubscribeMessage('channelMessage')
+  async handleChannelMessage(client: Socket, message: string, channel: any) {
+    /* 
+      TODO
+      1. Get the user ID from the socket ID
+      2. Get channel ID from channel name
+      3. Save message to database
+      4. Emit message to all users in channel
+    */
+  }
+
+
 }

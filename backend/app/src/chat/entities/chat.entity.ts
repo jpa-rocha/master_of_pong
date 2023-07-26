@@ -17,4 +17,8 @@ export class Chat {
 
   @Column({ type: 'text'})
   message: string;
+
+  // TODO
+  // Users (array)
+  // @ManyToMany
 }
