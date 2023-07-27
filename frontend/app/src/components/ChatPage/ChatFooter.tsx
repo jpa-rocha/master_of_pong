@@ -58,17 +58,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // console.log("handleSendMessage = " + user?.username);
-    // console.log(socket.id);
     socket.emit("sendMessage", { chatID: chatID, message: message });
-    // if (message.trim() && user?.username) {
-    //   socket.emit("message", {
-    //     text: message,
-    //     name: user?.username,
-    //     id: `${socket.id}${Math.random()}`,
-    //     socketID: socket.id,
-    //   });
-    // }
     setMessage("");
   };
 
