@@ -12,10 +12,12 @@
     #4a0202 100%
   );
 }
-body {
+body, html {
   margin: 0;
   padding: 0;
   background: var(--bg-body);
+  height: 100%;
+  overflow: hidden;
 }
 
 .chatPageContainer {
@@ -23,6 +25,7 @@ body {
   grid-template-columns: 1fr 3fr;
   justify-content: center;
   align-items: center;
+  height: 100%;
   padding: 6rem 2rem;
   margin: 1rem;
 }
@@ -34,7 +37,7 @@ body {
 
 /* Chat Side Bar */
 .chatSidebar {
-  height: 100%;
+  height: 80vh;
   padding: 1rem;
   /* background-color: #0C4160; */
   background: var(--bg-chat);
@@ -115,7 +118,7 @@ body {
 
 .messageContainer {
   width: 100%;
-  height: 80vh;
+  height: 60vh;
   padding: 2rem;
   background-color: #ede0daf3;
   overflow-y: scroll;
