@@ -45,22 +45,11 @@ export class ChatService {
 
     const chat = await this.chatRepository
       .createQueryBuilder('chat')
-      .innerJoinAndSelect('chat.users', 'users')
+      .innerJoinAndSelect('chat.users', 'users1')
+      .innerJoinAndSelect('chat.users', 'users2')
       .where('chat.channel = :channel', { channel: 'direct' })
-      .andWhere((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .from('chat_users_user', 'cu')
-          .where('cu.chatId = chat.id')
-          .andWhere('cu.userId IN (:...userIds)', {
-            userIds: [user1.id, user2.id],
-          })
-          .groupBy('cu.chatId')
-          .having('COUNT(cu.userId) = 2') // This ensures both users are in the chat
-          .getQuery();
-
-        return `EXISTS ${subQuery}`;
-      })
+      .andWhere('users1.id = :user1Id', { user1Id: user1.id })
+      .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
     console.log(

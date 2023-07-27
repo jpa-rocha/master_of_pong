@@ -48,14 +48,12 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   // let user: UserProps;
 
   socket.on("message", (data: Message[]) => {
-    // console.log("Messages received from socket event: ", data);
     setMessages(data);
   });
 
   socket.on("returnDirectChat", (chat: ChatProp) => {
     if (chat.id) {
       console.log("Returned CHAT id = ", chat.id);
-      // socket.emit("getMessages", { chatID: chat.id });
       setChat(chat);
     }
   });

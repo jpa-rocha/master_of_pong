@@ -135,17 +135,17 @@ export class ChatGateway {
     console.log('Sent the message to the backend');
     console.log('chatID: ', data.chatID);
     console.log('message: ', data.message);
-    this.chatService.sendMessage(
+    console.log("clientSocketID = ", client.id);
+    await this.chatService.sendMessage(
       await this.userService.findIDbySocketID(client.id),
       data.chatID,
       data.message,
     );
-    console.log('AAAAAAAAAAAAAAAAAAAAAA');
-    const chat: ChatProp = await this.chatService.findOneChat(data.chatID);
-    console.log('CHAT = ', chat);
-    this.server
-      .to(client.id)
-      .emit('message', await this.chatService.getChatMessages(data.chatID));
+    console.log("-----------------------------------------------------------------------")
+    const messages = await this.chatService.getChatMessages(data.chatID);
+    console.log(messages);
+    this.server.to(client.id).emit('message', messages);
+    console.log("-----------------------------------------------------------------------")
     // chat.users.forEach((user) => {
     //   this.server
     //     .to(user.socketID)
