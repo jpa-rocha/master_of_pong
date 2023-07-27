@@ -66,8 +66,12 @@ export class User {
   gamesAsWinner: GameData[];
 
   /* Chat Relations */
-  @OneToMany(() => Chat, (chat) => chat)
+  @OneToMany(() => Chat, (chat) => chat.creator)
   chats: Chat[];
+
+  // @ManyToMany(() => Chat, (chat) => chat.users)
+  // @JoinTable()
+  // chatUsers: Chat[];
 
   /* Message Relations */
   @OneToMany(() => Message, (message) => message.sender)

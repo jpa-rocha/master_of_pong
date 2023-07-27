@@ -109,5 +109,18 @@ export class ChatGateway {
     */
   }
 
-
+  @SubscribeMessage('getDirectChat')
+  async getDirectChat(
+    client: Socket,
+    data: { user1ID: string; user2ID: string },
+  ) {
+    console.log('Chat Gateway reached');
+    console.log(data.user1ID, data.user2ID);
+    this.server
+      .to(client.id)
+      .emit(
+        'returnDirectChat',
+        await this.chatService.findDirectChat(data.user1ID, data.user2ID),
+      );
+  }
 }

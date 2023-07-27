@@ -42,10 +42,10 @@ services:
       - "5050:5050"
     env_file:
       - .env
-    # volumes:
-    #   - type: bind
-    #     source: ./backend/app/
-    #     target: /backend
+    volumes:
+      - type: bind
+        source: ./backend/app/
+        target: /backend
     stop_grace_period: 1s
 
   frontend:

@@ -14,8 +14,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Friend) private friendsRepository: Repository<Friend>,
-    // private chatService: ChatService,
-  ) {}
+  ) // private chatService: ChatService,
+  {}
 
   create(createUserDto: CreateUserDto) {
     const newUser = this.usersRepository.create(createUserDto);
@@ -130,12 +130,6 @@ export class UsersService {
     newFriendRequest.isFriend = true;
     await this.friendsRepository.save(newFriendRequest);
     console.log('acceptFriendRequest => Second instance of friend created');
-
-    // const newChat = new Chat();
-    // newChat.creator = sender;
-    // newChat.users.push(sender);
-    // newChat.users.push(receiver);
-    // this.chatService.saveChat(newChat);
 
     return friendRequest;
   }
