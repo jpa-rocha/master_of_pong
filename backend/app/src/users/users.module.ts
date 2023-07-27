@@ -7,12 +7,14 @@ import { Friend } from './entities/friend.entity';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatService } from 'src/chat/chat.service';
 import { ChatModule } from 'src/chat/chat.module';
+import { Message } from 'src/chat/entities/message.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Friend]),
     TypeOrmModule.forFeature([Chat]),
+    TypeOrmModule.forFeature([Message]),
   ],
   controllers: [UsersController],
   providers: [UsersService],

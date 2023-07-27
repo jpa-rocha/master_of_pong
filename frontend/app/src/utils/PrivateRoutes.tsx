@@ -19,8 +19,8 @@ const PrivateRoutes = () => {
             },
             body: JSON.stringify({ token }),
           }
-          );
-          const data = await response.json();
+        );
+        const data = await response.json();
         setTokenValid(data);
       } catch (error) {
         console.error("Error verifying token:", error);

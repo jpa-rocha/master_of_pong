@@ -8,10 +8,17 @@ import { User } from 'src/users/entities/user.entity';
 import { Friend } from 'src/users/entities/friend.entity';
 import { Chat } from './entities/chat.entity';
 import { ChatController } from './chat.controller';
+import { Message } from './entities/message.entity';
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forFeature([User]), TypeOrmModule.forFeature([Friend]), TypeOrmModule.forFeature([Chat])],
+  imports: [
+    UsersModule,
+    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([Friend]),
+    TypeOrmModule.forFeature([Chat]),
+    TypeOrmModule.forFeature([Message]),
+  ],
   controllers: [ChatController],
-  providers: [ChatGateway, ChatService, UsersService]
+  providers: [ChatGateway, ChatService, UsersService],
 })
 export class ChatModule {}

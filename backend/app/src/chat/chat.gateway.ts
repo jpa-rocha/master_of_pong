@@ -8,10 +8,16 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/entities/user.entity';
 
 interface UsersProps {
   username: string;
   socketId: string;
+}
+
+interface ChatProp {
+  id: number;
+  users: User[];
 }
 
 @WebSocketGateway(5050, { cors: '*' })
@@ -122,5 +128,35 @@ export class ChatGateway {
         'returnDirectChat',
         await this.chatService.findDirectChat(data.user1ID, data.user2ID),
       );
+  }
+
+  @SubscribeMessage('sendMessage')
+  async sendMessage(client: Socket, data: { chatID: number; message: string }) {
+    console.log('Sent the message to the backend');
+    console.log('chatID: ', data.chatID);
+    console.log('message: ', data.message);
+    this.chatService.sendMessage(
+      await this.userService.findIDbySocketID(client.id),
+      data.chatID,
+      data.message,
+    );
+    console.log('AAAAAAAAAAAAAAAAAAAAAA');
+    const chat: ChatProp = await this.chatService.findOneChat(data.chatID);
+    console.log('CHAT = ', chat);
+    this.server
+      .to(client.id)
+      .emit('message', await this.chatService.getChatMessages(data.chatID));
+    // chat.users.forEach((user) => {
+    //   this.server
+    //     .to(user.socketID)
+    //     .emit('message', this.chatService.getChatMessages(data.chatID));
+    // });
+  }
+
+  @SubscribeMessage('getMessages')
+  async getMessages(client: Socket, data: { chatID: number }) {
+    this.server
+      .to(client.id)
+      .emit('message', await this.chatService.getChatMessages(data.chatID));
   }
 }

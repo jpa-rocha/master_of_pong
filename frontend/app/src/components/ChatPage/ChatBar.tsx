@@ -45,12 +45,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   socket.on("returnDirectChat", (chat: ChatProp) => {
     if (chat.id) {
       console.log("Returned CHAT id = ", chat.id);
-      if (chat.users && chat.users.length >= 2) {
-        console.log("User 1 = ", chat.users[0]?.username);
-        console.log("User 2 = ", chat.users[1]?.username);
-      } else {
-        console.log("Users undefined");
-      }
+      socket.emit("getMessages", { chatID: chat.id });
       setChat(chat);
     }
   });
@@ -63,10 +58,10 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     getUsersID();
     socket.on("newUserResponse", (data) => {
       setUsers(data);
-      console.log("Data");
-      console.log(data);
-      console.log("User BAR users: ");
-      console.log(users);
+      // console.log("Data");
+      // console.log(data);
+      // console.log("User BAR users: ");
+      // console.log(users);
     });
     socket.emit("newUser");
   }, [render]);

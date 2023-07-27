@@ -14,6 +14,23 @@ interface ChatPageProps {
   socket: Socket;
 }
 
+interface UserProps {
+  forty_two_id: number;
+  username: string | undefined;
+  refresh_token: string;
+  email: string;
+  avatar: string;
+  is_2fa_enabled: boolean;
+  xp: number;
+  id: string;
+}
+
+interface MessageProps {
+  id: number,
+  sender: UserProps,
+  content: string,
+}
+
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   const [messages, setMessages] = useState<any[]>([]);
   let userID: string = "";
@@ -25,7 +42,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   })();
 
   useEffect(() => {
-    socket.on("message", (data: any) => setMessages([...messages, data]));
+    // socket.on("message", (data: MessageProps[]) => setMessages(data));
   }, [socket, messages]);
 
   return (
@@ -43,7 +60,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
               <ChatBar socket={socket} />
             </div>
             <div className="chatMain">
-              <ChatBody messages={messages} />
+              <ChatBody socket={socket}/>
               <ChatFooter socket={socket} />
             </div>
           </div>

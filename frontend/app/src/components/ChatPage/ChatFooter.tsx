@@ -22,10 +22,21 @@ interface UserProps {
   id: string;
 }
 
+interface ChatProp {
+  id: number;
+}
+
 const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const [message, setMessage] = useState("");
   const [user, setUser] = useState<UserProps>();
+  const [chatID, setChatID] = useState<number>(0);
   // let user: UserProps;
+
+  socket.on("returnDirectChat", (chat: ChatProp) => {
+    if (chat.id) {
+      setChatID(chat.id);
+    }
+  });
 
   const getUser = async () => {
     const token = getToken("jwtToken");
@@ -49,14 +60,15 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
     e.preventDefault();
     // console.log("handleSendMessage = " + user?.username);
     // console.log(socket.id);
-    if (message.trim() && user?.username) {
-      socket.emit("message", {
-        text: message,
-        name: user?.username,
-        id: `${socket.id}${Math.random()}`,
-        socketID: socket.id,
-      });
-    }
+    socket.emit("sendMessage", { chatID: chatID, message: message });
+    // if (message.trim() && user?.username) {
+    //   socket.emit("message", {
+    //     text: message,
+    //     name: user?.username,
+    //     id: `${socket.id}${Math.random()}`,
+    //     socketID: socket.id,
+    //   });
+    // }
     setMessage("");
   };
 

@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./chatPageStyle/chat.css";
-import { getToken } from '../../utils/Utils';
+import { getToken } from "../../utils/Utils";
 import axios from "axios";
+import { Socket } from "socket.io-client";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
 interface Message {
   id: number;
-  name: string;
-  text: string;
+  sender: UserProps;
+  content: string;
 }
 
 interface ChatBodyProps {
-  messages: Message[];
+  socket: Socket;
 }
 
 interface UserProps {
@@ -27,10 +28,15 @@ interface UserProps {
   id: string;
 }
 
-const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ messages }) => {
+const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<UserProps>();
+  const [messages, setMessages] = useState<Message[]>([]);
   // let user: UserProps;
 
+  socket.on("message", (data: Message[]) => {
+    console.log("Messages received from socket event: ", data);
+    setMessages(data);
+  });
   const getUser = async () => {
     const token = getToken("jwtToken");
     const id = await axios
@@ -45,6 +51,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ messages }) => {
       setUser(await getUser());
       console.log("User = " + user?.username);
     };
+    console.log("Messages in socket event = ", messages);
     getUserEffect();
   }, []);
 
@@ -52,12 +59,12 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ messages }) => {
 
   const handleLeaveChat = () => {
     // localStorage.removeItem('userName'); // localstorage vs database
-    navigate('/main');
+    navigate("/main");
     //window.location.reload();
   };
 
   return (
-    <div className='chatMainContainer'>
+    <div className="chatMainContainer">
       <header className="chatMainHeader">
         <p>Chit Chat Time</p>
         <button className="leaveChatBtn" onClick={handleLeaveChat}>
@@ -66,26 +73,27 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ messages }) => {
       </header>
 
       <div className="messageContainer">
-        {messages.map((message) =>
-          message.name === user?.username ? (
-            <div className="messageChats" key={message.id}>
-              <p className="senderName">You</p>
-              <div className="messageSender">
-                <p>{message.text}</p>
+        {messages &&
+          messages.map((message) =>
+            message.sender.username === user?.username ? (
+              <div className="messageChats" key={message.id}>
+                <p className="senderName">You</p>
+                <div className="messageSender">
+                  <p>{message.content}</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="messageChats" key={message.id}>
-              <p>{message.name}</p>
-              <div className="messageRecipient">
-                <p>{message.text}</p>
+            ) : (
+              <div className="messageChats" key={message.id}>
+                <p>{message.sender.username}</p>
+                <div className="messageRecipient">
+                  <p>{message.content}</p>
+                </div>
               </div>
-            </div>
-          )
-        )}
-    <div className="typing">
+            )
+          )}
+        <div className="typing">
           <p>Someone is typing...</p>
-        </div> 
+        </div>
       </div>
     </div>
   );
