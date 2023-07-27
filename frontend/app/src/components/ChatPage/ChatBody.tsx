@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./chatPageStyle/chat.css";
 import { getToken } from "../../utils/Utils";
@@ -11,6 +11,11 @@ interface Message {
   id: number;
   sender: UserProps;
   content: string;
+}
+
+interface ChatMessagesResult {
+  chatID: number;
+  messages: Message[];
 }
 
 interface ChatBodyProps {
@@ -45,10 +50,14 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<UserProps>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<ChatProp | undefined>(undefined);
-  // let user: UserProps;
 
-  socket.on("message", (data: Message[]) => {
-    setMessages(data);
+  socket.on("message", (data: ChatMessagesResult) => {
+    if (chat && chat?.id === data.chatID) {
+      console.log("CHAT ID = ", chat.id);
+      // console.log("Current chat ID : ", chat?.id);
+      // console.log("Got this chat   : ", data.chatID);
+      setMessages(data.messages);
+    }
   });
 
   socket.on("returnDirectChat", (chat: ChatProp) => {

@@ -14,8 +14,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
     @InjectRepository(Friend) private friendsRepository: Repository<Friend>,
-  ) // private chatService: ChatService,
-  {}
+  ) {}
 
   create(createUserDto: CreateUserDto) {
     const newUser = this.usersRepository.create(createUserDto);

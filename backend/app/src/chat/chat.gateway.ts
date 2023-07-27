@@ -121,7 +121,7 @@ export class ChatGateway {
     data: { user1ID: string; user2ID: string },
   ) {
     console.log('Chat Gateway reached');
-    console.log(data.user1ID, data.user2ID);
+    // console.log(data.user1ID, data.user2ID);
     this.server
       .to(client.id)
       .emit(
@@ -132,25 +132,19 @@ export class ChatGateway {
 
   @SubscribeMessage('sendMessage')
   async sendMessage(client: Socket, data: { chatID: number; message: string }) {
-    console.log('Sent the message to the backend');
-    console.log('chatID: ', data.chatID);
-    console.log('message: ', data.message);
-    console.log("clientSocketID = ", client.id);
     await this.chatService.sendMessage(
       await this.userService.findIDbySocketID(client.id),
       data.chatID,
       data.message,
     );
-    console.log("-----------------------------------------------------------------------")
     const messages = await this.chatService.getChatMessages(data.chatID);
-    console.log(messages);
-    this.server.to(client.id).emit('message', messages);
-    console.log("-----------------------------------------------------------------------")
-    // chat.users.forEach((user) => {
-    //   this.server
-    //     .to(user.socketID)
-    //     .emit('message', this.chatService.getChatMessages(data.chatID));
-    // });
+
+    const chat = await this.chatService.findOneChat(data.chatID);
+    console.log('Chat = ', chat);
+    chat.users.forEach((user) => {
+      console.log('LABASSSSSSSSSSSSSSSS');
+      this.server.to(user.socketID).emit('message', messages);
+    });
   }
 
   @SubscribeMessage('getMessages')

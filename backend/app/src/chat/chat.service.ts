@@ -3,9 +3,14 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
+
+interface ChatMessagesResult {
+  chatID: number;
+  messages: Message[];
+}
 
 @Injectable()
 export class ChatService {
@@ -29,7 +34,11 @@ export class ChatService {
   }
 
   findOneChat(id: number) {
-    return this.chatRepository.findOneBy({ id });
+    const options: FindOneOptions<Chat> = {
+      where: { id },
+      relations: ['users'],
+    };
+    return this.chatRepository.findOne(options);
   }
 
   async findDirectChat(user1ID: string, user2ID: string) {
@@ -52,13 +61,7 @@ export class ChatService {
       .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
-    console.log(
-      'CHAT -----------------------------------------------------------',
-    );
     console.log(chat);
-    console.log(
-      'CHAT -----------------------------------------------------------',
-    );
     if (!chat) {
       console.log('------new chat created------');
       const chat = new Chat();
@@ -70,20 +73,22 @@ export class ChatService {
     return chat;
   }
 
-  async getChatMessages(chatID: number): Promise<Message[]> {
+  async getChatMessages(chatID: number): Promise<ChatMessagesResult> {
     /* 
         Think about a user that is blocked by another user.  
     */
-    const messages = this.messageRepository
+    const messages = await this.messageRepository
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.sender', 'sender')
       .where('message.chat = :chatID', { chatID })
       .getMany();
 
-    return messages;
-    // return await this.messageRepository.find({
-    //   where: { chat: { id: chatID } },
-    // });
+    const result: ChatMessagesResult = {
+      chatID: chatID,
+      messages: messages,
+    };
+
+    return result;
   }
 
   async sendMessage(clientID: string, chatID: number, message: string) {
