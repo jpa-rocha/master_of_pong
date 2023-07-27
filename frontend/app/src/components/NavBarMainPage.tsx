@@ -1,11 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AppBar, Toolbar, Typography, Box, Avatar, Stack } from "@mui/material";
 import logo from "../images/logo.png";
 import { useNavigate } from "react-router-dom";
+import { getToken, getUser, getUserID } from "../utils/Utils";
+import { get } from "http";
+// import { use } from "passport";
 
 /* This is the Navigation Section for the Main Page */
 const NavBarMainPage = () => {
   const navigate = useNavigate();
+  const [userID, setUserID] = React.useState<string>("");
+  const [profileImg, setProfileImg] = React.useState<string>("");
+
+  (async () => {
+    setUserID(await getUserID(getToken("jwtToken")));
+  })();
+  useEffect(() => {
+    console.log("UserID: " + userID);
+    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+    console.log("Profile Image: " + profileImg);
+  }, [userID]);
 
   const getName = (value: String) => {
     return `${value.split(" ")[0][0]}${value.split(" ")[1][0]}`;
@@ -80,10 +94,10 @@ const NavBarMainPage = () => {
               </Typography>
             </a>
             <Avatar
-              // alt="profile_picture"
-              // src={profileImg}
-              sx={{ bgcolor: "#fff", color: "#000", cursor: "pointer" }}
-              children={getName("User Name")}
+              alt="profile_picture"
+              src={profileImg}
+              // sx={{ bgcolor: "#fff", color: "#000", cursor: "pointer" }}
+              // children={getName("User Name")}
               onClick={handleUserProfile}
             />
           </Stack>
