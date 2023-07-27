@@ -71,12 +71,17 @@ const NavBarMainPage = () => {
             >
               Chat
             </Typography>
-            <a href="http://localhost:5000/api/auth/signout" style={{textDecoration: "none", color: "white"}}>
-            <Typography variant="h6" style={{ cursor: "pointer" }}>
-              Logout{" "}
-            </Typography>
+            <a
+              href="http://localhost:5000/api/auth/signout"
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              <Typography variant="h6" style={{ cursor: "pointer" }}>
+                Logout{" "}
+              </Typography>
             </a>
             <Avatar
+              // alt="profile_picture"
+              // src={profileImg}
               sx={{ bgcolor: "#fff", color: "#000", cursor: "pointer" }}
               children={getName("User Name")}
               onClick={handleUserProfile}

@@ -33,22 +33,22 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<string | undefined>(undefined);
 
-    useEffect(() => {
+  useEffect(() => {
     async function getUsersID() {
       const id = await axios.post("api/auth/getUserID", { token });
       console.log("received id = ", id);
       setUserID(id.data);
-    }    
+    }
     console.log("getting user ID and updating...");
     getUsersID();
   }, [socket, token]);
-  
+
   useEffect(() => {
     async function getUserName() {
       console.log("userID (getUserName()) = ", userID);
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
-        const userData : UserProps = user.data;
+        const userData: UserProps = user.data;
         setUserName(userData.username);
       }
     }
@@ -182,53 +182,28 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
                 <h2> Match History</h2>
                 <table>
                   <tbody>
-                  <tr>
-                    <th>Opponent</th>
-                    <th>Result</th>
-                  </tr>
-                  {matches.map((match, index) => (
-                    <tr key={index}>
-                      <td>{match.opponent}</td>
-                      <td>{match.result}</td>
+                    <tr>
+                      <th>Opponent</th>
+                      <th>Result</th>
                     </tr>
-                  ))}
+                    {matches.map((match, index) => (
+                      <tr key={index}>
+                        <td>{match.opponent}</td>
+                        <td>{match.result}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
         </Grid>
-        {/*    <Grid item xs={12}>
-		
-        </Grid> */}
+
         {/* This is footer */}
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
       </Grid>
-
-      {/* <div>
-        <form>
-          <label>Change Password</label>
-          <input type="password" />
-          <button>Submit</button>
-        </form>
-      </div>
-      <div>
-        <h1> Match History</h1>
-        <table>
-          <tr>
-            <th>Opponent</th>
-            <th>Result</th>
-          </tr>
-          {matches.map((match) => (
-            <tr>
-              <td>{match.opponent}</td>
-              <td>{match.result}</td>
-            </tr>
-          ))}
-        </table>
-      </div> */}
     </>
   );
 };

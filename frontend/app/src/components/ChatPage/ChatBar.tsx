@@ -72,7 +72,8 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   function handleGetChat(user: User) {
     console.log("INSIDE handleGetChat");
-    console.log(user);
+    console.log("user1ID = ", userID);
+    console.log("user2ID = ", user.id);
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 
@@ -81,30 +82,36 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       <div className="chatSidebar">
         <h2>Chat Bar</h2>
         <div className="activeUsers">
-          <h4 className="chatHeader">Online</h4>
+          <h4 className="chatHeader">Online Friends</h4>
           <div className="onlineUsers">
             <ul>
               {users.map((user) => (
-                <button key={user.username} onClick={() => handleGetChat(user)}>
-                  {user.isFriend && user.status === "online"
-                    ? `${user.username}`
-                    : null}
-                </button>
+                <div key={user.username}>
+                  {user.isFriend && user.status !== "offline" ? (
+                    <button onClick={() => handleGetChat(user)}>
+                      {user.username}
+                    </button>
+                  ) : null}
+                </div>
               ))}
             </ul>
           </div>
         </div>
 
         <div className="allUsers">
-          <h4 className="chatHeader">Friends</h4>
+          <h4 className="chatHeader">Offline Friends</h4>
           <div className="chatUsers">
-            {users.map((user) => (
-              <button key={user.username}>
-                {user.isFriend && user.status === "offline"
-                  ? `${user.username}`
-                  : null}
-              </button>
-            ))}
+            <ul>
+              {users.map((user) => (
+                <div key={user.username}>
+                  {user.isFriend && user.status === "offline" ? (
+                    <button onClick={() => handleGetChat(user)}>
+                      {user.username}
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

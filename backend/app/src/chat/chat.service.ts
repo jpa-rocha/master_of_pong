@@ -37,19 +37,41 @@ export class ChatService {
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
     console.log('findDirectChat HERE');
+    const user1 = await this.usersService.findOne(user1ID);
+    const user2 = await this.usersService.findOne(user2ID);
+    if (!user1 || !user2) {
+      throw new Error('user not found');
+    }
+
     const chat = await this.chatRepository
       .createQueryBuilder('chat')
       .innerJoinAndSelect('chat.users', 'users')
       .where('chat.channel = :channel', { channel: 'direct' })
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .from('chat_users_user', 'cu')
+          .where('cu.chatId = chat.id')
+          .andWhere('cu.userId IN (:...userIds)', {
+            userIds: [user1.id, user2.id],
+          })
+          .groupBy('cu.chatId')
+          .having('COUNT(cu.userId) = 2') // This ensures both users are in the chat
+          .getQuery();
+
+        return `EXISTS ${subQuery}`;
+      })
       .getOne();
 
+    console.log(
+      'CHAT -----------------------------------------------------------',
+    );
+    console.log(chat);
+    console.log(
+      'CHAT -----------------------------------------------------------',
+    );
     if (!chat) {
       console.log('------new chat created------');
-      const user1 = await this.usersService.findOne(user1ID);
-      const user2 = await this.usersService.findOne(user2ID);
-      if (!user1 || !user2) {
-        throw new Error('user not found');
-      }
       const chat = new Chat();
       chat.creator = user1;
       chat.channel = 'direct';

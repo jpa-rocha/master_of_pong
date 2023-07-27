@@ -17,6 +17,19 @@ interface ChatBodyProps {
   socket: Socket;
 }
 
+interface User {
+  socketID: string;
+  username: string;
+  isFriend: boolean;
+  status: string;
+  id: string;
+}
+
+interface ChatProp {
+  id: number;
+  users: User[];
+}
+
 interface UserProps {
   forty_two_id: number;
   username: string | undefined;
@@ -31,12 +44,22 @@ interface UserProps {
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<UserProps>();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [chat, setChat] = useState<ChatProp | undefined>(undefined);
   // let user: UserProps;
 
   socket.on("message", (data: Message[]) => {
-    console.log("Messages received from socket event: ", data);
+    // console.log("Messages received from socket event: ", data);
     setMessages(data);
   });
+
+  socket.on("returnDirectChat", (chat: ChatProp) => {
+    if (chat.id) {
+      console.log("Returned CHAT id = ", chat.id);
+      // socket.emit("getMessages", { chatID: chat.id });
+      setChat(chat);
+    }
+  });
+
   const getUser = async () => {
     const token = getToken("jwtToken");
     const id = await axios
@@ -66,7 +89,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   return (
     <div className="chatMainContainer">
       <header className="chatMainHeader">
-        <p>Chit Chat Time</p>
+        <p>&{chat?.id}</p>
         <button className="leaveChatBtn" onClick={handleLeaveChat}>
           Leave Chat
         </button>
