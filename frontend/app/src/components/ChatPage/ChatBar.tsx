@@ -73,14 +73,14 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
 
   function createChatRoom() {
-    const chatTitle = "MasterOfPongChatPublic";
-    const chatPassword = "";
+    const chatTitle = "MasterOfPongChatPrivate";
+    const chatPassword = "password";
     socket.emit("createChatRoom", { title: chatTitle, password: chatPassword });
   }
 
   function joinChatRoom() {
-    const chatTitle = "MasterOfPongChatPublic";
-    const chatPassword = "";
+    const chatTitle = "MasterOfPongChatPrivate";
+    const chatPassword = "password";
     socket.emit("joinChatRoom", { title: chatTitle, password: chatPassword });
   }
 

@@ -42,6 +42,16 @@ const NavBarMainPage = () => {
     navigate("/profile");
   };
 
+  const handleFriends = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/friends");
+  };
+
+  const handleLeaders = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/");
+  };
+
   const handleUserMain = (e: React.FormEvent) => {
     e.preventDefault();
     navigate("/main");
@@ -86,6 +96,18 @@ const NavBarMainPage = () => {
               style={{ cursor: "pointer" }}
             >
               Chat
+            </Typography>
+            <Typography
+              onClick={handleFriends}
+              variant="h6"
+              style={{ cursor: "pointer" }}>
+              Find Friends
+            </Typography>
+            <Typography
+              onClick={handleFriends}
+              variant="h6"
+              style={{ cursor: "pointer" }}>
+              Leaders Board
             </Typography>
             <a
               href="http://localhost:5000/api/auth/signout"

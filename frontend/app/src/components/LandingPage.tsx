@@ -1,44 +1,32 @@
-import { Grid, Box } from "@mui/material";
+import { Grid, Box, Button } from "@mui/material";
 import calm from "../images/CalmScorpion.gif";
 import Footer from "./Footer";
 import NavBarLandingPage from "./NavBarLandingPage";
-//import Chat from './Messages/Chat'
-//import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
-// import GameCanvas from "./GameCanvas/GameCanvas";
-// import logo from "../images/logo.png";
-
-
-/* import * as socketIO  from "socket.io-client"; 
-import { Socket } from 'socket.io-client';
-
-const URI = 'http://localhost:4000';
-
-const socket: Socket = socketIO.connect(URI); */
 
 const LandingPage: React.FunctionComponent = () => {
   return (
     <>
-      <Grid container>
-        {/* This is navigation */}
+      <Grid container style={{ position: "relative"}}>
+        <Grid item xs={12} style={{ position: "relative", zIndex: 3 }}>
+          
+          <Box sx={{ flexGrow: 3, position: "relative", zIndex: 3 }}>
+            <NavBarLandingPage></NavBarLandingPage>
+          </Box>
 
-        <Grid item xs={12}>
-          <NavBarLandingPage></NavBarLandingPage>
-        </Grid>
-
-        {/* This is main */}
-        <Grid item xs={12}>
           <Box
             sx={{
               flexGrow: 1,
               background:
                 "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
+              position: "relative",
+              zIndex: 1,
             }}
           >
             <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              sx={{ height: "100vh", position: "relative" }}
+              // display="relative"
+              // justifyContent="center"
+              // alignItems="center"
+              sx={{ flexGrow: 2, height: "100vh", position: "relative", zIndex: 2 }}
             >
               <img
                 src={calm}
@@ -52,11 +40,6 @@ const LandingPage: React.FunctionComponent = () => {
               ></img>
             </Box>
           </Box>
-        </Grid>
-		
-        {/* This is footer */}
-        <Grid item xs={12}>
-          <Footer></Footer>
         </Grid>
       </Grid>
     </>

@@ -1,9 +1,28 @@
+:root {
+	--bg-body: linear-gradient(to right, #ea4224 0%, #edc24f 50%, #ea4224 100%);
+	--bg-chat: linear-gradient(
+	  #f00202 0%,
+	  #bd0404 10%,
+	  #7d0404 50%,
+	  #4a0202 100%
+	);
+  }
+  
 .all{
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
 }
+
+  body,
+  html {
+	margin: 0;
+	padding: 0;
+	background: var(--bg-body);
+	height: 100%;
+	overflow: hidden;
+  }
 
 .userInfo {
 	display: flex;
@@ -115,7 +134,6 @@ border: none;
 	border: none;
 	margin: 2px;
 }
-
 
 .matchHistory {
 	display: flex;
