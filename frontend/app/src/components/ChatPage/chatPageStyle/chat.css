@@ -115,6 +115,11 @@ html {
   color: #fff;
 }
 
+.chatMainHeader h1 {
+  text-align: center;
+  width: 100%;
+}
+
 .leaveChatBtn {
   padding: 0.6rem 1rem;
   border: none;

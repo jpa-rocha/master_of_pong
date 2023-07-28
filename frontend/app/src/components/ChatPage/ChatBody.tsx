@@ -103,14 +103,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     }
   }, [chat, user]);
 
-  const navigate = useNavigate();
-
-  const handleLeaveChat = () => {
-    // localStorage.removeItem('userName'); // localstorage vs database
-    navigate("/main");
-    //window.location.reload();
-  };
-
   const messageContainer = document.querySelector(".messageContainer");
   if (messageContainer) {
     messageContainer.scrollTop = messageContainer.scrollHeight;
@@ -119,10 +111,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   return (
     <div className="chatMainContainer">
       <header className="chatMainHeader">
-        <p>{chat?.title}</p>
-        <button className="leaveChatBtn" onClick={handleLeaveChat}>
-          Leave Chat
-        </button>
+        <h1>{chat?.title}</h1>
       </header>
 
       <div className="messageContainer">
@@ -144,9 +133,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
               </div>
             )
           )}
-        <div className="typing">
-          <p>Someone is typing...</p>
-        </div>
       </div>
     </div>
   );
