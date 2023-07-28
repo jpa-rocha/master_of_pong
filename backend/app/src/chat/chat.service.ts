@@ -65,6 +65,7 @@ export class ChatService {
     if (!chat) {
       console.log('------new chat created------');
       const chat = new Chat();
+      chat.title = 'direct';
       chat.creator = user1;
       chat.channel = 'direct';
       chat.users = [user1, user2];

@@ -1,6 +1,5 @@
-import { User } from 'src/users/entities/user.entity';
-
 export class CreateChatDto {
+  title: string;
   channel: string;
   timestamp: Date;
 }

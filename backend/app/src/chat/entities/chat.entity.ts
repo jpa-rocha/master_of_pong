@@ -16,6 +16,9 @@ export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  title: string;
+
   @ManyToOne(() => User, (user) => user.chats)
   creator: User;
 

@@ -32,6 +32,8 @@ interface User {
 
 interface ChatProp {
   id: number;
+  title: string;
+  channel: string;
   users: User[];
 }
 
@@ -64,7 +66,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       console.log("Received CHAT ID = ", chat.id);
       setChat(chat);
       socket.emit("getMessages", { chatID: chat.id });
-    } else {
     }
   });
 
@@ -93,6 +94,15 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     };
   }, [messages, user?.username, socket]);
 
+  useEffect(() => {
+    if (chat?.id && user?.username && chat.title === 'direct') {
+      if (user.username === chat.users[0].username)
+        chat.title = chat.users[1].username;
+      else 
+        chat.title = chat.users[0].username;
+    }
+  }, [chat, user]);
+
   const navigate = useNavigate();
 
   const handleLeaveChat = () => {
@@ -109,7 +119,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   return (
     <div className="chatMainContainer">
       <header className="chatMainHeader">
-        <p>&{chat?.id}</p>
+        <p>{chat?.title}</p>
         <button className="leaveChatBtn" onClick={handleLeaveChat}>
           Leave Chat
         </button>
