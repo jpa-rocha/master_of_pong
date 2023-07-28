@@ -53,37 +53,46 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   socket.on("message", (data: ChatMessagesResult) => {
     if (chat && chat?.id === data.chatID) {
-      console.log("CHAT ID = ", chat.id);
-      // console.log("Current chat ID : ", chat?.id);
-      // console.log("Got this chat   : ", data.chatID);
+      // console.log("Current chat id = ", chat.id);
+      // console.log("CHAT ID = ", chat.id);
       setMessages(data.messages);
     }
   });
 
   socket.on("returnDirectChat", (chat: ChatProp) => {
     if (chat.id) {
-      console.log("Returned CHAT id = ", chat.id);
+      console.log("Received CHAT ID = ", chat.id);
       setChat(chat);
+      socket.emit("getMessages", { chatID: chat.id });
+    } else {
     }
   });
 
-  const getUser = async () => {
-    const token = getToken("jwtToken");
-    const id = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    const user = await axios.get(`api/users/${id}`);
-
-    return user.data;
-  };
+  
   useEffect(() => {
+    const getUser = async () => {
+      const token = getToken("jwtToken");
+      const id = await axios
+        .post("api/auth/getUserID", { token })
+        .then((res) => res.data);
+      const user = await axios.get(`api/users/${id}`);
+  
+      return user.data;
+    };
+
     const getUserEffect = async () => {
-      setUser(await getUser());
+      const temp = await getUser();
+      if (temp) {
+        setUser(temp);
+      }
       console.log("User = " + user?.username);
     };
-    console.log("Messages in socket event = ", messages);
     getUserEffect();
-  }, []);
+    return () => {
+      socket.off("message");
+      socket.off("returnDirectChat")
+    }
+  }, [messages, user?.username, socket]);
 
   const navigate = useNavigate();
 

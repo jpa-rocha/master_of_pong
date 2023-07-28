@@ -8,16 +8,11 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/entities/user.entity';
+import { Message } from './entities/message.entity';
 
-interface UsersProps {
-  username: string;
-  socketId: string;
-}
-
-interface ChatProp {
-  id: number;
-  users: User[];
+interface ChatMessagesResult {
+  chatID: number;
+  messages: Message[];
 }
 
 @WebSocketGateway(5050, { cors: '*' })
@@ -99,9 +94,8 @@ export class ChatGateway {
   @SubscribeMessage('newUser')
   async handleNewUser(client: Socket) {
     const userID = await this.userService.findIDbySocketID(client.id);
-    this.server
-      .to(client.id)
-      .emit('newUserResponse', await this.userService.getFriends(userID));
+    const user = await this.userService.getFriends(userID);
+    this.server.to(client.id).emit('newUserResponse', user);
   }
 
   @SubscribeMessage('channelMessage')
@@ -120,14 +114,12 @@ export class ChatGateway {
     client: Socket,
     data: { user1ID: string; user2ID: string },
   ) {
-    console.log('Chat Gateway reached');
-    // console.log(data.user1ID, data.user2ID);
-    this.server
-      .to(client.id)
-      .emit(
-        'returnDirectChat',
-        await this.chatService.findDirectChat(data.user1ID, data.user2ID),
-      );
+    console.log('GET DIRECT CHAT RECEIVED');
+    const chat = await this.chatService.findDirectChat(
+      data.user1ID,
+      data.user2ID,
+    );
+    this.server.to(client.id).emit('returnDirectChat', chat);
   }
 
   @SubscribeMessage('sendMessage')
@@ -138,19 +130,16 @@ export class ChatGateway {
       data.message,
     );
     const messages = await this.chatService.getChatMessages(data.chatID);
-
+    console.log('Returning this chat ID', messages.chatID);
     const chat = await this.chatService.findOneChat(data.chatID);
-    console.log('Chat = ', chat);
     chat.users.forEach((user) => {
-      console.log('LABASSSSSSSSSSSSSSSS');
       this.server.to(user.socketID).emit('message', messages);
     });
   }
 
   @SubscribeMessage('getMessages')
   async getMessages(client: Socket, data: { chatID: number }) {
-    this.server
-      .to(client.id)
-      .emit('message', await this.chatService.getChatMessages(data.chatID));
+    const messages = await this.chatService.getChatMessages(data.chatID);
+    this.server.to(client.id).emit('message', messages);
   }
 }

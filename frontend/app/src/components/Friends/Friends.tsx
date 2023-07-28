@@ -61,7 +61,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     }
     getUsers(input);
     setRender(false);
-  }, [input, token, render]);
+  }, [input, token, render, userID]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);

@@ -5,7 +5,7 @@ FROM node:latest
 WORKDIR /backend
 COPY . ./
 WORKDIR /backend/app
-RUN npm install -g @nestjs/cli && npm install
+# RUN npm install -g @nestjs/cli && npm install
 
 EXPOSE 5000
 EXPOSE 8002

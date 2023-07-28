@@ -27,7 +27,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [render, setRender] = useState<boolean>(false);
   const [userID, setUserID] = useState<string | undefined>(undefined);
-  const [chat, setChat] = useState<ChatProp | undefined>(undefined);
   const token: string = getToken("jwtToken");
 
   socket.on("user disconnected", () => {
@@ -42,14 +41,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     else setRender(false);
   });
 
-  socket.on("returnDirectChat", (chat: ChatProp) => {
-    if (chat.id) {
-      console.log("Returned CHAT id = ", chat.id);
-      socket.emit("getMessages", { chatID: chat.id });
-      setChat(chat);
-    }
-  });
-
   useEffect(() => {
     async function getUsersID() {
       const id = await axios.post("api/auth/getUserID", { token });
@@ -58,22 +49,19 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     getUsersID();
     socket.on("newUserResponse", (data) => {
       setUsers(data);
-      // console.log("Data");
-      // console.log(data);
-      // console.log("User BAR users: ");
-      // console.log(users);
     });
-    socket.emit("newUser");
-  }, [render]);
+    // socket.emit("newUser");
+  }, [socket, token]);
 
   useEffect(() => {
     console.log("Users changed");
   }, [users]);
 
   function handleGetChat(user: User) {
-    console.log("INSIDE handleGetChat");
-    console.log("user1ID = ", userID);
-    console.log("user2ID = ", user.id);
+    // console.log("INSIDE handleGetChat");
+    // console.log("user1ID = ", userID);
+    // console.log("user2ID = ", user.id);
+    console.log("GET DIRECT CHAT CALLED");
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 

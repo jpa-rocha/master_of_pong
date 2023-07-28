@@ -17,9 +17,11 @@ const NavBarMainPage = () => {
   })();
   useEffect(() => {
     console.log("UserID: " + userID);
-    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+    if (userID) {
+      setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+    }
     console.log("Profile Image: " + profileImg);
-  }, [userID]);
+  }, [userID, profileImg]);
 
   const getName = (value: String) => {
     return `${value.split(" ")[0][0]}${value.split(" ")[1][0]}`;

@@ -52,9 +52,8 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
       setUser(user);
       socket.emit("newUser");
     };
-
     getUserEffect();
-  }, []);
+  }, [socket]);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

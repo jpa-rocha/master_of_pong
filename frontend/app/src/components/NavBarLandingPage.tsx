@@ -4,44 +4,44 @@ import { useNavigate } from "react-router-dom";
 
 /* This is the Navigation Section for the Landing Page */
 const NavBarLandingPage: React.FunctionComponent = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
+  // function handleLogin(e: React.FormEvent) {
+  //   e.preventDefault();
 
-    //navigate('/main');
+  //   //navigate('/main');
 
-    /*  TODO: instead of navigate('/main), we need 42 API : */
+  //   /*  TODO: instead of navigate('/main), we need 42 API : */
 
-    /* API call and authorization, whats the next step,
-		it should redirect to MainPage but should the user name be gotten there?
+  //   /* API call and authorization, whats the next step,
+	// 	it should redirect to MainPage but should the user name be gotten there?
 
-		This is the right option!
-		--> Or should it redirect to an intermediary page? that just stores the user in the db? */
+	// 	This is the right option!
+	// 	--> Or should it redirect to an intermediary page? that just stores the user in the db? */
 
-    const apiUrl = "http://localhost:5000/api/auth/redirect";
-    if (!apiUrl) {
-      console.error("REACT_APP_API_URL is not defined");
-      return;
-    }
+  //   const apiUrl = "http://localhost:5000/api/auth/redirect";
+  //   if (!apiUrl) {
+  //     console.error("REACT_APP_API_URL is not defined");
+  //     return;
+  //   }
 
-    fetch(apiUrl, {
-      // Add necessary headers for the API request
-      mode: "cors",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        // 		// Add other headers if needed
-        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }
+  //   fetch(apiUrl, {
+  //     // Add necessary headers for the API request
+  //     mode: "cors",
+  //     headers: {
+  //       "Access-Control-Allow-Origin": "*",
+  //       // 		// Add other headers if needed
+  //       "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       console.log(data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data:", error);
+  //     });
+  // }
 
   // function handleLogin(e: React.FormEvent) {
   // 	e.preventDefault();
@@ -63,19 +63,19 @@ const NavBarLandingPage: React.FunctionComponent = () => {
 
   //   };
 
-  function handleReturnHome(e: React.FormEvent) {
-    e.preventDefault();
-    navigate("/home");
-  }
+  // function handleReturnHome(e: React.FormEvent) {
+  //   e.preventDefault();
+  //   navigate("/home");
+  // }
 
-  function handleGame(e: React.FormEvent) {
-    e.preventDefault();
-    navigate("/game");
-  }
-  function handleChat(e: React.FormEvent) {
-    e.preventDefault();
-    navigate("/chat");
-  }
+  // function handleGame(e: React.FormEvent) {
+  //   e.preventDefault();
+  //   navigate("/game");
+  // }
+  // function handleChat(e: React.FormEvent) {
+  //   e.preventDefault();
+  //   navigate("/chat");
+  // }
 
   return (
     <Box>

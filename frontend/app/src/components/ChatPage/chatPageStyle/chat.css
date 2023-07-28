@@ -110,7 +110,7 @@ html {
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  /*  background-color:  #08334c; */
+   /* background-color:  #08334c; */
   background: var(--bg-chat);
   color: #fff;
 }

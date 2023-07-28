@@ -54,10 +54,12 @@ export class UsersService {
   }
 
   async updateSocket(socketID: string, updateUserDto: UpdateUserDto) {
+    console.log('updateSocket => socketID = ', socketID);
+    console.log('updateSocket => UserDTO  = ', updateUserDto);
     const user = await this.usersRepository.findOne({ where: { socketID } });
 
     if (!user) {
-      throw new Error("Couldn't find user");
+      throw new Error("Couldn't find user (updateSocket)");
     }
     Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
@@ -171,12 +173,6 @@ export class UsersService {
       );
 
       if (confirmedFriends.length > 0) {
-        console.log('getFriends => Confirmed friends:');
-        confirmedFriends.forEach((friend) => {
-          console.log('friendUser : ' + friend.friendUser?.username);
-        });
-
-        console.log('getFriends => Adding isFriend property to friends');
         const extendedAllUsers: ExtendedUser[] = allUsers.map((user) => ({
           ...user,
           isFriend: confirmedFriends.some(
