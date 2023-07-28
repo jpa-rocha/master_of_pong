@@ -68,7 +68,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     }
   });
 
-  
   useEffect(() => {
     const getUser = async () => {
       const token = getToken("jwtToken");
@@ -76,7 +75,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         .post("api/auth/getUserID", { token })
         .then((res) => res.data);
       const user = await axios.get(`api/users/${id}`);
-  
+
       return user.data;
     };
 
@@ -90,8 +89,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     getUserEffect();
     return () => {
       socket.off("message");
-      socket.off("returnDirectChat")
-    }
+      socket.off("returnDirectChat");
+    };
   }, [messages, user?.username, socket]);
 
   const navigate = useNavigate();
@@ -101,6 +100,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     navigate("/main");
     //window.location.reload();
   };
+
+  const messageContainer = document.querySelector(".messageContainer");
+  if (messageContainer) {
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+  }
 
   return (
     <div className="chatMainContainer">
