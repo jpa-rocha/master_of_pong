@@ -32,6 +32,9 @@ export class Chat {
   @Column()
   channel: string;
 
+  @Column({ nullable: true })
+  password: string;
+
   @CreateDateColumn()
   timestamp: Date;
 }

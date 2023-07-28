@@ -3,15 +3,12 @@ import ReactDOM from "react-dom/client";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
-import LandingPage from "./components/LandingPage";
 import MainPage from "./components/MainPage";
 import Game from "./components/GameCanvas/Game";
 import ProfilePage from "./components/Profile/Profile";
-import GetUserName from "./components/ChatPage/GetUserName";
 import ChatPage from "./components/ChatPage/ChatPage";
 import * as socketIO from "socket.io-client";
 import { Socket } from "socket.io-client";
-import UserProfile from "./components/UserProfile/UserProfile";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import FriendsPage from "./components/Friends/Friends";
 

@@ -3,9 +3,11 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, OptionalUnlessRequiredId, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
+import { User } from 'src/users/entities/user.entity';
+import { use } from 'passport';
 
 interface ChatMessagesResult {
   chatID: number;
@@ -41,6 +43,13 @@ export class ChatService {
     return this.chatRepository.findOne(options);
   }
 
+  findOneChatTitle(title: string) {
+    const options: FindOneOptions<Chat> = {
+      where: { title: title },
+    };
+    return this.chatRepository.findOne(options);
+  }
+
   async findDirectChat(user1ID: string, user2ID: string) {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
@@ -72,6 +81,59 @@ export class ChatService {
       return await this.chatRepository.save(chat);
     }
     return chat;
+  }
+
+  async createChatRoom(title: string, creatorID: string, password: string) {
+    // 1: Check if the room name is available, if not inform the user
+    console.log('1 HERE');
+    if (await this.findOneChatTitle(title)) {
+      return null;
+    }
+    console.log('2 HERE');
+
+    // 2: If the name is available, create the chat room
+    const creator = await this.usersService.findOne(creatorID);
+    const chatRoom = new Chat();
+
+    chatRoom.title = title;
+    chatRoom.creator = creator;
+    chatRoom.users = [creator];
+    if (password) {
+      chatRoom.channel = 'private';
+      chatRoom.password = password;
+    } else {
+      chatRoom.channel = 'public';
+      chatRoom.password = '';
+    }
+    console.log('3 HERE');
+    return await this.chatRepository.save(chatRoom);
+  }
+
+  async getChatRooms(userID: string) {
+    // Getting the private and public chat rooms that the user belogs to
+    const chatRooms = await this.chatRepository
+      .createQueryBuilder('chat')
+      .innerJoin('chat.users', 'user')
+      .where('user.id = :userID', { userID })
+      .andWhere('chat.channel != :channel', { channel: 'direct' })
+      .getMany();
+    return chatRooms;
+  }
+
+  async joinChatRoom(userID: string, chatID: number, password: string) {
+    const chatRoom = await this.findOneChat(chatID);
+    const user = await this.usersService.findOne(userID);
+    if (chatRoom.channel === 'public') {
+      chatRoom.users.push(user);
+      return this.chatRepository.save(chatRoom);
+    } else if (chatRoom.channel === 'private') {
+      if (chatRoom.password === password) {
+        chatRoom.users.push(user);
+        return this.chatRepository.save(chatRoom);
+      }
+    }
+    // failed to join chatRoom
+    return null;
   }
 
   async getChatMessages(chatID: number): Promise<ChatMessagesResult> {

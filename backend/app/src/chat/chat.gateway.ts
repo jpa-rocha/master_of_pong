@@ -8,12 +8,6 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
-import { Message } from './entities/message.entity';
-
-interface ChatMessagesResult {
-  chatID: number;
-  messages: Message[];
-}
 
 @WebSocketGateway(5050, { cors: '*' })
 export class ChatGateway {
@@ -25,42 +19,13 @@ export class ChatGateway {
     private userService: UsersService,
   ) {}
 
-  // @SubscribeMessage('createChat')
-  // create(@MessageBody() createChatDto: CreateChatDto) {
-  //   return this.chatService.create(createChatDto);
+  // @SubscribeMessage('message')
+  // handleMessage(@MessageBody() message: any): void {
+  //   this.server.emit('message', message);
   // }
-
-  // @SubscribeMessage('findAllChat')
-  // findAll() {
-  //   return this.chatService.findAll();
-  // }
-
-  // @SubscribeMessage('findOneChat')
-  // findOne(@MessageBody() id: number) {
-  //   return this.chatService.findOne(id);
-  // }
-
-  // @SubscribeMessage('updateChat')
-  // update(@MessageBody() updateChatDto: UpdateChatDto) {
-  //   return this.chatService.update(updateChatDto.id, updateChatDto);
-  // }
-
-  // @SubscribeMessage('removeChat')
-  // remove(@MessageBody() id: number) {
-  //   return this.chatService.remove(id);
-  // }
-
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: any): void {
-    // console.log('message received');
-    // console.log(message);
-    this.server.emit('message', message);
-  }
 
   handleConnection(client: Socket) {
     console.log('user connected');
-    //user is online
-    //Update database
     this.server.emit('user connected');
   }
 
@@ -95,7 +60,10 @@ export class ChatGateway {
   async handleNewUser(client: Socket) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.getFriends(userID);
-    this.server.to(client.id).emit('newUserResponse', user);
+    const chatRooms = await this.chatService.getChatRooms(userID);
+    this.server
+      .to(client.id)
+      .emit('newUserResponse', { users: user, chatRooms: chatRooms });
   }
 
   @SubscribeMessage('channelMessage')
@@ -140,6 +108,45 @@ export class ChatGateway {
   @SubscribeMessage('getMessages')
   async getMessages(client: Socket, data: { chatID: number }) {
     const messages = await this.chatService.getChatMessages(data.chatID);
+    this.server.to(client.id).emit('message', messages);
+  }
+
+  @SubscribeMessage('createChatRoom')
+  async createChatRoom(
+    client: Socket,
+    data: { title: string; password: string },
+  ) {
+    console.log('CreateChatRoom Reached');
+    console.log(data.title);
+    console.log(data.password);
+    const creatorID = await this.userService.findIDbySocketID(client.id);
+    console.log(creatorID);
+    return this.chatService.createChatRoom(
+      data.title,
+      creatorID,
+      data.password,
+    );
+    // this.server.to(client.id).emit('returnDirectChat', chat);
+  }
+  @SubscribeMessage('joinChatRoom')
+  async jpinChatRoom(
+    client: Socket,
+    data: { title: string; password: string },
+  ) {
+    console.log('joinChatRoom Reached');
+    console.log(data.title);
+    console.log(data.password);
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.findOneChatTitle(data.title);
+    return this.chatService.joinChatRoom(userID, chat.id, data.password);
+  }
+
+  @SubscribeMessage('getChatRoomMessages')
+  async getChatRoomMessages(client: Socket, data: { chatID: number }) {
+    console.log('Get ChatRoomMessages REACHED => chatID = ', data.chatID);
+    const messages = await this.chatService.getChatMessages(data.chatID);
+    const chat = await this.chatService.findOneChat(data.chatID);
+    this.server.to(client.id).emit('returnDirectChat', chat);
     this.server.to(client.id).emit('message', messages);
   }
 }

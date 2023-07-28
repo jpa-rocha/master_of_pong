@@ -110,30 +110,34 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   return (
     <div className="chatMainContainer">
-      <header className="chatMainHeader">
-        <h1>{chat?.title}</h1>
-      </header>
+      {chat ? (
+        <>
+          <header className="chatMainHeader">
+            <h1>{chat?.title}</h1>
+          </header>
 
-      <div className="messageContainer">
-        {messages &&
-          messages.map((message) =>
-            message.sender.username === user?.username ? (
-              <div className="messageChats" key={message.id}>
-                <p className="senderName">You</p>
-                <div className="messageSender">
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="messageChats" key={message.id}>
-                <p>{message.sender.username}</p>
-                <div className="messageRecipient">
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            )
-          )}
-      </div>
+          <div className="messageContainer">
+            {messages &&
+              messages.map((message) =>
+                message.sender.username === user?.username ? (
+                  <div className="messageChats" key={message.id}>
+                    <p className="senderName">You</p>
+                    <div className="messageSender">
+                      <p>{message.content}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="messageChats" key={message.id}>
+                    <p>{message.sender.username}</p>
+                    <div className="messageRecipient">
+                      <p>{message.content}</p>
+                    </div>
+                  </div>
+                )
+              )}
+          </div>
+        </>
+      ): null}
     </div>
   );
 };

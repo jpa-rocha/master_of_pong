@@ -74,19 +74,23 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   };
 
   return (
-    <div className="chatFooter">
-      <form className="chatForm" onSubmit={handleSendMessage}>
-        <input
-          type="text"
-          placeholder="Write message"
-          className="message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleTyping}
-        />
-        <button className="sendBtn">SEND</button>
-      </form>
-    </div>
+    <>
+      {chatID ? (
+      <div className="chatFooter">
+        <form className="chatForm" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            placeholder="Write message"
+            className="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleTyping}
+          />
+          <button className="sendBtn">SEND</button>
+        </form>
+      </div>
+      ): null}
+    </>
   );
 };
 

@@ -18,15 +18,16 @@ interface ChatBarProps {
   socket: Socket;
 }
 
-interface ChatProp {
+interface ChatRoomProp {
   id: number;
-  users: User[];
+  title: string;
 }
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [render, setRender] = useState<boolean>(false);
   const [userID, setUserID] = useState<string | undefined>(undefined);
+  const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
   const token: string = getToken("jwtToken");
 
   socket.on("user disconnected", () => {
@@ -47,8 +48,13 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       setUserID(id.data);
     }
     getUsersID();
-    socket.on("newUserResponse", (data) => {
-      setUsers(data);
+    socket.on("newUserResponse", (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
+      if (data.users)
+        setUsers(data.users);
+      if (data.chatRooms)
+        setChatRooms(data.chatRooms);
+      
+      console.log("FRIENDS DATA: ", data.users);
     });
     // socket.emit("newUser");
   }, [socket, token]);
@@ -65,19 +71,36 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 
+
+  function createChatRoom() {
+    const chatTitle = "MasterOfPongChatPublic";
+    const chatPassword = "";
+    socket.emit("createChatRoom", { title: chatTitle, password: chatPassword });
+  }
+
+  function joinChatRoom() {
+    const chatTitle = "MasterOfPongChatPublic";
+    const chatPassword = "";
+    socket.emit("joinChatRoom", { title: chatTitle, password: chatPassword });
+  }
+
+  function getChatRoomMessages(chatID: number) {
+    socket.emit("getChatRoomMessages", { chatID: chatID });
+  }
+
   return (
     <>
       <div className="chatSidebar">
         <h2>Chat Bar</h2>
         <div className="activeUsers">
-          <h4 className="chatHeader">Online Friends</h4>
+          <h4 className="chatHeader">Friends</h4>
           <div className="onlineUsers">
             <ul>
               {users.map((user) => (
                 <div key={user.username}>
-                  {user.isFriend && user.status !== "offline" ? (
+                  {user.isFriend ? (
                     <button onClick={() => handleGetChat(user)}>
-                      {user.username}
+                      {user.username} {user.status}
                     </button>
                   ) : null}
                 </div>
@@ -87,16 +110,20 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         </div>
 
         <div className="allUsers">
-          <h4 className="chatHeader">Offline Friends</h4>
+          <h4 className="chatHeader">Chat Rooms</h4>
+          <button onClick={() => createChatRoom()}>
+            create chatRoom
+          </button>
+          <button onClick={() => joinChatRoom()}>
+            join chatRoom
+          </button>
           <div className="chatUsers">
             <ul>
-              {users.map((user) => (
-                <div key={user.username}>
-                  {user.isFriend && user.status === "offline" ? (
-                    <button onClick={() => handleGetChat(user)}>
-                      {user.username}
+              {chatRooms && chatRooms.map((chat) => (
+                <div key={chat.id}>
+                    <button onClick={() => getChatRoomMessages(chat.id)}>
+                      {chat.title}
                     </button>
-                  ) : null}
                 </div>
               ))}
             </ul>
