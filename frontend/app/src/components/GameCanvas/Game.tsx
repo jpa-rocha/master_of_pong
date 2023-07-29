@@ -1,11 +1,11 @@
 import { Grid, Box } from "@mui/material";
 import calm from "../../images/CalmScorpion.gif";
 //import Footer from "./Footer";
-import NavBarLandingPage from "../NavBarLandingPage";
+import NavBarLandingPage from "../Navigation/NavBarLandingPage";
 //import Chat from './Messages/Chat'
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from "./GameCanvas";
-import NavBarMainPage from "../NavBarMainPage";
+import NavBarMainPage from "../Navigation/NavBarMainPage";
 import { Socket } from "socket.io-client";
 import { getUserID, getToken } from "../../utils/Utils";
 import { useState } from "react";

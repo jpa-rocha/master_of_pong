@@ -1,36 +1,22 @@
 import React from "react";
-import { AppBar, Toolbar, Grid, Box } from "@mui/material";
+
 
 /* This is Footer */
 
 const Footer: React.FunctionComponent = () => {
   return (
-    <Box>
-      <AppBar
-     /*    position="fixed" */
-        style={{
-          backgroundColor: "#09090C",
-          height: "6vh",
-       /*    minHeight: "50px", */
-      /*     zIndex: "0", */
-          fontSize: "20px",
-        }}
-        sx={{ top: "auto", bottom: 0 }}
-      >
-        <Toolbar>
-          <Grid
-            container
-            spacing={12}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Grid item md={12} textAlign="center">
-              <p>Team Master of Pong</p>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-    </Box>
+	<footer className="bg-black rounded-sm shadow fixed bottom-0 left-0 right-0">
+	<div className="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+		<span className="text-sm text-gray-200 sm:text-center dark:text-gray-400 mr-3">© 2023 
+			<span  className="hover:underline">MasterofPong™ </span>. All Rights Reserved.
+		</span>
+		<ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-200 sm:mt-0">
+			<li><span className="mr-4 hover:underline md:mr-6 ">About</span></li>
+			<li><span className="mr-4 hover:underline md:mr-6">Privacy Policy</span></li>
+			<li><span className="hover:underline">Contact</span></li>
+		</ul>
+    </div>
+</footer>
   );
 };
 

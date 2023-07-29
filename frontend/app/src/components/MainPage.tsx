@@ -1,16 +1,19 @@
 import React from "react";
-import "../styles/App.css";
-import { Grid, Box } from "@mui/material";
+import { Grid } from "@mui/material";
 import angry from "../images/AngryScorpion.gif";
-import NavBarMainPage from "./NavBarMainPage";
+import NavBarMainPage from "./Navigation/NavBarMainPage";
 import Footer from "./Footer";
 import { Socket } from "socket.io-client";
-import { get } from "http";
 import { getUserID, getToken } from "../utils/Utils";
+
 
 interface MainPageProps {
   socket: Socket;
 }
+
+const imgStyle = {
+    background: 'linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)',
+};
 
 /* This is the Main Page after User Login */
 
@@ -27,64 +30,30 @@ const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   //     .catch((error) => console.error(error));
   // }, []);
 
-  (async () => {
+	(async () => {
     userID = await getUserID(getToken("jwtToken"));
     console.log("UserID: " + userID);
     socket.emit("activityStatus", { userID: userID, status: "online" });
-  })();
+})();
 
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}
-    >
-      <Grid container>
-        {/* This is navigation */}
-        <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
-        </Grid>
+	return (
 
-        {/* This is main */}
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              flexGrow: 1,
-              background:
-                "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              sx={{ height: "100vh" }}
-            >
-              <img
-                src={angry}
-                alt="calmScorpion"
-                style={{
-                  objectFit: "cover",
-                  width: "100%",
-                  height: "100%",
-                  opacity: "0.4",
-                }}
-              ></img>
-            </Box>
-          </Box>
+    <Grid container>
+		<Grid item xs={12}>
+        	<NavBarMainPage></NavBarMainPage>
         </Grid>
+        <Grid item xs={12}>
+		<div className="relative h-[100vh]"> 
+			<img className="w-full max-h-full" src={angry} alt="angry"></img>
+			<div className="absolute inset-0 opacity-50" style={imgStyle}></div> 
+		</div> 
+        </Grid>
+        <Grid item xs={12}>
+        	<Footer></Footer>
+        </Grid>
+    </Grid>
 
-        {/* This is footer */}
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+);
 };
 
 export default MainPage;

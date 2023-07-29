@@ -1,9 +1,9 @@
 import React from "react";
 import "../styles/App.css";
-import { Box } from "@mui/material";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+/* import { Box } from "@mui/material";
+import { createTheme, ThemeProvider } from '@mui/material/styles'; */
 import LandingPage from "./LandingPage";
-
+/* 
 const theme = createTheme({
 	palette: {
 	  primary: {
@@ -13,7 +13,7 @@ const theme = createTheme({
 	typography: {
 		fontFamily: 'Neucha', 
 	}
-});
+}); */
 
 
 /* This is the Landing Page */
@@ -22,12 +22,8 @@ const App: React.FunctionComponent = () => {
 
 
 	return (
+		<LandingPage></LandingPage>
 	
-		<ThemeProvider theme={theme}>
-		<Box sx={{ display: 'flex', flexDirection: 'column',  alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-			<LandingPage></LandingPage>
-		</Box>
-		</ThemeProvider>	
 	);
 };
 

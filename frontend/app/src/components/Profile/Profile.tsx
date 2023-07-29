@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Grid } from "@mui/material";
-import NavBarMainPage from "../NavBarMainPage";
+import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
-import "./profileStyle/profile.css";
+/* import "./profileStyle/profile.css"; */
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
+//import ProfileDetails from './ProfileDetails';
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -157,53 +158,65 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
+<Grid item xs={6} md={12}>
+	<div className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-white border border-gray-200 rounded-lg shadow
+	 my-4 mx-4 p-4 md:m-5 md:p-6">
+    <img className=" rounded-t-lg md:h-auto md:w-[30%] md:rounded-none md:rounded-l-lg" src={profileImg} alt="profile_picture"/>
+    <div className="flex flex-col items-center md:p-4">
+        <h2 className="mb-1 text-xl font-medium text-gray-900">{userName}</h2>
+        <div className="text-lg text-gray-500 dark:text-gray-400 mt-3">
+			<p><span className="font-bold">Rank:</span> {rank} </p>
+        	<p><span className="font-bold">Wins:</span> {wins} </p>
+        	<p><span className="font-bold">Losses:</span> {losses}</p>
+		</div>
+        <div className="flex space-x-3 mt-2 p-2 md:mt-6">
+            <button  
+			className="inline-flex items-center px-3 py-2 text-sm text-center 
+			text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
+			focus:ring-gray-200"
+			onClick={handleUserNameChange}
+			>Change User Name
+			</button>
+            <button 
+			className="inline-flex items-center px-4 py-2 text-sm text-center text-white bg-green-800
+			border border-gray-300 rounded-lg 
+			hover:bg-green-600 focus:ring-4 focus:outline-none
+			focus:ring-gray-200"
+			onClick={handleProfileImgChange}
+			> Change Profile Picture</button>
+        </div>
+    </div>
+	</div>
+</Grid>
+    <Grid item xs={6} md={12}>
+	<h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
+	<div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2">
+	    <table className="w-full text-lg text-left text-gray-500">
+	        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+	            <tr>
+	                <th scope="col" className="px-6 py-1">
+	                	Opponent
+	                </th>
+	                <th scope="col" className="px-6 py-1">
+	                    Result
+	                </th>
+	            </tr>
+	        </thead>
+	        <tbody>
+				{matches.map((match, index) => (
+	            <tr className="bg-white border-b" key={index}>
+	                <td className="px-6 py-1">{match.opponent}</td>
+	                <td className="px-6 py-1">{match.result}</td>
+	            </tr>
+	        ))}
+	        </tbody>
+	    </table>
+	</div>
+    </Grid>
         <Grid item xs={12}>
-          <div className="all">
-            <div className="userInfo">
-              <div className="img-div">
-                <img src={profileImg} alt="profile_picture"></img>
-                <h2>{userName}</h2>
-              </div>
-
-              <div className="ranks">
-                <h2>Rank: {rank} </h2>
-                <h2>Wins: {wins} </h2>
-                <h2>Losses: {losses}</h2>
-              </div>
-              <div className="btns">
-                <button type="submit" onClick={handleProfileImgChange}>
-                  Change Profile Picture
-                </button>
-                <button type="submit" onClick={handleUserNameChange}>
-                  Change Username
-                </button>
-              </div>
-              <div className="matchHistory">
-                <h2> Match History</h2>
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>Opponent</th>
-                      <th>Result</th>
-                    </tr>
-                    {matches.map((match, index) => (
-                      <tr key={index}>
-                        <td>{match.opponent}</td>
-                        <td>{match.result}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+        	<Footer></Footer>
         </Grid>
-
-        {/* This is footer */}
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
-      </Grid>
+    </Grid>
     </>
   );
 };

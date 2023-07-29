@@ -10,7 +10,7 @@ import { Box, Grid } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./FriendsStyle.css";
-import NavBarMainPage from "../NavBarMainPage";
+import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import { getUserID, getToken } from "../../utils/Utils";

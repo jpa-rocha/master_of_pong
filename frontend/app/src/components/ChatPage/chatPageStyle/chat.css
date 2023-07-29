@@ -16,7 +16,7 @@ body,
 html {
   margin: 0;
   padding: 0;
-  background: var(--bg-body);
+  /* background: var(--bg-body); */
   height: 100%;
   overflow: hidden;
 }

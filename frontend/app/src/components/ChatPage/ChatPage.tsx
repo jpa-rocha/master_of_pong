@@ -5,7 +5,7 @@ import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import "./chatPageStyle/chat.css";
 import { Grid, Box } from "@mui/material";
-import NavBarMainPage from "../NavBarMainPage";
+import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { getUserID, getToken } from "../../utils/Utils";
 // import calm from "../../images/CalmScorpion.gif";
