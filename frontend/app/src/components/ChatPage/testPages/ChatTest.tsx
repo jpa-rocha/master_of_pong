@@ -3,7 +3,7 @@ import ChatBarTest from './ChatBarTest';
 import ChatBodyTest from './ChatBodyTest';
 import ChatFooterTest from './ChatFooterTest';
 
-const ChatExample: React.FC = () => {
+const ChatTest: React.FC = () => {
   return (
     <div className="flex h-screen text-gray-800 md-p-20 "> 
       <div className="flex h-4/5 flex-row w-full ">
@@ -21,4 +21,4 @@ const ChatExample: React.FC = () => {
   );
 };
 
-export default ChatExample;
+export default ChatTest;
