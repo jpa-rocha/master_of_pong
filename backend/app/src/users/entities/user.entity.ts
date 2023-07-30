@@ -40,7 +40,7 @@ export class User {
   xp: number;
 
   @Column({ type: 'varchar', length: 250, nullable: true })
-  twofa_secret: string;
+  twofa_secret?: string;
 
   @Column({ type: 'varchar', default: 'offline' })
   status: string;

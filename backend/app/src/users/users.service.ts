@@ -226,4 +226,9 @@ export class UsersService {
       .addSelect('friend2.isFriend')
       .getMany();
   }
+
+  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+    return this.usersRepository.update(userId, {
+      twofa_secret: secret
+    });
 }
