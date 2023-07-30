@@ -9,6 +9,8 @@ import { GameModule } from './game/game.module';
 import { Server } from 'socket.io';
 import { GameDataModule } from './game-data/game-data.module';
 import { ChatModule } from './chat/chat.module';
+import { TwoFactorAuthenticationService } from './two-factor-authentication/two-factor-authentication.service';
+import { TwoFactorAuthenticationController } from './two-factor-authentication/two-factor-authentication.controller';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { ChatModule } from './chat/chat.module';
     GameDataModule,
     ChatModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, Server],
+  controllers: [AppController, TwoFactorAuthenticationController],
+  providers: [AppService, Server, TwoFactorAuthenticationService],
 })
 export class AppModule {}
