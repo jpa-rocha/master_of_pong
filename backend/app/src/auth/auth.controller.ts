@@ -91,7 +91,7 @@ export class AuthController {
     return user;
   }
 
-  @Post('2fa/authenticate')
+/*   @Post('2fa/authenticate')
   @HttpCode(200)
   // @UseGuards(JwtAuthGuard)
   async authenticate(@Req() req: Request, @Body() body) {
@@ -115,5 +115,5 @@ export class AuthController {
     }
     console.log('We reached this part! 222');
     return this.authService.loginWithTwoFactorAuthentication(user);
-  }
+  } */
 }
