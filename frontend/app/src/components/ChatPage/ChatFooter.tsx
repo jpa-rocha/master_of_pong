@@ -56,7 +56,8 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    socket.emit("sendMessage", { chatID: chatID, message: message });
+    if (message !== "")
+      socket.emit("sendMessage", { chatID: chatID, message: message });
     setMessage("");
   };
 

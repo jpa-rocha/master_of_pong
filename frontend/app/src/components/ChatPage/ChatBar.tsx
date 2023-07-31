@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
+import PopUpCreateChat from "./PopUpCreateChat";
+import PopUpJoinChat from "./PopUpJoinChat";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -28,6 +30,8 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
   const token: string = getToken("jwtToken");
+  const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
+  const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
 
   socket.on("user disconnected", () => {
     console.log("INSIDE user disconnect");
@@ -71,21 +75,32 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   }
 
 
-  function createChatRoom() {
-    const chatTitle = "MasterOfPongChatPrivate";
-    const chatPassword = "password";
-    socket.emit("createChatRoom", { title: chatTitle, password: chatPassword });
-  }
-
-  function joinChatRoom() {
-    const chatTitle = "MasterOfPongChatPrivate";
-    const chatPassword = "password";
-    socket.emit("joinChatRoom", { title: chatTitle, password: chatPassword });
-  }
-
+  
   function getChatRoomMessages(chatID: number) {
     socket.emit("getChatRoomMessages", { chatID: chatID });
   }
+
+  function createChatRoom(chatRoomName: string, chatRoomPassword: string) {
+    console.log("Chat Room CREATE");
+    console.log("NAME : ", chatRoomName);
+    console.log("PASS : ", chatRoomPassword);
+    socket.emit("createChatRoom", { title: chatRoomName, password: chatRoomPassword });
+  }
+
+  function joinChatRoom(chatRoomName: string, chatRoomPassword: string) {
+    console.log("Chat Room JOIN");
+    console.log("NAME : ", chatRoomName);
+    console.log("PASS : ", chatRoomPassword);
+    socket.emit("joinChatRoom", { title: chatRoomName, password: chatRoomPassword });
+  }
+
+  const toggleCreatePopup = () => {
+    setIsCreatePopupOpen(!isCreatePopupOpen);
+  };
+
+  const toggleJoinPopup = () => {
+    setIsJoinPopupOpen(!isJoinPopupOpen);
+  };
 
   return (
 	<div className="flex flex-col py-8 pl-6 pr-2 mt-3 rounded-2xl w-64 bg-gray-100 flex-shrink-0">
@@ -130,17 +145,18 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		<span className="font-bold">Chat Rooms</span>
 	  </div>
 	  <div className="flex flex-col space-y-1 mt-2 mx-2 h-48 overflow-y-auto">
-		<button  onClick={() => createChatRoom()}
-		 className="flex flex-row items-center hover:bg-gray-100">
-		create chatRoom
-		</button>
-		<button onClick={() => joinChatRoom()} 
-			className="flex flex-row items-center hover:bg-gray-100">
-		join chatRoom
-		</button>
+      <div>
+        <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+          create
+        </button>
+        {/* className="flex flex-row items-center hover:bg-gray-100"> */}
+        <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+          join
+        </button>
+      </div>
 		<ul>
 		{chatRooms && chatRooms.map((chat) => (
-		  <div key={chat.id}>
+      <div key={chat.id}>
 			  <button onClick={() => getChatRoomMessages(chat.id)}>
 				{chat.title}
 			  </button>
@@ -149,6 +165,42 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 	  </ul>
 	  </div>
 	</div>
+  {isCreatePopupOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <PopUpCreateChat isOpen={isCreatePopupOpen} onClose={toggleCreatePopup} onCreateChatRoom={createChatRoom} socket={socket} />
+        </div>
+      )}
+  {isJoinPopupOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <PopUpJoinChat isOpen={isJoinPopupOpen} onClose={toggleJoinPopup} onJoinChatRoom={joinChatRoom} socket={socket} />
+        </div>
+      )}
 </div>
     
   );
