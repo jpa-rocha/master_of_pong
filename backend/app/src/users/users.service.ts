@@ -227,8 +227,21 @@ export class UsersService {
       .getMany();
   }
 
-  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+  async setTwoFactorAuthenticationSecret(secret: string, userId: string) {
     return this.usersRepository.update(userId, {
-      twofa_secret: secret
+      twofa_secret: secret,
     });
+  }
+
+  async turnOnTwoFactorAuthentication(userId: string) {
+    return this.usersRepository.update(userId, {
+      is_2fa_enabled: true,
+    });
+  }
+
+  async turnOffTwoFactorAuthentication(userId: string) {
+    return this.usersRepository.update(userId, {
+      is_2fa_enabled: false,
+    });
+  }
 }

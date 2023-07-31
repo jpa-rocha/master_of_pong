@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { User } from 'src/users/entities/user.entity';
 import { UsersModule } from 'src/users/users.module';

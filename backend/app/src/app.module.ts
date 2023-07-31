@@ -11,6 +11,11 @@ import { GameDataModule } from './game-data/game-data.module';
 import { ChatModule } from './chat/chat.module';
 import { TwoFactorAuthenticationService } from './two-factor-authentication/two-factor-authentication.service';
 import { TwoFactorAuthenticationController } from './two-factor-authentication/two-factor-authentication.controller';
+import { TwoFactorAuthenticationModule } from './two-factor-authentication/two-factor-authentication.module';
+import { UsersService } from './users/users.service';
+import { UsersController } from './users/users.controller';
+import { User } from './users/entities/user.entity';
+import { Friend } from './users/entities/friend.entity';
 
 @Module({
   imports: [
@@ -30,12 +35,14 @@ import { TwoFactorAuthenticationController } from './two-factor-authentication/t
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([User, Friend]),
     UsersModule,
     AuthModule,
     GameDataModule,
     ChatModule,
+    TwoFactorAuthenticationModule,
   ],
-  controllers: [AppController, TwoFactorAuthenticationController],
-  providers: [AppService, Server, TwoFactorAuthenticationService],
+  controllers: [AppController, TwoFactorAuthenticationController, UsersController],
+  providers: [AppService, Server, TwoFactorAuthenticationService, UsersService],
 })
 export class AppModule {}

@@ -8,6 +8,7 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
+import { SpatialColumnOptions } from 'typeorm/decorator/options/SpatialColumnOptions';
 
 @WebSocketGateway(5050, { cors: '*' })
 export class ChatGateway {
@@ -148,5 +149,20 @@ export class ChatGateway {
     const chat = await this.chatService.findOneChat(data.chatID);
     this.server.to(client.id).emit('returnDirectChat', chat);
     this.server.to(client.id).emit('message', messages);
+  }
+
+  @SubscribeMessage('checkChatRoomName')
+  async checkChatRoomName(client: Socket, data: { name: string }) {
+    return await this.chatService.checkName(data.name);
+  }
+
+  @SubscribeMessage('getChatRooms')
+  async getChatRooms(client: Socket, data: { name: string }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chatRooms = await this.chatService.getChatRoomsJoin(
+      userID,
+      data.name,
+    );
+    this.server.to(client.id).emit('joinableRooms', chatRooms);
   }
 }

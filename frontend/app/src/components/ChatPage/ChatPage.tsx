@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
+import NavBarMainPage from "../Navigation/NavBarMainPage";
+import Footer from "../Footer";
 import ChatBar from "./ChatBar";
 import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
-import "./chatPageStyle/chat.css";
-import { Grid, Box } from "@mui/material";
-import NavBarMainPage from "../Navigation/NavBarMainPage";
-import Footer from "../Footer";
+import { Grid } from "@mui/material";
 import { getUserID, getToken } from "../../utils/Utils";
-// import calm from "../../images/CalmScorpion.gif";
+
 
 interface ChatPageProps {
   socket: Socket;
@@ -47,30 +46,28 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
 
   return (
     <>
-      <Grid container>
-        {/* This is navigation */}
+    <Grid container>
+
+    	<Grid item xs={12}>
+    	  <NavBarMainPage></NavBarMainPage>
+    	</Grid>
 
         <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
+		<div className="flex h-4/5 text-gray-800 ">
+			<ChatBar socket={socket}></ChatBar>
+			<div className="flex flex-col flex-auto h-full p-6">
+          	<div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
+				<ChatBody socket={socket}/> 
+				<ChatFooter socket={socket}/>
+			</div>
+        	</div>
+		</div>
         </Grid>
 
-        <Grid item xs={12}>
-          <div className="chatPageContainer">
-            <div className="chatSide">
-              <ChatBar socket={socket} />
-            </div>
-            <div className="chatMain">
-              <ChatBody socket={socket}/>
-              <ChatFooter socket={socket} />
-            </div>
-          </div>
-        </Grid>
-
-        {/* This is footer */}
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
-      </Grid>
+    </Grid>
     </>
   );
 };

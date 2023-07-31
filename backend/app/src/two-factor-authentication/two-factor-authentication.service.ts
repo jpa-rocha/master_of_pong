@@ -8,29 +8,40 @@ import { Response } from 'express';
 
 @Injectable()
 export class TwoFactorAuthenticationService {
-    constructor (
-        private readonly usersService: UsersService,
-        private readonly configService: ConfigService
-    ) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
+  ) {}
 
-    // TODO could take a cookie instead of a user, as long as the cookie has the email and the id
-    public async generateTwoFactorAuthenticationSecret(user: User) {
-        const secret = authenticator.generateSecret();
+  // TODO could take a cookie instead of a user, as long as the cookie has the email and the id
+  public async generateTwoFactorAuthenticationSecret(user: User) {
+    const secret = authenticator.generateSecret();
 
-        const otpauthurl = authenticator.keyuri(
-            user.email,
-            this.configService.get('POSTGRES_DB'),
-            secret);
+    const otpauthurl = authenticator.keyuri(
+      user.email,
+      this.configService.get('POSTGRES_DB'),
+      secret,
+    );
 
-        await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
+    await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
 
-        return {
-            secret,
-            otpauthurl
-        }
-    }
+    return {
+      secret,
+      otpauthurl,
+    };
+  }
 
-    public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-        return toFileStream(stream, otpauthUrl)
-    }
+  public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
+    return toFileStream(stream, otpauthUrl);
+  }
+
+  public isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    user: User,
+  ) {
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twofa_secret,
+    });
+  }
 }

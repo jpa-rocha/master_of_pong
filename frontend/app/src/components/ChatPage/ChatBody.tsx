@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./chatPageStyle/chat.css";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
@@ -58,6 +56,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       // console.log("Current chat id = ", chat.id);
       // console.log("CHAT ID = ", chat.id);
       setMessages(data.messages);
+      console.log("messages = ", messages);
     }
   });
 
@@ -109,35 +108,46 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   }
 
   return (
-    <div className="chatMainContainer">
-      {chat ? (
-        <>
-          <header className="chatMainHeader">
-            <h1>{chat?.title}</h1>
-          </header>
+    <div className="flex flex-col h-full overflow-x-auto mb-4">
+      <div className="flex flex-col h-full">
 
-          <div className="messageContainer">
-            {messages &&
-              messages.map((message) =>
-                message.sender.username === user?.username ? (
-                  <div className="messageChats" key={message.id}>
-                    <p className="senderName">You</p>
-                    <div className="messageSender">
-                      <p>{message.content}</p>
+      {/* <header className="chatMainHeader">
+        <h1>{chat?.title}</h1>
+      </header>   */}
+  
+        <div className="grid grid-cols-12 gap-y-2">
+          {messages &&
+            messages.map((message) =>
+              message.sender.username === user?.username ? (
+                <div className="col-start-1 col-end-8 p-3 rounded-lg" key={message.id}>
+                  <div className="flex flex-row items-center">
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">You</div>
+                      <div>
+                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                          {message.content}
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="col-start-6 col-end-13 p-3 rounded-lg" key={message.id}>
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-start flex-row-reverse">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                      <div>
+                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                          {message.content}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="messageChats" key={message.id}>
-                    <p>{message.sender.username}</p>
-                    <div className="messageRecipient">
-                      <p>{message.content}</p>
-                    </div>
-                  </div>
-                )
-              )}
-          </div>
-        </>
-      ): null}
+                </div>
+              )
+            )}
+        </div>
+      </div>
     </div>
   );
 };
