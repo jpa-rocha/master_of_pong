@@ -39,9 +39,12 @@ export class GameService {
     console.log('new gameservice class created');
   }
 
-  // TODO I dont knw if we need this, seems to  work without it
-  // private gameCollection = new GameCollection();
-
+  async getUsernames() {
+    this.gameObject.player1.user = await this.gameGateway.getUserName(this.gameObject.player1.databaseId);
+    if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+      this.gameObject.player2.user = await this.gameGateway.getUserName(this.gameObject.player2.databaseId);
+  }
+  
   initGame(): void {
     if (this.gameObject.gameStarted) return;
     this.gameObject.gameStarted = true;
@@ -56,6 +59,26 @@ export class GameService {
       player2Character: this.gameObject.player2.options.character,
       player2Size: this.gameObject.player2.options.paddle,
     });
+   (async () => {
+
+      console.log("before await");
+      await this.getUsernames();
+      let finalName2: string;
+      let finalName1 = this.gameObject.player1.user.username;
+      if (this.gameObject.player2.user)
+        finalName2 = this.gameObject.player2.user.username;
+      else
+        finalName2 = "Bot";
+      this.gameObject.sendToClients<{
+          player1Username: string;
+          player2Username: string;
+        }>('playerUsernames', {
+            player1Username: finalName1,
+            player2Username: finalName2,
+          });
+      })();
+        console.log("GAME SERVICE => player1 = ", this.gameObject.player1.user);
+        console.log("GAME SERVICE => player2 = ", this.gameObject.player2.user);
     this.gameObject.sendToPlayer1<{
       player: number;
       ability: number;
@@ -529,41 +552,6 @@ export class GameService {
     this.gameObject.ballVel = targetVector;
   }
 
-  // private abilityMirage() {
-  //   if (!this.gameObject.allowAbilities) return;
-  //   if (this.gameObject.mirage) {
-  //     this.gameObject.mirage = false;
-  //     if (this.mirageTimer) {
-  //       clearTimeout(this.mirageTimer);
-  //     }
-  //     let index = 0;
-  //     while (index < 8) {
-  //       this.gameObject.mirageBallsPos.push([
-  //         this.gameObject.ballPos.x + (Math.random() - 0.5) * 10,
-  //         this.gameObject.ballPos.y + (Math.random() - 0.5) * 10,
-  //       ]);
-  //       this.gameObject.mirageBallsVel.push([
-  //         this.gameObject.ballVel.x + (Math.random() - 0.5) * 2,
-  //         this.gameObject.ballVel.y + (Math.random() - 0.5) * 2,
-  //       ]);
-  //       index++;
-  //     }
-  //     if (!this.gameObject.gameOptions.dodge) {
-  //       this.mirageTimer = setTimeout(() => {
-  //         this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
-  //           'AbilityMirage',
-  //           {
-  //             AbilityMirage: false,
-  //           },
-  //         );
-  //         this.mirageTimer = null;
-  //         this.gameObject.mirageBallsPos = [];
-  //         this.gameObject.mirageBallsVel = [];
-  //       }, 5000);
-  //     }
-  //   }
-  // }
-
   private abilityLightning() {
     if (!this.gameObject.allowAbilities) return;
     if (this.gameObject.lightning) {
@@ -876,23 +864,6 @@ export class GameService {
       }
       return;
     }
-
-    // // Time Warp
-    // if (this.gameObject.timeWarp == true) {
-    //   if (this.timeWarpTimer) {
-    //     clearTimeout(this.freezeTimer);
-    //     this.freezeTimer = null;
-    //   } else {
-    //     this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
-    //     this.gameObject.ballVel.y = -this.gameObject.ballVel.y;
-    //   }
-    //   this.gameObject.timeWarp = false;
-    //   this.timeWarpTimer = setTimeout(() => {
-    //     this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
-    //     this.gameObject.ballVel.y = -this.gameObject.ballVel.y;
-    //     this.timeWarpTimer = null;
-    //   }, 3000);
-    // }
 
     if (this.gameObject.player1.useSpecial === true) {
       this.specialAbility(this.gameObject.player1, this.gameObject.player2);

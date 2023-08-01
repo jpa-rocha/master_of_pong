@@ -3,10 +3,17 @@ import { Server } from 'socket.io';
 import { Options } from '../movement.dto';
 import { Mode } from '../enums/Modes';
 import { Paddles } from '../enums/Paddles';
+import { CreateUserDto } from '../../users/dto/create-user.dto'
+import { User } from '../../users/entities/user.entity';
 
+interface UserProp {
+  id: string;
+  username: string;
+}
 @Injectable()
 export class Player {
   public id: string;
+  public user: User;
   public databaseId: string;
   public ready: boolean;
   public pos: { x: number; y: number };
