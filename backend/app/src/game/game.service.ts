@@ -428,7 +428,7 @@ export class GameService {
 				}
 				break;
 			case Character.Venomtail:
-				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 800 && this.gameObject.ballPos.x < 1150 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 100) {
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 950 && this.gameObject.ballPos.x < 1150 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 100) {
 					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
 					this.gameObject.player2.setSpecial();
 				}
