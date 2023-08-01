@@ -95,11 +95,6 @@ const Game = () => {
 			  <Grid item xs={12}>
 		      <Footer/>
         </Grid>
-
-        {/* This is footer */}
-        {/* 	<Grid item xs={12}>
-				<Footer></Footer>
-			</Grid> */}
       </Grid>
     </>
   );
