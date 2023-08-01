@@ -8,6 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
 import { User } from 'src/users/entities/user.entity';
 import { use } from 'passport';
+import { title } from 'process';
 
 interface ChatMessagesResult {
   chatID: number;
@@ -163,6 +164,30 @@ export class ChatService {
     newMessage.content = message;
     newMessage.sender = await this.usersService.findOne(clientID);
     return await this.messageRepository.save(newMessage);
+  }
+
+  async checkName(title: string) {
+    if (await this.findOneChatTitle(title)) return false;
+    return true;
+  }
+
+  async getChatRoomsJoin(userID: string, name: string) {
+    const subQuery = this.chatRepository
+      .createQueryBuilder('chatSub')
+      .innerJoin('chatSub.users', 'userSub')
+      .where('userSub.id = :userID') // Remove the parameter here
+      .select('chatSub.id') // Select only the chatSub.id column
+      .getQuery();
+
+    const chatRooms = await this.chatRepository
+      .createQueryBuilder('chat')
+      .where('chat.channel != :channel', { channel: 'direct' })
+      .andWhere('chat.title LIKE :name', { name: `${name}%` })
+      .setParameter('userID', userID) // Set the parameter here
+      .andWhere(`chat.id NOT IN (${subQuery})`)
+      .getMany();
+
+    return chatRooms;
   }
 
   updateChat(id: number, message: string, updateData: Partial<Chat>) {
