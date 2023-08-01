@@ -56,13 +56,13 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       // console.log("Current chat id = ", chat.id);
       // console.log("CHAT ID = ", chat.id);
       setMessages(data.messages);
-      console.log("messages = ", messages);
+      // console.log("messages = ", messages);
     }
   });
 
   socket.on("returnDirectChat", (chat: ChatProp) => {
     if (chat.id) {
-      console.log("Received CHAT ID = ", chat.id);
+      console.log("Received DIRECT CHAT ID = ", chat.id);
       setChat(chat);
       socket.emit("getMessages", { chatID: chat.id });
     }
@@ -87,10 +87,10 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       console.log("User = " + user?.username);
     };
     getUserEffect();
-    return () => {
-      socket.off("message");
-      socket.off("returnDirectChat");
-    };
+    // return () => {
+    //   socket.off("message");
+    //   socket.off("returnDirectChat");
+    // };
   }, [messages, user?.username, socket]);
 
   useEffect(() => {

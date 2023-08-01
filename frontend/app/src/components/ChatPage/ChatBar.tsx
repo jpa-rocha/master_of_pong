@@ -58,15 +58,9 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
       
-      console.log("FRIENDS DATA: ", data.users);
+      // console.log("FRIENDS DATA: ", data.users);
     });
 
-    return () => {
-      socket.off("user disconnected");
-      socket.off("NewConnection");
-      socket.off("RenderChatBar");
-      socket.off("newUserResponse")
-    };
   }, [socket, token, render]);
 
   function handleGetChat(user: User) {
@@ -74,6 +68,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   }
 
   function getChatRoomMessages(chatID: number) {
+    console.log("getChatRoomMessages CALLED");
     socket.emit("getChatRoomMessages", { chatID: chatID });
   }
 
