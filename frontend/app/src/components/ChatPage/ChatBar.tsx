@@ -26,7 +26,7 @@ interface ChatRoomProp {
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [render, setRender] = useState<boolean>(false);
+  const [render, setRender] = useState<number>(0);
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
   const token: string = getToken("jwtToken");
@@ -34,15 +34,15 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
 
   socket.on("user disconnected", () => {
-    console.log("INSIDE user disconnect");
-    if (render !== true) setRender(true);
-    else setRender(false);
+    setRender((prev) => prev + 1);
   });
 
   socket.on("NewConnection", () => {
-    console.log("INSIDE user connected");
-    if (render !== true) setRender(true);
-    else setRender(false);
+    setRender((prev) => prev + 1);
+  });
+
+  socket.on("RenderChatBar", () => {
+    setRender((prev) => prev + 1);
   });
 
   useEffect(() => {
@@ -51,6 +51,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       setUserID(id.data);
     }
     getUsersID();
+    socket.emit("newUser");
     socket.on("newUserResponse", (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
       if (data.users)
         setUsers(data.users);
@@ -59,38 +60,28 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       
       console.log("FRIENDS DATA: ", data.users);
     });
-    // socket.emit("newUser");
-  }, [socket, token]);
 
-  useEffect(() => {
-    console.log("Users changed");
-  }, [users]);
+    return () => {
+      socket.off("user disconnected");
+      socket.off("NewConnection");
+      socket.off("RenderChatBar");
+      socket.off("newUserResponse")
+    };
+  }, [socket, token, render]);
 
   function handleGetChat(user: User) {
-    // console.log("INSIDE handleGetChat");
-    // console.log("user1ID = ", userID);
-    // console.log("user2ID = ", user.id);
-    console.log("GET DIRECT CHAT CALLED");
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 
-
-  
   function getChatRoomMessages(chatID: number) {
     socket.emit("getChatRoomMessages", { chatID: chatID });
   }
 
   function createChatRoom(chatRoomName: string, chatRoomPassword: string) {
-    console.log("Chat Room CREATE");
-    console.log("NAME : ", chatRoomName);
-    console.log("PASS : ", chatRoomPassword);
     socket.emit("createChatRoom", { title: chatRoomName, password: chatRoomPassword });
   }
 
   function joinChatRoom(chatRoomName: string, chatRoomPassword: string) {
-    console.log("Chat Room JOIN");
-    console.log("NAME : ", chatRoomName);
-    console.log("PASS : ", chatRoomPassword);
     socket.emit("joinChatRoom", { title: chatRoomName, password: chatRoomPassword });
   }
 

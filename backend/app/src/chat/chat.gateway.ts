@@ -122,6 +122,7 @@ export class ChatGateway {
     console.log(data.password);
     const creatorID = await this.userService.findIDbySocketID(client.id);
     console.log(creatorID);
+    this.server.to(client.id).emit('RenderChatBar');
     return this.chatService.createChatRoom(
       data.title,
       creatorID,
@@ -139,6 +140,7 @@ export class ChatGateway {
     console.log(data.password);
     const userID = await this.userService.findIDbySocketID(client.id);
     const chat = await this.chatService.findOneChatTitle(data.title);
+    this.server.to(client.id).emit('RenderChatBar');
     return this.chatService.joinChatRoom(userID, chat.id, data.password);
   }
 
