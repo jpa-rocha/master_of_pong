@@ -149,11 +149,22 @@ export class ChatGateway {
     const chat = await this.chatService.findOneChat(data.chatID);
     this.server.to(client.id).emit('returnDirectChat', chat);
     this.server.to(client.id).emit('message', messages);
+    console.log('MESSAGES ------------------------------------');
+    console.log(messages);
+    console.log('---------------------------------------------');
   }
 
   @SubscribeMessage('checkChatRoomName')
   async checkChatRoomName(client: Socket, data: { name: string }) {
     return await this.chatService.checkName(data.name);
+  }
+
+  @SubscribeMessage('checkChatRoomPassword')
+  async checkChatRoomPassword(
+    client: Socket,
+    data: { id: number; password: string },
+  ) {
+    return await this.chatService.checkPassword(data.id, data.password);
   }
 
   @SubscribeMessage('getChatRooms')

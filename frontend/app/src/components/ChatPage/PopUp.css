@@ -40,7 +40,8 @@
 }
 
 .join-button {
-	width: 50px;
+	width: 80px;
+	height: 40px;
 	background-color: #007bff;
 	color: #ffffff;
 	border-radius: 5px;
@@ -67,5 +68,28 @@
 }
 
 .error {
+	color: red;
+}
+
+.joinable-chat {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 10px;
+	border-bottom: 1px solid #007bff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.room {
+	display: flex;
+	flex-direction: column;
+}
+
+.room-title {
+	font-weight: bold;
+}
+
+.error-message {
 	color: red;
 }
