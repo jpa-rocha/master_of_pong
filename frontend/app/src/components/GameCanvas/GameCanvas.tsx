@@ -27,6 +27,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const Images = useMemo(() => new ImageContainer(), []);
 	const endScreen = useMemo(() => new EndScreen(), []);
 	const [player, setPlayer] = useState<number>();
+	const [player1Name, setPlayer1Name] = useState<string>("");
+	const [player2Name, setPlayer2Name] = useState<string>("");
 	const [player1Size, setPlayer1Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player2Size, setPlayer2Size] = useState<{width: number, height: number}>({ width: 20, height: 100});
 	const [player1Position, setPlayer1Position] = useState<number>(350);
@@ -45,6 +47,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
 	const [isGameInit, setGameInit] = useState<boolean>(false);
 	const [winner, setWinner] = useState<number>(-1);
+	const [winnerName, setWinnerName] = useState<string>("");
 	const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 	const [arrowDown, setArrowDown] = useState<boolean>(false);
 	const [arrowUp, setArrowUp] = useState<boolean>(false);
@@ -478,6 +481,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
 			setGameSelection(true);
 			setBallSize(15);
+			setWinner(0);
 		}
 	}, [canvas, ctx, resetButton]);
 
@@ -678,6 +682,10 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current.on('winnerUpdate', (event: any) => {
 				const { winner } = event;
 				setWinner(winner);
+				if (winner === 1)
+					setWinnerName(player1Name);
+				else if (winner === 2)
+					setWinnerName(player2Name);
 				setScore({p1: 0, p2: 0});
 			});
 			socket.current.on('gameStatus', (event: any) => {
@@ -687,6 +695,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current.on('loadWindow', (event: any) => {
 				const { load } = event;
 				setRender(load);
+			});
+			socket.current.on('playerUsernames', (event: any) => {
+				const { player1Username, player2Username } = event;
+				setPlayer1Name(player1Username);
+				setPlayer2Name(player2Username);
 			});
 			if (abilities) {
 				// Ability timers
@@ -805,10 +818,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				});
 				socket.current.on('playerCharacter', (event: any) => {
 					const { player1Character, player1Size, player2Character, player2Size } = event;
-					console.log("player1Character" + player1Character);
-					console.log("player1Size: " + player1Size);
-					console.log("player2Character: " + player2Character);
-					console.log("player2Size: " + player2Size);
 					switch (player2Character) {
 						case Character.Venomtail:
 							switch (player2Size) {
@@ -925,9 +934,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					socket.current?.off('VenomtailSpecial');
 					socket.current?.off('BelowZeroSpecial');
 					socket.current?.off('RaivenSpecial');
+					socket.current?.off('playerUsernames');
 				};
 			}
 			return () => {
+				socket.current?.off('playerUsernames');
 				socket.current?.off('gameStatus');
 				socket.current?.off('winnerUpdate');
 				socket.current?.off('scoreUpdate');
@@ -1058,7 +1069,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(Images.healthText, 185, 60, 140, 25);
 						ctx.font = '20px Arial';
 						ctx.fillStyle = 'black';
-						ctx.fillText("Someone", 255, 75);
+						ctx.fillText(player1Name, 255, 75);
 						ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
@@ -1073,7 +1084,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						// p2 health border
 						ctx.drawImage(Images.healthText, 875, 60, 140, 25);
 						ctx.font = '20px Arial';
-						ctx.fillText("Someone", 945, 75);
+						ctx.fillText(player2Name, 945, 75);
 						ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
 						ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
 						ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
@@ -1139,7 +1150,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				
 						// Draw the line to the ball, when Venomtail ability is used
 						if (VenomtailSpecial) {
-							// Draw a line between two points
 							ctx.beginPath();
 							if (VenomtailTarget === 1)
 								ctx.moveTo(player1Size.width + 10, player1Position + player1Size.height / 2);
@@ -1171,12 +1181,13 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						}
 					} else {
 						ctx.font = '30px Arial';
+						ctx.fillStyle = 'black';
+						ctx.fillText(player1Name, (canvas.width / 2) - 200, 30);
+						ctx.fillText(player2Name, (canvas.width / 2) + 200, 30);
 						ctx.fillStyle = 'white';
 						ctx.textAlign = 'center';
 						ctx.textBaseline = 'middle';
 						ctx.fillText(`${score.p1} - ${score.p2}`, canvas.width / 2, 30);
-						// ctx.font = '40px Arial';
-						// ctx.fillText(`${winner}`, canvas.width / 2, canvas.height - 50);
 
 						// Draw the ball
 						ctx.fillStyle = 'white';
@@ -1209,11 +1220,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						drawButton(ctx, gamemodeButtons[index], selectedGamemode);
 					}
 					for (index in paddleButtons) {
-						// drawImages(ctx, paddleButtons[index], selectedPaddle);
 						drawButton(ctx, paddleButtons[index], selectedPaddle);
 					}
 					for (index in characterButtons) {
-						// drawImages(ctx, characterButtons[index], selectedCharacter);
 						drawButton(ctx, characterButtons[index], selectedCharacter);
 					}
 					drawButton(ctx, hyperButton, Mode.Hyper, 5);
@@ -1277,7 +1286,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								ctx.drawImage(Images.healthText, 185, 60, 140, 25);
 								ctx.font = '20px Arial';
 								ctx.fillStyle = 'black';
-								ctx.fillText("Someone", 255, 75);
+								ctx.fillText(player1Name, 255, 75);
 								ctx.drawImage(Images.left_bar, 150, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 175, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 200, 25, 25, 40);
@@ -1292,7 +1301,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 								// p2 health border
 								ctx.drawImage(Images.healthText, 875, 60, 140, 25);
 								ctx.font = '20px Arial';
-								ctx.fillText("Someone", 945, 75);
+								ctx.fillText(player2Name, 945, 75);
 								ctx.drawImage(Images.left_bar, 872, 25, 25, 40);
 								ctx.drawImage(Images.mid_bar, 897, 25, 26, 40);
 								ctx.drawImage(Images.mid_bar, 923, 25, 26, 40);
@@ -1347,8 +1356,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 							}
 							ctx.fillStyle = 'black';
 							ctx.font = '35px Arial';
-							ctx.fillText("Someone", 600, 100);
-							ctx.fillText("Someone Else", 600, 200);
+							ctx.fillText(player1Name, 600, 100);
+							ctx.fillText(player2Name, 600, 200);
 							ctx.font = '40px Arial';
 							ctx.fillText("VS", 600, 150);
 							ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, canvas.width, canvas.height);
@@ -1369,180 +1378,183 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						}
 					}, 33);
 					return () => clearInterval(animInterval);
-				} else {
-					canvas?.addEventListener("click", handleFinishClick);
-					canvas?.addEventListener("mousemove", handleFinishMove);
-					const grd = ctx.createLinearGradient(0, 900, 0, 0);
-					
-					if (winner === player)
-					{
-						grd.addColorStop(0, "maroon");
-						grd.addColorStop(0.5, "red");
-						grd.addColorStop(1, "orange");
-					} else {
-						grd.addColorStop(0, "rgb(10, 20, 120)");
-						grd.addColorStop(0.5, "rgb(70, 70, 100)");
-						grd.addColorStop(1, "rgb(60, 60, 60)");
-					}
-					ctx.font = 'bold 40px Arial';
-					let timer: NodeJS.Timeout;
-					if (winner === player) {
-						ctx.fillStyle = 'white';
-						ctx.fillText("You have reached transcendence", 600, 200);
-						ctx.drawImage(endScreen.Mountains, 100, 300);
-						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-						timer = setInterval(() => {
-							ctx.fillStyle = grd;
-							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
-								endScreen.c1x -= 1;
-								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-							}
-							if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
-								endScreen.c2x += 1;
-								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-							}
-							if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
-								endScreen.c3x -= 1;
-								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-							}
-							ctx.drawImage(endScreen.Mountains, 100, 300);
-							if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
-								endScreen.c1x += 1;
-								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-							}
-							if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
-								endScreen.c2x -= 1;
-								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-							}
-							if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
-								endScreen.c3x += 1;
-								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-							}
-							ctx.fillStyle = 'white';
-							ctx.fillText("You have reached transcendence", 600, 200);
-							drawButton(ctx, resetButton, Mode.Reset);
-							if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
-								endScreen.c1behind = !endScreen.c1behind;
-							if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
-								endScreen.c2behind = !endScreen.c2behind;
-							if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
-								endScreen.c3behind = !endScreen.c3behind;
-						}, 100);
-						drawButton(ctx, resetButton, Mode.Reset);
-					} else {
-						ctx.fillStyle = 'black';
-						ctx.fillText("Player " + winner + " reaches transcendence, leaving you in the dust.", 600, 200);
-						ctx.drawImage(endScreen.Mountains, 100, 300);
-						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-						timer = setInterval(() => {
-							ctx.fillStyle = grd;
-							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
-								endScreen.c1x -= 1;
-								if (endScreen.c1LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
-								}
-								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-							}
-							if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
-								endScreen.c2x += 1;
-								if (endScreen.c2LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
-								}
-								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-							}
-							if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
-								endScreen.c3x -= 1;
-								if (endScreen.c3LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
-								}
-								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-							}
-							ctx.drawImage(endScreen.Mountains, 100, 300);
-							if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
-								endScreen.c1x += 1;
-								if (endScreen.c1LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
-								}
-								ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
-							}
-							if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
-								endScreen.c2x -= 1;
-								if (endScreen.c2LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
-								}
-								ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
-							}
-							if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
-								endScreen.c3x += 1;
-								if (endScreen.c3LightningActive) {
-									ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
-								}
-								ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
-							}
-							ctx.fillStyle = 'black';
-							ctx.fillText("Player " + winner + " reaches transcendence, leaving you in the dust.", 600, 200);
-							drawButton(ctx, resetButton, Mode.Reset);
-							if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
-								endScreen.c1behind = !endScreen.c1behind;
-							if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
-								endScreen.c2behind = !endScreen.c2behind;
-							if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
-								endScreen.c3behind = !endScreen.c3behind;
-							endScreen.lightningCounter++;
-							if (endScreen.lightningCounter === 50) {
-								endScreen.lightningCounter = 0;
-								switch (Math.floor(Math.random() * 4)) {
-									case 0:
-										endScreen.lightningImage = endScreen.Lightning1;
-										break;
-									case 1:	
-										endScreen.lightningImage = endScreen.Lightning2;
-										break;	
-									case 2:
-										endScreen.lightningImage = endScreen.Lightning3;
-										break;
-									case 3:
-										endScreen.lightningImage = endScreen.Lightning4;
-										break;
-								}
-								switch (Math.floor(Math.random() * 3)) {
-									case 0:
-										endScreen.lightningPosition = endScreen.c1x + 20 + Math.random() * 200;
-										endScreen.c1LightningActive = true;
-										break;
-									case 1:
-										endScreen.lightningPosition = endScreen.c2x + 27 + Math.random() * 80;
-										endScreen.c2LightningActive = true;
-										break;
-									case 2:
-										endScreen.lightningPosition = endScreen.c3x + 23 + Math.random() * 42;
-										endScreen.c3LightningActive = true;
-										break;
-								}
-							} else if (endScreen.lightningCounter === 5) {
-								endScreen.c1LightningActive = false;
-								endScreen.c2LightningActive = false;
-								endScreen.c3LightningActive = false;
-							}
-						}, 100);
-						drawButton(ctx, resetButton, Mode.Reset);
-					}
-					return () => {
-						clearInterval(timer);
-						canvas?.removeEventListener("click", handleFinishClick);
-						canvas?.removeEventListener("mousemove", handleFinishMove);
-					}
 				}
 			}
 		}
 	}, [player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen]);
 
+	useEffect(() => {
+		if (canvas && ctx && (winner === 1 || winner === 2)) {
+			canvas?.addEventListener("click", handleFinishClick);
+			canvas?.addEventListener("mousemove", handleFinishMove);
+			const grd = ctx.createLinearGradient(0, 900, 0, 0);
+			
+			if (winner === player)
+			{
+				grd.addColorStop(0, "maroon");
+				grd.addColorStop(0.5, "red");
+				grd.addColorStop(1, "orange");
+			} else {
+				grd.addColorStop(0, "rgb(10, 20, 120)");
+				grd.addColorStop(0.5, "rgb(70, 70, 100)");
+				grd.addColorStop(1, "rgb(60, 60, 60)");
+			}
+			ctx.font = 'bold 40px Arial';
+			let timer: NodeJS.Timeout;
+			if (winner === player) {
+				ctx.fillStyle = 'white';
+				ctx.fillText("You have reached transcendence", 600, 200);
+				ctx.drawImage(endScreen.Mountains, 100, 300);
+				ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+				ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+				ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+				timer = setInterval(() => {
+					ctx.fillStyle = grd;
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
+						endScreen.c1x -= 1;
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+					}
+					if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
+						endScreen.c2x += 1;
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+					}
+					if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
+						endScreen.c3x -= 1;
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+					}
+					ctx.drawImage(endScreen.Mountains, 100, 300);
+					if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
+						endScreen.c1x += 1;
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+					}
+					if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
+						endScreen.c2x -= 1;
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+					}
+					if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
+						endScreen.c3x += 1;
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+					}
+					ctx.fillStyle = 'white';
+					ctx.fillText("You have reached transcendence", 600, 200);
+					drawButton(ctx, resetButton, Mode.Reset);
+					if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
+						endScreen.c1behind = !endScreen.c1behind;
+					if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
+						endScreen.c2behind = !endScreen.c2behind;
+					if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
+						endScreen.c3behind = !endScreen.c3behind;
+				}, 100);
+				drawButton(ctx, resetButton, Mode.Reset);
+			} else {
+				ctx.fillStyle = 'black';
+				ctx.fillText(winnerName + " reaches transcendence, leaving you in the dust.", 600, 200);
+				ctx.drawImage(endScreen.Mountains, 100, 300);
+				ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+				ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+				ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+				timer = setInterval(() => {
+					ctx.fillStyle = grd;
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
+						endScreen.c1x -= 1;
+						if (endScreen.c1LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
+						}
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+					}
+					if (endScreen.c2behind && endScreen.c2x < endScreen.c2max) {
+						endScreen.c2x += 1;
+						if (endScreen.c2LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
+						}
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+					}
+					if (endScreen.c3behind && endScreen.c3x > endScreen.c3min) {
+						endScreen.c3x -= 1;
+						if (endScreen.c3LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
+						}
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+					}
+					ctx.drawImage(endScreen.Mountains, 100, 300);
+					if (!endScreen.c1behind && endScreen.c1x < endScreen.c1max) {
+						endScreen.c1x += 1;
+						if (endScreen.c1LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 505, 60, 180);
+						}
+						ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
+					}
+					if (!endScreen.c2behind && endScreen.c2x > endScreen.c2min) {
+						endScreen.c2x -= 1;
+						if (endScreen.c2LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 574, 30, 90);
+						}
+						ctx.drawImage(endScreen.Cloud2, endScreen.c2x, 535);
+					}
+					if (!endScreen.c3behind && endScreen.c3x < endScreen.c3max) {
+						endScreen.c3x += 1;
+						if (endScreen.c3LightningActive) {
+							ctx.drawImage(endScreen.lightningImage, endScreen.lightningPosition, 411, 30, 90);
+						}
+						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
+					}
+					ctx.fillStyle = 'black';
+					ctx.fillText(winnerName + " reaches transcendence, leaving you in the dust.", 600, 200);
+					drawButton(ctx, resetButton, Mode.Reset);
+					if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)
+						endScreen.c1behind = !endScreen.c1behind;
+					if (endScreen.c2x === endScreen.c2max || endScreen.c2x === endScreen.c2min)
+						endScreen.c2behind = !endScreen.c2behind;
+					if (endScreen.c3x === endScreen.c3max || endScreen.c3x === endScreen.c3min)
+						endScreen.c3behind = !endScreen.c3behind;
+					endScreen.lightningCounter++;
+					if (endScreen.lightningCounter === 50) {
+						endScreen.lightningCounter = 0;
+						switch (Math.floor(Math.random() * 4)) {
+							case 0:
+								endScreen.lightningImage = endScreen.Lightning1;
+								break;
+							case 1:	
+								endScreen.lightningImage = endScreen.Lightning2;
+								break;	
+							case 2:
+								endScreen.lightningImage = endScreen.Lightning3;
+								break;
+							case 3:
+								endScreen.lightningImage = endScreen.Lightning4;
+								break;
+						}
+						switch (Math.floor(Math.random() * 3)) {
+							case 0:
+								endScreen.lightningPosition = endScreen.c1x + 20 + Math.random() * 200;
+								endScreen.c1LightningActive = true;
+								break;
+							case 1:
+								endScreen.lightningPosition = endScreen.c2x + 27 + Math.random() * 80;
+								endScreen.c2LightningActive = true;
+								break;
+							case 2:
+								endScreen.lightningPosition = endScreen.c3x + 23 + Math.random() * 42;
+								endScreen.c3LightningActive = true;
+								break;
+						}
+					} else if (endScreen.lightningCounter === 5) {
+						endScreen.c1LightningActive = false;
+						endScreen.c2LightningActive = false;
+						endScreen.c3LightningActive = false;
+					}
+				}, 100);
+				drawButton(ctx, resetButton, Mode.Reset);
+			}
+			return () => {
+				clearInterval(timer);
+				canvas?.removeEventListener("click", handleFinishClick);
+				canvas?.removeEventListener("mousemove", handleFinishMove);
+			}
+		}
+	}, [winner, player]);
 
 	return (
 		<div>

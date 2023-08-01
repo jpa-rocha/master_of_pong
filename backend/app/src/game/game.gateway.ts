@@ -179,4 +179,10 @@ export class GameGateway
     };
     await this.gameDataService.create(gameDataDto);
   }
+
+  async getUserName(playerID: string) {
+    console.log("GetUSERNAME ID => ", playerID);
+    console.log("RESULT => ", await this.usersService.findOne(playerID));
+    return await this.usersService.findOne(playerID);
+  }
 }
