@@ -87,8 +87,20 @@ export class TwoFactorAuthenticationController {
       throw new UnauthorizedException('Wrong authentication code');
     }
 
-    /* TODO:  set jwtToken cookie */
+    /* TODO: 
+          create jwtToken cookie 
+          redirect to https://localhost:3000/main
+    */
 
-    return user;
+/*     const accessTokenCookie =
+      this.authenticationService.getCookieWithJwtAccessToken(
+        request.user.id,
+        true,
+      );
+
+    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+     */
+
+    return request.user;
   }
 }

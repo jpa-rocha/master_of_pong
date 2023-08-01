@@ -329,22 +329,29 @@ export class GameService {
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
       console.log('Random ability');
-      if (player.ability === 0) {
-        this.ballReset();
-      } else if (player.ability === 1) {
-        this.abFreeze();
-      } else if (player.ability === 2) {
-        opponent.SoundGrenade();
-      } else if (player.ability === 3) {
-        this.BallSize();
-      } else if (player.ability === 4) {
-        this.abMirage();
-      } else if (player.ability === 5) {
-        if (this.gameObject.gameOptions.dodge) {
-          this.ultVenomtail(player, opponent);
-        } else {
-          this.abDeflect(player);
-        }
+      switch (player.ability) {
+        case 0:
+          this.ballReset();
+          break;
+        case 1:
+          this.abFreeze();
+          break;
+        case 2:
+          opponent.SoundGrenade();
+          break;
+        case 3:
+          this.BallSize();
+          break;
+        case 4:
+          this.abMirage();
+          break;
+        case 5:
+          if (this.gameObject.gameOptions.dodge) {
+            this.ultVenomtail(player, opponent);
+          } else {
+            this.abDeflect(player);
+          }
+          break;
       }
       player.setAbility();
     }
