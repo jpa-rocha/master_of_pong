@@ -25,7 +25,6 @@ const PopUpCreateChat: React.FC<PopUpCreateChatProps> = ({ isOpen, onClose, onCr
 		const checkChatTitle = (name: string) => {
 			return new Promise((resolve, reject) => {
 				socket.emit('checkChatRoomName', {name}, (result: boolean) => {
-					console.log('Response from server:', result);
 					resolve(result);
 				});
 			});
@@ -33,7 +32,6 @@ const PopUpCreateChat: React.FC<PopUpCreateChatProps> = ({ isOpen, onClose, onCr
 
 		const getAvailability = async () => {
 			const availability = await checkChatTitle(chatRoomName);
-			console.log("AVAILABILITY = ", availability);
 			if (!availability)
 				setNameError("* This chat room name is already taken");
 			else if (chatRoomName.length > 20)
@@ -62,7 +60,7 @@ const PopUpCreateChat: React.FC<PopUpCreateChatProps> = ({ isOpen, onClose, onCr
 					<div className="error">{nameError}</div>
 				</div>
 				<div className="password-input">
-					<input type="text" placeholder="Password" value={chatRoomPassword} onChange={(e) => setChatRoomPassword(e.target.value)} />
+					<input type="password" placeholder="Password" value={chatRoomPassword} onChange={(e) => setChatRoomPassword(e.target.value)} />
 				</div>
 				<div>
 					* private chat room - put in a Password

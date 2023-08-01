@@ -126,6 +126,11 @@ export class GameGateway
     this.gameCollection.useAbility(client);
   }
 
+  @SubscribeMessage('clearAbility')
+  gameClearAbility(client: AuthenticatedSocket): void {
+    this.gameCollection.clearAbility(client);
+  }
+
   @SubscribeMessage('readyToPlay')
   async readyToPlay(client: AuthenticatedSocket) {
     this.gameCollection.playerReady(client);

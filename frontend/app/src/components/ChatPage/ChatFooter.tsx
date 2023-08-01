@@ -34,6 +34,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   socket.on("returnDirectChat", (chat: ChatProp) => {
     if (chat.id) {
       setChatID(chat.id);
+      console.log("Changing the chat in the FOOTER = ", chat.id);
     }
   });
 
@@ -49,15 +50,17 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
     const getUserEffect = async () => {
       const user = await getUser();
       setUser(user);
-      socket.emit("newUser");
+      // socket.emit("newUser");
     };
     getUserEffect();
   }, [socket]);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (message !== "")
+    if (message !== ""){ 
       socket.emit("sendMessage", { chatID: chatID, message: message });
+      console.log("SENDING TO THIS CHAT: ", chatID);
+    }
     setMessage("");
   };
 

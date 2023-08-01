@@ -26,7 +26,7 @@ interface ChatRoomProp {
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [render, setRender] = useState<boolean>(false);
+  const [render, setRender] = useState<number>(0);
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
   const token: string = getToken("jwtToken");
@@ -34,15 +34,15 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
 
   socket.on("user disconnected", () => {
-    console.log("INSIDE user disconnect");
-    if (render !== true) setRender(true);
-    else setRender(false);
+    setRender((prev) => prev + 1);
   });
 
   socket.on("NewConnection", () => {
-    console.log("INSIDE user connected");
-    if (render !== true) setRender(true);
-    else setRender(false);
+    setRender((prev) => prev + 1);
+  });
+
+  socket.on("RenderChatBar", () => {
+    setRender((prev) => prev + 1);
   });
 
   useEffect(() => {
@@ -51,46 +51,32 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       setUserID(id.data);
     }
     getUsersID();
+    socket.emit("newUser");
     socket.on("newUserResponse", (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
       if (data.users)
         setUsers(data.users);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
       
-      console.log("FRIENDS DATA: ", data.users);
+      // console.log("FRIENDS DATA: ", data.users);
     });
-    // socket.emit("newUser");
-  }, [socket, token]);
 
-  useEffect(() => {
-    console.log("Users changed");
-  }, [users]);
+  }, [socket, token, render]);
 
   function handleGetChat(user: User) {
-    // console.log("INSIDE handleGetChat");
-    // console.log("user1ID = ", userID);
-    // console.log("user2ID = ", user.id);
-    console.log("GET DIRECT CHAT CALLED");
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 
-
-  
   function getChatRoomMessages(chatID: number) {
+    console.log("getChatRoomMessages CALLED");
     socket.emit("getChatRoomMessages", { chatID: chatID });
   }
 
   function createChatRoom(chatRoomName: string, chatRoomPassword: string) {
-    console.log("Chat Room CREATE");
-    console.log("NAME : ", chatRoomName);
-    console.log("PASS : ", chatRoomPassword);
     socket.emit("createChatRoom", { title: chatRoomName, password: chatRoomPassword });
   }
 
   function joinChatRoom(chatRoomName: string, chatRoomPassword: string) {
-    console.log("Chat Room JOIN");
-    console.log("NAME : ", chatRoomName);
-    console.log("PASS : ", chatRoomPassword);
     socket.emit("joinChatRoom", { title: chatRoomName, password: chatRoomPassword });
   }
 
@@ -145,12 +131,12 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		<span className="font-bold">Chat Rooms</span>
 	  </div>
 	  <div className="flex flex-col space-y-1 mt-2 mx-2 h-48 overflow-y-auto">
-      <div>
-        <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+      <div style={{ display: "flex", width: "100%" }}>
+        <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           create
         </button>
         {/* className="flex flex-row items-center hover:bg-gray-100"> */}
-        <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+        <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           join
         </button>
       </div>
