@@ -374,8 +374,75 @@ export class GameService {
   }
 
   private moveBot(): void {
-    if (this.gameObject.gameStarted == false || this.gameObject.player2.freeze)
+    if (this.gameObject.gameStarted == false)
       return;
+	if (this.gameObject.player2.hasAbility) {
+		switch(this.gameObject.player2.ability) {
+			case 0:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 200) {
+					this.ballReset();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 1:
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 1140) {
+					this.abFreeze();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 2:
+				this.gameObject.player2.setAbility();
+				break;
+			case 3:
+				if (this.gameObject.ballVel.x > 0) {
+					this.BallSize();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 4:
+				if (this.gameObject.ballVel.x < 0) {
+					this.abMirage();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 5:
+				if (this.gameObject.gameOptions.dodge) {
+					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+					this.gameObject.player2.setAbility();
+				}
+				else {
+					if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x < 200 && this.gameObject.ballPos.x > 100) {
+						this.abDeflect(this.gameObject.player2);
+						this.gameObject.player2.setAbility();
+					}
+				}
+				break;
+		}
+	}
+	if (this.gameObject.player2.hasSpecial && !this.gameObject.gameOptions.dodge) {
+		switch (this.gameObject.player2.options.character) {
+			case Character.BelowZero:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 500) {
+					this.ultBelowZero(this.gameObject.player1);
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+			case Character.Venomtail:
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 950 && this.gameObject.ballPos.x < 1150 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 100) {
+					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+			case Character.Raiven:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 100 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player1.pos.y + (this.gameObject.player1.height / 2))) < 50) {
+					this.abLightning();
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+		}
+	}
+	if (this.gameObject.player2.freeze)
+		return;
     if (this.gameObject.gameOptions.dodge) {
       if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
         this.gameObject.player2.moveUp = false;
