@@ -100,6 +100,17 @@ export class GameCollection {
       client.data.lobby.player2.useAbility = true;
   }
 
+  public clearAbility(client: AuthenticatedSocket) {
+    if (client.data.lobby.player1.id === client.id) {
+      client.data.lobby.player1.ability = 10;
+      client.data.lobby.player1.useAbility = true;
+	}
+    if (client.data.lobby.player2.id === client.id) {
+      client.data.lobby.player2.ability = 10;
+      client.data.lobby.player2.useAbility = true;
+    }
+  }
+
   public initialiseSocket(client: AuthenticatedSocket) {
     client.data.lobby = null;
   }
