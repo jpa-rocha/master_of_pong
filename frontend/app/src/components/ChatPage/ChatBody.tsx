@@ -108,12 +108,16 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   }
 
   return (
+    <>
+    {/* <div>
+    <header className="ml-2 font-bold text-2xl">
+      <h1>{chat?.title}</h1>
+    </header>
+    </div> */}
+
     <div className="flex flex-col h-full overflow-x-auto mb-4">
       <div className="flex flex-col h-full">
 
-      {/* <header className="chatMainHeader">
-        <h1>{chat?.title}</h1>
-      </header>   */}
   
         <div className="grid grid-cols-12 gap-y-2">
           {messages &&
@@ -149,6 +153,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

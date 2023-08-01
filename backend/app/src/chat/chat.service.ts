@@ -145,6 +145,7 @@ export class ChatService {
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.sender', 'sender')
       .where('message.chat = :chatID', { chatID })
+      .orderBy('message.timestamp', 'ASC')
       .getMany();
 
     const result: ChatMessagesResult = {
@@ -169,6 +170,12 @@ export class ChatService {
   async checkName(title: string) {
     if (await this.findOneChatTitle(title)) return false;
     return true;
+  }
+
+  async checkPassword(id: number, password: string) {
+    const chat = await this.findOneChat(id);
+    if (chat.password == password) return true;
+    return false;
   }
 
   async getChatRoomsJoin(userID: string, name: string) {
