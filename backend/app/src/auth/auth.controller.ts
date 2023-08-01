@@ -32,19 +32,18 @@ export class AuthController {
   // api/auth/signin
   @Get('signin')
   async handleLogin(@Query('param') param: string, @Res() res: Response) {
-    console.log(param);
+    console.log('-------------------AT SIGNIN-------------------');
 
     const data = JSON.parse(decodeURIComponent(param));
+
     const token = await this.authService.signin(data);
 
     /*   
-      ***** Maybe *****
       if (i2fa) {
         const is_valid2fa =  res.redirect('https://localhost:3000/2fa');
       } 
-    
     */
-
+    console.log('------------here---------');
     res.cookie('jwtToken', token, { httpOnly: false });
 
     return res.redirect('https://localhost:3000/main');

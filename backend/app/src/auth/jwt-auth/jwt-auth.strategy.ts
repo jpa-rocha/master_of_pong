@@ -4,12 +4,16 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 
-export type JwtPayload = { id: string, is_2fa_enabled: boolean};
+export type JwtPayload = {
+  id: string;
+  is_2fa_enabled: boolean;
+  is_validated: boolean;
+};
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService, ){
-              // private usersService: UsersService) {
+  constructor(private configService: ConfigService) {
+    // private usersService: UsersService) {
     const extractJwtFromCookie = (req) => {
       let token = null;
 

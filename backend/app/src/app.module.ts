@@ -16,6 +16,9 @@ import { UsersService } from './users/users.service';
 import { UsersController } from './users/users.controller';
 import { User } from './users/entities/user.entity';
 import { Friend } from './users/entities/friend.entity';
+import { AuthService } from './auth/auth.service';
+import { JwtService } from '@nestjs/jwt';
+import { JwtAuthService } from './auth/jwt-auth/jwt-auth.service';
 
 @Module({
   imports: [
@@ -42,7 +45,19 @@ import { Friend } from './users/entities/friend.entity';
     ChatModule,
     TwoFactorAuthenticationModule,
   ],
-  controllers: [AppController, TwoFactorAuthenticationController, UsersController],
-  providers: [AppService, Server, TwoFactorAuthenticationService, UsersService],
+  controllers: [
+    AppController,
+    TwoFactorAuthenticationController,
+    UsersController,
+  ],
+  providers: [
+    AppService,
+    Server,
+    TwoFactorAuthenticationService,
+    UsersService,
+    AuthService,
+    JwtService,
+    JwtAuthService,
+  ],
 })
 export class AppModule {}

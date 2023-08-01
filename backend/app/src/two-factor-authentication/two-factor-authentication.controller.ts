@@ -18,6 +18,9 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { Request, Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { Console } from 'console';
+import { AuthService } from 'src/auth/auth.service';
+import { get } from 'http';
+import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -25,10 +28,12 @@ export class TwoFactorAuthenticationController {
   constructor(
     private readonly userService: UsersService,
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
+    private readonly authService: AuthService,
+    private readonly jwtAuthService: JwtAuthService,
   ) {}
 
   @Post('generate/:id')
-  //   @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async register(
     @Res() response: Response,
     @Req() request: Request,
@@ -73,6 +78,7 @@ export class TwoFactorAuthenticationController {
   // @UseGuards(JwtAuthGuard)
   async authenticate(
     @Req() request: Request,
+    @Res() res: Response,
     @Param('id') id: string,
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
@@ -92,15 +98,10 @@ export class TwoFactorAuthenticationController {
           redirect to https://localhost:3000/main
     */
 
-/*     const accessTokenCookie =
-      this.authenticationService.getCookieWithJwtAccessToken(
-        request.user.id,
-        true,
-      );
+    const { accessToken } = await this.jwtAuthService.login(user, true);
 
-    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
-     */
+    res.cookie('jwtToken', accessToken, { httpOnly: false });
 
-    return request.user;
+    return res.redirect('https://localhost:3000/main');
   }
 }
