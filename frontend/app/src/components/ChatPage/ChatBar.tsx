@@ -131,12 +131,12 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		<span className="font-bold">Chat Rooms</span>
 	  </div>
 	  <div className="flex flex-col space-y-1 mt-2 mx-2 h-48 overflow-y-auto">
-      <div>
-        <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+      <div style={{ display: "flex", width: "100%" }}>
+        <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           create
         </button>
         {/* className="flex flex-row items-center hover:bg-gray-100"> */}
-        <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+        <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           join
         </button>
       </div>
