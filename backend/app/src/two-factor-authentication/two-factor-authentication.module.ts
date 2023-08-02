@@ -42,6 +42,6 @@ import { JwtAuthStrategy } from 'src/auth/jwt-auth/jwt-auth.strategy';
     JwtAuthService,
     JwtAuthStrategy,
   ],
-  exports: [JwtModule, JwtAuthService],
+  exports: [TwoFactorAuthenticationModule, TwoFactorAuthenticationService],
 })
 export class TwoFactorAuthenticationModule {}

@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
-import { JwtAuthService } from './jwt-auth.service';
+import { JwtAuthService } from '../auth/jwt-auth/jwt-auth.service';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 
 export type JwtPayload = {
@@ -14,7 +14,7 @@ export type JwtPayload = {
 };
 
 @Injectable()
-export class JwtAuthStrategy extends PassportStrategy(Strategy) {
+export class JwtTwoFactorStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
@@ -38,16 +38,15 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
-
   async validate(token: JwtPayload): Promise<User> {
-    console.log('----- AT VALIDATE JWT -----', token);
+    console.log('----- AT 2FA VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
 
-    // if (token.is_2fa_enabled === true) {
-    //   if (token.is_validated === false) {
-    //     return null;
-    //   }
-    // }
+    if (token.is_2fa_enabled === true) {
+      if (token.is_validated === false) {
+        return null;
+      }
+    }
     return userInfo;
   }
 }
