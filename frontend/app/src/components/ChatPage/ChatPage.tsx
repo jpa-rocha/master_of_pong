@@ -7,6 +7,7 @@ import ChatBody from "./ChatBody";
 import ChatFooter from "./ChatFooter";
 import { Grid } from "@mui/material";
 import { getUserID, getToken } from "../../utils/Utils";
+import ChatUsers from "./ChatUsers";
 
 
 interface ChatPageProps {
@@ -52,21 +53,23 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
     	  <NavBarMainPage></NavBarMainPage>
     	</Grid>
 
-        <Grid item xs={12}>
-		<div className="flex h-4/5 text-gray-800 ">
-			<ChatBar socket={socket}></ChatBar>
-			<div className="flex flex-col flex-auto h-full p-6">
-          	<div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-				<ChatBody socket={socket}/> 
-				<ChatFooter socket={socket}/>
-			</div>
-        	</div>
-		</div>
-        </Grid>
+      <Grid item xs={12}>
+		    <div className="flex h-4/5 text-gray-800 ">
+          <ChatBar socket={socket}></ChatBar>
+          <div className="flex flex-col flex-auto h-full p-6">
+              <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
+                <ChatBody socket={socket}/> 
+                <ChatFooter socket={socket}/>
+              </div>
+          </div>
+          <ChatUsers socket={socket}></ChatUsers>
+        </div>
+      </Grid>
 
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
+      <Grid item xs={12}>
+        <Footer></Footer>
+      </Grid>
+
     </Grid>
     </>
   );

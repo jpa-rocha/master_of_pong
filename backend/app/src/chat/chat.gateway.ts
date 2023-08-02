@@ -89,6 +89,7 @@ export class ChatGateway {
       data.user2ID,
     );
     this.server.to(client.id).emit('returnDirectChat', chat);
+    this.server.to(client.id).emit('returnUsers', chat);
   }
 
   @SubscribeMessage('sendMessage')
@@ -150,6 +151,7 @@ export class ChatGateway {
     const messages = await this.chatService.getChatMessages(data.chatID);
     const chat = await this.chatService.findOneChat(data.chatID);
     this.server.to(client.id).emit('returnDirectChat', chat);
+    this.server.to(client.id).emit('returnUsers', chat);
     this.server.to(client.id).emit('message', messages);
     console.log('MESSAGES ------------------------------------');
     console.log(messages);
