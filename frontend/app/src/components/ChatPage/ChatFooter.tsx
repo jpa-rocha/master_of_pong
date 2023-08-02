@@ -31,10 +31,10 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const [chatID, setChatID] = useState<number>(0);
   // let user: UserProps;
 
-  socket.on("returnDirectChat", (chat: ChatProp) => {
+  socket.on("returnChat", (chat: ChatProp) => {
     if (chat.id) {
       setChatID(chat.id);
-      console.log("Changing the chat in the FOOTER = ", chat.id);
+      // console.log("Changing the chat in the FOOTER = ", chat.id);
     }
   });
 
@@ -46,20 +46,12 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
     const user = await axios.get(`api/users/${id}`);
     return user.data;
   };
-  useEffect(() => {
-    const getUserEffect = async () => {
-      const user = await getUser();
-      setUser(user);
-      // socket.emit("newUser");
-    };
-    getUserEffect();
-  }, [socket]);
-
+  
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (message !== ""){ 
       socket.emit("sendMessage", { chatID: chatID, message: message });
-      console.log("SENDING TO THIS CHAT: ", chatID);
+      // console.log("SENDING TO THIS CHAT: ", chatID);
     }
     setMessage("");
   };
@@ -67,14 +59,26 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const handleTyping = (): void => {
     const typingElement = document.querySelector(
       ".typing"
-    ) as HTMLElement | null;
-    if (typingElement) {
-      typingElement.classList.toggle("active");
-      setTimeout(() => {
+      ) as HTMLElement | null;
+      if (typingElement) {
         typingElement.classList.toggle("active");
-      }, 1000);
-    }
-  };
+        setTimeout(() => {
+          typingElement.classList.toggle("active");
+        }, 1000);
+      }
+    };
+
+    useEffect(() => {
+      const getUserEffect = async () => {
+        const user = await getUser();
+        setUser(user);
+        // socket.emit("newUser");
+      };
+      getUserEffect();
+      return () => {
+        socket.off("returnChat");
+      };
+    }, [socket]);
 
   return (
     <>

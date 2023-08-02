@@ -53,16 +53,12 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   socket.on("message", (data: ChatMessagesResult) => {
     if (chat && chat?.id === data.chatID) {
-      // console.log("Current chat id = ", chat.id);
-      // console.log("CHAT ID = ", chat.id);
+      // console.log("BODY RECEIVED MESSAGES");
       setMessages(data.messages);
-      // console.log("messages = ", messages);
     }
   });
-
-  socket.on("returnDirectChat", (chat: ChatProp) => {
+  socket.on("returnChat", (chat: ChatProp) => {
     if (chat.id) {
-      console.log("Received DIRECT CHAT ID = ", chat.id);
       setChat(chat);
       socket.emit("getMessages", { chatID: chat.id });
     }
@@ -84,13 +80,13 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       if (temp) {
         setUser(temp);
       }
-      console.log("User = " + user?.username);
+      // console.log("User = " + user?.username);
     };
     getUserEffect();
-    // return () => {
-    //   socket.off("message");
-    //   socket.off("returnDirectChat");
-    // };
+    return () => {
+      socket.off("message");
+      // socket.off("returnChat");
+    };
   }, [messages, user?.username, socket]);
 
   useEffect(() => {
@@ -109,11 +105,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   return (
     <>
-    {/* <div>
+    <div>
     <header className="ml-2 font-bold text-2xl">
       <h1>{chat?.title}</h1>
     </header>
-    </div> */}
+    </div>
 
     <div className="flex flex-col h-full overflow-x-auto mb-4">
       <div className="flex flex-col h-full">

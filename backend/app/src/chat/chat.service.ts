@@ -39,7 +39,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users', 'creator'],
+      relations: ['users', 'creator', 'admins'],
     };
     return this.chatRepository.findOne(options);
   }
@@ -86,11 +86,9 @@ export class ChatService {
 
   async createChatRoom(title: string, creatorID: string, password: string) {
     // 1: Check if the room name is available, if not inform the user
-    console.log('1 HERE');
     if (await this.findOneChatTitle(title)) {
       return null;
     }
-    console.log('2 HERE');
 
     // 2: If the name is available, create the chat room
     const creator = await this.usersService.findOne(creatorID);
@@ -99,6 +97,7 @@ export class ChatService {
     chatRoom.title = title;
     chatRoom.creator = creator;
     chatRoom.users = [creator];
+    chatRoom.admins = [creator];
     if (password) {
       chatRoom.channel = 'private';
       chatRoom.password = password;
@@ -106,7 +105,6 @@ export class ChatService {
       chatRoom.channel = 'public';
       chatRoom.password = '';
     }
-    console.log('3 HERE');
     return await this.chatRepository.save(chatRoom);
   }
 
@@ -128,12 +126,12 @@ export class ChatService {
       chatRoom.users.push(user);
       return this.chatRepository.save(chatRoom);
     } else if (chatRoom.channel === 'private') {
+      // TODO seems like a really unsafe way of handling passwords
       if (chatRoom.password === password) {
         chatRoom.users.push(user);
         return this.chatRepository.save(chatRoom);
       }
     }
-    // failed to join chatRoom
     return null;
   }
 

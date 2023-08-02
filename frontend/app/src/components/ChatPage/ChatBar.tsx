@@ -7,16 +7,15 @@ import PopUpJoinChat from "./PopUpJoinChat";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
+interface ChatBarProps {
+  socket: Socket;
+}
+
 interface User {
-  socketID: string;
   username: string;
   isFriend: boolean;
   status: string;
   id: string;
-}
-
-interface ChatBarProps {
-  socket: Socket;
 }
 
 interface ChatRoomProp {
@@ -26,50 +25,51 @@ interface ChatRoomProp {
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [render, setRender] = useState<number>(0);
   const [userID, setUserID] = useState<string | undefined>(undefined);
+
   const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
-  const token: string = getToken("jwtToken");
+
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
   const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
 
-  socket.on("user disconnected", () => {
-    setRender((prev) => prev + 1);
-  });
-
-  socket.on("NewConnection", () => {
-    setRender((prev) => prev + 1);
-  });
-
-  socket.on("RenderChatBar", () => {
-    setRender((prev) => prev + 1);
-  });
-
   useEffect(() => {
-    async function getUsersID() {
-      const id = await axios.post("api/auth/getUserID", { token });
-      setUserID(id.data);
-    }
-    getUsersID();
-    socket.emit("newUser");
-    socket.on("newUserResponse", (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
+    const token = getToken("jwtToken");
+  
+    const handleReturnChatBar = (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
+      console.log("Return Chat => ChatBar");
       if (data.users)
         setUsers(data.users);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
-      
-      // console.log("FRIENDS DATA: ", data.users);
-    });
+    };
 
-  }, [socket, token, render]);
+    const handleRenderChatBar = () => {
+      socket.emit("getChatBar", {userID: userID});
+    };
 
-  function handleGetChat(user: User) {
+    async function getUserID() {
+      const id = await axios.post("api/auth/getUserID", { token });
+      setUserID(id.data);
+    }
+  
+    if (!userID)
+      getUserID();
+    socket.emit("getChatBar", {userID: userID});
+
+    socket.on("returnChatBar", handleReturnChatBar);
+    socket.on("renderChatBar", handleRenderChatBar);
+    return () => {
+      socket.off("returnChatBar", handleReturnChatBar);
+      socket.off("renderChatBar", handleRenderChatBar);
+    };
+  }, [socket, userID])
+
+  function handleGetDirectChat(user: User) {
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
   }
 
-  function getChatRoomMessages(chatID: number) {
-    console.log("getChatRoomMessages CALLED");
-    socket.emit("getChatRoomMessages", { chatID: chatID });
+  function handleGetChatRoom(chatID: number) {
+    socket.emit("getChatRoom", { chatID: chatID });
   }
 
   function createChatRoom(chatRoomName: string, chatRoomPassword: string) {
@@ -117,7 +117,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		  {users.map((user) => (
 		  <div key={user.username} className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
 			{user.isFriend ? (
-		   <button onClick={() => handleGetChat(user)}
+		   <button onClick={() => handleGetDirectChat(user)}
 		   className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
 			 <div className="ml-2 text-sm font-semibold">{user.username} {user.status} </div>
 		   </button>
@@ -135,7 +135,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         <button  onClick={() => toggleCreatePopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           create
         </button>
-        {/* className="flex flex-row items-center hover:bg-gray-100"> */}
         <button onClick={() => toggleJoinPopup()} className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl flex-1">
           join
         </button>
@@ -143,7 +142,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		<ul>
 		{chatRooms && chatRooms.map((chat) => (
       <div key={chat.id}>
-			  <button onClick={() => getChatRoomMessages(chat.id)}>
+			  <button onClick={() => handleGetChatRoom(chat.id)}>
 				{chat.title}
 			  </button>
 		  </div>

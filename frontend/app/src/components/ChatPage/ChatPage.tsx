@@ -32,18 +32,11 @@ interface MessageProps {
 }
 
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
-  const [messages, setMessages] = useState<any[]>([]);
-  let userID: string = "";
 
   (async () => {
-    userID = await getUserID(getToken("jwtToken"));
-    console.log("UserID: " + userID);
+    const userID = await getUserID(getToken("jwtToken"));
     socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
-
-  useEffect(() => {
-    // socket.on("message", (data: MessageProps[]) => setMessages(data));
-  }, [socket, messages]);
 
   return (
     <>
