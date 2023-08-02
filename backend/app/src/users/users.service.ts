@@ -35,8 +35,8 @@ export class UsersService {
     return usersResult;
   }
 
-  findOne(id: string) {
-    const user = this.usersRepository.findOneBy({ id });
+  async findOne(id: string) {
+    const user = await this.usersRepository.findOneBy({ id });
     return user;
   }
 
