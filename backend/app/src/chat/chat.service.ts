@@ -39,7 +39,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users'],
+      relations: ['users', 'creator'],
     };
     return this.chatRepository.findOne(options);
   }
