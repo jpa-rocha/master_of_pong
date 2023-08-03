@@ -226,6 +226,8 @@ export class ChatGateway {
 
   @SubscribeMessage('kickUser')
   async kickUser(client: Socket, data: { userID: string; chatID: number }) {
-    // kickUser
+    const userID = await this.userService.findIDbySocketID(client.id);
+    await this.chatService.kickUser(userID, data.userID, data.chatID);
+    this.server.to(data.userID).emit('renderChatBar');
   }
 }

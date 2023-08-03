@@ -48,6 +48,10 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 		socket.emit('removeAdmin', {userID: target.id, chatID: chat?.id});
 	}
 
+	function handleKick() {
+		socket.emit("kickUser", {userID: target.id, chatID: chat.id});
+	}
+
   return (
     <>
     	<div>
@@ -75,7 +79,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 					{userRole === "Owner" ? (
 						<div className="admin-buttons">
 							<button className='red-back'>Mute</button>
-							<button className='red-back'>Kick</button>
+							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back'>Ban</button>
 						</div>
 					): null}
@@ -83,7 +87,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 					{userRole === "Admin" && targetState !== "Owner" && targetState !== "Admin" ? (
 						<div className="admin-buttons">
 							<button className='red-back'>Mute</button>
-							<button className='red-back'>Kick</button>
+							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back'>Ban</button>
 						</div>
 					): null}

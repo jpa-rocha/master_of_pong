@@ -235,4 +235,23 @@ export class ChatService {
     }
     return await this.chatRepository.save(chat);
   }
+
+  async kickUser(userID: string, targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const userIndex = chat.users.findIndex((user) => user.id === targetID);
+    const adminIndex = chat.admins.findIndex((user) => user.id === targetID);
+    if (chat.creator.id === userID) {
+      if (userIndex !== -1) chat.users.splice(userIndex, 1);
+      if (adminIndex !== -1) chat.admins.splice(adminIndex, 1);
+      return await this.chatRepository.save(chat);
+    } else {
+      const index = chat.admins.findIndex((user) => user.id === userID);
+      if (index !== -1 && targetID != chat.creator.id) {
+        if (userIndex !== -1) chat.users.splice(userIndex, 1);
+        if (adminIndex !== -1) chat.admins.splice(adminIndex, 1);
+        return await this.chatRepository.save(chat);
+      }
+    }
+    return null;
+  }
 }
