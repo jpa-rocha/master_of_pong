@@ -27,7 +27,6 @@ interface ChatProp {
 }
 
 const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
-	// const [userID, setUserID] = useState<string>();
 	const [userCurrent, setUserCurrent] = useState<User>();
 
 	const [chat, setChat] = useState<ChatProp>();
@@ -38,15 +37,6 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userME, setUserME] = useState<User | undefined>();
 	const [userRegular, setUserRegular] = useState<User[]>([]);
 	const [userAdmin, setUserAdmin] = useState<User[]>([]);
-
-	socket.on("returnChat", (chat: ChatProp) => {
-		if (chat.id) {
-		  setChat(chat);
-		  setUsers(chat.users);
-		  setAdmins(chat.admins);
-		  console.log("received users = ", chat.users);
-		}
-	});
 
 	useEffect(() => {
 		const getUserGET = async () => {
@@ -61,7 +51,9 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				setUserCurrent(tempUser);
 		}
 		getUserSET();
+	}, []);
 
+	useEffect(() => {
 		if (chat?.channel === "direct") {
 			setUserME(userCurrent);
 			const otherUser = users.filter((user) => user.id !== userCurrent?.id);
@@ -84,10 +76,19 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		}
 		const regulars = users.filter((user) => user.id !== userCurrent?.id && user.id !== userOwner?.id);
 		setUserRegular(regulars);
+
+		const handleReturnChat = (chat: ChatProp) => {
+			if (chat.id) {
+				setChat(chat);
+				setUsers(chat.users);
+				setAdmins(chat.admins);
+			  }
+		}
+		socket.on("returnChatUsers", handleReturnChat);
 		return () => {
-			socket.off("returnChat");
-		  };
-	}, [socket, chat, users, admins]);
+			socket.off("returnChatUsers", handleReturnChat);
+		};
+	}, [socket, chat, users, admins, userOwner?.id, userCurrent]);
 
 	return (
 		<>

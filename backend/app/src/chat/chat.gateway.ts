@@ -69,6 +69,8 @@ export class ChatGateway {
       data.user2ID,
     );
     this.server.to(client.id).emit('returnChat', chat);
+    this.server.to(client.id).emit('returnChatFooter', chat);
+    this.server.to(client.id).emit('returnChatUsers', chat);
   }
 
   // called in ChatBar
@@ -76,6 +78,8 @@ export class ChatGateway {
   async getChatRoomMessages(client: Socket, data: { chatID: number }) {
     const chat = await this.chatService.findOneChat(data.chatID);
     this.server.to(client.id).emit('returnChat', chat);
+    this.server.to(client.id).emit('returnChatFooter', chat);
+    this.server.to(client.id).emit('returnChatUsers', chat);
   }
 
   @SubscribeMessage('getMessages')

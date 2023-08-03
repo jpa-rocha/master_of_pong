@@ -27,56 +27,24 @@ interface ChatProp {
 
 const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const [message, setMessage] = useState("");
-  const [user, setUser] = useState<UserProps>();
   const [chatID, setChatID] = useState<number>(0);
-  // let user: UserProps;
-
-  socket.on("returnChat", (chat: ChatProp) => {
-    if (chat.id) {
-      setChatID(chat.id);
-      // console.log("Changing the chat in the FOOTER = ", chat.id);
-    }
-  });
-
-  const getUser = async () => {
-    const token = getToken("jwtToken");
-    const id = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    const user = await axios.get(`api/users/${id}`);
-    return user.data;
-  };
   
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (message !== ""){ 
+    if (message !== "")
       socket.emit("sendMessage", { chatID: chatID, message: message });
-      // console.log("SENDING TO THIS CHAT: ", chatID);
-    }
     setMessage("");
   };
 
-  const handleTyping = (): void => {
-    const typingElement = document.querySelector(
-      ".typing"
-      ) as HTMLElement | null;
-      if (typingElement) {
-        typingElement.classList.toggle("active");
-        setTimeout(() => {
-          typingElement.classList.toggle("active");
-        }, 1000);
-      }
-    };
-
     useEffect(() => {
-      const getUserEffect = async () => {
-        const user = await getUser();
-        setUser(user);
-        // socket.emit("newUser");
-      };
-      getUserEffect();
+      const handleReturnChat = (chat: ChatProp) => {
+        if (chat.id)
+        setChatID(chat.id);
+      }
+
+      socket.on("returnChatFooter", handleReturnChat);
       return () => {
-        socket.off("returnChat");
+        socket.off("returnChatFooter", handleReturnChat);
       };
     }, [socket]);
 
@@ -113,7 +81,6 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 
 	  </div>
 	  </form>
-  {/*     ): null} */}
     </>
   );
 };

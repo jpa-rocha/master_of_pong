@@ -24,9 +24,8 @@ interface ChatRoomProp {
 }
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [directChats, setDirectChats] = useState<User[]>([]);
   const [userID, setUserID] = useState<string | undefined>(undefined);
-
   const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
 
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
@@ -36,9 +35,8 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     const token = getToken("jwtToken");
   
     const handleReturnChatBar = (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
-      console.log("Return Chat => ChatBar");
       if (data.users)
-        setUsers(data.users);
+        setDirectChats(data.users);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
     };
@@ -114,7 +112,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 	  <div className="flex flex-row items-center justify-between text-xs">
 		<span className="font-bold">Friends</span>
 	  </div>
-		  {users.map((user) => (
+		  {directChats.map((user) => (
 		  <div key={user.username} className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
 			{user.isFriend ? (
 		   <button onClick={() => handleGetDirectChat(user)}

@@ -51,18 +51,20 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<ChatProp | undefined>(undefined);
 
-  socket.on("message", (data: ChatMessagesResult) => {
-    if (chat && chat?.id === data.chatID) {
-      // console.log("BODY RECEIVED MESSAGES");
-      setMessages(data.messages);
-    }
-  });
-  socket.on("returnChat", (chat: ChatProp) => {
-    if (chat.id) {
-      setChat(chat);
-      socket.emit("getMessages", { chatID: chat.id });
-    }
-  });
+  // socket.on("message", (data: ChatMessagesResult) => {
+  //   console.log("GETTING MESSAGES");
+  //   if (chat && chat?.id === data.chatID) {
+  //     // console.log("BODY RECEIVED MESSAGES");
+  //     setMessages(data.messages);
+  //   }
+  // });
+  // socket.on("returnChat", (chat: ChatProp) => {
+  //   console.log("RETURNED CHAT");
+  //   if (chat.id) {
+  //     setChat(chat);
+  //     socket.emit("getMessages", { chatID: chat.id });
+  //   }
+  // });
 
   useEffect(() => {
     const getUser = async () => {
@@ -80,14 +82,28 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       if (temp) {
         setUser(temp);
       }
-      // console.log("User = " + user?.username);
     };
     getUserEffect();
+
+    const handleReturnChat = (chat: ChatProp) => {
+      if (chat.id) {
+        setChat(chat);
+        socket.emit("getMessages", { chatID: chat.id });
+      }
+    }
+
+    const handleReturnMessages = (data: ChatMessagesResult) => {
+      if (chat && chat?.id === data.chatID)
+        setMessages(data.messages);
+    }
+
+    socket.on("returnChat", handleReturnChat);
+    socket.on("message", handleReturnMessages);
     return () => {
-      socket.off("message");
-      // socket.off("returnChat");
+      socket.off("message", handleReturnMessages);
+      socket.off("returnChat", handleReturnChat);
     };
-  }, [messages, user?.username, socket]);
+  }, [messages, user?.username, socket, chat]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
