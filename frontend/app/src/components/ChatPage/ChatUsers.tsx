@@ -38,6 +38,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userRegular, setUserRegular] = useState<User[]>([]);
 	const [userAdmin, setUserAdmin] = useState<User[]>([]);
 
+	const [render, setRender] = useState<boolean>(false);
+
 	useEffect(() => {
 		const getUserGET = async () => {
 			const token = getToken("jwtToken");
@@ -54,28 +56,30 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	}, []);
 
 	useEffect(() => {
-		if (chat?.channel === "direct") {
-			setUserME(userCurrent);
-			const otherUser = users.filter((user) => user.id !== userCurrent?.id);
-			setUserRegular(otherUser);
-			setUserOwner(undefined);
-			setUserAdmin([]);
-		} else {
-			const owner = chat?.creator;
-			setUserOwner(owner);
-			if (owner?.id !== userCurrent?.id) {
+		if (chat && userCurrent) {
+			if (chat.channel === "direct") {
 				setUserME(userCurrent);
+				const otherUser = users.filter((user) => user.id !== userCurrent.id);
+				setUserRegular(otherUser);
+				setUserOwner(undefined);
+				setUserAdmin([]);
 			} else {
-				setUserME(undefined);
+				const owner = chat.creator;
+				setUserOwner(owner);
+				if (owner.id !== userCurrent.id) {
+					setUserME(userCurrent);
+				} else {
+					setUserME(undefined);
+				}
+				const chatPolice = admins.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id);
+				const chatPoliceID = chatPolice.map((admin) => admin.id);
+				setUserAdmin(chatPolice);
+				const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id && !chatPoliceID.includes(user.id));
+				setUserRegular(regulars);
 			}
-			const chatPolice = admins.filter((user) => user.id !== userCurrent?.id && user.id !== userOwner?.id);
-			const chatPoliceID = chatPolice.map((admin) => admin.id);
-			setUserAdmin(chatPolice);
-			const regulars = users.filter((user) => user.id !== userCurrent?.id && user.id !== userOwner?.id && !chatPoliceID.includes(user.id));
+			const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id);
 			setUserRegular(regulars);
 		}
-		const regulars = users.filter((user) => user.id !== userCurrent?.id && user.id !== userOwner?.id);
-		setUserRegular(regulars);
 
 		const handleReturnChat = (chat: ChatProp) => {
 			if (chat.id) {
@@ -84,11 +88,23 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				setAdmins(chat.admins);
 			  }
 		}
+
+		const handleStatusRender = () => {
+			if (render === true)
+				setRender(false)
+			else
+				setRender(true);
+		};
+
 		socket.on("returnChatUsers", handleReturnChat);
+		socket.on("user connected", handleStatusRender);
+    	socket.on("user disconnected", handleStatusRender);
 		return () => {
 			socket.off("returnChatUsers", handleReturnChat);
+			socket.off("user connected", handleStatusRender);
+    		socket.off("user disconnected", handleStatusRender);
 		};
-	}, [socket, chat, users, admins, userOwner?.id, userCurrent]);
+	}, [socket, chat, users, admins, userOwner?.id, userCurrent, render]);
 
 	return (
 		<>

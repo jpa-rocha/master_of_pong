@@ -129,7 +129,6 @@ export class ChatGateway {
       data.message,
     );
     const messages = await this.chatService.getChatMessages(data.chatID);
-    console.log('Returning this chat ID', messages.chatID);
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('message', messages);

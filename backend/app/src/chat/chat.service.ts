@@ -55,7 +55,7 @@ export class ChatService {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
-    console.log('findDirectChat HERE');
+    // console.log('findDirectChat HERE');
     const user1 = await this.usersService.findOne(user1ID);
     const user2 = await this.usersService.findOne(user2ID);
     if (!user1 || !user2) {
@@ -71,9 +71,9 @@ export class ChatService {
       .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
-    console.log(chat);
+    // console.log(chat);
     if (!chat) {
-      console.log('------new chat created------');
+      // console.log('------new chat created------');
       const chat = new Chat();
       chat.title = 'direct';
       chat.creator = user1;

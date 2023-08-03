@@ -41,6 +41,10 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         setChatRooms(data.chatRooms);
     };
 
+    const handleStatusRender = () => {
+      socket.emit("getChatBar", {userID: userID});
+    };
+
     const handleRenderChatBar = () => {
       socket.emit("getChatBar", {userID: userID});
     };
@@ -56,9 +60,13 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
     socket.on("returnChatBar", handleReturnChatBar);
     socket.on("renderChatBar", handleRenderChatBar);
+    socket.on("user connected", handleStatusRender);
+    socket.on("user disconnected", handleStatusRender);
     return () => {
       socket.off("returnChatBar", handleReturnChatBar);
       socket.off("renderChatBar", handleRenderChatBar);
+      socket.off("user connected", handleStatusRender);
+      socket.off("user disconnected", handleStatusRender);
     };
   }, [socket, userID])
 
