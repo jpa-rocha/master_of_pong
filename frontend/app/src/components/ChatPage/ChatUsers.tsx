@@ -38,8 +38,6 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userRegular, setUserRegular] = useState<User[]>([]);
 	const [userAdmin, setUserAdmin] = useState<User[]>([]);
 
-	const [render, setRender] = useState<boolean>(false);
-
 	useEffect(() => {
 		const getUserGET = async () => {
 			const token = getToken("jwtToken");
@@ -77,8 +75,6 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id && !chatPoliceID.includes(user.id));
 				setUserRegular(regulars);
 			}
-			const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id);
-			setUserRegular(regulars);
 		}
 
 		const handleReturnChat = (chat: ChatProp) => {
@@ -86,25 +82,30 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				setChat(chat);
 				setUsers(chat.users);
 				setAdmins(chat.admins);
-			  }
+			}
 		}
 
 		const handleStatusRender = () => {
-			if (render === true)
-				setRender(false)
-			else
-				setRender(true);
+			socket.emit('getChatRoom', {chatID: chat?.id})
 		};
 
 		socket.on("returnChatUsers", handleReturnChat);
-		socket.on("user connected", handleStatusRender);
-    	socket.on("user disconnected", handleStatusRender);
+		socket.on("user connected users", handleStatusRender);
+    	socket.on("user disconnected users", handleStatusRender);
 		return () => {
 			socket.off("returnChatUsers", handleReturnChat);
-			socket.off("user connected", handleStatusRender);
-    		socket.off("user disconnected", handleStatusRender);
+			socket.off("user connected users", handleStatusRender);
+    		socket.off("user disconnected users", handleStatusRender);
 		};
-	}, [socket, chat, users, admins, userOwner?.id, userCurrent, render]);
+	}, [socket, chat, users, admins, userOwner?.id, userCurrent]);
+
+	function handleMakeAdmin(userID: string) {
+		socket.emit('addAdmin', {userID: userID, chatID: chat?.id});
+	}
+
+	function handleRemoveAdmin(userID: string) {
+		socket.emit('removeAdmin', {userID: userID, chatID: chat?.id});
+	}
 
 	return (
 		<>
@@ -126,12 +127,16 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			{userAdmin && userAdmin.map((user) => (
 				<div key={user.id}>
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>} 👮
+					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleRemoveAdmin(user.id)} >demote</button>
 				</div>
 			))}
 
 			{userRegular && userRegular.map((user) => (
 				<div key={user.id}>
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
+					{chat?.channel !== "direct" && !userME ? (
+						<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleMakeAdmin(user.id)} >promote</button>
+					): null}
 				</div>
 			))}
 		</div>

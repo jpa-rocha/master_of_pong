@@ -195,13 +195,25 @@ export class ChatService {
     return chatRooms;
   }
 
-  updateChat(id: number, message: string, updateData: Partial<Chat>) {
-    /* 
-      Update the general information about a chat. eg. banned users, muted users, etc.
-    */
-    //  return this.chatRepository.update(id, updateDate);
+  async addAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = await this.usersService.findOne(adminID);
+    if (admin) {
+      chat.admins.push(admin);
+      return this.chatRepository.save(chat);
+    }
+    return null;
   }
-}
-function getMany() {
-  throw new Error('Function not implemented.');
+
+  async removeAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = chat.admins.findIndex((admin) => admin.id === adminID);
+    if (admin !== -1) {
+      chat.admins.splice(admin, 1);
+      return this.chatRepository.save(chat);
+    }
+    return null;
+  }
 }
