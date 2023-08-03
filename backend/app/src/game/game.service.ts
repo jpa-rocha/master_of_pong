@@ -385,7 +385,7 @@ export class GameService {
 				}
 				break;
 			case 1:
-				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 1140) {
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 1140 && this.gameObject.ballPos.x < 1180 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 60) {
 					this.abFreeze();
 					this.gameObject.player2.setAbility();
 				}

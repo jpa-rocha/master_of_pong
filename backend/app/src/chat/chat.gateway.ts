@@ -18,9 +18,27 @@ export class ChatGateway {
     private userService: UsersService,
   ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log('user connected');
+    // try {
+    //   await this.userService.updateSocket(client.id, {
+    //     status: 'online',
+    //     socketID: client.id,
+    //   });
+    // } catch (e) {
+    //   console.log(e);
+    // }
+    try {
+      await this.userService.updateSocket(client.id, {
+        status: 'online',
+        socketID: client.id,
+      });
+    } catch (e) {
+      console.log(e);
+    }
     this.server.emit('user connected');
+    this.server.emit('user connected bar');
+    this.server.emit('user connected users');
   }
 
   async handleDisconnect(client: Socket) {
@@ -34,6 +52,8 @@ export class ChatGateway {
       console.log(e);
     }
     this.server.emit('user disconnected');
+    this.server.emit('user disconnected bar');
+    this.server.emit('user disconnected users');
   }
 
   // Sent from ChatPage after opening the chat page. Sets user socket and status
@@ -42,10 +62,13 @@ export class ChatGateway {
     client: Socket,
     data: { userID: string; status: string },
   ) {
+    console.log('SET TO ONLINE');
     await this.userService.update(data.userID, {
       socketID: client.id,
       status: data.status,
     });
+    this.server.emit('user connected bar');
+    this.server.emit('user connected users');
   }
 
   // Returns all the chats rooms so they can be displayed in the ChatBar
@@ -117,7 +140,9 @@ export class ChatGateway {
       chat.id,
       data.password,
     );
-    this.server.to(client.id).emit('renderChatBar');
+    result.users.forEach((user) => {
+      this.server.to(user.socketID).emit('renderChatBar');
+    });
     return result;
   }
 
@@ -156,5 +181,53 @@ export class ChatGateway {
       data.name,
     );
     this.server.to(client.id).emit('joinableRooms', chatRooms);
+  }
+
+  @SubscribeMessage('addAdmin')
+  async addAdmin(client: Socket, data: { userID: string; chatID: number }) {
+    console.log('add admin reached');
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chatRoom = await this.chatService.addAdmin(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    chatRoom.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+    });
+    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    return chatRoom;
+  }
+
+  @SubscribeMessage('removeAdmin')
+  async removeAdmin(client: Socket, data: { userID: string; chatID: number }) {
+    console.log('remove admin reached');
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chatRoom = await this.chatService.removeAdmin(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    chatRoom.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+    });
+    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    return chatRoom;
+  }
+
+  @SubscribeMessage('leaveChat')
+  async leaveChat(client: Socket, data: { chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.leaveChat(userID, data.chatID);
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('renderChatBar');
+    });
+  }
+
+  @SubscribeMessage('kickUser')
+  async kickUser(client: Socket, data: { userID: string; chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    await this.chatService.kickUser(userID, data.userID, data.chatID);
+    this.server.to(data.userID).emit('renderChatBar');
   }
 }

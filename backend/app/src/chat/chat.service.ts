@@ -195,13 +195,63 @@ export class ChatService {
     return chatRooms;
   }
 
-  updateChat(id: number, message: string, updateData: Partial<Chat>) {
-    /* 
-      Update the general information about a chat. eg. banned users, muted users, etc.
-    */
-    //  return this.chatRepository.update(id, updateDate);
+  async addAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = await this.usersService.findOne(adminID);
+    if (admin) {
+      chat.admins.push(admin);
+      return this.chatRepository.save(chat);
+    }
+    return null;
   }
-}
-function getMany() {
-  throw new Error('Function not implemented.');
+
+  async removeAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = chat.admins.findIndex((admin) => admin.id === adminID);
+    if (admin !== -1) {
+      chat.admins.splice(admin, 1);
+      return this.chatRepository.save(chat);
+    }
+    return null;
+  }
+
+  async leaveChat(userID: string, chatID: number) {
+    console.log('LEAVE CHAT');
+    const chat = await this.findOneChat(chatID);
+    const indexUsers = chat.users.findIndex((user) => user.id === userID);
+    const indexAdmins = chat.admins.findIndex((user) => user.id === userID);
+    if (indexAdmins !== -1) chat.admins.splice(indexAdmins, 1);
+    if (indexUsers !== -1) chat.users.splice(indexUsers, 1);
+    if (chat.creator.id === userID) {
+      if (chat.admins.length > 0) chat.creator = chat.admins[0];
+      else if (chat.users.length > 0) chat.creator = chat.users[0];
+      else {
+        console.log('NEW OWNER');
+        await this.chatRepository.remove(chat);
+        return null;
+      }
+    }
+    return await this.chatRepository.save(chat);
+  }
+
+  async kickUser(userID: string, targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const userIndex = chat.users.findIndex((user) => user.id === targetID);
+    const adminIndex = chat.admins.findIndex((user) => user.id === targetID);
+    if (chat.creator.id === userID) {
+      if (userIndex !== -1) chat.users.splice(userIndex, 1);
+      if (adminIndex !== -1) chat.admins.splice(adminIndex, 1);
+      return await this.chatRepository.save(chat);
+    } else {
+      const index = chat.admins.findIndex((user) => user.id === userID);
+      if (index !== -1 && targetID != chat.creator.id) {
+        if (userIndex !== -1) chat.users.splice(userIndex, 1);
+        if (adminIndex !== -1) chat.admins.splice(adminIndex, 1);
+        return await this.chatRepository.save(chat);
+      }
+    }
+    return null;
+  }
 }

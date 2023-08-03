@@ -60,13 +60,13 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
     socket.on("returnChatBar", handleReturnChatBar);
     socket.on("renderChatBar", handleRenderChatBar);
-    socket.on("user connected", handleStatusRender);
-    socket.on("user disconnected", handleStatusRender);
+    socket.on("user connected bar", handleStatusRender);
+    socket.on("user disconnected bar", handleStatusRender);
     return () => {
       socket.off("returnChatBar", handleReturnChatBar);
       socket.off("renderChatBar", handleRenderChatBar);
-      socket.off("user connected", handleStatusRender);
-      socket.off("user disconnected", handleStatusRender);
+      socket.off("user connected bar", handleStatusRender);
+      socket.off("user disconnected bar", handleStatusRender);
     };
   }, [socket, userID])
 
