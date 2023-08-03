@@ -92,7 +92,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		}
 
 		const handleReturnChat = (chat: ChatProp) => {
-			if (chat.id) {
+			if (chat && chat.id) {
 				setChat(chat);
 				setUsers(chat.users);
 				setAdmins(chat.admins);

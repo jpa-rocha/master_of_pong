@@ -52,6 +52,10 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 		socket.emit("kickUser", {userID: target.id, chatID: chat.id});
 	}
 
+	function handleBan() {
+		socket.emit("banUser", {userID: target.id, chatID: chat.id});
+	}
+
   return (
     <>
     	<div>
@@ -80,7 +84,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 						<div className="admin-buttons">
 							<button className='red-back'>Mute</button>
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
-							<button className='red-back'>Ban</button>
+							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
 					): null}
 					
@@ -88,7 +92,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 						<div className="admin-buttons">
 							<button className='red-back'>Mute</button>
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
-							<button className='red-back'>Ban</button>
+							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
 					): null}
 				</div>

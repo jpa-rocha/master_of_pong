@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
+import BannedUsersPopUp from "./PopUpBannedUsers";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -29,10 +30,13 @@ interface User {
 }
 
 interface ChatProp {
-  id: number;
-  title: string;
-  channel: string;
-  users: User[];
+	id: number;
+	title: string;
+	channel: string;
+	users: User[];
+	admins: User[];
+	banned: User[];
+	creator: User;
 }
 
 interface UserProps {
@@ -49,7 +53,9 @@ interface UserProps {
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<UserProps>();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [chat, setChat] = useState<ChatProp | undefined>(undefined);
+  const [chat, setChat] = useState<ChatProp>();
+
+  const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -70,8 +76,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     };
     getUserEffect();
 
-    const handleReturnChat = (chat: ChatProp) => {
-      if (chat.id) {
+    const handleReturnChatBody = (chat: ChatProp) => {
+      if (chat && chat.id) {
         setChat(chat);
         socket.emit("getMessages", { chatID: chat.id });
       }
@@ -82,11 +88,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         setMessages(data.messages);
     }
 
-    socket.on("returnChat", handleReturnChat);
+    socket.on("returnChat", handleReturnChatBody);
     socket.on("message", handleReturnMessages);
     return () => {
       socket.off("message", handleReturnMessages);
-      socket.off("returnChat", handleReturnChat);
+      socket.off("returnChat", handleReturnChatBody);
     };
   }, [messages, user?.username, socket, chat]);
 
@@ -104,10 +110,14 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     messageContainer.scrollTop = messageContainer.scrollHeight;
   }
 
-  const handleLeaeChat = () => {
+  const handleLeaveChat = () => {
     socket.emit('leaveChat', {chatID: chat?.id})
     document.location.reload();
   };
+
+  const togglePopup = () => {
+    setIsBannedPopupOpen(!isBannedPopupOpen);
+  }
 
   return (
     <>
@@ -115,9 +125,14 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       <header className="ml-2 font-bold text-2xl flex items-center">
         <h1>{chat?.title}</h1>
         {chat?.channel !== "direct" ? (
-          <button onClick={() => handleLeaeChat()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-            Leave
-          </button>
+          <div>
+            <button onClick={() => handleLeaveChat()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+              Leave
+            </button>
+            <button onClick={() => togglePopup()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+              Banned Users
+            </button>
+          </div>
         ) : null}
       </header>
     </div>
@@ -160,6 +175,24 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         </div>
       </div>
     </div>
+    {isBannedPopupOpen && chat && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <BannedUsersPopUp isOpen={isBannedPopupOpen} onClose={togglePopup} socket={socket} chat={chat} />
+        </div>
+      )}
     </>
   );
 };

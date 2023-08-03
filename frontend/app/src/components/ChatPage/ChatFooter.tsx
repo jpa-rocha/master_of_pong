@@ -26,7 +26,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 
     useEffect(() => {
       const handleReturnChat = (chat: ChatProp) => {
-        if (chat.id)
+        if (chat && chat.id)
         setChatID(chat.id);
       }
 

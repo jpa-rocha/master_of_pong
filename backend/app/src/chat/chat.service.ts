@@ -39,7 +39,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users', 'creator', 'admins'],
+      relations: ['users', 'creator', 'admins', 'banned'],
     };
     return this.chatRepository.findOne(options);
   }
@@ -179,9 +179,10 @@ export class ChatService {
   async getChatRoomsJoin(userID: string, name: string) {
     const subQuery = this.chatRepository
       .createQueryBuilder('chatSub')
-      .innerJoin('chatSub.users', 'userSub')
-      .where('userSub.id = :userID') // Remove the parameter here
-      .select('chatSub.id') // Select only the chatSub.id column
+      .leftJoin('chatSub.users', 'userSub') // Check if the user is a member
+      .leftJoin('chatSub.banned', 'bannedUser') // Check if the user is banned
+      .where('userSub.id = :userID OR bannedUser.id = :userID') // User is member or banned
+      .select('chatSub.id')
       .getQuery();
 
     const chatRooms = await this.chatRepository
@@ -249,6 +250,47 @@ export class ChatService {
       if (index !== -1 && targetID != chat.creator.id) {
         if (userIndex !== -1) chat.users.splice(userIndex, 1);
         if (adminIndex !== -1) chat.admins.splice(adminIndex, 1);
+        return await this.chatRepository.save(chat);
+      }
+    }
+    return null;
+  }
+
+  async banUser(userID: string, targetID: string, chatID: number) {
+    console.log('1');
+    const chat = await this.findOneChat(chatID);
+    const banned = await this.usersService.findOne(targetID);
+    if (!banned) return null;
+    if (chat.creator.id === userID) {
+      console.log('2');
+      if (!chat.banned) chat.banned = [banned];
+      else chat.banned.push(banned);
+      await this.chatRepository.save(chat);
+      return await this.kickUser(userID, targetID, chatID);
+    } else {
+      console.log('3');
+      const index = chat.admins.findIndex((user) => user.id === userID);
+      if (index !== -1 && targetID != chat.creator.id) {
+        if (!chat.banned) chat.banned = [banned];
+        else chat.banned.push(banned);
+        await this.chatRepository.save(chat);
+        return await this.kickUser(userID, targetID, chatID);
+      }
+    }
+    console.log('4');
+    return null;
+  }
+
+  async unbanUser(userID: string, targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const index = chat.banned.findIndex((user) => user.id === targetID);
+    if (chat.creator.id === userID) {
+      if (index !== -1) chat.banned.splice(index, 1);
+      return await this.chatRepository.save(chat);
+    } else {
+      const indexAdmin = chat.admins.findIndex((user) => user.id === userID);
+      if (indexAdmin !== -1) {
+        if (index !== -1) chat.banned.splice(index, 1);
         return await this.chatRepository.save(chat);
       }
     }

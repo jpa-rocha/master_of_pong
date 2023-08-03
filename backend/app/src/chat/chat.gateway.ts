@@ -229,5 +229,37 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     await this.chatService.kickUser(userID, data.userID, data.chatID);
     this.server.to(data.userID).emit('renderChatBar');
+    //TODO handle rerender for all affected users
+  }
+
+  @SubscribeMessage('banUser')
+  async banUser(client: Socket, data: { userID: string; chatID: number }) {
+    console.log('BAN USER');
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.banUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChat');
+    });
+    this.server.to(data.userID).emit('renderChatBar');
+    //TODO handle rerender dor all affected users
+  }
+
+  @SubscribeMessage('unbanUser')
+  async unbanUser(client: Socket, data: { userID: string; chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.unbanUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChat');
+    });
+    this.server.to(data.userID).emit('renderChatBar');
+    //TODO handle rerender dor all affected users
   }
 }

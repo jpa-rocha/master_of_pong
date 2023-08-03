@@ -30,6 +30,10 @@ export class Chat {
   @JoinTable()
   admins: User[];
 
+  @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
+  banned: User[];
+
   @OneToMany(() => Message, (message) => message.chat)
   messages: Message[];
 
