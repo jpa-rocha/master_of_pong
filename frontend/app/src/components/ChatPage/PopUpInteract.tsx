@@ -33,40 +33,18 @@ type InteractPopUpProps = {
   targetRole: string;
 };
 
-
-// What needs to be sent :
-// Chat
-// My role
-// My userProp
-// Users role
-// Users userProp
-
-// for owner only :
-// promote / demote
-
-// for admins only :
-// mute
-// kick
-// ban
-
-// for all users :
-// profile
-// invite to a game
-// block
-// personal message
-
 const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, chat, user, userRole, target, targetRole }) => {
-	console.log("Target Role => ", targetRole);
-	console.log("User Role   => ", userRole);
+	const [targetState, setTargetState] = useState(targetRole);
+
 	if (!isOpen) return null;
 
 	function handleMakeAdmin() {
-		targetRole = "Admin";
+		setTargetState("Admin");
 		socket.emit('addAdmin', {userID: target.id, chatID: chat?.id});
 	}
 	
 	function handleRemoveAdmin() {
-		targetRole = "Regular";
+		setTargetState("Regular");
 		socket.emit('removeAdmin', {userID: target.id, chatID: chat?.id});
 	}
 
@@ -78,40 +56,47 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				{target.username}
 			</h3>
 
-
 			<div className="PopBody">
 				{/* IF USER IS THE OWNER */}
-				{userRole === "Owner" && targetRole === "Admin" ? (
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleRemoveAdmin()} >Demote</button>
-				): null}
+				<div className='interact-container'>
+					<div className='owner-buttons'>						
+						{userRole === "Owner" && targetState === "Admin" ? (
+							<button className='red-back' onClick={() => handleRemoveAdmin()}>Demote</button>
+						): null}
 
-				{userRole === "Owner" && targetRole === "Regular" ? (
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleMakeAdmin()} >Promote</button>
-				): null}
+						{userRole === "Owner" && targetState === "Regular" ? (
+							<button className='green-back' onClick={() => handleMakeAdmin()}>Promote</button>
+						): null}
+					</div>
+				</div>
 
 				{/* IF USER IS THE OWNER OR AN ADMIN */}
-				{userRole === "Owner" ? (
-					<div>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Mute</button>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Kick</button>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Ban</button>
-					</div>
-				): null}
-				
-				{userRole === "Owner" && targetRole !== "Owner" && targetRole !== "Admin" ? (
-					<div>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Mute</button>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Kick</button>
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Ban</button>
-					</div>
-				): null}
+				<div className='interact-container'>
+					{userRole === "Owner" ? (
+						<div className="admin-buttons">
+							<button className='red-back'>Mute</button>
+							<button className='red-back'>Kick</button>
+							<button className='red-back'>Ban</button>
+						</div>
+					): null}
+					
+					{userRole === "Admin" && targetState !== "Owner" && targetState !== "Admin" ? (
+						<div className="admin-buttons">
+							<button className='red-back'>Mute</button>
+							<button className='red-back'>Kick</button>
+							<button className='red-back'>Ban</button>
+						</div>
+					): null}
+				</div>
 
 				{/* FOR ALL USERS */}
-				<div>
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Profile</button>
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Block</button>
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl">DM</button>
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl">Challenge</button>
+				<div className='interact-container'>
+					<div className="regular-buttons">
+						<button className='blue-back'>Profile</button>
+						<button className='blue-back'>DM</button>
+						<button className='blue-back'>Challenge</button>
+						<button className='red-back'>Block</button>
+					</div>
 				</div>
 
          	</div>
