@@ -1,4 +1,5 @@
 .PopHeader {
+	font-weight: bold;
 	padding: 10px;
 	background-color: #007bff;
 	color: #fff;
@@ -92,4 +93,47 @@
 
 .error-message {
 	color: red;
+}
+
+.interact-container {
+	display: flex;
+	width: 20vw;
+	margin-bottom: 10px;
+}
+
+.owner-buttons,
+.admin-buttons,
+.regular-buttons {
+	display: flex;
+	justify-content: center;
+	flex: 1;
+}
+
+.owner-buttons button,
+.admin-buttons button,
+.regular-buttons button {
+	padding: 5px;
+	border-radius: 5px;
+	flex: 1;
+	margin-left: 5px;
+	color: #ffffff;
+}
+
+.owner-buttons button:hover,
+.admin-buttons button:hover,
+.regular-buttons button:hover {
+	opacity: 0.8;
+	font-weight: bold;
+}
+
+.red-back {
+	background-color: red;
+}
+
+.green-back {
+	background-color: rgb(38, 207, 38);
+}
+
+.blue-back {
+	background-color: #007bff;
 }

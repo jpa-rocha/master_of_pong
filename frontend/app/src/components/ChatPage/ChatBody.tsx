@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
@@ -51,23 +51,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<ChatProp | undefined>(undefined);
 
-  socket.on("message", (data: ChatMessagesResult) => {
-    if (chat && chat?.id === data.chatID) {
-      // console.log("Current chat id = ", chat.id);
-      // console.log("CHAT ID = ", chat.id);
-      setMessages(data.messages);
-      console.log("messages = ", messages);
-    }
-  });
-
-  socket.on("returnDirectChat", (chat: ChatProp) => {
-    if (chat.id) {
-      console.log("Received CHAT ID = ", chat.id);
-      setChat(chat);
-      socket.emit("getMessages", { chatID: chat.id });
-    }
-  });
-
   useEffect(() => {
     const getUser = async () => {
       const token = getToken("jwtToken");
@@ -84,14 +67,28 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       if (temp) {
         setUser(temp);
       }
-      console.log("User = " + user?.username);
     };
     getUserEffect();
+
+    const handleReturnChat = (chat: ChatProp) => {
+      if (chat.id) {
+        setChat(chat);
+        socket.emit("getMessages", { chatID: chat.id });
+      }
+    }
+
+    const handleReturnMessages = (data: ChatMessagesResult) => {
+      if (chat && chat?.id === data.chatID)
+        setMessages(data.messages);
+    }
+
+    socket.on("returnChat", handleReturnChat);
+    socket.on("message", handleReturnMessages);
     return () => {
-      socket.off("message");
-      socket.off("returnDirectChat");
+      socket.off("message", handleReturnMessages);
+      socket.off("returnChat", handleReturnChat);
     };
-  }, [messages, user?.username, socket]);
+  }, [messages, user?.username, socket, chat]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
@@ -109,11 +106,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   return (
     <>
-    {/* <div>
+    <div>
     <header className="ml-2 font-bold text-2xl">
       <h1>{chat?.title}</h1>
     </header>
-    </div> */}
+    </div>
 
     <div className="flex flex-col h-full overflow-x-auto mb-4">
       <div className="flex flex-col h-full">

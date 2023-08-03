@@ -26,11 +26,7 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
   const [passwordError, setPasswordError] = useState<string>('');
   const [chatRooms, setChatRooms] = useState<ChatRoomProps[]>([]);
   const [passwordInput, setPasswordInput] = useState<PasswordInputProp[]>([]);
-
-  socket.on("joinableRooms", (data: ChatRoomProps[]) => {
-      setChatRooms(data);
-  });
-
+  
   const checkPassword = (id: number, password: string) => {
     return new Promise((resolve, reject) => {
       socket.emit('checkChatRoomPassword', {id: id, password: password}, (result: boolean) => {
@@ -72,6 +68,14 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
     } else {
       setChatRooms([]);
     }
+
+    const handleJoinableRooms = (data: ChatRoomProps[]) => {
+      setChatRooms(data);
+    }
+    socket.on("joinableRooms", handleJoinableRooms);
+    return () => {
+      socket.off("joinableRooms", handleJoinableRooms);
+    };
 	}, [chatRoomName, socket]);
 
   if (!isOpen) return null;

@@ -39,7 +39,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users'],
+      relations: ['users', 'creator', 'admins'],
     };
     return this.chatRepository.findOne(options);
   }
@@ -55,7 +55,7 @@ export class ChatService {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
-    console.log('findDirectChat HERE');
+    // console.log('findDirectChat HERE');
     const user1 = await this.usersService.findOne(user1ID);
     const user2 = await this.usersService.findOne(user2ID);
     if (!user1 || !user2) {
@@ -71,9 +71,9 @@ export class ChatService {
       .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
-    console.log(chat);
+    // console.log(chat);
     if (!chat) {
-      console.log('------new chat created------');
+      // console.log('------new chat created------');
       const chat = new Chat();
       chat.title = 'direct';
       chat.creator = user1;
@@ -86,11 +86,9 @@ export class ChatService {
 
   async createChatRoom(title: string, creatorID: string, password: string) {
     // 1: Check if the room name is available, if not inform the user
-    console.log('1 HERE');
     if (await this.findOneChatTitle(title)) {
       return null;
     }
-    console.log('2 HERE');
 
     // 2: If the name is available, create the chat room
     const creator = await this.usersService.findOne(creatorID);
@@ -99,6 +97,7 @@ export class ChatService {
     chatRoom.title = title;
     chatRoom.creator = creator;
     chatRoom.users = [creator];
+    chatRoom.admins = [creator];
     if (password) {
       chatRoom.channel = 'private';
       chatRoom.password = password;
@@ -106,7 +105,6 @@ export class ChatService {
       chatRoom.channel = 'public';
       chatRoom.password = '';
     }
-    console.log('3 HERE');
     return await this.chatRepository.save(chatRoom);
   }
 
@@ -128,12 +126,12 @@ export class ChatService {
       chatRoom.users.push(user);
       return this.chatRepository.save(chatRoom);
     } else if (chatRoom.channel === 'private') {
+      // TODO seems like a really unsafe way of handling passwords
       if (chatRoom.password === password) {
         chatRoom.users.push(user);
         return this.chatRepository.save(chatRoom);
       }
     }
-    // failed to join chatRoom
     return null;
   }
 
@@ -197,13 +195,25 @@ export class ChatService {
     return chatRooms;
   }
 
-  updateChat(id: number, message: string, updateData: Partial<Chat>) {
-    /* 
-      Update the general information about a chat. eg. banned users, muted users, etc.
-    */
-    //  return this.chatRepository.update(id, updateDate);
+  async addAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = await this.usersService.findOne(adminID);
+    if (admin) {
+      chat.admins.push(admin);
+      return this.chatRepository.save(chat);
+    }
+    return null;
   }
-}
-function getMany() {
-  throw new Error('Function not implemented.');
+
+  async removeAdmin(senderID: string, adminID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (chat.creator.id !== senderID) return null;
+    const admin = chat.admins.findIndex((admin) => admin.id === adminID);
+    if (admin !== -1) {
+      chat.admins.splice(admin, 1);
+      return this.chatRepository.save(chat);
+    }
+    return null;
+  }
 }
