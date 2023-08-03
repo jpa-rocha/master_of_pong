@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Socket } from "socket.io-client";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
@@ -12,23 +12,6 @@ import ChatUsers from "./ChatUsers";
 
 interface ChatPageProps {
   socket: Socket;
-}
-
-interface UserProps {
-  forty_two_id: number;
-  username: string | undefined;
-  refresh_token: string;
-  email: string;
-  avatar: string;
-  is_2fa_enabled: boolean;
-  xp: number;
-  id: string;
-}
-
-interface MessageProps {
-  id: number,
-  sender: UserProps,
-  content: string,
 }
 
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {

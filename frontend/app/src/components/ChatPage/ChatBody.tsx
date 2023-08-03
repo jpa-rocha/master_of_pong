@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
@@ -50,21 +50,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<UserProps>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<ChatProp | undefined>(undefined);
-
-  // socket.on("message", (data: ChatMessagesResult) => {
-  //   console.log("GETTING MESSAGES");
-  //   if (chat && chat?.id === data.chatID) {
-  //     // console.log("BODY RECEIVED MESSAGES");
-  //     setMessages(data.messages);
-  //   }
-  // });
-  // socket.on("returnChat", (chat: ChatProp) => {
-  //   console.log("RETURNED CHAT");
-  //   if (chat.id) {
-  //     setChat(chat);
-  //     socket.emit("getMessages", { chatID: chat.id });
-  //   }
-  // });
 
   useEffect(() => {
     const getUser = async () => {

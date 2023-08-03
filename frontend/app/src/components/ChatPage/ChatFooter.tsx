@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Socket } from "socket.io-client";
-import { getToken, getUser } from "../../utils/Utils";
 import { useEffect } from "react";
 import axios from "axios";
 
@@ -8,17 +7,6 @@ axios.defaults.baseURL = "http://localhost:5000/";
 
 interface ChatFooterProps {
   socket: Socket;
-}
-
-interface UserProps {
-  forty_two_id: number;
-  username: string | undefined;
-  refresh_token: string;
-  email: string;
-  avatar: string;
-  is_2fa_enabled: boolean;
-  xp: number;
-  id: string;
 }
 
 interface ChatProp {
