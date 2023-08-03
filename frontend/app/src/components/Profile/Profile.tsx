@@ -6,6 +6,7 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
+import PopUpGenerate2fa from "./PopUpGenerate2fa";
 //import ProfileDetails from './ProfileDetails';
 
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -33,6 +34,8 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<string | undefined>(undefined);
+  const [generate2fa, setGenerate2fa] = useState<boolean>(false);
+  const [toggle2fa, setToggle2fa] = useState<boolean>(false);
 
   useEffect(() => {
     async function getUsersID() {
@@ -99,7 +102,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
             .then((res) => {
               console.log(res);
             });
-          window.location.reload();
+          // window.location.reload();
         } catch (error: any) {
           console.error((error as Error).message);
         }
@@ -143,6 +146,20 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
     input.focus();
   };
 
+  const handleToggle2fa = () => {
+    if (toggle2fa) {
+      setToggle2fa(false);
+    } else {
+      setToggle2fa(true);
+      setGenerate2fa(true);
+    }
+    console.log("toggle2fa = ", toggle2fa);
+  };
+
+  const close2faPopUp = () => {
+    setGenerate2fa(false);
+  };
+
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [userID]);
@@ -158,65 +175,119 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
-<Grid item xs={6} md={12}>
-	<div className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-white border border-gray-200 rounded-lg shadow
-	 my-4 mx-4 p-4 md:m-5 md:p-6">
-    <img className=" rounded-t-lg md:h-auto md:w-[30%] md:rounded-none md:rounded-l-lg" src={profileImg} alt="profile_picture"/>
-    <div className="flex flex-col items-center md:p-4">
-        <h2 className="mb-1 text-xl font-medium text-gray-900">{userName}</h2>
-        <div className="text-lg text-gray-500 dark:text-gray-400 mt-3">
-			<p><span className="font-bold">Rank:</span> {rank} </p>
-        	<p><span className="font-bold">Wins:</span> {wins} </p>
-        	<p><span className="font-bold">Losses:</span> {losses}</p>
-		</div>
-        <div className="flex space-x-3 mt-2 p-2 md:mt-6">
-            <button  
-			className="inline-flex items-center px-3 py-2 text-sm text-center 
+        <Grid item xs={6} md={12}>
+          <div
+            className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-white border border-gray-200 rounded-lg shadow
+	 my-4 mx-4 p-4 md:m-5 md:p-6"
+          >
+            <img
+              className=" rounded-t-lg md:h-auto md:w-[30%] md:rounded-none md:rounded-l-lg"
+              src={profileImg}
+              alt="profile_picture"
+            />
+            <div className="flex flex-col items-center md:p-4">
+              <h2 className="mb-1 text-xl font-medium text-gray-900">
+                {userName}
+              </h2>
+              <div className="text-lg text-gray-500 dark:text-gray-400 mt-3">
+                <p>
+                  <span className="font-bold">Rank:</span> {rank}{" "}
+                </p>
+                <p>
+                  <span className="font-bold">Wins:</span> {wins}{" "}
+                </p>
+                <p>
+                  <span className="font-bold">Losses:</span> {losses}
+                </p>
+              </div>
+              <div className="flex space-x-3 mt-2 p-2 md:mt-6">
+                <button
+                  className="inline-flex items-center px-3 py-2 text-sm text-center 
 			text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
 			focus:ring-gray-200"
-			onClick={handleUserNameChange}
-			>Change User Name
-			</button>
-            <button 
-			className="inline-flex items-center px-4 py-2 text-sm text-center text-white bg-green-800
+                  onClick={handleUserNameChange}
+                >
+                  Change User Name
+                </button>
+                <button
+                  className="inline-flex items-center px-4 py-2 text-sm text-center text-white bg-green-800
 			border border-gray-300 rounded-lg 
 			hover:bg-green-600 focus:ring-4 focus:outline-none
 			focus:ring-gray-200"
-			onClick={handleProfileImgChange}
-			> Change Profile Picture</button>
-        </div>
-    </div>
-	</div>
-</Grid>
-    <Grid item xs={6} md={12}>
-	<h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
-	<div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2">
-	    <table className="w-full text-lg text-left text-gray-500">
-	        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-	            <tr>
-	                <th scope="col" className="px-6 py-1">
-	                	Opponent
-	                </th>
-	                <th scope="col" className="px-6 py-1">
-	                    Result
-	                </th>
-	            </tr>
-	        </thead>
-	        <tbody>
-				{matches.map((match, index) => (
-	            <tr className="bg-white border-b" key={index}>
-	                <td className="px-6 py-1">{match.opponent}</td>
-	                <td className="px-6 py-1">{match.result}</td>
-	            </tr>
-	        ))}
-	        </tbody>
-	    </table>
-	</div>
-    </Grid>
-        <Grid item xs={12}>
-        	<Footer></Footer>
+                  onClick={handleProfileImgChange}
+                >
+                  {" "}
+                  Change Profile Picture
+                </button>
+                <div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value=""
+                      className="sr-only peer"
+                      onChange={handleToggle2fa}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                      {!toggle2fa ? (
+                        <div>Turn 2fa on</div>
+                      ) : (
+                        <div>Turn 2fa off</div>
+                      )}
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
         </Grid>
-    </Grid>
+        <Grid item xs={6} md={12}>
+          <h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
+          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2">
+            <table className="w-full text-lg text-left text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-1">
+                    Opponent
+                  </th>
+                  <th scope="col" className="px-6 py-1">
+                    Result
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {matches.map((match, index) => (
+                  <tr className="bg-white border-b" key={index}>
+                    <td className="px-6 py-1">{match.opponent}</td>
+                    <td className="px-6 py-1">{match.result}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Grid>
+        <Grid item xs={12}>
+          <Footer></Footer>
+        </Grid>
+      </Grid>
+      {generate2fa && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
+          <PopUpGenerate2fa isOpen={generate2fa} onClose={close2faPopUp} />
+        </div>
+      )}
     </>
   );
 };

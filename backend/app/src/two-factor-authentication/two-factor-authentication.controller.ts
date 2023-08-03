@@ -34,7 +34,7 @@ export class TwoFactorAuthenticationController {
   ) {}
 
   @Post('generate/:id')
-  @UseGuards(JwtTwoFactorGuard)
+  // @UseGuards(JwtTwoFactorGuard)
   async register(
     @Res() response: Response,
     @Req() request: Request,
@@ -54,7 +54,7 @@ export class TwoFactorAuthenticationController {
 
   @Post('turn-on/:id')
   @HttpCode(200)
-  @UseGuards(JwtTwoFactorGuard)
+  // @UseGuards(JwtTwoFactorGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: Request,
     @Res() res: Response,
@@ -78,7 +78,8 @@ export class TwoFactorAuthenticationController {
     await this.userService.turnOnTwoFactorAuthentication(user.id);
     const { accessToken } = await this.jwtAuthService.login(user, true);
     res.cookie('jwtToken', accessToken, { httpOnly: false });
-    return res.redirect('https://localhost:3000/main');
+    // return res.redirect('https://localhost:3000/main');
+    return res.status(200).json({ message: '2FA turned on' });
   }
 
   @Post('authenticate/:id')
