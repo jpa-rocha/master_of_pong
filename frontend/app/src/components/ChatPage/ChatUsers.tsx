@@ -69,6 +69,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				setUserRegular(otherUser);
 				setUserOwner(undefined);
 				setUserAdmin([]);
+				setUserCurrentRole("Regular");
 			} else {
 				const owner = chat.creator;
 				setUserOwner(owner);
