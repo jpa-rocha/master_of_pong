@@ -32,4 +32,4 @@
 //     );
 // }
 
-// export default PopUpGenerate2fa;
+export default {};
