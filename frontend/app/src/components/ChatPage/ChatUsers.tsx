@@ -22,46 +22,100 @@ interface ChatProp {
 	title: string;
 	channel: string;
 	users: User[];
+	admins: User[];
 	creator: User;
 }
 
 const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
+	const [userCurrent, setUserCurrent] = useState<User>();
+
 	const [chat, setChat] = useState<ChatProp>();
 	const [users, setUsers] = useState<User[]>([]);
-	const [userID, setUserID] = useState<string>();
+	const [admins, setAdmins] = useState<User[]>([]);
 
-	const [userOwner, setUserOwner] = useState<User>();
-	const [userME, setUserME] = useState<User>();
+	const [userOwner, setUserOwner] = useState<User | undefined>();
+	const [userME, setUserME] = useState<User | undefined>();
 	const [userRegular, setUserRegular] = useState<User[]>([]);
-	// const [userAdmin, setUserAdmin] = useState<User[]>([]);
+	const [userAdmin, setUserAdmin] = useState<User[]>([]);
 
-	socket.on("returnUsers", (chat: ChatProp) => {
-		if (chat.id) {
-		  setChat(chat);
-		  setUsers(chat.users);
-		}
-	});
+	const [render, setRender] = useState<boolean>(false);
 
 	useEffect(() => {
-		const getUserID = async () => {
+		const getUserGET = async () => {
 			const token = getToken("jwtToken");
 			const id = await axios.post("api/auth/getUserID", { token }).then((res) => res.data);
-			setUserID(id);
+			const user = await axios.get(`api/users/${id}`);
+			return user.data;
 		}
-		if (chat?.channel !== "direct") {
-			getUserID();
-			setUserOwner(chat?.creator);
-			if (userID !== chat?.creator.id)
-				setUserME(users.find(user => user.id === userID));
+		const getUserSET = async () => { 
+			const tempUser = await getUserGET();
+			if (tempUser)
+				setUserCurrent(tempUser);
 		}
-		const regulars = users.filter((user) => user.id !== userID && user.id !== userOwner?.id);
-		setUserRegular(regulars);
-	}, [socket, chat, users, userID, userOwner?.id]);
+		getUserSET();
+	}, []);
+
+	useEffect(() => {
+		if (chat && userCurrent) {
+			if (chat.channel === "direct") {
+				setUserME(userCurrent);
+				const otherUser = users.filter((user) => user.id !== userCurrent.id);
+				setUserRegular(otherUser);
+				setUserOwner(undefined);
+				setUserAdmin([]);
+			} else {
+				const owner = chat.creator;
+				setUserOwner(owner);
+				if (owner.id !== userCurrent.id) {
+					setUserME(userCurrent);
+				} else {
+					setUserME(undefined);
+				}
+				const chatPolice = admins.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id);
+				const chatPoliceID = chatPolice.map((admin) => admin.id);
+				setUserAdmin(chatPolice);
+				const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id && !chatPoliceID.includes(user.id));
+				setUserRegular(regulars);
+			}
+			const regulars = users.filter((user) => user.id !== userCurrent.id && user.id !== userOwner?.id);
+			setUserRegular(regulars);
+		}
+
+		const handleReturnChat = (chat: ChatProp) => {
+			if (chat.id) {
+				setChat(chat);
+				setUsers(chat.users);
+				setAdmins(chat.admins);
+			  }
+		}
+
+		const handleStatusRender = () => {
+			if (render === true)
+				setRender(false)
+			else
+				setRender(true);
+		};
+
+		socket.on("returnChatUsers", handleReturnChat);
+		socket.on("user connected", handleStatusRender);
+    	socket.on("user disconnected", handleStatusRender);
+		return () => {
+			socket.off("returnChatUsers", handleReturnChat);
+			socket.off("user connected", handleStatusRender);
+    		socket.off("user disconnected", handleStatusRender);
+		};
+	}, [socket, chat, users, admins, userOwner?.id, userCurrent, render]);
 
 	return (
 		<>
 		<div className="flex flex-col py-8 pl-6 pr-2 mt-3 rounded-2xl w-64 bg-gray-100 flex-shrink-0">
 			<div className="ml-2 font-bold text-2xl">Users</div>
+
+			{userME ? (
+				<div>
+					{userME.username} {userME.status === "online" ? <>🟢</> : <>🔴</>}
+				</div>
+			): null}
 
 			{userOwner ? (
 				<div>
@@ -69,11 +123,11 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				</div>
 			): null}
 
-			{userME ? (
-				<div>
-					{userME.username} {userME.status === "online" ? <>🟢</> : <>🔴</>}
+			{userAdmin && userAdmin.map((user) => (
+				<div key={user.id}>
+					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>} 👮
 				</div>
-			): null}
+			))}
 
 			{userRegular && userRegular.map((user) => (
 				<div key={user.id}>

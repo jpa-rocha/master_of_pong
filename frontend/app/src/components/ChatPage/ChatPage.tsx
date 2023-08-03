@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Socket } from "socket.io-client";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
@@ -14,36 +14,12 @@ interface ChatPageProps {
   socket: Socket;
 }
 
-interface UserProps {
-  forty_two_id: number;
-  username: string | undefined;
-  refresh_token: string;
-  email: string;
-  avatar: string;
-  is_2fa_enabled: boolean;
-  xp: number;
-  id: string;
-}
-
-interface MessageProps {
-  id: number,
-  sender: UserProps,
-  content: string,
-}
-
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
-  const [messages, setMessages] = useState<any[]>([]);
-  let userID: string = "";
 
   (async () => {
-    userID = await getUserID(getToken("jwtToken"));
-    console.log("UserID: " + userID);
+    const userID = await getUserID(getToken("jwtToken"));
     socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
-
-  useEffect(() => {
-    // socket.on("message", (data: MessageProps[]) => setMessages(data));
-  }, [socket, messages]);
 
   return (
     <>
