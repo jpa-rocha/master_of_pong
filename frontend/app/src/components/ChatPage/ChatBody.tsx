@@ -104,12 +104,22 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     messageContainer.scrollTop = messageContainer.scrollHeight;
   }
 
+  const handleLeaeChat = () => {
+    socket.emit('leaveChat', {chatID: chat?.id})
+    document.location.reload();
+  };
+
   return (
     <>
     <div>
-    <header className="ml-2 font-bold text-2xl">
-      <h1>{chat?.title}</h1>
-    </header>
+      <header className="ml-2 font-bold text-2xl flex items-center">
+        <h1>{chat?.title}</h1>
+        {chat?.channel !== "direct" ? (
+          <button onClick={() => handleLeaeChat()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+            Leave
+          </button>
+        ) : null}
+      </header>
     </div>
 
     <div className="flex flex-col h-full overflow-x-auto mb-4">

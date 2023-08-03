@@ -216,4 +216,23 @@ export class ChatService {
     }
     return null;
   }
+
+  async leaveChat(userID: string, chatID: number) {
+    console.log('LEAVE CHAT');
+    const chat = await this.findOneChat(chatID);
+    const indexUsers = chat.users.findIndex((user) => user.id === userID);
+    const indexAdmins = chat.admins.findIndex((user) => user.id === userID);
+    if (indexAdmins !== -1) chat.admins.splice(indexAdmins, 1);
+    if (indexUsers !== -1) chat.users.splice(indexUsers, 1);
+    if (chat.creator.id === userID) {
+      if (chat.admins.length > 0) chat.creator = chat.admins[0];
+      else if (chat.users.length > 0) chat.creator = chat.users[0];
+      else {
+        console.log('NEW OWNER');
+        await this.chatRepository.remove(chat);
+        return null;
+      }
+    }
+    return await this.chatRepository.save(chat);
+  }
 }

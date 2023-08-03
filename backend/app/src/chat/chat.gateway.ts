@@ -140,7 +140,9 @@ export class ChatGateway {
       chat.id,
       data.password,
     );
-    this.server.to(client.id).emit('renderChatBar');
+    result.users.forEach((user) => {
+      this.server.to(user.socketID).emit('renderChatBar');
+    });
     return result;
   }
 
@@ -211,5 +213,19 @@ export class ChatGateway {
     });
     this.server.to(client.id).emit('returnChatUsers', chatRoom);
     return chatRoom;
+  }
+
+  @SubscribeMessage('leaveChat')
+  async leaveChat(client: Socket, data: { chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.leaveChat(userID, data.chatID);
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('renderChatBar');
+    });
+  }
+
+  @SubscribeMessage('kickUser')
+  async kickUser(client: Socket, data: { userID: string; chatID: number }) {
+    // kickUser
   }
 }
