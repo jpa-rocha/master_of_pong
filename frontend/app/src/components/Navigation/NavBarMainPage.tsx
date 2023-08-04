@@ -23,11 +23,10 @@ const NavBarTest: React.FunctionComponent = () => {
   const [userInfo, setUserInfo] = React.useState<UserProps>();
   const navigate = useNavigate();
 
-  (async () => {
-    setUserID(await getUserID(getToken("jwtToken")));
-  })();
-
   useEffect(() => {
+    (async () => {
+      setUserID(await getUserID(getToken("jwtToken")));
+    })();
     //console.log("UserID: " + userID);
     if (userID) {
       setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
@@ -38,7 +37,6 @@ const NavBarTest: React.FunctionComponent = () => {
         setUserInfo(user.data);
       })();
     }
-
     //console.log("Profile Image: " + profileImg);
   }, [userID, profileImg]);
 
