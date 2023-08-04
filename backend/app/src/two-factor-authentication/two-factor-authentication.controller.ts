@@ -21,10 +21,10 @@ import { Console } from 'console';
 import { AuthService } from 'src/auth/auth.service';
 import { get } from 'http';
 import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
-import JwtTwoFactorGuard from './two-factor-authentication.guard';
+import TwoFactorGuard from './two-factor-authentication.guard';
 
 @Controller('2fa')
-@UseInterceptors(ClassSerializerInterceptor)
+// @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthenticationController {
   constructor(
     private readonly userService: UsersService,
@@ -54,7 +54,7 @@ export class TwoFactorAuthenticationController {
 
   @Post('turn-on/:id')
   @HttpCode(200)
-  // @UseGuards(JwtTwoFactorGuard)
+  @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: Request,
     @Res() res: Response,
@@ -77,7 +77,11 @@ export class TwoFactorAuthenticationController {
     }
     await this.userService.turnOnTwoFactorAuthentication(user.id);
     const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie('jwtToken', accessToken, { httpOnly: false });
+    res.cookie('jwtToken', accessToken, {
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
+    });
     // return res.redirect('https://localhost:3000/main');
     return res.status(200).json({ message: '2FA turned on' });
   }
@@ -107,12 +111,16 @@ export class TwoFactorAuthenticationController {
           redirect to https://localhost:3000/main
     */
     const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie('jwtToken', accessToken, { httpOnly: false });
+    res.cookie('jwtToken', accessToken, {
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
+    });
     return res.redirect('https://localhost:3000/main');
   }
 
   @Post('turn-off/:id')
-  @UseGuards(JwtTwoFactorGuard)
+  @UseGuards(TwoFactorGuard)
   @HttpCode(200)
   async turnOffTwoFactorAuthentication(
     @Req() request: Request,
@@ -131,8 +139,12 @@ export class TwoFactorAuthenticationController {
       throw new UnauthorizedException('Wrong authentication code');
     }
     await this.userService.turnOffTwoFactorAuthentication(user.id);
-    const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie('jwtToken', accessToken, { httpOnly: false });
+    const { accessToken } = await this.jwtAuthService.login(user, false);
+    res.cookie('jwtToken', accessToken, {
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
+    });
     // return res.redirect('https://localhost:3000/main');
     return res.status(200).json({ message: '2FA turned off' });
   }
