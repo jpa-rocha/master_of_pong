@@ -20,6 +20,7 @@ interface ChatProp {
 	users: User[];
 	admins: User[];
 	banned: User[];
+	muted: User[];
 	creator: User;
 }
 
@@ -33,6 +34,10 @@ type BannedUsersPopUpProps = {
 const BannedUsersPopUp: React.FC<BannedUsersPopUpProps> = ({ isOpen, onClose, socket, chat }) => {
 	const handleUnBan = (targetID: string) => {
 		socket.emit("unbanUser", {userID: targetID, chatID: chat.id});
+	}
+
+	const handleUnMute = (targetID: string) => {
+		socket.emit("unmuteUser", {userID: targetID, chatID: chat.id});
 	}
 
 	console.log("CHAT = ", chat);
@@ -51,6 +56,21 @@ const BannedUsersPopUp: React.FC<BannedUsersPopUpProps> = ({ isOpen, onClose, so
 						{user.username}
 						<button onClick={() => handleUnBan(user.id)} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
 							unban
+						</button>
+					</div>
+				))}
+         	</div>
+
+			<h3 className="PopHeader">
+				Muted Users
+			</h3>
+
+			<div className="PopBody">
+				{chat.muted && chat.muted.map((user) => (
+					<div key={user.id}>
+						{user.username}
+						<button onClick={() => handleUnMute(user.id)} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+							unmute
 						</button>
 					</div>
 				))}

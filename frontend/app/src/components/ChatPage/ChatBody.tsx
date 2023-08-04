@@ -29,6 +29,7 @@ interface ChatProp {
 	users: UserProps[];
 	admins: UserProps[];
 	banned: UserProps[];
+  muted: UserProps[];
 	creator: UserProps;
 }
 
