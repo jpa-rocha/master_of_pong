@@ -7,6 +7,7 @@ import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
 import PopUpGenerate2fa from "./PopUpGenerate2fa";
+import PopUpTurnOff2fa from "./PopUp2faInput";
 //import ProfileDetails from './ProfileDetails';
 
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -36,6 +37,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [generate2fa, setGenerate2fa] = useState<boolean>(false);
   const [toggle2fa, setToggle2fa] = useState<boolean>(false);
+  const [toggle2faTurnOff, setToggle2faTurnOff] = useState<boolean>(false);
 
   useEffect(() => {
     async function getUsersID() {
@@ -146,9 +148,27 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
     input.focus();
   };
 
+  // const handleToggle2faTurnOff = async (
+  //   twoFactorAuthenticationCode: string
+  // ) => {
+  //   console.log("value: ", twoFactorAuthenticationCode);
+  //   const res = await axios
+  //     .post(`/api/2fa/turn-off/${userID}`, {
+  //       twoFactorAuthenticationCode,
+  //     })
+  //     .then((res) => {
+  //       console.log("res: ", res);
+  //       setToggle2fa(false);
+  //     })
+  //     .catch((err) => {
+  //       console.log("err: ", err);
+  //     });
+  // };
+
   const handleToggle2fa = () => {
     if (toggle2fa) {
       setToggle2fa(false);
+      setToggle2faTurnOff(true);
     } else {
       setToggle2fa(true);
       setGenerate2fa(true);
@@ -158,6 +178,10 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
 
   const close2faPopUp = () => {
     setGenerate2fa(false);
+  };
+
+  const close2faTurnOffPopUp = () => {
+    setToggle2faTurnOff(false);
   };
 
   useEffect(() => {
@@ -286,6 +310,29 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           }}
         >
           <PopUpGenerate2fa isOpen={generate2fa} onClose={close2faPopUp} />
+        </div>
+      )}
+      {toggle2faTurnOff && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
+          <PopUpTurnOff2fa
+            isOpen={toggle2faTurnOff}
+            onClose={close2faTurnOffPopUp}
+            UserId={userID}
+            off={true}
+          />
         </div>
       )}
     </>
