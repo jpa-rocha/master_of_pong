@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from './entities/chat.entity';
-import { FindOneOptions, OptionalUnlessRequiredId, Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
-import { User } from 'src/users/entities/user.entity';
-import { use } from 'passport';
-import { title } from 'process';
 
 interface ChatMessagesResult {
   chatID: number;
@@ -39,7 +35,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users', 'creator', 'admins', 'banned'],
+      relations: ['users', 'creator', 'admins', 'banned', 'muted'],
     };
     return this.chatRepository.findOne(options);
   }
@@ -98,6 +94,8 @@ export class ChatService {
     chatRoom.creator = creator;
     chatRoom.users = [creator];
     chatRoom.admins = [creator];
+    chatRoom.banned = [];
+    chatRoom.muted = [];
     if (password) {
       chatRoom.channel = 'private';
       chatRoom.password = password;
@@ -158,8 +156,14 @@ export class ChatService {
     /* 
           User sends a message to a chat and the message is saved in the database.
     */
+    const chat = await this.findOneChat(chatID);
+    const index = chat.muted.findIndex((user) => user.id === clientID);
+    if (index !== -1) {
+      console.log("User muted, he can't send any messages");
+      return null;
+    }
     const newMessage = new Message();
-    newMessage.chat = await this.findOneChat(chatID);
+    newMessage.chat = chat;
     newMessage.content = message;
     newMessage.sender = await this.usersService.findOne(clientID);
     return await this.messageRepository.save(newMessage);
@@ -257,18 +261,15 @@ export class ChatService {
   }
 
   async banUser(userID: string, targetID: string, chatID: number) {
-    console.log('1');
     const chat = await this.findOneChat(chatID);
     const banned = await this.usersService.findOne(targetID);
     if (!banned) return null;
     if (chat.creator.id === userID) {
-      console.log('2');
       if (!chat.banned) chat.banned = [banned];
       else chat.banned.push(banned);
       await this.chatRepository.save(chat);
       return await this.kickUser(userID, targetID, chatID);
     } else {
-      console.log('3');
       const index = chat.admins.findIndex((user) => user.id === userID);
       if (index !== -1 && targetID != chat.creator.id) {
         if (!chat.banned) chat.banned = [banned];
@@ -277,7 +278,6 @@ export class ChatService {
         return await this.kickUser(userID, targetID, chatID);
       }
     }
-    console.log('4');
     return null;
   }
 
@@ -297,6 +297,41 @@ export class ChatService {
     return null;
   }
 
+  async muteUser(userID: string, targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const muted = await this.usersService.findOne(targetID);
+    if (!muted) return null;
+    if (chat.creator.id === userID) {
+      if (!chat.muted) chat.muted = [muted];
+      else chat.muted.push(muted);
+      return await this.chatRepository.save(chat);
+    } else {
+      const index = chat.admins.findIndex((user) => user.id === userID);
+      if (index !== -1 && targetID != chat.creator.id) {
+        if (!chat.muted) chat.muted = [muted];
+        else chat.muted.push(muted);
+        return await this.chatRepository.save(chat);
+      }
+    }
+    return null;
+  }
+
+  async unmuteUser(userID: string, targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const index = chat.muted.findIndex((user) => user.id === targetID);
+    if (chat.creator.id === userID) {
+      if (index !== -1) chat.muted.splice(index, 1);
+      return await this.chatRepository.save(chat);
+    } else {
+      const indexAdmin = chat.admins.findIndex((user) => user.id === userID);
+      if (indexAdmin !== -1) {
+        if (index !== -1) chat.muted.splice(index, 1);
+        return await this.chatRepository.save(chat);
+      }
+    }
+    return null;
+  }
+
   async changePassword(password: string, chatID: number) {
     const chat = await this.findOneChat(chatID);
     if (password === '') {
@@ -310,8 +345,8 @@ export class ChatService {
   }
 
   // what's left :
-  // 1 - change/set/remove channel password
-  // 2 - mute users in chat
+  // 1 + change/set/remove channel password
+  // 2 +- mute users in chat
   // 3 - block / unblock users
   // 4 - access other profiles through chat
   // 5 - invite  players to a game

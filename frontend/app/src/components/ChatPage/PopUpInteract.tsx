@@ -56,6 +56,10 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 		socket.emit("banUser", {userID: target.id, chatID: chat.id});
 	}
 
+	function handleMute() {
+		socket.emit("muteUser", {userID: target.id, chatID: chat.id});
+	}
+
   return (
     <>
     	<div>
@@ -82,7 +86,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				<div className='interact-container'>
 					{userRole === "Owner" ? (
 						<div className="admin-buttons">
-							<button className='red-back'>Mute</button>
+							<button className='red-back' onClick={() => handleMute()}>Mute</button>
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
@@ -90,7 +94,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 					
 					{userRole === "Admin" && targetState !== "Owner" && targetState !== "Admin" ? (
 						<div className="admin-buttons">
-							<button className='red-back'>Mute</button>
+							<button className='red-back' onClick={() => handleMute()}>Mute</button>
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
@@ -105,7 +109,9 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 						<button className='blue-back'>Challenge</button>
 						<button className='red-back'>Block</button>
 					</div>
+
 				</div>
+
 
          	</div>
 

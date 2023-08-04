@@ -7,6 +7,7 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
+import { use } from 'passport';
 
 @WebSocketGateway(5050, { cors: '*' })
 export class ChatGateway {
@@ -242,7 +243,7 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat');
+      this.server.to(user.socketID).emit('returnChat', chat);
     });
     this.server.to(data.userID).emit('renderChatBar');
     //TODO handle rerender dor all affected users
@@ -257,10 +258,36 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat');
+      this.server.to(user.socketID).emit('returnChat', chat);
     });
     this.server.to(data.userID).emit('renderChatBar');
     //TODO handle rerender dor all affected users
+  }
+
+  @SubscribeMessage('muteUser')
+  async muteUser(client: Socket, data: { userID: string; chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const user = await this.userService.findOne(data.userID);
+    const chat = await this.chatService.muteUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    this.server.to(user.socketID).emit('returnChat', chat);
+  }
+
+  @SubscribeMessage('unmuteUser')
+  async unbanMute(client: Socket, data: { userID: string; chatID: number }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.unmuteUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChat', chat);
+    });
+    this.server.to(data.userID).emit('renderChatBar');
   }
 
   @SubscribeMessage('changePassword')
