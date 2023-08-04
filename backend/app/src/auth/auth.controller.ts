@@ -44,7 +44,7 @@ export class AuthController {
       } 
     */
     console.log('------------here---------');
-    res.cookie('jwtToken', token, { httpOnly: false });
+    res.cookie('jwtToken', token, { httpOnly: false, sameSite: 'none', secure: true });
 
     return res.redirect('https://localhost:3000/main');
   }

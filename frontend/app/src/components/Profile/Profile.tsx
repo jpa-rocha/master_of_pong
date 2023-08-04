@@ -39,6 +39,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [toggle2fa, setToggle2fa] = useState<boolean>(false);
   const [toggle2faTurnOff, setToggle2faTurnOff] = useState<boolean>(false);
 
+  console.log("PAGE REFRESHED");
   useEffect(() => {
     async function getUsersID() {
       const id = await axios.post("api/auth/getUserID", { token });
@@ -69,7 +70,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
     const config = {
       headers: {
         "Content-Type": "application/json",
-        " Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "https://localhost:3000",
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
       },
     };
@@ -104,7 +105,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
             .then((res) => {
               console.log(res);
             });
-          // window.location.reload();
+          window.location.reload();
         } catch (error: any) {
           console.error((error as Error).message);
         }
@@ -309,7 +310,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
             zIndex: 999,
           }}
         >
-          <PopUpGenerate2fa isOpen={generate2fa} onClose={close2faPopUp} />
+          <PopUpGenerate2fa isOpen={generate2fa} onClose={close2faPopUp} userID={userID}/>
         </div>
       )}
       {toggle2faTurnOff && (

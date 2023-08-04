@@ -14,7 +14,7 @@ export type JwtPayload = {
 };
 
 @Injectable()
-export class JwtTwoFactorStrategy extends PassportStrategy(Strategy) {
+export class TwoFactorStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
@@ -25,6 +25,7 @@ export class JwtTwoFactorStrategy extends PassportStrategy(Strategy) {
     const extractJwtFromCookie = (req: any) => {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
       let token = null;
+      console.log('----- REQ COOKIES -----', req.jwtToken);
       if (req && req.cookies) {
         token = req.cookies['jwtToken'];
       }
@@ -41,7 +42,8 @@ export class JwtTwoFactorStrategy extends PassportStrategy(Strategy) {
   async validate(token: JwtPayload): Promise<User> {
     console.log('----- AT 2FA VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
-
+    console.log('------------- AT GUARD --------------')
+    console.log(token.is_2fa_enabled)
     if (token.is_2fa_enabled === true) {
       if (token.is_validated === false) {
         return null;

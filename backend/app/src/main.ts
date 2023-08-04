@@ -9,10 +9,12 @@ async function bootstrap() {
   app.use(cors());
   app.use(cookieParser());
   app.enableCors({
-    "origin": ["https://localhost:3000", "http://localhost:3000", "https://api.intra.42.fr/"],
+    "origin": ["https://localhost:3000", "https://localhost:3000/profile", "http://localhost:3000", "https://api.intra.42.fr/"],
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": true,
-    "optionsSuccessStatus": 204
+    "optionsSuccessStatus": 204,
+    "credentials": true,
+    "allowedHeaders": "Content-Type, Accept, Authorization, X-Requested-With, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Access-Control-Allow-Credentials"
   });
   await app.listen(5000);
   // await app.listen(3333);
