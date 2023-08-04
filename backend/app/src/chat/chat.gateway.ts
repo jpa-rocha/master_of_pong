@@ -262,4 +262,13 @@ export class ChatGateway {
     this.server.to(data.userID).emit('renderChatBar');
     //TODO handle rerender dor all affected users
   }
+
+  @SubscribeMessage('changePassword')
+  async changePassword(
+    client: Socket,
+    data: { password: string; chatID: number },
+  ) {
+    console.log('Change PASSWORD REACHED');
+    return await this.chatService.changePassword(data.password, data.chatID);
+  }
 }

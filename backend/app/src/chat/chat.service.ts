@@ -297,6 +297,18 @@ export class ChatService {
     return null;
   }
 
+  async changePassword(password: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    if (password === '') {
+      chat.channel = 'public';
+      chat.password = password;
+    } else {
+      chat.channel = 'private';
+      chat.password = password;
+    }
+    return this.chatRepository.save(chat);
+  }
+
   // what's left :
   // 1 - change/set/remove channel password
   // 2 - mute users in chat
