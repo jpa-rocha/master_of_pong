@@ -12,15 +12,20 @@ interface ChatBarProps {
 }
 
 interface User {
-  username: string;
-  isFriend: boolean;
-  status: string;
-  id: string;
+	socketID: string;
+	username: string;
+	isFriend: boolean;
+	status: string;
+	id: string;
 }
 
 interface ChatRoomProp {
-  id: number;
-  title: string;
+	id: number;
+	title: string;
+	channel: string;
+	users: User[];
+	admins: User[];
+	creator: User;
 }
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
@@ -39,6 +44,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         setDirectChats(data.users);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
+      console.log("Rooms : ", data.chatRooms);
     };
 
     const handleStatusRender = () => {
@@ -147,7 +153,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       </div>
 		<ul>
 		{chatRooms && chatRooms.map((chat) => (
-      <div key={chat.id}>
+      <div key={chat.id} className="flex justify-between items-center">
 			  <button onClick={() => handleGetChatRoom(chat.id)}>
 				{chat.title}
 			  </button>

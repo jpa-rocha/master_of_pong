@@ -3,6 +3,7 @@ import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
 import BannedUsersPopUp from "./PopUpBannedUsers";
+import PopUpPassword from "./PopUpPassword";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -21,22 +22,14 @@ interface ChatBodyProps {
   socket: Socket;
 }
 
-interface User {
-  socketID: string;
-  username: string;
-  isFriend: boolean;
-  status: string;
-  id: string;
-}
-
 interface ChatProp {
 	id: number;
 	title: string;
 	channel: string;
-	users: User[];
-	admins: User[];
-	banned: User[];
-	creator: User;
+	users: UserProps[];
+	admins: UserProps[];
+	banned: UserProps[];
+	creator: UserProps;
 }
 
 interface UserProps {
@@ -56,6 +49,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [chat, setChat] = useState<ChatProp>();
 
   const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
+  const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -98,9 +92,9 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
-      if (user.username === chat.users[0].username)
+      if (user.username === chat.users[0].username && chat.users[1].username)
         chat.title = chat.users[1].username;
-      else 
+      else if (chat.users[0].username)
         chat.title = chat.users[0].username;
     }
   }, [chat, user]);
@@ -119,6 +113,10 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     setIsBannedPopupOpen(!isBannedPopupOpen);
   }
 
+  const togglePopupPassword = () => {
+    setIsPasswordPopupOpen(!isPasswordPopupOpen);
+  }
+
   return (
     <>
     <div>
@@ -132,6 +130,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
             <button onClick={() => togglePopup()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
               Banned Users
             </button>
+            {user?.id === chat?.creator.id ? (
+              <button onClick={() => togglePopupPassword()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                Manage Password
+              </button>
+            ): null}
           </div>
         ) : null}
       </header>
@@ -191,6 +194,24 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
           }}
         >
           <BannedUsersPopUp isOpen={isBannedPopupOpen} onClose={togglePopup} socket={socket} chat={chat} />
+        </div>
+      )}
+    {isPasswordPopupOpen && chat && user && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <PopUpPassword isOpen={isPasswordPopupOpen} onClose={togglePopupPassword} socket={socket} chat={chat} user={user} />
         </div>
       )}
     </>

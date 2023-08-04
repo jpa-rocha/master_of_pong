@@ -3,10 +3,13 @@ import './PopUp.css'
 import { Socket } from 'socket.io-client';
 
 interface User {
-	socketID: string;
-	username: string;
-	isFriend: boolean;
-	status: string;
+	forty_two_id: number;
+	username: string | undefined;
+	refresh_token: string;
+	email: string;
+	avatar: string;
+	is_2fa_enabled: boolean;
+	xp: number;
 	id: string;
 }
 

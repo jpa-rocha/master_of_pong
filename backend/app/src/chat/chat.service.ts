@@ -296,4 +296,12 @@ export class ChatService {
     }
     return null;
   }
+
+  // what's left :
+  // 1 - change/set/remove channel password
+  // 2 - mute users in chat
+  // 3 - block / unblock users
+  // 4 - access other profiles through chat
+  // 5 - invite  players to a game
+  // 6 - optimal user experience / styling
 }
