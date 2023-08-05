@@ -1,8 +1,9 @@
 .PopHeader {
 	font-weight: bold;
 	padding: 10px;
-	background-color: #007bff;
+	background-color: #2e3133;
 	color: #fff;
+	text-align: center;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 }
@@ -30,7 +31,7 @@
 }
   
 .create-button {
-	background-color: #007bff;
+	background-color: #1e2227;
 	color: #ffffff;
 	margin-right: 10px;
 }
@@ -38,12 +39,13 @@
 .cancel-button {
 	background-color: #f1f1f1;
 	color: #333333;
+	background-color: #e58b0c;
 }
 
 .join-button {
 	width: 80px;
 	height: 40px;
-	background-color: #007bff;
+	background-color: #29292a;
 	color: #ffffff;
 	border-radius: 5px;
 	font-size: 15px;
