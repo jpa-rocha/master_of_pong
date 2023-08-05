@@ -228,56 +228,65 @@ export class ChatGateway {
   @SubscribeMessage('kickUser')
   async kickUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
-    await this.chatService.kickUser(userID, data.userID, data.chatID);
-    this.server.to(data.userID).emit('renderChatBar');
-    //TODO handle rerender for all affected users
+    const user = await this.userService.findOne(userID);
+    const chat = await this.chatService.kickUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    this.server.to(user.socketID).emit('renderChatBar');
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
+    });
   }
 
   @SubscribeMessage('banUser')
   async banUser(client: Socket, data: { userID: string; chatID: number }) {
     console.log('BAN USER');
     const userID = await this.userService.findIDbySocketID(client.id);
+    const user = await this.userService.findOne(userID);
     const chat = await this.chatService.banUser(
       userID,
       data.userID,
       data.chatID,
     );
+    // TODO sent to user SOCKET not the ID
+    // return the chat to chatBody so the banned users content updates
+    this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat', chat);
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
-    this.server.to(data.userID).emit('renderChatBar');
-    //TODO handle rerender dor all affected users
   }
 
   @SubscribeMessage('unbanUser')
   async unbanUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
+    const user = await this.userService.findOne(userID);
     const chat = await this.chatService.unbanUser(
       userID,
       data.userID,
       data.chatID,
     );
-    chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat', chat);
-    });
-    this.server.to(data.userID).emit('renderChatBar');
-    //TODO handle rerender dor all affected users
+    // TODO sent to user SOCKET not the ID
+    // return the chat to chatBody so the banned users content updates
+    this.server.to(user.socketID).emit('renderChatBar');
   }
 
   @SubscribeMessage('muteUser')
   async muteUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
-    const user = await this.userService.findOne(data.userID);
     const chat = await this.chatService.muteUser(
       userID,
       data.userID,
       data.chatID,
     );
-    this.server.to(user.socketID).emit('returnChat', chat);
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
+    });
   }
 
   @SubscribeMessage('unmuteUser')
-  async unbanMute(client: Socket, data: { userID: string; chatID: number }) {
+  async unmuteUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const chat = await this.chatService.unmuteUser(
       userID,
@@ -285,9 +294,8 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat', chat);
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
-    this.server.to(data.userID).emit('renderChatBar');
   }
 
   @SubscribeMessage('changePassword')
@@ -297,5 +305,28 @@ export class ChatGateway {
   ) {
     console.log('Change PASSWORD REACHED');
     return await this.chatService.changePassword(data.password, data.chatID);
+  }
+
+  @SubscribeMessage('blockUser')
+  async blockUser(client: Socket, data: { targetID: string }) {
+    // contact usersservice to add the target to the blocked users relation
+    const userID = await this.userService.findIDbySocketID(client.id);
+    this.userService.blockUser(userID, data.targetID);
+  }
+
+  @SubscribeMessage('unblockUser')
+  async unblockUser(client: Socket, data: { targetID: string }) {
+    // contact usersservice to remove the target from the blocked users relation
+    const userID = await this.userService.findIDbySocketID(client.id);
+    this.userService.unblockUser(userID, data.targetID);
+  }
+
+  @SubscribeMessage('checkMuted')
+  async checkMuted(client: Socket, data: { targetID: string; chatID: number }) {
+    const result = await this.chatService.checkMuted(
+      data.targetID,
+      data.chatID,
+    );
+    this.server.to(client.id).emit('isMutedReturn', result);
   }
 }

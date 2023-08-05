@@ -3,6 +3,8 @@ import { Socket } from "socket.io-client";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import InteractPopUp from "./PopUpInteract";
+import { User, Chat } from "./PropUtils";
+import './PopUp.css'
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -10,29 +12,12 @@ interface ChatUsersProps {
 	socket: Socket;
 }
 
-interface User {
-	socketID: string;
-	username: string;
-	isFriend: boolean;
-	status: string;
-	id: string;
-}
-
-interface ChatProp {
-	id: number;
-	title: string;
-	channel: string;
-	users: User[];
-	admins: User[];
-	creator: User;
-}
-
 const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userCurrent, setUserCurrent] = useState<User>();
 	const [userCurrentRole, setUserCurrentRole] = useState<string>("");
 
 
-	const [chat, setChat] = useState<ChatProp>();
+	const [chat, setChat] = useState<Chat>();
 	const [users, setUsers] = useState<User[]>([]);
 	const [admins, setAdmins] = useState<User[]>([]);
 
@@ -41,10 +26,69 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userRegular, setUserRegular] = useState<User[]>([]);
 	const [userAdmin, setUserAdmin] = useState<User[]>([]);
 
+
+	const [mutedAdmins, setMutedAdmins] = useState<{ id: string; isMuted: boolean }[]>([]);
+	const [mutedUsers, setMutedUsers] = useState<{ id: string; isMuted: boolean }[]>([]);
+	const [mutedMe, setMutedMe] = useState<boolean>();
+
 	const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
 	const [interactTarget, setInteractTarget] = useState<User>();
 	const [interactTargetRole, setInteractTargetRole] = useState<string>("");
+
+	useEffect(() => {
+		const fetchMutedStatus = async () => {
+			const checkIfMuted = (targetID: string): Promise<boolean> => {
+				return new Promise((resolve, reject) => {
+				  socket.emit('checkMuted', { targetID: targetID, chatID: chat?.id });
+			  
+				  socket.on('isMutedReturn', (response) => {
+					socket.off('isMutedReturn'); // Remove the event listener
+					resolve(response);
+				  });
+				});
+			  };
+
+			async function checkMute(targetID: string) {
+				try {
+					const isMuted = await checkIfMuted(targetID);
+					return isMuted;
+				} catch (error) {
+					console.error('Error:', error);
+				}
+			}
+
+		  const mutedAdminsStatus = await Promise.all(
+			userAdmin.map(async (user) => ({
+			  id: user.id,
+			  isMuted: await checkMute(user.id),
+			}))
+		  );
+
+		  const mutedRegularStatus = await Promise.all(
+			userRegular.map(async (user) => ({
+			  id: user.id,
+			  isMuted: await checkMute(user.id),
+			}))
+		  );
+
+		  const transformedMutedAdminStatus = mutedAdminsStatus.map((status) => ({
+			id: status.id,
+			isMuted: status.isMuted || false, // Set to false if it's undefined
+		  }));
+		  const transformedMutedRegularStatus = mutedRegularStatus.map((status) => ({
+			id: status.id,
+			isMuted: status.isMuted || false, // Set to false if it's undefined
+		  }));
+
+		  setMutedAdmins(transformedMutedAdminStatus);
+		  setMutedUsers(transformedMutedRegularStatus);
+		  if (userME)
+		  	setMutedMe(await checkMute(userME.id));
+		};
+	
+		fetchMutedStatus();
+	  }, [userAdmin, userRegular, userME, chat, socket]);
 
 	useEffect(() => {
 		const getUserGET = async () => {
@@ -91,7 +135,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			}
 		}
 
-		const handleReturnChat = (chat: ChatProp) => {
+		const handleReturnChat = (chat: Chat) => {
 			if (chat && chat.id) {
 				setChat(chat);
 				setUsers(chat.users);
@@ -113,14 +157,6 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		};
 	}, [socket, chat, users, admins, userOwner?.id, userCurrent]);
 
-	function handleMakeAdmin(userID: string) {
-		socket.emit('addAdmin', {userID: userID, chatID: chat?.id});
-	}
-
-	function handleRemoveAdmin(userID: string) {
-		socket.emit('removeAdmin', {userID: userID, chatID: chat?.id});
-	}
-
 	const togglePopup = () => {
 		setInteractTarget(undefined);
 		setInteractTargetRole("");
@@ -139,8 +175,9 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			<div className="ml-2 font-bold text-2xl">Users</div>
 
 			{userME ? (
-				<div>
+				<div className="user-container">
 					{userME.username} {userME.status === "online" ? <>🟢</> : <>🔴</>}
+					{mutedMe ? <div>&nbsp;🔇</div>: null}
 				</div>
 			): null}
 
@@ -153,24 +190,25 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				</div>
 			): null}
 
-			{userAdmin && userAdmin.map((user) => (
-				<div key={user.id}>
-					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>} 👮
-					{/* <button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleRemoveAdmin(user.id)} >demote</button> */}
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")} >interact</button>
+			{userAdmin && userAdmin.map((user, index) => (
+				<div key={user.id} className="user-container">
+					<div>
+						{user.username} {user.status === "online" ? <span>🟢</span> : <span>🔴</span>} 👮
+					</div>
+					{mutedAdmins[index]?.isMuted ? <div>&nbsp;🔇</div> : null}
+					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")}>interact</button>
 				</div>
 			))}
 
-			{userRegular && userRegular.map((user) => (
-				<div key={user.id}>
+			{userRegular && userRegular.map((user, index) => (
+				<div key={user.id}  className="user-container">
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
-					{/* {chat?.channel !== "direct" && !userME ? (
-						<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => handleMakeAdmin(user.id)} >promote</button>
-					): null} */}
+					{mutedUsers[index]?.isMuted ? <div>&nbsp;🔇</div> : null}
 					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Regular")} >interact</button>
 				</div>
 			))}
 		</div>
+
 		{isPopupOpen && userCurrent && chat && interactTarget && (
         <div
           style={{
@@ -188,7 +226,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         >
           <InteractPopUp isOpen={isPopupOpen} onClose={togglePopup} socket={socket} chat={chat} user={userCurrent} userRole={userCurrentRole} target={interactTarget} targetRole={interactTargetRole}/>
         </div>
-      )}
+      	)}
 		</>
 	);
 }
