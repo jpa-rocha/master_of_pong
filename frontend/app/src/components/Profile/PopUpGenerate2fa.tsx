@@ -1,6 +1,5 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import "./styleProfile.css";
 import { getToken, getUser } from "../../utils/Utils";
 import { get } from "http";
 import fs from "fs";
@@ -93,21 +92,25 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
 
   return (
     <>
-      <div>
-        <h1 className="styleHeader"> 2fa </h1>
-        <h2 className="styleHeader">
+      <div className="relative bg-white rounded-lg shadow p-6">
+	  <button className="absolute top-3 right-3 text-gray-400 bg-transparent 
+	  	hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto " onClick={onClose}>
+          X
+        </button>
+        <h1 className="font-bold text-lg tracking-wide uppercase text-center">2fa</h1>
+        <div className="font-bold text-lg tracking-wide uppercase text-center">
           <img src={qrCode} alt="QR Code" />
-        </h2>
+        </div>
         <form>
           <input
             type="text"
             placeholder="Enter 2fa Code"
             onKeyDown={handleKeyDown}
+			className="m-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-900
+			focus:border-blue-500 block p-2.5"
           />
         </form>
-        <button className="styleButton" onClick={onClose}>
-          X
-        </button>
+       
       </div>
     </>
   );

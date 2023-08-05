@@ -162,21 +162,20 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
-        <Grid item xs={6} md={12}>
-          <div
-            className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-white border border-gray-200 rounded-lg shadow
-	 my-4 mx-4 p-4 md:m-5 md:p-6"
-          >
+        <Grid item xs={6} md={12} >
+        <div
+            className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
+			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 ">
             <img
-              className=" rounded-t-lg md:h-auto md:w-[30%] md:rounded-none md:rounded-l-lg"
+              className="md:h-auto md:w-[20%] md:rounded-l-lg"
               src={profileImg}
               alt="profile_picture"
             />
             <div className="flex flex-col items-center md:p-4">
-              <h2 className="mb-1 text-xl font-medium text-gray-900">
+              <h2 className="mb-1 md:text-xl font-medium text-gray-900">
                 {userName}
               </h2>
-              <div className="text-lg text-gray-500 dark:text-gray-400 mt-3">
+              <div className="md:text-lg text-gray-500 flex flex-col mt-3">
                 <p>
                   <span className="font-bold">Rank:</span> {rank}{" "}
                 </p>
@@ -187,32 +186,29 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
                   <span className="font-bold">Losses:</span> {losses}
                 </p>
               </div>
-              <div className="flex space-x-3 mt-2 p-2 md:mt-6">
+              <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
                 <button
-                  className="inline-flex items-center px-3 py-2 text-sm text-center 
-			text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
-			focus:ring-gray-200"
-                  onClick={handleUserNameChange}
-                >
+                  className="items-center px-3 py-2 text-sm text-center 
+					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
+					focus:ring-gray-200"
+                  onClick={handleUserNameChange}>
                   Change User Name
                 </button>
                 <button
-                  className="inline-flex items-center px-4 py-2 text-sm text-center text-white bg-green-800
-			border border-gray-300 rounded-lg 
-			hover:bg-green-600 focus:ring-4 focus:outline-none
-			focus:ring-gray-200"
-                  onClick={handleProfileImgChange}
-                >
-                  {" "}
-                  Change Profile Picture
+                  className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
+					border border-gray-300 rounded-lg 
+					hover:bg-green-600 focus:ring-4 focus:outline-none
+					focus:ring-gray-200"
+                	onClick={handleProfileImgChange}>
+                	Change Profile Picture
                 </button>
               </div>
             </div>
-          </div>
+        </div>
         </Grid>
         <Grid item xs={6} md={12}>
           <h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
-          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2">
+          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
             <table className="w-full text-lg text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
