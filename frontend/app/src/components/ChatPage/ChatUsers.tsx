@@ -171,7 +171,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 
 	return (
 		<>
-		<div className="flex flex-col py-8 pl-6 pr-2 rounded-2xl w-64 bg-gray-200 flex-shrink-0">
+		<div className="flex flex-col py-8 pl-6 pr-2 rounded-2xl md:w-64 m-1 md:m-0 bg-yellow-50 flex-shrink-0">
 			<div className="ml-2 font-bold text-2xl">Users</div>
 			{userME ? (
 				<div className="user-container">

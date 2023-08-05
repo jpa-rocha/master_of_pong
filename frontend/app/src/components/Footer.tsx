@@ -5,7 +5,7 @@ import React from "react";
 
 const Footer: React.FunctionComponent = () => {
   return (
-	<footer className="bg-black rounded-sm shadow bottom-0 left-0 right-0">
+	<footer className="bg-black rounded-sm shadow fixed bottom-0 left-0 right-0">
 	<div className="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
 		<span className="text-sm text-gray-200 sm:text-center dark:text-gray-400 mr-3">© 2023 
 			<span  className="hover:underline"> MasterofPong™</span>

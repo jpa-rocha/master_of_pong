@@ -85,7 +85,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   };
 
   return (
-	<div className="flex flex-col py-8 pl-6 pr-2 rounded-2xl w-64 bg-gray-200 flex-shrink-0">
+	<div className="flex flex-col py-8 pl-6 pr-2 rounded-2xl md:w-64 md:m-0 my-2 bg-yellow-50 flex-shrink-0">
 		<div className="flex flex-row items-center justify-start h-10 w-full">
 	  		<div className="flex items-center justify-center rounded-2xl text-white bg-gray-800 h-8 w-8">
 				<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
