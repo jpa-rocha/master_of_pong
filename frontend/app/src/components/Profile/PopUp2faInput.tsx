@@ -18,6 +18,7 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
     twoFactorAuthenticationCode: string,
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
+    console.log("handleTurnOff2fa CALLED");
     event.preventDefault();
     await axios
       .post(`/api/2fa/turn-off/${UserId}`, {
@@ -39,6 +40,8 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
       event.currentTarget.value = "";
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <>

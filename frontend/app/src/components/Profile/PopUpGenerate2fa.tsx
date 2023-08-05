@@ -12,6 +12,7 @@ axios.defaults.baseURL = "http://localhost:5000/";
 type PopUpGenerate2fa = {
   isOpen: boolean;
   onClose: () => void;
+  userID: string | undefined;
 };
 
 interface User {
@@ -19,20 +20,20 @@ interface User {
   username: string;
 }
 
-const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose }) => {
+const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose, userID }) => {
   const [qrCode, setQrCode] = useState<string>();
-  const [userID, setUserID] = React.useState<string | undefined>();
+  // const [userID, setUserID] = React.useState<string | undefined>();
   const [codeValue, setCodeValue] = useState<string>("");
 
   useEffect(() => {
     (async () => {
-      const token = getToken("jwtToken");
-      async function getUserID() {
-        const id = await axios.post("api/auth/getUserID", { token });
-        setUserID(id.data);
-      }
-      await getUserID();
-      if (!userID) return;
+      // const token = getToken("jwtToken");
+      // async function getUserID() {
+      //   const id = await axios.post("api/auth/getUserID", { token });
+      //   setUserID(id.data);
+      // }
+      // await getUserID();
+      // if (!userID) return;
       console.log("userID: ", userID);
       const getQrCode = await axios.post(
         `/api/2fa/generate/${userID}`,
@@ -56,17 +57,29 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose }) => {
   ) => {
     event.preventDefault();
     console.log("value: ", twoFactorAuthenticationCode);
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true",
+        "jwtToken": getToken("jwtToken"),
+      },
+      // withCredentials: true,
+    };
     const res = await axios
       .post(`/api/2fa/turn-on/${userID}`, {
         twoFactorAuthenticationCode,
-      })
-      .then((res) => {
-        console.log("res: ", res);
-        onClose();
+      }, config)
+      .then((data) => {
+        console.log("res: ", data);
+        if (data.status === 200) {
+          onClose();
+        }
       })
       .catch((err) => {
         console.log("err: ", err);
-        // onClose();
       });
   };
 
@@ -84,7 +97,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose }) => {
   return (
     <>
       <div>
-        <h1 className="styleHeader"> 2Fa </h1>
+        <h1 className="styleHeader"> 2fa </h1>
         <h2 className="styleHeader">
           <img src={qrCode} alt="QR Code" />
         </h2>
