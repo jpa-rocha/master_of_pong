@@ -17,6 +17,13 @@ interface ChatMessagesResult {
   messages: Message[];
 }
 
+const btnStyle = `
+my-1 mx-0 md:mx-1 md:ml-3 text-sm bg-red-500 text-gray-50 
+hover:bg-red-800 
+py-2 px-4
+shadow rounded-xl
+`
+
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -92,20 +99,20 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   }
 
   return (
-    <>
+	<>
     <div>
-      <header className="ml-2 font-bold text-2xl flex items-center">
-        <h1>{chat?.title}</h1>
+      <header className="md:ml-2 font-bold text-2xl flex md:justify-between md:flex-row flex-col">
+        <h1 className="underline decoration-gray-500">{chat?.title}</h1>
         {chat?.channel !== "direct" ? (
-          <div>
-            <button onClick={() => handleLeaveChat()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+          <div className="flex flex-col md:flex-row ">
+            <button onClick={() => handleLeaveChat()} className={btnStyle}>
               Leave
             </button>
-            <button onClick={() => togglePopup()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+            <button onClick={() => togglePopup()}  className={btnStyle}>
               Banned Users
             </button>
             {user?.id === chat?.creator.id ? (
-              <button onClick={() => togglePopupPassword()} className="relative ml-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+              <button onClick={() => togglePopupPassword()} className={btnStyle}>
                 Manage Password
               </button>
             ): null}
@@ -124,9 +131,9 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
               message.sender.username === user?.username ? (
                 <div className="col-start-1 col-end-8 p-3 rounded-lg" key={message.id}>
                   <div className="flex flex-row items-center">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">You</div>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
                         <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
@@ -139,7 +146,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                     <div className="flex items-center justify-start flex-row-reverse">
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
                         <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
@@ -189,6 +196,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         </div>
       )}
     </>
+   
   );
 };
 
