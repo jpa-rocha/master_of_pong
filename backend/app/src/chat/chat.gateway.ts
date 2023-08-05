@@ -228,9 +228,16 @@ export class ChatGateway {
   @SubscribeMessage('kickUser')
   async kickUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
-    await this.chatService.kickUser(userID, data.userID, data.chatID);
-    this.server.to(data.userID).emit('renderChatBar');
-    //TODO handle rerender for all affected users
+    const chat = await this.chatService.kickUser(
+      userID,
+      data.userID,
+      data.chatID,
+    );
+    // TODO sent to user SOCKET not the ID
+    // this.server.to(data.userID).emit('renderChatBar');
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
+    });
   }
 
   @SubscribeMessage('banUser')
@@ -242,11 +249,12 @@ export class ChatGateway {
       data.userID,
       data.chatID,
     );
+    // TODO sent to user SOCKET not the ID
+    // this.server.to(data.userID).emit('renderChatBar');
+    // return the chat to chatBody so the banned users content updates
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat', chat);
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
-    this.server.to(data.userID).emit('renderChatBar');
-    //TODO handle rerender dor all affected users
   }
 
   @SubscribeMessage('unbanUser')
