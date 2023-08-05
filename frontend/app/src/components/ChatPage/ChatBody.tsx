@@ -29,6 +29,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<Chat>();
 
+  const [isUserAdmin, setIsUserAdmin] = useState<boolean>(false);
+
   const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
   const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
 
@@ -54,6 +56,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     const handleReturnChatBody = (chat: Chat) => {
       if (chat && chat.id) {
         setChat(chat);
+        if (chat && user) {
+          const check = chat.admins.some(admin => admin.id === user.id);
+          if (check) setIsUserAdmin(true);
+          else setIsUserAdmin(false);
+        }
         socket.emit("getMessages", { chatID: chat.id });
       }
     }
@@ -69,7 +76,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       socket.off("message", handleReturnMessages);
       socket.off("returnChat", handleReturnChatBody);
     };
-  }, [messages, user?.username, socket, chat]);
+  }, [messages, user?.username, socket, chat, user]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
@@ -108,9 +115,11 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
             <button onClick={() => handleLeaveChat()} className={btnStyle}>
               Leave
             </button>
-            <button onClick={() => togglePopup()}  className={btnStyle}>
-              Banned Users
-            </button>
+            {isUserAdmin ? (
+              <button onClick={() => togglePopup()}  className={btnStyle}>
+                Banned Users
+              </button>
+            ):null}
             {user?.id === chat?.creator.id ? (
               <button onClick={() => togglePopupPassword()} className={btnStyle}>
                 Manage Password
