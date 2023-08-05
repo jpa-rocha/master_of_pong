@@ -56,18 +56,19 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     const handleReturnChatBody = (chat: Chat) => {
       if (chat && chat.id) {
         setChat(chat);
-        if (chat && user) {
-          const check = chat.admins.some(admin => admin.id === user.id);
-          if (check) setIsUserAdmin(true);
-          else setIsUserAdmin(false);
-        }
         socket.emit("getMessages", { chatID: chat.id });
       }
     }
-
+    
     const handleReturnMessages = (data: ChatMessagesResult) => {
       if (chat && chat?.id === data.chatID)
-        setMessages(data.messages);
+      setMessages(data.messages);
+    }
+    
+    if (chat && user) {
+      const check = chat.admins.some(admin => admin.id === user.id);
+      if (check) setIsUserAdmin(true);
+      else setIsUserAdmin(false);
     }
 
     socket.on("returnChat", handleReturnChatBody);
