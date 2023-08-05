@@ -2,20 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-auth.strategy';
 import { identity } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+// import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class JwtAuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {}
 
-  login(user) {
+  async login(user, validated) {
     const payload: JwtPayload = {
       id: user.id,
       is_2fa_enabled: user.is_2fa_enabled,
+      is_validated: validated,
     };
-    console.log('AT SIGN PAYLOAD');
-    console.log(user.username);
+
+    const Token = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+    });
+    console.log('----- AFTER SIGN -----');
+    console.log('----- Token -----', Token);
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken: Token,
     };
   }
 

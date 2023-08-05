@@ -26,6 +26,18 @@ export class Chat {
   @JoinTable()
   users: User[];
 
+  @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
+  admins: User[];
+
+  @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
+  banned: User[];
+
+  @ManyToMany(() => User, (user) => user.chats)
+  @JoinTable()
+  muted: User[];
+
   @OneToMany(() => Message, (message) => message.chat)
   messages: Message[];
 

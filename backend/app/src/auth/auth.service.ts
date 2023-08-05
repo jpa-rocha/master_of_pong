@@ -21,12 +21,9 @@ export class AuthService {
   async signin(user: AuthDto): Promise<string> {
     // const user: User = await this.usersService.findOne(user_dto.forty_two_id);
 
-    console.log('AT SERVICE');
+    console.log('----- AT SERVICE -----');
     console.log(user.is_2fa_enabled);
-    // if (user.is_2fa_enabled) {
-    //   console.log('2FA ENABLED');
-    // }
-    const { accessToken } = this.jwtAuthService.login(user);
+    const { accessToken } = await this.jwtAuthService.login(user, false);
     console.log(accessToken);
     // if (!user) return undefined;
 

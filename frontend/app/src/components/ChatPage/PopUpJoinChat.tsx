@@ -9,6 +9,11 @@ type JoinChatRoomPopupProps = {
   socket: Socket;
 };
 
+interface PasswordInputProp {
+  chatID: number;
+  password: string;
+}
+
 interface ChatRoomProps {
   id: number;
   title: string;
@@ -18,21 +23,44 @@ interface ChatRoomProps {
 
 const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, onJoinChatRoom, socket }) => {
   const [chatRoomName, setChatRoomName] = useState('');
-  const [chatRoomPassword, setChatRoomPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string>('');
   const [chatRooms, setChatRooms] = useState<ChatRoomProps[]>([]);
+  const [passwordInput, setPasswordInput] = useState<PasswordInputProp[]>([]);
+  
+  const checkPassword = (id: number, password: string) => {
+    return new Promise((resolve, reject) => {
+      socket.emit('checkChatRoomPassword', {id: id, password: password}, (result: boolean) => {
+        resolve(result);
+      });
+    });
+  };
 
-  socket.on("joinableRooms", (data: ChatRoomProps[]) => {
-      setChatRooms(data);
-      console.log("AVAILABLE CHAT ROOMS: ", chatRooms);
-  });
-
-  const handleJoinChatRoom = (chatName: string) => {
+  const  handleJoinChatRoom = async (chatName: string, chatID: number) => {
     setChatRoomName(chatName);
-    console.log("TITLE ===== ", chatName);
-    onJoinChatRoom(chatName, chatRoomPassword);
+    const foundPasswordInput = passwordInput.find((item) => item.chatID === chatID);
+    const passwordToSend = foundPasswordInput ? foundPasswordInput.password : "";
+
+    const checkResult = await checkPassword(chatID, passwordToSend);
+    if (!checkResult)
+    {
+      setPasswordError("Wrong password, please try again");
+      return;
+    }
+    onJoinChatRoom(chatName, passwordToSend);
     onClose();
   };
+
+  const setPasswordInputs = (password: string, chatID: number) => {
+    setPasswordError("");
+    const index = passwordInput.findIndex((chat) => chat.chatID === chatID);
+    if (index === -1) {
+      setPasswordInput([...passwordInput, {chatID, password}])
+    } else {
+      const tempPasswords = [...passwordInput];
+      tempPasswords[index].password = password;
+      setPasswordInput(tempPasswords);
+    }
+  }
 
   useEffect(() => {
     if (chatRoomName !== '') {
@@ -40,6 +68,14 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
     } else {
       setChatRooms([]);
     }
+
+    const handleJoinableRooms = (data: ChatRoomProps[]) => {
+      setChatRooms(data);
+    }
+    socket.on("joinableRooms", handleJoinableRooms);
+    return () => {
+      socket.off("joinableRooms", handleJoinableRooms);
+    };
 	}, [chatRoomName, socket]);
 
   if (!isOpen) return null;
@@ -52,15 +88,21 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
         </h3>
         <div className="PopBody">
           <div className="name-input">
-            <input type="text" placeholder="Chat Room Name" value={chatRoomName} onChange={(e) => setChatRoomName(e.target.value)} />
+            <input type="text" placeholder="Chat Room Name" value={chatRoomName} onChange={(e) => {setChatRoomName(e.target.value); setPasswordError("")}} />
           </div>
           {chatRooms && chatRooms.map((room) => (
-            <div key={room.id}>
-              {room.title} {room.channel}
+            <div className='joinable-chat' key={room.id}>
+              <div className='room'>
+                <div className='room-title'>{room.title}</div>
+                {room.channel}
+              </div>
               {room.channel === 'private' ? (
-                <input type="text" placeholder="Password" value={chatRoomPassword} onChange={(e) => setChatRoomPassword(e.target.value)} />
-              ): null}
-              <button className='join-button' onClick={() => handleJoinChatRoom(room.title)}>Join</button>
+                <div>
+                  <input type="password" placeholder="Password" onChange={(e) => setPasswordInputs(e.target.value, room.id)} />
+                  <div className="error-message">{passwordError}</div> 
+                </div>
+              ) : null}
+              <button className='join-button' onClick={() => handleJoinChatRoom(room.title, room.id)}>Join</button>
             </div>
           ))}
 

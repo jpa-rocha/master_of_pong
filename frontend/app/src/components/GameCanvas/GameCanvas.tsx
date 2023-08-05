@@ -262,7 +262,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		ctx.drawImage(Images.headPaddle, canvas.width / 2 - 150, 190, 300, 75);
 		ctx.drawImage(Images.headCharacter, canvas.width / 2 - 150, 420, 300, 75);
 		const mouseX = e.clientX - canvas.offsetLeft;
-		const mouseY = e.clientY - canvas.offsetTop;
+		const mouseY = e.clientY - (canvas.offsetTop + 82);
 		if (checkMouseOnButton(startButton, mouseX, mouseY))
 			startButton.isFocused = true;
 		else if (startButton.isFocused)
@@ -321,7 +321,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		if (!canvas || !ctx)
 			return;
 		const mouseX = e.clientX - canvas.offsetLeft;
-		const mouseY = e.clientY - canvas.offsetTop;
+		const mouseY = e.clientY - (canvas.offsetTop + 82);
 		if (checkMouseOnButton(startButton, mouseX, mouseY)) {
 			if ((selectedGamemode !== -1 && selectedPaddle !== -1 && selectedCharacter !== -1) || selectedGamemode === Mode.Regular) {
 				if (selectedGamemode !== Mode.Regular) {
@@ -477,10 +477,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		if (!canvas || !ctx)
 			return;
 		const mouseX = e.clientX - canvas.offsetLeft;
-		const mouseY = e.clientY - canvas.offsetTop;
+		const mouseY = e.clientY - (canvas.offsetTop + 82);
 		if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
 			setGameSelection(true);
 			setBallSize(15);
+			setBallPosition({x: 600, y: 400});
 			setWinner(0);
 		}
 	}, [canvas, ctx, resetButton]);
@@ -489,7 +490,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 		if (!canvas || !ctx)
 			return;
 		const mouseX = e.clientX - canvas.offsetLeft;
-		const mouseY = e.clientY - canvas.offsetTop;
+		const mouseY = e.clientY - (canvas.offsetTop + 82);
 		if (checkMouseOnButton(resetButton, mouseX, mouseY))
 			resetButton.isFocused = true;
 		else if (resetButton.isFocused)
@@ -606,6 +607,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			socket.current?.emit('randomAbility');
 		else if (event.key === 'a')
 			socket.current?.emit('specialAbility');
+		else if (event.key === 'c')
+			socket.current?.emit('clearAbility');
 	}, [arrowDown, arrowUp, abilities, arrowLeft, arrowRight, dodgeButton.selected]);
 
 	useEffect(() => {
@@ -642,6 +645,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						setPlayerAbility(Images.MirageAbility);
 						break;
 					case 5:
+						setPlayerAbility(Images.DeflectAbility);
+						break;
+					case 6:
 						break;
 				}
 				setGameInit(true);
@@ -945,7 +951,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				socket.current?.off('gameInit');
 			}
 		}
-	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, VenomtailSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, BelowZeroSpecialSound, raivenSpecialSound, maxTimerAnim, score.p1, Images.DeflectAbility]);
+	}, [abilities, hasAbility, Images.BiggerBallAbility, Images.MirageAbility, Images.SmallerBallAbility, Images.FreezeAbility, Images.SoundGrenadeAbility, player, VenomtailSpecialSound, soundGrenadeSound, Images.paddleBzL, Images.paddleBzM, Images.paddleBzS, Images.paddleVentailL, Images.paddleVentailM, Images.paddleVentailS, Images.paddleRaivenL, Images.paddleRaivenM, Images.paddleRaivenS, Images.Cooldown, secondsLeft, Images.HomingAbility, dodgeButton, BelowZeroSpecialSound, raivenSpecialSound, maxTimerAnim, score.p1, Images.DeflectAbility, player1Name, player2Name]);
 
 	useEffect(() => {
 		async function emitActivityStatus() {
@@ -1242,7 +1248,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						}
 					}, 15);
 					return () => clearInterval(animInterval);
-				} else if (isPlayerWaiting) {
+				} else if (isPlayerWaiting || (isGameInit && (player1Name.length === 0 || player2Name.length === 0))) {
 					var rotIndex = 0;
 					const animInterval = setInterval(() => {
 						ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, canvas.width, canvas.height);
@@ -1381,7 +1387,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen]);
+	}, [player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen, player1Name, player2Name]);
 
 	useEffect(() => {
 		if (canvas && ctx && (winner === 1 || winner === 2)) {
@@ -1554,7 +1560,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				canvas?.removeEventListener("mousemove", handleFinishMove);
 			}
 		}
-	}, [winner, player]);
+	}, [canvas, ctx, drawButton, endScreen, handleFinishClick, handleFinishMove, resetButton, winnerName, winner, player]);
 
 	return (
 		<div>
