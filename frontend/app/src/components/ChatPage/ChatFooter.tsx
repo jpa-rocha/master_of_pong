@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import { Socket } from "socket.io-client";
 import { useEffect } from "react";
 import axios from "axios";
+import { Message, User, Chat } from "./PropUtils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
 interface ChatFooterProps {
   socket: Socket;
-}
-
-interface ChatProp {
-  id: number;
 }
 
 const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
@@ -25,7 +22,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   };
 
     useEffect(() => {
-      const handleReturnChat = (chat: ChatProp) => {
+      const handleReturnChat = (chat: Chat) => {
         if (chat && chat.id)
         setChatID(chat.id);
       }

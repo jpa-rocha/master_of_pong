@@ -4,13 +4,12 @@ import axios from "axios";
 import { Socket } from "socket.io-client";
 import BannedUsersPopUp from "./PopUpBannedUsers";
 import PopUpPassword from "./PopUpPassword";
+import { Message, User, Chat } from "./PropUtils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
-interface Message {
-  id: number;
-  sender: UserProps;
-  content: string;
+interface ChatBodyProps {
+  socket: Socket;
 }
 
 interface ChatMessagesResult {
@@ -18,36 +17,10 @@ interface ChatMessagesResult {
   messages: Message[];
 }
 
-interface ChatBodyProps {
-  socket: Socket;
-}
-
-interface ChatProp {
-	id: number;
-	title: string;
-	channel: string;
-	users: UserProps[];
-	admins: UserProps[];
-	banned: UserProps[];
-  muted: UserProps[];
-	creator: UserProps;
-}
-
-interface UserProps {
-  forty_two_id: number;
-  username: string | undefined;
-  refresh_token: string;
-  email: string;
-  avatar: string;
-  is_2fa_enabled: boolean;
-  xp: number;
-  id: string;
-}
-
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
-  const [user, setUser] = useState<UserProps>();
+  const [user, setUser] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [chat, setChat] = useState<ChatProp>();
+  const [chat, setChat] = useState<Chat>();
 
   const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
   const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
@@ -71,7 +44,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     };
     getUserEffect();
 
-    const handleReturnChatBody = (chat: ChatProp) => {
+    const handleReturnChatBody = (chat: Chat) => {
       if (chat && chat.id) {
         setChat(chat);
         socket.emit("getMessages", { chatID: chat.id });

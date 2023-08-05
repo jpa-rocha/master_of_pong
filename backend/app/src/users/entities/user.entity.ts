@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { Friend } from './friend.entity';
 import { GameData } from 'src/game-data/entities/game-data.entity';
-import { use } from 'passport';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { Channel } from 'src/chat/entities/channel.entity';
 import { Message } from 'src/chat/entities/message.entity';
@@ -69,9 +68,9 @@ export class User {
   @OneToMany(() => Chat, (chat) => chat.creator)
   chats: Chat[];
 
-  // @ManyToMany(() => Chat, (chat) => chat.users)
-  // @JoinTable()
-  // chatUsers: Chat[];
+  @ManyToMany(() => User, (user) => user.blocked)
+  @JoinTable()
+  blocked: User[];
 
   /* Message Relations */
   @OneToMany(() => Message, (message) => message.sender)

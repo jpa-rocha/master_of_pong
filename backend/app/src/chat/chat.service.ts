@@ -344,6 +344,13 @@ export class ChatService {
     return this.chatRepository.save(chat);
   }
 
+  async checkMuted(targetID: string, chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const index = chat.muted.findIndex((user) => user.id === targetID);
+    if (index !== -1) return true;
+    return false;
+  }
+
   // what's left :
   // 1 + change/set/remove channel password
   // 2 +- mute users in chat

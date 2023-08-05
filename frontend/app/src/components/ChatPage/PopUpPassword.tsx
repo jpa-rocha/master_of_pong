@@ -1,33 +1,13 @@
 import React, {useEffect, useState} from "react";
 import './PopUp.css'
 import { Socket } from "socket.io-client";
-
-interface User {
-	forty_two_id: number;
-	username: string | undefined;
-	refresh_token: string;
-	email: string;
-	avatar: string;
-	is_2fa_enabled: boolean;
-	xp: number;
-	id: string;
-  }
-
-interface ChatProp {
-	id: number;
-	title: string;
-	channel: string;
-	users: User[];
-	admins: User[];
-	banned: User[];
-	creator: User;
-}
+import { Message, User, Chat } from "./PropUtils";
 
 type PopUpPasswordProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	socket: Socket;
-	chat: ChatProp;
+	chat: Chat;
 	user: User;
 };
 

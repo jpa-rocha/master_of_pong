@@ -274,10 +274,13 @@ export class ChatGateway {
       data.chatID,
     );
     this.server.to(user.socketID).emit('returnChat', chat);
+    chat.users.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
+    });
   }
 
   @SubscribeMessage('unmuteUser')
-  async unbanMute(client: Socket, data: { userID: string; chatID: number }) {
+  async unmuteUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const chat = await this.chatService.unmuteUser(
       userID,
@@ -285,9 +288,8 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChat', chat);
+      this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
-    this.server.to(data.userID).emit('renderChatBar');
   }
 
   @SubscribeMessage('changePassword')
@@ -297,5 +299,28 @@ export class ChatGateway {
   ) {
     console.log('Change PASSWORD REACHED');
     return await this.chatService.changePassword(data.password, data.chatID);
+  }
+
+  @SubscribeMessage('blockUser')
+  async blockUser(client: Socket, data: { targetID: string }) {
+    // contact usersservice to add the target to the blocked users relation
+    const userID = await this.userService.findIDbySocketID(client.id);
+    this.userService.blockUser(userID, data.targetID);
+  }
+
+  @SubscribeMessage('unblockUser')
+  async unblockUser(client: Socket, data: { targetID: string }) {
+    // contact usersservice to remove the target from the blocked users relation
+    const userID = await this.userService.findIDbySocketID(client.id);
+    this.userService.unblockUser(userID, data.targetID);
+  }
+
+  @SubscribeMessage('checkMuted')
+  async checkMuted(client: Socket, data: { targetID: string; chatID: number }) {
+    const result = await this.chatService.checkMuted(
+      data.targetID,
+      data.chatID,
+    );
+    this.server.to(client.id).emit('isMutedReturn', result);
   }
 }
