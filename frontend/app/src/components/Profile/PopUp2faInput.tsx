@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
+import { getToken } from "../../utils/Utils";
 
 type PopUpTurnOff2fa = {
   isOpen: boolean;
@@ -20,10 +21,21 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
   ) => {
     console.log("handleTurnOff2fa CALLED");
     event.preventDefault();
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "true",
+        "jwtToken": getToken("jwtToken"),
+      },
+    };
+    
     await axios
       .post(`/api/2fa/turn-off/${UserId}`, {
         twoFactorAuthenticationCode,
-      })
+      }, config)
       .then((res) => {
         console.log(res);
         onClose();
