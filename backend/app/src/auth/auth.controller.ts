@@ -22,7 +22,6 @@ import { strict } from 'assert';
 
 @Controller('auth')
 export class AuthController {
-  jwtAuthService: any;
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
@@ -38,13 +37,7 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    /*   
-      if (i2fa) {
-        const is_valid2fa =  res.redirect('https://localhost:3000/2fa');
-      } 
-    */
-    console.log('------------here---------');
-    res.cookie('jwtToken', token, { httpOnly: false, sameSite: 'none', secure: true });
+    res.cookie('jwtToken', token, { httpOnly: false});
 
     return res.redirect('https://localhost:3000/main');
   }

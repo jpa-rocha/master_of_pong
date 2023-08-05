@@ -12,7 +12,7 @@ export class JwtAuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(user, validated) {
+  async login(user, validated: boolean) {
     const payload: JwtPayload = {
       id: user.id,
       is_2fa_enabled: user.is_2fa_enabled,
