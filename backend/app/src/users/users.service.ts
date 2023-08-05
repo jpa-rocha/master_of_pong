@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Friend } from './entities/friend.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
 import { Chat } from 'src/chat/entities/chat.entity';
 import { ChatService } from 'src/chat/chat.service';
@@ -36,8 +36,11 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.usersRepository.findOneBy({ id });
-    return user;
+    const options: FindOneOptions<User> = {
+      where: { id },
+      relations: ['blocked'],
+    };
+    return this.usersRepository.findOne(options);
   }
 
   async findIDbySocketID(socketID: string) {

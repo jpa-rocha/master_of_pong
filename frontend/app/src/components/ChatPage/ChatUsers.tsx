@@ -148,12 +148,12 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		};
 
 		socket.on("returnChatUsers", handleReturnChat);
-		socket.on("user connected users", handleStatusRender);
-    	socket.on("user disconnected users", handleStatusRender);
+		// socket.on("user connected users", handleStatusRender);
+    	// socket.on("user disconnected users", handleStatusRender);
 		return () => {
 			socket.off("returnChatUsers", handleReturnChat);
-			socket.off("user connected users", handleStatusRender);
-    		socket.off("user disconnected users", handleStatusRender);
+			// socket.off("user connected users", handleStatusRender);
+    		// socket.off("user disconnected users", handleStatusRender);
 		};
 	}, [socket, chat, users, admins, userOwner?.id, userCurrent]);
 

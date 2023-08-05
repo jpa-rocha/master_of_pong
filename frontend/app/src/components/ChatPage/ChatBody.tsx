@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
@@ -28,6 +28,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState<Chat>();
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
   const [isUserAdmin, setIsUserAdmin] = useState<boolean>(false);
 
@@ -77,7 +78,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       socket.off("message", handleReturnMessages);
       socket.off("returnChat", handleReturnChatBody);
     };
-  }, [messages, user?.username, socket, chat, user]);
+  }, [messages, user?.username, socket, chat]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
@@ -87,6 +88,12 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         chat.title = chat.users[0].username;
     }
   }, [chat, user]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const messageContainer = document.querySelector(".messageContainer");
   if (messageContainer) {
@@ -131,10 +138,9 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       </header>
     </div>
 
-    <div className="flex flex-col h-full overflow-x-auto mb-4">
+    <div className="flex flex-col h-full overflow-x-auto mb-4" ref={messageContainerRef}>
       <div className="flex flex-col h-full">
 
-  
         <div className="grid grid-cols-12 gap-y-2">
           {messages &&
             messages.map((message) =>

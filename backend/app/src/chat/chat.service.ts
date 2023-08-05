@@ -133,16 +133,35 @@ export class ChatService {
     return null;
   }
 
-  async getChatMessages(chatID: number): Promise<ChatMessagesResult> {
+  async getChatMessages(
+    chatID: number,
+    userID: string,
+  ): Promise<ChatMessagesResult> {
     /* 
         Think about a user that is blocked by another user.  
     */
-    const messages = await this.messageRepository
-      .createQueryBuilder('message')
-      .leftJoinAndSelect('message.sender', 'sender')
-      .where('message.chat = :chatID', { chatID })
-      .orderBy('message.timestamp', 'ASC')
-      .getMany();
+    const user = await this.usersService.findOne(userID);
+    const blockedUserIDs = user.blocked.map((blockedUser) => blockedUser.id);
+
+    let messages;
+    if (blockedUserIDs.length === 0) {
+      messages = await this.messageRepository
+        .createQueryBuilder('message')
+        .leftJoinAndSelect('message.sender', 'sender')
+        .where('message.chat = :chatID', { chatID })
+        .orderBy('message.timestamp', 'ASC')
+        .getMany();
+    } else {
+      messages = await this.messageRepository
+        .createQueryBuilder('message')
+        .leftJoinAndSelect('message.sender', 'sender')
+        .where('message.chat = :chatID', { chatID })
+        .andWhere('sender.id NOT IN (:...blockedUserIDs)', {
+          blockedUserIDs: blockedUserIDs, // Use the array directly
+        })
+        .orderBy('message.timestamp', 'ASC')
+        .getMany();
+    }
 
     const result: ChatMessagesResult = {
       chatID: chatID,
@@ -350,6 +369,13 @@ export class ChatService {
   async checkMuted(targetID: string, chatID: number) {
     const chat = await this.findOneChat(chatID);
     const index = chat.muted.findIndex((user) => user.id === targetID);
+    if (index !== -1) return true;
+    return false;
+  }
+
+  async checkBlocked(userID: string, targetID: string) {
+    const user = await this.usersService.findOne(userID);
+    const index = user.blocked.findIndex((user) => user.id === targetID);
     if (index !== -1) return true;
     return false;
   }

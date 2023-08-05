@@ -108,7 +108,12 @@ export class ChatGateway {
 
   @SubscribeMessage('getMessages')
   async getMessages(client: Socket, data: { chatID: number }) {
-    const messages = await this.chatService.getChatMessages(data.chatID);
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const messages = await this.chatService.getChatMessages(
+      data.chatID,
+      userID,
+    );
+    console.log('MESSAGES = ', messages.messages);
     this.server.to(client.id).emit('message', messages);
   }
 
@@ -149,12 +154,12 @@ export class ChatGateway {
 
   @SubscribeMessage('sendMessage')
   async sendMessage(client: Socket, data: { chatID: number; message: string }) {
-    await this.chatService.sendMessage(
-      await this.userService.findIDbySocketID(client.id),
+    const userID = await this.userService.findIDbySocketID(client.id);
+    await this.chatService.sendMessage(userID, data.chatID, data.message);
+    const messages = await this.chatService.getChatMessages(
       data.chatID,
-      data.message,
+      userID,
     );
-    const messages = await this.chatService.getChatMessages(data.chatID);
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('message', messages);
@@ -229,6 +234,7 @@ export class ChatGateway {
   async kickUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
+    const target = await this.userService.findOne(data.userID);
     const chat = await this.chatService.kickUser(
       userID,
       data.userID,
@@ -238,6 +244,7 @@ export class ChatGateway {
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
+    // this.server.to(target.socketID).emit('returnChat', null);
   }
 
   @SubscribeMessage('banUser')
@@ -245,6 +252,7 @@ export class ChatGateway {
     console.log('BAN USER');
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
+    const target = await this.userService.findOne(data.userID);
     const chat = await this.chatService.banUser(
       userID,
       data.userID,
@@ -255,21 +263,23 @@ export class ChatGateway {
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChat', chat);
     });
+    // return this chat to current user and compare it with users current chat if it matches reaload the window
+    // this.server.to(target.socketID).emit('returnChat', null);
   }
 
   @SubscribeMessage('unbanUser')
   async unbanUser(client: Socket, data: { userID: string; chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
-    const user = await this.userService.findOne(userID);
     const chat = await this.chatService.unbanUser(
       userID,
       data.userID,
       data.chatID,
     );
-    // TODO sent to user SOCKET not the ID
-    // return the chat to chatBody so the banned users content updates
-    this.server.to(user.socketID).emit('renderChatBar');
+    chat.admins.forEach((user) => {
+      this.server.to(user.socketID).emit('returnChat', chat);
+    });
   }
 
   @SubscribeMessage('muteUser')
@@ -308,17 +318,22 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('blockUser')
-  async blockUser(client: Socket, data: { targetID: string }) {
+  async blockUser(client: Socket, data: { targetID: string; chatID: number }) {
     // contact usersservice to add the target to the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
     this.userService.blockUser(userID, data.targetID);
+    await this.getMessages(client, { chatID: data.chatID });
   }
 
   @SubscribeMessage('unblockUser')
-  async unblockUser(client: Socket, data: { targetID: string }) {
+  async unblockUser(
+    client: Socket,
+    data: { targetID: string; chatID: number },
+  ) {
     // contact usersservice to remove the target from the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
     this.userService.unblockUser(userID, data.targetID);
+    await this.getMessages(client, { chatID: data.chatID });
   }
 
   @SubscribeMessage('checkMuted')
@@ -328,5 +343,12 @@ export class ChatGateway {
       data.chatID,
     );
     this.server.to(client.id).emit('isMutedReturn', result);
+  }
+
+  @SubscribeMessage('checkBlocked')
+  async checkBlocked(client: Socket, data: { targetID: string }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const result = await this.chatService.checkBlocked(userID, data.targetID);
+    this.server.to(client.id).emit('isBlockedReturn', result);
   }
 }

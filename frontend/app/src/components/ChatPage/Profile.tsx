@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Grid } from "@mui/material";
-import NavBarMainPage from "../Navigation/NavBarMainPage";
-import Footer from "../Footer";
 /* import "./profileStyle/profile.css"; */
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
-import PopUpGenerate2fa from "./PopUpGenerate2fa";
-import PopUpTurnOff2fa from "./PopUp2faInput";
-//import ProfileDetails from './ProfileDetails';
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -28,7 +23,7 @@ interface ProfilePageProps {
 ;
 }
 
-const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
+const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(1);
   const [wins, setWins] = useState(0);
@@ -51,7 +46,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
     }
     console.log("userID = ", userID);
     getUserName();
-    socket.emit("activityStatus", { userID: userID, status: "online" });
   }, [userID, socket]);
 
   const setUser = async (newName: string) => {
@@ -72,74 +66,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
     }
   };
 
-  const handleProfileImgChange = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file, file.name);
-        const config = {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        };
-        try {
-          const response = await axios
-            .post(`api/users/upload/${userID}`, formData, config)
-            .then((res) => {
-              console.log(res);
-            });
-          window.location.reload();
-        } catch (error: any) {
-          console.error((error as Error).message);
-        }
-      }
-    };
-    fileInput.click();
-  };
-
-  const handleUserNameChange = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    const dialog = document.createElement("div");
-    dialog.classList.add("dialog");
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "Enter new username";
-    const okButton = document.createElement("button");
-    okButton.textContent = "OK";
-    okButton.addEventListener("click", () => {
-      const newUserName = input.value;
-      if (newUserName) {
-        // update database
-        setUser(newUserName);
-        document.body.removeChild(dialog);
-      }
-    });
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", () => {
-      document.body.removeChild(dialog);
-    });
-    dialog.appendChild(input);
-    dialog.appendChild(okButton);
-    dialog.appendChild(cancelButton);
-    document.body.appendChild(dialog);
-    const rect = e.currentTarget.getBoundingClientRect();
-    dialog.style.position = "absolute";
-    dialog.style.top = `${rect.bottom}px`;
-    dialog.style.left = `${rect.left}px`;
-    input.focus();
-  };
-
-
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [userID]);
@@ -151,9 +77,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
   return (
     <>
       <Grid container>
-        <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
-        </Grid>
 
         <Grid item xs={6} md={12} >
         <div
@@ -178,23 +101,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
                 <p>
                   <span className="font-bold">Losses:</span> {losses}
                 </p>
-              </div>
-              <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
-                <button
-                  className="items-center px-3 py-2 text-sm text-center 
-					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
-					focus:ring-gray-200"
-                  onClick={handleUserNameChange}>
-                  Change User Name
-                </button>
-                <button
-                  className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
-					border border-gray-300 rounded-lg 
-					hover:bg-green-600 focus:ring-4 focus:outline-none
-					focus:ring-gray-200"
-                	onClick={handleProfileImgChange}>
-                	Change Profile Picture
-                </button>
               </div>
             </div>
         </div>
@@ -224,12 +130,9 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
             </table>
           </div>
         </Grid>
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
       </Grid>
     </>
   );
 };
 
-export default ProfilePage;
+export default ProfilePageChat;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './PopUp.css'
 import { Socket } from 'socket.io-client';
 import { Message, User, Chat } from "./PropUtils";
+import ProfilePageChat from './Profile';
 
 type InteractPopUpProps = {
   isOpen: boolean;
@@ -20,16 +21,26 @@ type InteractPopUpProps = {
 const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, chat, user, userRole, target, targetRole }) => {
 	const [targetState, setTargetState] = useState(targetRole);
 	const [isMuted, setIsMuted] = useState<boolean>();
+	const [isBlocked, setIsBlocked] = useState<boolean>();
+	const [profileToggle, setProfileToggle] = useState<boolean>(false);
 
 	useEffect(() => {
 		const handleMutedResult = (result: boolean) => {
 			setIsMuted(result);
 		}
 
+		const handleBlockedResult = (result: boolean) => {
+			setIsBlocked(result);
+		}
+
 		socket.emit('checkMuted', {targetID: target.id, chatID: chat.id});
+		socket.emit('checkBlocked', {targetID: target.id});
+
 		socket.on('isMutedReturn', handleMutedResult);
+		socket.on('isBlockedReturn', handleBlockedResult);
 		return () => {
 			socket.off('isMutedReturn', handleMutedResult);
+			socket.off('isBlockedReturn', handleBlockedResult);
 		}
 	}, [socket, target, chat]);
 
@@ -66,11 +77,24 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 	}
 
 	function handleBlock() {
-		socket.emit("blockUser", {targetID: target.id});
+		socket.emit("blockUser", {targetID: target.id, chatID: chat.id});
+		setIsBlocked(true);
+	}
+	
+	function handleUnblock() {
+		socket.emit("unblockUser", {targetID: target.id, chatID: chat.id});
+		setIsBlocked(false);
+	}
+
+	function handleProfile() {
+		setProfileToggle(!profileToggle);
 	}
 
   return (
     <>
+		{profileToggle ? (
+			<ProfilePageChat socket={socket} profileID={target.id}/>
+		): (
     	<div>
 
 			<h3 className="PopHeader">
@@ -121,10 +145,14 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				{/* FOR ALL USERS */}
 				<div className='interact-container'>
 					<div className="regular-buttons">
-						<button className='blue-back'>Profile</button>
+						<button className='blue-back' onClick={handleProfile}>Profile</button>
 						<button className='blue-back'>DM</button>
 						<button className='blue-back'>Challenge</button>
-						<button className='red-back' onClick={() => handleBlock()}>Block</button>
+						{isBlocked ? (
+								<button className='green-back' onClick={() => handleUnblock()}>Unblock</button>
+								): (
+								<button className='red-back' onClick={() => handleBlock()}>Block</button>
+						)}
 					</div>
 
 				</div>
@@ -139,6 +167,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				</button>
 			</div>
     	</div>
+		)}
     </>
   );
 };
