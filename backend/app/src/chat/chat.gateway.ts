@@ -244,7 +244,7 @@ export class ChatGateway {
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsers', chat);
     });
-    // this.server.to(target.socketID).emit('returnChat', null);
+    this.server.to(target.socketID).emit('checkKick', chat);
   }
 
   @SubscribeMessage('banUser')
@@ -258,15 +258,12 @@ export class ChatGateway {
       data.userID,
       data.chatID,
     );
-    // TODO sent to user SOCKET not the ID
-    // return the chat to chatBody so the banned users content updates
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsers', chat);
       this.server.to(user.socketID).emit('returnChat', chat);
     });
-    // return this chat to current user and compare it with users current chat if it matches reaload the window
-    // this.server.to(target.socketID).emit('returnChat', null);
+    this.server.to(target.socketID).emit('checkKick', chat);
   }
 
   @SubscribeMessage('unbanUser')
@@ -321,7 +318,7 @@ export class ChatGateway {
   async blockUser(client: Socket, data: { targetID: string; chatID: number }) {
     // contact usersservice to add the target to the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
-    this.userService.blockUser(userID, data.targetID);
+    await this.userService.blockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
   }
 
@@ -332,7 +329,7 @@ export class ChatGateway {
   ) {
     // contact usersservice to remove the target from the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
-    this.userService.unblockUser(userID, data.targetID);
+    await this.userService.unblockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
   }
 

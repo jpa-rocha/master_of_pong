@@ -35,6 +35,14 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
   const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
 
+  const handleCheckKick = (compare: Chat) => {
+    if (chat && chat.id === compare.id) {
+      window.location.reload();
+    }
+  }
+  socket.on("checkKick", handleCheckKick);
+
+
   useEffect(() => {
     const getUser = async () => {
       const token = getToken("jwtToken");
@@ -64,6 +72,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     const handleReturnMessages = (data: ChatMessagesResult) => {
       if (chat && chat?.id === data.chatID)
       setMessages(data.messages);
+    console.log("RECEIVED MESSAGES");
     }
     
     if (chat && user) {
