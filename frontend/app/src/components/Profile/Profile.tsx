@@ -35,9 +35,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<string | undefined>(undefined);
-  const [generate2fa, setGenerate2fa] = useState<boolean>(false);
-  const [toggle2fa, setToggle2fa] = useState<boolean>(false);
-  const [toggle2faTurnOff, setToggle2faTurnOff] = useState<boolean>(false);
 
   console.log("PAGE REFRESHED");
   useEffect(() => {
@@ -149,41 +146,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
     input.focus();
   };
 
-  // const handleToggle2faTurnOff = async (
-  //   twoFactorAuthenticationCode: string
-  // ) => {
-  //   console.log("value: ", twoFactorAuthenticationCode);
-  //   const res = await axios
-  //     .post(`/api/2fa/turn-off/${userID}`, {
-  //       twoFactorAuthenticationCode,
-  //     })
-  //     .then((res) => {
-  //       console.log("res: ", res);
-  //       setToggle2fa(false);
-  //     })
-  //     .catch((err) => {
-  //       console.log("err: ", err);
-  //     });
-  // };
-
-  const handleToggle2fa = () => {
-    if (toggle2fa) {
-      setToggle2fa(false);
-      setToggle2faTurnOff(true);
-    } else {
-      setToggle2fa(true);
-      setGenerate2fa(true);
-    }
-    console.log("toggle2fa = ", toggle2fa);
-  };
-
-  const close2faPopUp = () => {
-    setGenerate2fa(false);
-  };
-
-  const close2faTurnOffPopUp = () => {
-    setToggle2faTurnOff(false);
-  };
 
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
@@ -244,24 +206,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
                   {" "}
                   Change Profile Picture
                 </button>
-                <div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="sr-only peer"
-                      onChange={handleToggle2fa}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                    <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                      {!toggle2fa ? (
-                        <div>Turn 2fa on</div>
-                      ) : (
-                        <div>Turn 2fa off</div>
-                      )}
-                    </span>
-                  </label>
-                </div>
               </div>
             </div>
           </div>
@@ -295,47 +239,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket }) => {
           <Footer></Footer>
         </Grid>
       </Grid>
-      {generate2fa && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 999,
-          }}
-        >
-          <PopUpGenerate2fa isOpen={generate2fa} onClose={close2faPopUp} userID={userID}/>
-        </div>
-      )}
-      {toggle2faTurnOff && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 999,
-          }}
-        >
-          <PopUpTurnOff2fa
-            isOpen={toggle2faTurnOff}
-            onClose={close2faTurnOffPopUp}
-            UserId={userID}
-            off={true}
-          />
-        </div>
-      )}
     </>
   );
 };

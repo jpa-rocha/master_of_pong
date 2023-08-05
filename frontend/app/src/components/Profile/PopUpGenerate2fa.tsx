@@ -20,20 +20,15 @@ interface User {
   username: string;
 }
 
-const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose, userID }) => {
+const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
+  isOpen,
+  onClose,
+  userID,
+}) => {
   const [qrCode, setQrCode] = useState<string>();
-  // const [userID, setUserID] = React.useState<string | undefined>();
-  const [codeValue, setCodeValue] = useState<string>("");
 
   useEffect(() => {
     (async () => {
-      // const token = getToken("jwtToken");
-      // async function getUserID() {
-      //   const id = await axios.post("api/auth/getUserID", { token });
-      //   setUserID(id.data);
-      // }
-      // await getUserID();
-      // if (!userID) return;
       console.log("userID: ", userID);
       const getQrCode = await axios.post(
         `/api/2fa/generate/${userID}`,
@@ -64,14 +59,17 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose, userID 
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        "jwtToken": getToken("jwtToken"),
+        jwtToken: getToken("jwtToken"),
       },
-      // withCredentials: true,
     };
     const res = await axios
-      .post(`/api/2fa/turn-on/${userID}`, {
-        twoFactorAuthenticationCode,
-      }, config)
+      .post(
+        `/api/2fa/turn-on/${userID}`,
+        {
+          twoFactorAuthenticationCode,
+        },
+        config
+      )
       .then((data) => {
         console.log("res: ", data);
         if (data.status === 200) {
@@ -85,7 +83,6 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose, userID 
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      // setCodeValue(event.currentTarget.value);
       event.preventDefault();
       handle2faTurnOn(event.currentTarget.value, event);
       event.currentTarget.value = "";
@@ -117,4 +114,3 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({ isOpen, onClose, userID 
 };
 
 export default PopUpGenerate2fa;
-// export default {};
