@@ -101,8 +101,8 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
           ))}
 
           {/* Button Part : Create, Cancel */}
-          <div className="button-container">
-            <button className="cancel-button" onClick={onClose}>
+          <div className="button-container join">
+            <button className="cancel-button join" onClick={onClose}>
               Cancel
             </button>
 				</div>

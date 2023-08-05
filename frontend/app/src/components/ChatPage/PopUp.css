@@ -1,6 +1,6 @@
 .PopHeader {
 	font-weight: bold;
-	padding: 10px;
+	padding: 1rem;
 	background-color: #2e3133;
 	color: #fff;
 	text-align: center;
@@ -9,21 +9,42 @@
 }
 
 .PopBody {
-	padding: 10px;
+	padding: 3rem;
 	background-color: #ffffff;
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
 }
 
+.bannedDiv{
+	padding: 2rem;
+	background-color: #fff;
+	position: relative;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+}
+
+.bannedDiv .PopBody{
+	padding: 7rem;
+	width: 100%;
+}
+
+.PopHeader.banned{
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+
+}
+
 .button-container {
 	display: flex;
 	justify-content: space-between;
-	margin-top: 20px;
+	margin-top: 2rem;
 }
   
 .create-button, .cancel-button {
 	width: 100%;
-	padding: 10px 15px;
+	padding: 0.6rem 0.7rem;
 	border-radius: 5px;
 	font-size: 16px;
 	font-weight: bold;
@@ -33,13 +54,22 @@
 .create-button {
 	background-color: #1e2227;
 	color: #ffffff;
-	margin-right: 10px;
+	margin-right: 1rem;
 }
   
 .cancel-button {
 	background-color: #f1f1f1;
 	color: #333333;
-	background-color: #e58b0c;
+	background-color: #f59918f0;
+}
+
+.cancel-button.join{
+	width:50%;
+}
+
+.button-container.join{
+	align-items: center;
+	justify-content: center;
 }
 
 .join-button {
@@ -56,17 +86,19 @@
 	opacity: 0.8;
 }
 
+
+
 .name-input input {
 	width: 100%;
 	border-radius: 8px;
 	color: #333333;
-	min-width: 500px;
+	min-width: 400px;
 }
 
 .password-input input {
-	margin-top: 10px;
+	margin-top: 1rem;
 	width: 100%;
-	min-width: 500px;
+	min-width: 400px;
 	border-radius: 8px;
 }
 
