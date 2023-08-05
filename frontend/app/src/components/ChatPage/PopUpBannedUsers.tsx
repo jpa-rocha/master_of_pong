@@ -16,10 +16,10 @@ const BannedUsersPopUp: React.FC<BannedUsersPopUpProps> = ({ isOpen, onClose, so
 	}
 
   return (
-    <>
-    	<div>
 
-			<h3 className="PopHeader">
+    	<div className='bannedDiv'>
+
+			<h3 className="PopHeader banned">
 				Banned Users
 			</h3>
 
@@ -40,7 +40,7 @@ const BannedUsersPopUp: React.FC<BannedUsersPopUpProps> = ({ isOpen, onClose, so
 				</button>
 			</div>
     	</div>
-    </>
+ 
   );
 };
 
