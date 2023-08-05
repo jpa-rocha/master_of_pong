@@ -1,7 +1,7 @@
 import { Grid, Box } from "@mui/material";
 import calm from "../../images/CalmScorpion.gif";
 //import Footer from "./Footer";
-import NavBarLandingPage from "../Navigation/NavBarLandingPage";
+import NavBarLandingPage from "../noLongerNeed?/NavBarLandingPage";
 //import Chat from './Messages/Chat'
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from "./GameCanvas";

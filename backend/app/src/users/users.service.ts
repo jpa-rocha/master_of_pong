@@ -244,4 +244,29 @@ export class UsersService {
       is_2fa_enabled: false,
     });
   }
+
+  async blockUser(userID: string, targetID: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userID },
+      relations: ['blocked'],
+    });
+    if (!user) return null;
+    const target = await this.findOne(targetID);
+    if (!target) return null;
+    if (!user.blocked) user.blocked = [target];
+    else user.blocked.push(target);
+    await this.usersRepository.save(user);
+  }
+
+  async unblockUser(userID: string, targetID: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userID },
+      relations: ['blocked'],
+    });
+    if (!user) return null;
+    const target = user.blocked.findIndex((blocked) => blocked.id === targetID);
+    if (target === -1) return null;
+    user.blocked.splice(target, 1);
+    await this.usersRepository.save(user);
+  }
 }

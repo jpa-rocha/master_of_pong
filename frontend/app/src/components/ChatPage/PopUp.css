@@ -137,3 +137,8 @@
 .blue-back {
 	background-color: #007bff;
 }
+
+.user-container {
+	display: flex;
+	align-items: center;
+}

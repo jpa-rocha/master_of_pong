@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "../../images/logo.png";
 import { useNavigate } from "react-router-dom";
 import { getToken, getUser, getUserID } from "../../utils/Utils";
@@ -12,6 +12,7 @@ block px-4 py-2
 text-sm text-gray-700
 hover:bg-gray-100
 `;
+
 interface UserProps {
   id: string;
   username: string;
@@ -28,6 +29,8 @@ const NavBarTest: React.FunctionComponent = () => {
   const [generate2fa, setGenerate2fa] = useState<boolean>(false);
   const [toggle2faTurnOff, setToggle2faTurnOff] = useState<boolean>(false);
   const navigate = useNavigate();
+  const dropdownMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -58,6 +61,40 @@ const NavBarTest: React.FunctionComponent = () => {
   const handleHamburgerMenu = () => {
     setHamburgerMenu(!hamburgerMenu);
   };
+
+  useEffect(() => {
+    const handleDropdownOutsideClick = (e: MouseEvent) => {
+      if (
+        dropdownMenuRef.current &&
+        !dropdownMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleDropdownOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleDropdownOutsideClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleHamburgerOutsideClick = (e: MouseEvent) => {
+      if (
+        hamburgerMenuRef.current &&
+        !hamburgerMenuRef.current.contains(e.target as Node)
+      ) {
+        setHamburgerMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleHamburgerOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleHamburgerOutsideClick);
+    };
+  }, []);
 
   const handleGame = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +146,10 @@ const NavBarTest: React.FunctionComponent = () => {
   return (
     <>
       <nav className="bg-black border-gray-200 w-full">
-        <div className="relative flex flex-wrap items-center justify-between px-5 py-4">
+        <div
+          ref={dropdownMenuRef}
+          className="relative flex flex-wrap items-center justify-between px-5 py-4"
+        >
           <img src={logo} alt="logo" className="h-[50px]" />
           <div className="flex items-center md:order-2">
             <button
@@ -127,13 +167,10 @@ const NavBarTest: React.FunctionComponent = () => {
             </button>
 
             {isDropdownOpen && (
-              <div
-                className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow"
-                id="user-dropdown"
-              >
+              <div className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
                 <div className="px-4 py-3">
                   <span className="block text-sm italic text-black">
-                    {userInfo?.username}
+                    username
                   </span>
                 </div>
                 <ul className="py-2" aria-labelledby="user-menu-button">
@@ -185,38 +222,35 @@ const NavBarTest: React.FunctionComponent = () => {
               </div>
             )}
           </div>
-
-          <button
-            data-collapse-toggle="navbar-user"
-            type="button"
-            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
+          <div ref={hamburgerMenuRef}>
+            <button
+              data-collapse-toggle="navbar-user"
+              type="button"
+              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
 						hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
-            aria-controls="navbar-user"
-            aria-expanded={hamburgerMenu}
-            onClick={handleHamburgerMenu}
-          >
-            <svg
-              className="w-5 h-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 17 14"
+              aria-controls="navbar-user"
+              aria-expanded={hamburgerMenu}
+              onClick={handleHamburgerMenu}
             >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M1 1h15M1 7h15M1 13h15"
-              />
-            </svg>
-          </button>
-
+              <svg
+                className="w-5 h-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
+            </button>
+          </div>
           {hamburgerMenu && (
-            <div
-              className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-black divide-y divide-gray-100 rounded-lg shadow"
-              id="navbar-user"
-            >
+            <div className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-black divide-y divide-gray-100 rounded-lg shadow">
               <HamburgerMenu
                 handleUserMain={handleUserMain}
                 handleGame={handleGame}
@@ -225,10 +259,7 @@ const NavBarTest: React.FunctionComponent = () => {
             </div>
           )}
 
-          <div
-            className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-            id="navbar-user"
-          >
+          <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
             <HamburgerMenu
               handleUserMain={handleUserMain}
               handleGame={handleGame}

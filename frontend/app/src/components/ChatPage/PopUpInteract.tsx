@@ -1,30 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './PopUp.css'
 import { Socket } from 'socket.io-client';
-
-interface User {
-	socketID: string;
-	username: string;
-	isFriend: boolean;
-	status: string;
-	id: string;
-}
-
-interface ChatProp {
-	id: number;
-	title: string;
-	channel: string;
-	users: User[];
-	admins: User[];
-	creator: User;
-}
+import { Message, User, Chat } from "./PropUtils";
 
 type InteractPopUpProps = {
   isOpen: boolean;
   onClose: () => void;
   socket: Socket;
 
-  chat: ChatProp;
+  chat: Chat;
 
   user: User; 
   userRole: string;
@@ -35,6 +19,19 @@ type InteractPopUpProps = {
 
 const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, chat, user, userRole, target, targetRole }) => {
 	const [targetState, setTargetState] = useState(targetRole);
+	const [isMuted, setIsMuted] = useState<boolean>();
+
+	useEffect(() => {
+		const handleMutedResult = (result: boolean) => {
+			setIsMuted(result);
+		}
+
+		socket.emit('checkMuted', {targetID: target.id, chatID: chat.id});
+		socket.on('isMutedReturn', handleMutedResult);
+		return () => {
+			socket.off('isMutedReturn', handleMutedResult);
+		}
+	}, [socket, target, chat]);
 
 	if (!isOpen) return null;
 
@@ -50,14 +47,26 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 
 	function handleKick() {
 		socket.emit("kickUser", {userID: target.id, chatID: chat.id});
+		onClose();
 	}
-
+	
 	function handleBan() {
 		socket.emit("banUser", {userID: target.id, chatID: chat.id});
+		onClose();
 	}
 
 	function handleMute() {
 		socket.emit("muteUser", {userID: target.id, chatID: chat.id});
+		setIsMuted(true);
+	}
+	
+	function handleUnMute() {
+		socket.emit("unmuteUser", {userID: target.id, chatID: chat.id});
+		setIsMuted(false);
+	}
+
+	function handleBlock() {
+		socket.emit("blockUser", {targetID: target.id});
 	}
 
   return (
@@ -86,7 +95,11 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				<div className='interact-container'>
 					{userRole === "Owner" ? (
 						<div className="admin-buttons">
-							<button className='red-back' onClick={() => handleMute()}>Mute</button>
+							{isMuted ? (
+								<button className='green-back' onClick={() => handleUnMute()}>Unmute</button>
+								): (
+								<button className='red-back' onClick={() => handleMute()}>Mute</button>
+							)}
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
@@ -94,7 +107,11 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 					
 					{userRole === "Admin" && targetState !== "Owner" && targetState !== "Admin" ? (
 						<div className="admin-buttons">
-							<button className='red-back' onClick={() => handleMute()}>Mute</button>
+							{isMuted ? (
+								<button className='green-back' onClick={() => handleUnMute()}>Unmute</button>
+								): (
+								<button className='red-back' onClick={() => handleMute()}>Mute</button>
+							)}
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back' onClick={() => handleBan()}>Ban</button>
 						</div>
@@ -107,7 +124,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 						<button className='blue-back'>Profile</button>
 						<button className='blue-back'>DM</button>
 						<button className='blue-back'>Challenge</button>
-						<button className='red-back'>Block</button>
+						<button className='red-back' onClick={() => handleBlock()}>Block</button>
 					</div>
 
 				</div>

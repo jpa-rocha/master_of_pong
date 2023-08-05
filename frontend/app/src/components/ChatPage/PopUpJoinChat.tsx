@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './PopUp.css'
 import { Socket } from 'socket.io-client';
+import { Message, User, Chat } from "./PropUtils";
 
 type JoinChatRoomPopupProps = {
   isOpen: boolean;
@@ -14,17 +15,10 @@ interface PasswordInputProp {
   password: string;
 }
 
-interface ChatRoomProps {
-  id: number;
-  title: string;
-  channel: string;
-  password: string;
-}
-
 const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, onJoinChatRoom, socket }) => {
   const [chatRoomName, setChatRoomName] = useState('');
   const [passwordError, setPasswordError] = useState<string>('');
-  const [chatRooms, setChatRooms] = useState<ChatRoomProps[]>([]);
+  const [chatRooms, setChatRooms] = useState<Chat[]>([]);
   const [passwordInput, setPasswordInput] = useState<PasswordInputProp[]>([]);
   
   const checkPassword = (id: number, password: string) => {
@@ -69,7 +63,7 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({ isOpen, onClose, 
       setChatRooms([]);
     }
 
-    const handleJoinableRooms = (data: ChatRoomProps[]) => {
+    const handleJoinableRooms = (data: Chat[]) => {
       setChatRooms(data);
     }
     socket.on("joinableRooms", handleJoinableRooms);

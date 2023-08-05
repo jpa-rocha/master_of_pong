@@ -4,6 +4,7 @@ import axios from "axios";
 import { getToken } from "../../utils/Utils";
 import PopUpCreateChat from "./PopUpCreateChat";
 import PopUpJoinChat from "./PopUpJoinChat";
+import { Message, User, Chat } from "./PropUtils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -11,27 +12,10 @@ interface ChatBarProps {
   socket: Socket;
 }
 
-interface User {
-	socketID: string;
-	username: string;
-	isFriend: boolean;
-	status: string;
-	id: string;
-}
-
-interface ChatRoomProp {
-	id: number;
-	title: string;
-	channel: string;
-	users: User[];
-	admins: User[];
-	creator: User;
-}
-
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [directChats, setDirectChats] = useState<User[]>([]);
   const [userID, setUserID] = useState<string | undefined>(undefined);
-  const [chatRooms, setChatRooms] = useState<ChatRoomProp[]>();
+  const [chatRooms, setChatRooms] = useState<Chat[]>();
 
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
   const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
@@ -39,7 +23,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   useEffect(() => {
     const token = getToken("jwtToken");
   
-    const handleReturnChatBar = (data: {users: User[], chatRooms: ChatRoomProp[]}) => {
+    const handleReturnChatBar = (data: {users: User[], chatRooms: Chat[]}) => {
       if (data.users)
         setDirectChats(data.users);
       if (data.chatRooms)
