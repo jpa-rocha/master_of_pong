@@ -47,6 +47,15 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   socketID: string;
 
+  @Column()
+  wins: number;
+
+  @Column()
+  losses: number;
+
+  @Column()
+  rank: number;
+
   /* Friends Relations */
   @OneToMany(() => Friend, (friend) => friend.sender, { onDelete: 'CASCADE' })
   sentFriendRequests: Friend[];

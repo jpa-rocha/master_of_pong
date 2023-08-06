@@ -2,6 +2,7 @@
 /dist
 /node_modules
 
+# Uploads
 /src/assets/avatars/*
 !/src/assets/avatars/default-avatar.jpg
 
