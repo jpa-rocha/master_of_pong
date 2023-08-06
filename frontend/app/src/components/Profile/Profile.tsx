@@ -20,6 +20,9 @@ interface UserProps {
   avatar: string;
   is_2fa_enabled: boolean;
   xp: number;
+  wins: number;
+  losses: number;
+  rank: number;
 }
 
 interface ProfilePageProps {
@@ -30,9 +33,10 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
   const [userName, setUserName] = useState("");
-  const [rank, setRank] = useState(1);
+  const [rank, setRank] = useState(0);
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
+  const [ratio, setRatio] = useState(1);
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
@@ -47,6 +51,13 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
         setUserName(userData.username);
+		setWins(userData.wins);
+		setLosses(userData.losses);
+		setRank(userData.rank);
+		if (userData.losses === 0)
+			setRatio(userData.wins);
+		else
+			setRatio(userData.wins / userData.losses);
       }
     }
     console.log("userID = ", userID);
@@ -178,6 +189,9 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
                 <p>
                   <span className="font-bold">Losses:</span> {losses}
                 </p>
+				<p>
+					<span className="font-bold">Win Ratio:</span> {ratio}
+				</p>
               </div>
               <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
                 <button

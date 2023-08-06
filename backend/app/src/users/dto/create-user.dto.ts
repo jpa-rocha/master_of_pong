@@ -9,4 +9,7 @@ export class CreateUserDto {
   xp: number;
   status: string;
   socketID: string;
+  wins: number;
+  losses: number;
+  rank: number;
 }

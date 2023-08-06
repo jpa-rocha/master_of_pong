@@ -830,8 +830,20 @@ export class GameService {
         scored++;
       }
       if (scored > 0) {
-        this.resetEffects();
-        this.serve();
+      	this.scored = true;
+      	setTimeout(() => {
+			this.resetEffects();
+			this.serve();
+			this.scored = false;
+			this.readyToServe = false;
+			this.gameObject.player1.pos.x = 20;
+			this.gameObject.player1.pos.y = 350;
+			this.gameObject.player2.pos.x = 1170;
+			this.gameObject.player2.pos.y = 350;
+			setTimeout(() => {
+			this.readyToServe = true;
+			}, 500);
+		}, 500);
       }
       return;
     }
