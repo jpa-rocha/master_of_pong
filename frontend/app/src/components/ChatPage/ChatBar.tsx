@@ -105,7 +105,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 	<div className="flex flex-col mt-8 flex-1">
 		<div className="flex flex-row items-center justify-between text-xs">
 			<span className="font-bold">Friends</span>
-	  	</div>
+	  </div>
 		{friendsChat.map((user) => (
 			<div key={user.username} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
 			{user.isFriend ? (
@@ -116,6 +116,9 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 			   ) : null}
 			</div>
 		))}
+    <div className="flex flex-row items-center justify-between text-xs">
+			<span className="font-bold">Randoms</span>
+	  </div>
 		{directTemp.map((chat) => (
 			<div key={chat.id} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
 			   <button onClick={() => handleGetChatRoom(chat.id)} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
