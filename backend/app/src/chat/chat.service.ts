@@ -47,7 +47,7 @@ export class ChatService {
     return this.chatRepository.findOne(options);
   }
 
-  async findDirectChat(user1ID: string, user2ID: string) {
+  async findDirectChat(user1ID: string, user2ID: string, userID: string) {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
@@ -69,9 +69,11 @@ export class ChatService {
 
     // console.log(chat);
     if (!chat) {
-      // console.log('------new chat created------');
+      console.log('------new chat created------');
       const chat = new Chat();
-      chat.title = 'direct';
+      if (userID === user1.id) chat.title = user2.username;
+      else chat.title = user1.username;
+
       chat.creator = user1;
       chat.channel = 'direct';
       chat.users = [user1, user2];
@@ -113,6 +115,16 @@ export class ChatService {
       .innerJoin('chat.users', 'user')
       .where('user.id = :userID', { userID })
       .andWhere('chat.channel != :channel', { channel: 'direct' })
+      .getMany();
+    return chatRooms;
+  }
+
+  async getDirectChats(userID: string) {
+    const chatRooms = await this.chatRepository
+      .createQueryBuilder('chat')
+      .innerJoin('chat.users', 'user')
+      .where('user.id = :userID', { userID })
+      .andWhere('chat.channel != :channel', { channel: 'public' })
       .getMany();
     return chatRooms;
   }

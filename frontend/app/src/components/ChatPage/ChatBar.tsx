@@ -13,7 +13,8 @@ interface ChatBarProps {
 }
 
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
-  const [directChats, setDirectChats] = useState<User[]>([]);
+  const [friendsChat, setFriendsChats] = useState<User[]>([]);
+  const [directTemp, setDirectTemp] = useState<Chat[]>([]);
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [chatRooms, setChatRooms] = useState<Chat[]>();
 
@@ -21,14 +22,19 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [isJoinPopupOpen, setIsJoinPopupOpen] = useState(false);
 
   useEffect(() => {
+
+  }, [directTemp]);
+
+  useEffect(() => {
     const token = getToken("jwtToken");
   
-    const handleReturnChatBar = (data: {users: User[], chatRooms: Chat[]}) => {
-      if (data.users)
-        setDirectChats(data.users);
+    const handleReturnChatBar = (data: {friends: User[], direct: Chat[], chatRooms: Chat[]}) => {
+      if (data.friends)
+        setFriendsChats(data.friends);
+      if (data.direct)
+        setDirectTemp(data.direct);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
-      console.log("Rooms : ", data.chatRooms);
     };
 
     const handleStatusRender = () => {
@@ -100,7 +106,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		<div className="flex flex-row items-center justify-between text-xs">
 			<span className="font-bold">Friends</span>
 	  	</div>
-		{directChats.map((user) => (
+		{friendsChat.map((user) => (
 			<div key={user.username} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
 			{user.isFriend ? (
 			   <button onClick={() => handleGetDirectChat(user)}
@@ -108,6 +114,13 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 				 <div className="ml-2 text-sm font-semibold">{user.username} {user.status} </div>
 			   </button>
 			   ) : null}
+			</div>
+		))}
+		{directTemp.map((chat) => (
+			<div key={chat.id} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
+			   <button onClick={() => handleGetChatRoom(chat.id)} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
+				 <div className="ml-2 text-sm font-semibold">{chat.title}</div>
+			   </button>
 			</div>
 		))}
 	</div>

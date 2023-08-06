@@ -90,6 +90,11 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 		setProfileToggle(!profileToggle);
 	}
 
+	function handleGetDirectChat() {
+		socket.emit("getDirectChat", { user1ID: user.id, user2ID: target.id });
+		onClose();
+	}
+
   return (
     <>
 		{profileToggle ? (
@@ -146,7 +151,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 				<div className='interact-container'>
 					<div className="regular-buttons">
 						<button className='blue-back' onClick={handleProfile}>Profile</button>
-						<button className='blue-back'>DM</button>
+						<button className='blue-back' onClick={handleGetDirectChat}>DM</button>
 						<button className='blue-back'>Challenge</button>
 						{isBlocked ? (
 								<button className='green-back' onClick={() => handleUnblock()}>Unblock</button>

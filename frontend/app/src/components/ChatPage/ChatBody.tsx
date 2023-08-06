@@ -72,10 +72,9 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     const handleReturnMessages = (data: ChatMessagesResult) => {
       if (chat && chat?.id === data.chatID)
       setMessages(data.messages);
-    console.log("RECEIVED MESSAGES");
     }
     
-    if (chat && user) {
+    if (chat && user && chat.admins) {
       const check = chat.admins.some(admin => admin.id === user.id);
       if (check) setIsUserAdmin(true);
       else setIsUserAdmin(false);

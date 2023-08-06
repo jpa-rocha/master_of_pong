@@ -72,14 +72,16 @@ export class ChatGateway {
     this.server.emit('user connected users');
   }
 
-  // Returns all the chats rooms so they can be displayed in the ChatBar
   @SubscribeMessage('getChatBar')
   async getChatBar(client: Socket, data: { userID: string }) {
-    const user = await this.userService.getFriends(data.userID);
+    const friends = await this.userService.getFriends(data.userID);
+    const directChat = await this.chatService.getDirectChats(data.userID);
     const chatRooms = await this.chatService.getChatRooms(data.userID);
-    this.server
-      .to(client.id)
-      .emit('returnChatBar', { users: user, chatRooms: chatRooms });
+    this.server.to(client.id).emit('returnChatBar', {
+      friends: friends,
+      direct: directChat,
+      chatRooms: chatRooms,
+    });
   }
 
   // called in ChatBar
@@ -88,10 +90,15 @@ export class ChatGateway {
     client: Socket,
     data: { user1ID: string; user2ID: string },
   ) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const target = await this.userService.findOne(data.user2ID);
     const chat = await this.chatService.findDirectChat(
       data.user1ID,
       data.user2ID,
+      userID,
     );
+    this.server.to(client.id).emit('renderChatBar');
+    this.server.to(target.socketID).emit('renderChatBar');
     this.server.to(client.id).emit('returnChat', chat);
     this.server.to(client.id).emit('returnChatFooter', chat);
     this.server.to(client.id).emit('returnChatUsers', chat);
