@@ -39,9 +39,12 @@ export class GameService {
     console.log('new gameservice class created');
   }
 
-  // TODO I dont knw if we need this, seems to  work without it
-  // private gameCollection = new GameCollection();
-
+  async getUsernames() {
+    this.gameObject.player1.user = await this.gameGateway.getUserName(this.gameObject.player1.databaseId);
+    if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+      this.gameObject.player2.user = await this.gameGateway.getUserName(this.gameObject.player2.databaseId);
+  }
+  
   initGame(): void {
     if (this.gameObject.gameStarted) return;
     this.gameObject.gameStarted = true;
@@ -56,6 +59,26 @@ export class GameService {
       player2Character: this.gameObject.player2.options.character,
       player2Size: this.gameObject.player2.options.paddle,
     });
+   (async () => {
+
+      console.log("before await");
+      await this.getUsernames();
+      let finalName2: string;
+      let finalName1 = this.gameObject.player1.user.username;
+      if (this.gameObject.player2.user)
+        finalName2 = this.gameObject.player2.user.username;
+      else
+        finalName2 = "Bot";
+      this.gameObject.sendToClients<{
+          player1Username: string;
+          player2Username: string;
+        }>('playerUsernames', {
+            player1Username: finalName1,
+            player2Username: finalName2,
+          });
+      })();
+        console.log("GAME SERVICE => player1 = ", this.gameObject.player1.user);
+        console.log("GAME SERVICE => player2 = ", this.gameObject.player2.user);
     this.gameObject.sendToPlayer1<{
       player: number;
       ability: number;
@@ -306,22 +329,29 @@ export class GameService {
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
       console.log('Random ability');
-      if (player.ability === 0) {
-        this.ballReset();
-      } else if (player.ability === 1) {
-        this.abFreeze();
-      } else if (player.ability === 2) {
-        opponent.SoundGrenade();
-      } else if (player.ability === 3) {
-        this.BallSize();
-      } else if (player.ability === 4) {
-        this.abMirage();
-      } else if (player.ability === 5) {
-        if (this.gameObject.gameOptions.dodge) {
-          this.ultVenomtail(player, opponent);
-        } else {
-          this.abDeflect(player);
-        }
+      switch (player.ability) {
+        case 0:
+          this.ballReset();
+          break;
+        case 1:
+          this.abFreeze();
+          break;
+        case 2:
+          opponent.SoundGrenade();
+          break;
+        case 3:
+          this.BallSize();
+          break;
+        case 4:
+          this.abMirage();
+          break;
+        case 5:
+          if (this.gameObject.gameOptions.dodge) {
+            this.ultVenomtail(player, opponent);
+          } else {
+            this.abDeflect(player);
+          }
+          break;
       }
       player.setAbility();
     }
@@ -344,8 +374,75 @@ export class GameService {
   }
 
   private moveBot(): void {
-    if (this.gameObject.gameStarted == false || this.gameObject.player2.freeze)
+    if (this.gameObject.gameStarted == false)
       return;
+	if (this.gameObject.player2.hasAbility) {
+		switch(this.gameObject.player2.ability) {
+			case 0:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 200) {
+					this.ballReset();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 1:
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 1140 && this.gameObject.ballPos.x < 1180 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 60) {
+					this.abFreeze();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 2:
+				this.gameObject.player2.setAbility();
+				break;
+			case 3:
+				if (this.gameObject.ballVel.x > 0) {
+					this.BallSize();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 4:
+				if (this.gameObject.ballVel.x < 0) {
+					this.abMirage();
+					this.gameObject.player2.setAbility();
+				}
+				break;
+			case 5:
+				if (this.gameObject.gameOptions.dodge) {
+					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+					this.gameObject.player2.setAbility();
+				}
+				else {
+					if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x < 200 && this.gameObject.ballPos.x > 100) {
+						this.abDeflect(this.gameObject.player2);
+						this.gameObject.player2.setAbility();
+					}
+				}
+				break;
+		}
+	}
+	if (this.gameObject.player2.hasSpecial && !this.gameObject.gameOptions.dodge) {
+		switch (this.gameObject.player2.options.character) {
+			case Character.BelowZero:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 500) {
+					this.ultBelowZero(this.gameObject.player1);
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+			case Character.Venomtail:
+				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 950 && this.gameObject.ballPos.x < 1150 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 100) {
+					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+			case Character.Raiven:
+				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 100 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player1.pos.y + (this.gameObject.player1.height / 2))) < 50) {
+					this.abLightning();
+					this.gameObject.player2.setSpecial();
+				}
+				break;
+		}
+	}
+	if (this.gameObject.player2.freeze)
+		return;
     if (this.gameObject.gameOptions.dodge) {
       if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
         this.gameObject.player2.moveUp = false;
@@ -528,41 +625,6 @@ export class GameService {
     targetVector.y = (targetVector.y / magnitude) * speed;
     this.gameObject.ballVel = targetVector;
   }
-
-  // private abilityMirage() {
-  //   if (!this.gameObject.allowAbilities) return;
-  //   if (this.gameObject.mirage) {
-  //     this.gameObject.mirage = false;
-  //     if (this.mirageTimer) {
-  //       clearTimeout(this.mirageTimer);
-  //     }
-  //     let index = 0;
-  //     while (index < 8) {
-  //       this.gameObject.mirageBallsPos.push([
-  //         this.gameObject.ballPos.x + (Math.random() - 0.5) * 10,
-  //         this.gameObject.ballPos.y + (Math.random() - 0.5) * 10,
-  //       ]);
-  //       this.gameObject.mirageBallsVel.push([
-  //         this.gameObject.ballVel.x + (Math.random() - 0.5) * 2,
-  //         this.gameObject.ballVel.y + (Math.random() - 0.5) * 2,
-  //       ]);
-  //       index++;
-  //     }
-  //     if (!this.gameObject.gameOptions.dodge) {
-  //       this.mirageTimer = setTimeout(() => {
-  //         this.gameObject.sendToClients<{ AbilityMirage: boolean }>(
-  //           'AbilityMirage',
-  //           {
-  //             AbilityMirage: false,
-  //           },
-  //         );
-  //         this.mirageTimer = null;
-  //         this.gameObject.mirageBallsPos = [];
-  //         this.gameObject.mirageBallsVel = [];
-  //       }, 5000);
-  //     }
-  //   }
-  // }
 
   private abilityLightning() {
     if (!this.gameObject.allowAbilities) return;
@@ -768,8 +830,20 @@ export class GameService {
         scored++;
       }
       if (scored > 0) {
-        this.resetEffects();
-        this.serve();
+      	this.scored = true;
+      	setTimeout(() => {
+			this.resetEffects();
+			this.serve();
+			this.scored = false;
+			this.readyToServe = false;
+			this.gameObject.player1.pos.x = 20;
+			this.gameObject.player1.pos.y = 350;
+			this.gameObject.player2.pos.x = 1170;
+			this.gameObject.player2.pos.y = 350;
+			setTimeout(() => {
+			this.readyToServe = true;
+			}, 500);
+		}, 500);
       }
       return;
     }
@@ -876,23 +950,6 @@ export class GameService {
       }
       return;
     }
-
-    // // Time Warp
-    // if (this.gameObject.timeWarp == true) {
-    //   if (this.timeWarpTimer) {
-    //     clearTimeout(this.freezeTimer);
-    //     this.freezeTimer = null;
-    //   } else {
-    //     this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
-    //     this.gameObject.ballVel.y = -this.gameObject.ballVel.y;
-    //   }
-    //   this.gameObject.timeWarp = false;
-    //   this.timeWarpTimer = setTimeout(() => {
-    //     this.gameObject.ballVel.x = -this.gameObject.ballVel.x;
-    //     this.gameObject.ballVel.y = -this.gameObject.ballVel.y;
-    //     this.timeWarpTimer = null;
-    //   }, 3000);
-    // }
 
     if (this.gameObject.player1.useSpecial === true) {
       this.specialAbility(this.gameObject.player1, this.gameObject.player2);

@@ -6,11 +6,21 @@ import { Mode } from './enums/Modes';
 import { Player } from './dto/player.dto';
 import { Inject, forwardRef } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
+import { UsersService } from '../users/users.service';
 
 export class GameCollection {
-  public server: Server;
+	public server: Server;
+	public totalGameCount: number;
+	
+	constructor(
+	  @Inject(forwardRef(() => GameGateway))
+	  private readonly gameGateway: GameGateway,
+	  private readonly userService: UsersService,
+	) {
+	  this.totalGameCount = 0;
+	}
 
-  private readonly gameObjects: Map<GameObject['gameID'], GameObject> = new Map<
+	private readonly gameObjects: Map<GameObject['gameID'], GameObject> = new Map<
     GameObject['gameID'],
     GameObject
   >();
@@ -90,6 +100,17 @@ export class GameCollection {
       client.data.lobby.player2.useAbility = true;
   }
 
+  public clearAbility(client: AuthenticatedSocket) {
+    if (client.data.lobby.player1.id === client.id) {
+      client.data.lobby.player1.ability = 10;
+      client.data.lobby.player1.useAbility = true;
+	}
+    if (client.data.lobby.player2.id === client.id) {
+      client.data.lobby.player2.ability = 10;
+      client.data.lobby.player2.useAbility = true;
+    }
+  }
+
   public initialiseSocket(client: AuthenticatedSocket) {
     client.data.lobby = null;
   }
@@ -106,7 +127,6 @@ export class GameCollection {
     playerID: string,
   ): void {
     if (options.gameMode !== Mode.Singleplayer) {
-      console.log('total game count: ' + this.totalGameCount);
       const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
       let current: GameObject;
       for (let i = 0; i < this.totalGameCount; i++) {
@@ -116,7 +136,6 @@ export class GameCollection {
           current.clients.size === 1 &&
           current.player1.options.hyper === options.hyper &&
           current.player1.options.dodge === options.dodge
-          // Iterating over the Map
         ) {
           current.player2 = new Player(this.server, options);
           current.player2.pos.x = 1170;
@@ -155,13 +174,6 @@ export class GameCollection {
     // game.gameService.startGame();
   }
 
-  public totalGameCount: number;
-  constructor(
-    @Inject(forwardRef(() => GameGateway))
-    private readonly gameGateway: GameGateway,
-  ) {
-    this.totalGameCount = 0;
-  }
 
   // public addGameObject(game: gameObject): void {
   //   this.gameObjects.set(game.gameID, game);

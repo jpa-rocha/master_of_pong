@@ -1,11 +1,12 @@
 import { Grid, Box } from "@mui/material";
 import calm from "../../images/CalmScorpion.gif";
 //import Footer from "./Footer";
-import NavBarLandingPage from "../Navigation/NavBarLandingPage";
+import NavBarLandingPage from "../noLongerNeed?/NavBarLandingPage";
 //import Chat from './Messages/Chat'
 //import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
+import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import { getUserID, getToken } from "../../utils/Utils";
 import { useState } from "react";
@@ -45,7 +46,7 @@ const Game = () => {
               display="flex"
               justifyContent="center"
               alignItems="center"
-              sx={{ height: "100vh", position: "relative" }}
+              sx={{ height: "87vh", position: "relative" }}
             >
               <img
                 src={calm}
@@ -91,10 +92,9 @@ const Game = () => {
           </Box>
         </Grid>
 
-        {/* This is footer */}
-        {/* 	<Grid item xs={12}>
-				<Footer></Footer>
-			</Grid> */}
+			  <Grid item xs={12}>
+		      <Footer/>
+        </Grid>
       </Grid>
     </>
   );

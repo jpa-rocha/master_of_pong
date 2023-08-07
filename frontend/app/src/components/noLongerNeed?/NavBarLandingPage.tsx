@@ -18,7 +18,7 @@ const NavBarLandingPage: React.FunctionComponent = () => {
 		<span className="text-md text-white italic whitespace-nowrap m-3 cursor-pointer">Master of Pong</span>
 		<img src={logo} alt="logo" className='h-[50px]'/>
 		<button className={btnClass} style={btnStyle}>
-			<a href="http://localhost:5000/api/auth/redirect" className='p-2'>
+			<a href="http://localhost:5000/api/auth/redirect">
 				Login
 			</a>
 		</button>

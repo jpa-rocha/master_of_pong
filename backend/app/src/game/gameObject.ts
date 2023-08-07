@@ -128,6 +128,9 @@ export class GameObject {
     this.player2.pos.y = 350;
   }
 
+  async getUser(databaseId: string) {
+    return await this.gameGateway.getUserName(databaseId);
+  }
   addClient(client: AuthenticatedSocket, databaseId: string) {
     console.log('adding client...');
     this.clients.set(client.id, client);
@@ -136,9 +139,26 @@ export class GameObject {
     if (!this.player1.id) {
       this.player1.id = client.id;
       this.player1.databaseId = databaseId;
+
+
+      
+	  console.log("database ID: " + databaseId);
+	//   (async function () {
+	// 	console.log("finding username from database...");
+	// 	// this.player1.user = await this.gameGateway.findOne(databaseId);
+    // this.player1.user = await this.getUser(databaseId);
+    // console.log("Player === ", this.player1.user);
+	// 	console.log("p1 user: " + this.player1.user.username);
+	//   })();
     } else if (!this.player2.id) {
       this.player2.id = client.id;
       this.player2.databaseId = databaseId;
+	  console.log("database ID: " + databaseId);
+	//   (async function () {
+	// 	console.log("finding username from database...");
+	// 	this.player2.user = await this.userService.findOne(databaseId);
+	// 	console.log("p2 user: " + this.player2.user.username);
+	//   })();
     }
     if (
       (this.clients.size === 1 &&
@@ -148,14 +168,12 @@ export class GameObject {
       console.log('starting game...');
       this.gameService.initGame();
     }
-    // this.sendToClients
   }
 
   removeClient(client: AuthenticatedSocket) {
     this.clients.delete(client.id);
     client.data.lobby = null;
     this.gameService.stopGame();
-    // this.gameService.winner
     this.sendToClients('winnerUpdate', {
       winner: 'Opponent has left the game.',
     });

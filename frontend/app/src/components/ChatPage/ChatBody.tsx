@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getToken } from "../../utils/Utils";
 import axios from "axios";
 import { Socket } from "socket.io-client";
+import BannedUsersPopUp from "./PopUpBannedUsers";
+import PopUpPassword from "./PopUpPassword";
+import { Message, User, Chat } from "./PropUtils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
-interface Message {
-  id: number;
-  sender: UserProps;
-  content: string;
+interface ChatBodyProps {
+  socket: Socket;
 }
 
 interface ChatMessagesResult {
@@ -16,57 +17,31 @@ interface ChatMessagesResult {
   messages: Message[];
 }
 
-interface ChatBodyProps {
-  socket: Socket;
-}
-
-interface User {
-  socketID: string;
-  username: string;
-  isFriend: boolean;
-  status: string;
-  id: string;
-}
-
-interface ChatProp {
-  id: number;
-  title: string;
-  channel: string;
-  users: User[];
-}
-
-interface UserProps {
-  forty_two_id: number;
-  username: string | undefined;
-  refresh_token: string;
-  email: string;
-  avatar: string;
-  is_2fa_enabled: boolean;
-  xp: number;
-  id: string;
-}
+const btnStyle = `
+my-1 mx-0 md:mx-1 md:ml-3 text-sm bg-red-500 text-gray-50 
+hover:bg-red-800 
+py-2 px-4
+shadow rounded-xl
+`
 
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
-  const [user, setUser] = useState<UserProps>();
+  const [user, setUser] = useState<User>();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [chat, setChat] = useState<ChatProp | undefined>(undefined);
+  const [chat, setChat] = useState<Chat>();
+  const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  socket.on("message", (data: ChatMessagesResult) => {
-    if (chat && chat?.id === data.chatID) {
-      // console.log("Current chat id = ", chat.id);
-      // console.log("CHAT ID = ", chat.id);
-      setMessages(data.messages);
-      console.log("messages = ", messages);
-    }
-  });
+  const [isUserAdmin, setIsUserAdmin] = useState<boolean>(false);
 
-  socket.on("returnDirectChat", (chat: ChatProp) => {
-    if (chat.id) {
-      console.log("Received CHAT ID = ", chat.id);
-      setChat(chat);
-      socket.emit("getMessages", { chatID: chat.id });
+  const [isBannedPopupOpen, setIsBannedPopupOpen] = useState(false);
+  const [isPasswordPopupOpen, setIsPasswordPopupOpen] = useState(false);
+
+  const handleCheckKick = (compare: Chat) => {
+    if (chat && chat.id === compare.id) {
+      window.location.reload();
     }
-  });
+  }
+  socket.on("checkKick", handleCheckKick);
+
 
   useEffect(() => {
     const getUser = async () => {
@@ -84,46 +59,105 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       if (temp) {
         setUser(temp);
       }
-      console.log("User = " + user?.username);
     };
     getUserEffect();
+
+    const handleReturnChatBody = (chat: Chat) => {
+      if (chat && chat.id) {
+        setChat(chat);
+        socket.emit("getMessages", { chatID: chat.id });
+      }
+    }
+    
+    const handleReturnMessages = (data: ChatMessagesResult) => {
+      if (chat && chat?.id === data.chatID)
+      setMessages(data.messages);
+    }
+    
+    if (chat && user && chat.admins) {
+      const check = chat.admins.some(admin => admin.id === user.id);
+      if (check) setIsUserAdmin(true);
+      else setIsUserAdmin(false);
+    }
+
+    socket.on("returnChat", handleReturnChatBody);
+    socket.on("message", handleReturnMessages);
     return () => {
-      socket.off("message");
-      socket.off("returnDirectChat");
+      socket.off("message", handleReturnMessages);
+      socket.off("returnChat", handleReturnChatBody);
     };
-  }, [messages, user?.username, socket]);
+  }, [messages, user?.username, socket, chat]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === 'direct') {
-      if (user.username === chat.users[0].username)
+      if (user.username === chat.users[0].username && chat.users[1].username)
         chat.title = chat.users[1].username;
-      else 
+      else if (chat.users[0].username)
         chat.title = chat.users[0].username;
     }
   }, [chat, user]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const messageContainer = document.querySelector(".messageContainer");
   if (messageContainer) {
     messageContainer.scrollTop = messageContainer.scrollHeight;
   }
 
+  const handleLeaveChat = () => {
+    socket.emit('leaveChat', {chatID: chat?.id})
+    document.location.reload();
+  };
+
+  const togglePopup = () => {
+    setIsBannedPopupOpen(!isBannedPopupOpen);
+  }
+
+  const togglePopupPassword = () => {
+    setIsPasswordPopupOpen(!isPasswordPopupOpen);
+  }
+
   return (
-    <div className="flex flex-col h-full overflow-x-auto mb-4">
+	<>
+    <div>
+      <header className="md:ml-2 font-bold text-2xl flex md:justify-between md:flex-row flex-col">
+        <h1 className="underline decoration-gray-500">{chat?.title}</h1>
+        {chat?.channel !== "direct" ? (
+          <div className="flex flex-col md:flex-row ">
+            <button onClick={() => handleLeaveChat()} className={btnStyle}>
+              Leave
+            </button>
+            {isUserAdmin ? (
+              <button onClick={() => togglePopup()}  className={btnStyle}>
+                Banned Users
+              </button>
+            ):null}
+            {user?.id === chat?.creator.id ? (
+              <button onClick={() => togglePopupPassword()} className={btnStyle}>
+                Manage Password
+              </button>
+            ): null}
+          </div>
+        ) : null}
+      </header>
+    </div>
+
+    <div className="flex flex-col h-full overflow-x-auto mb-4" ref={messageContainerRef}>
       <div className="flex flex-col h-full">
 
-      {/* <header className="chatMainHeader">
-        <h1>{chat?.title}</h1>
-      </header>   */}
-  
         <div className="grid grid-cols-12 gap-y-2">
           {messages &&
             messages.map((message) =>
               message.sender.username === user?.username ? (
                 <div className="col-start-1 col-end-8 p-3 rounded-lg" key={message.id}>
                   <div className="flex flex-row items-center">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">You</div>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
                         <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
@@ -136,7 +170,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                     <div className="flex items-center justify-start flex-row-reverse">
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center">{message.sender.username}</div>
+                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
                         <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
@@ -149,6 +183,44 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         </div>
       </div>
     </div>
+    {isBannedPopupOpen && chat && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <BannedUsersPopUp isOpen={isBannedPopupOpen} onClose={togglePopup} socket={socket} chat={chat} />
+        </div>
+      )}
+    {isPasswordPopupOpen && chat && user && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <PopUpPassword isOpen={isPasswordPopupOpen} onClose={togglePopupPassword} socket={socket} chat={chat} user={user} />
+        </div>
+      )}
+    </>
+   
   );
 };
 

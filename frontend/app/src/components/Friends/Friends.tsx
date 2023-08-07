@@ -131,8 +131,8 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 							</td>
 							<td className="px-6 py-4">
 								{ !item.isFriend ? (
-									<button className="font-medium text-blue-600 hover:underline">
-									Add as Friend
+									<button className="font-medium text-blue-600 hover:underline" onClick={() => handleSendFriendRequest(item.id)}>
+										Add as Friend
 									</button>
 								) : (
 									<span>Already a friend</span>

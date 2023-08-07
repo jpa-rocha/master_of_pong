@@ -126,6 +126,11 @@ export class GameGateway
     this.gameCollection.useAbility(client);
   }
 
+  @SubscribeMessage('clearAbility')
+  gameClearAbility(client: AuthenticatedSocket): void {
+    this.gameCollection.clearAbility(client);
+  }
+
   @SubscribeMessage('readyToPlay')
   async readyToPlay(client: AuthenticatedSocket) {
     this.gameCollection.playerReady(client);
@@ -178,5 +183,11 @@ export class GameGateway
       timestamp: date,
     };
     await this.gameDataService.create(gameDataDto);
+  }
+
+  async getUserName(playerID: string) {
+    console.log("GetUSERNAME ID => ", playerID);
+    console.log("RESULT => ", await this.usersService.findOne(playerID));
+    return await this.usersService.findOne(playerID);
   }
 }

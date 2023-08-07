@@ -22,7 +22,6 @@ import { strict } from 'assert';
 
 @Controller('auth')
 export class AuthController {
-  jwtAuthService: any;
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
@@ -32,19 +31,19 @@ export class AuthController {
   // api/auth/signin
   @Get('signin')
   async handleLogin(@Query('param') param: string, @Res() res: Response) {
-    console.log(param);
+    console.log('-------------------AT SIGNIN-------------------');
+
     const data = JSON.parse(decodeURIComponent(param));
+
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: false });
+    res.cookie('jwtToken', token, { httpOnly: false});
+
     return res.redirect('https://localhost:3000/main');
   }
 
   @Post('verifyToken')
   async verifyToken(@Body() body) {
-    console.log(
-      'HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE',
-    );
     const token = body.token;
     const secret = 'alsosecret';
 
@@ -81,7 +80,7 @@ export class AuthController {
     return res.redirect('https://localhost:3000/');
   }
 
-  @Post('2fa/turn-on')
+  /*  @Post('2fa/turn-on')
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(id: string) {
     console.log('2fa/turn-on');
@@ -90,8 +89,9 @@ export class AuthController {
     this.usersService.update(user.id, user);
     return user;
   }
+ */
 
-/*   @Post('2fa/authenticate')
+  /*   @Post('2fa/authenticate')
   @HttpCode(200)
   // @UseGuards(JwtAuthGuard)
   // async turnOnTwoFactorAuthentication(id: string) {

@@ -17,8 +17,4 @@ export class ChatController {
   }
 
   //getDirectChat(@Body() data: {user1: string, user2: string}) {
-  @Get('getDirect/:user1/:user2')
-  getDirectChat(@Param() param: { user1: string; user2: string }) {
-    return this.chatService.findDirectChat(param.user1, param.user2);
-  }
 }
