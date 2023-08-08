@@ -53,8 +53,8 @@ export class TwoFactorAuthenticationController {
   }
 
   @Post('turn-on/:id')
-  @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
+  // @HttpCode(200)
+  // @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: Request,
     @Res() res: Response,
@@ -77,18 +77,52 @@ export class TwoFactorAuthenticationController {
     }
     await this.userService.turnOnTwoFactorAuthentication(user.id);
     const { accessToken } = await this.jwtAuthService.login(user, true);
+    console.log('accessToken = ', accessToken);
+    console.log('---- 2FA HERE ----');
+    
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
-    // return res.redirect('https://localhost:3000/main');
+    // return accessToken;
     return res.status(200).json({ message: '2FA turned on' });
   }
 
+  
+  @Post('turn-off/:id')
+  // @UseGuards(TwoFactorGuard)
+  // @HttpCode(200)
+  async turnOffTwoFactorAuthentication(
+    @Req() request: Request,
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() data: { twoFactorAuthenticationCode: string },
+  ) {
+    console.log('---- 2FA turn-off ----');
+    const user = await this.userService.findOne(id);
+    const isCodeValid =
+      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+          data.twoFactorAuthenticationCode,
+          user,
+        );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.userService.turnOffTwoFactorAuthentication(user.id);
+    const { accessToken } = await this.jwtAuthService.login(user, false);
+    res.cookie('jwtToken', accessToken, {
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
+    });
+    return res.status(200).json({ message: '2FA turned off' });
+    // return res.redirect('https://localhost:3000');
+    // return res.status(200).json({ message: '2FA turned off' });
+  }
   @Post('authenticate/:id')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
+  // @UseGuards(JwtAuthGuard)
+  // @HttpCode(200)
   async authenticate(
     @Req() request: Request,
     @Res() res: Response,
@@ -105,47 +139,23 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-
+  
     /* TODO: 
           create jwtToken cookie 
           redirect to https://localhost:3000/main
     */
-    const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie('jwtToken', accessToken, {
-      httpOnly: false,
-      sameSite: 'none',
-      secure: true,
-    });
-    return res.redirect('https://localhost:3000/main');
-  }
 
-  @Post('turn-off/:id')
-  @UseGuards(TwoFactorGuard)
-  @HttpCode(200)
-  async turnOffTwoFactorAuthentication(
-    @Req() request: Request,
-    @Res() res: Response,
-    @Param('id') id: string,
-    @Body() data: { twoFactorAuthenticationCode: string },
-  ) {
-    console.log('---- 2FA turn-off ----');
-    const user = await this.userService.findOne(id);
-    const isCodeValid =
-      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-        data.twoFactorAuthenticationCode,
-        user,
-      );
-    if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code');
-    }
-    await this.userService.turnOffTwoFactorAuthentication(user.id);
-    const { accessToken } = await this.jwtAuthService.login(user, false);
+    
+    const { accessToken } = await this.jwtAuthService.login(user, true);
+    
+    console.log('accessToken = ', accessToken);
+    
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
-    // return res.redirect('https://localhost:3000/main');
-    return res.status(200).json({ message: '2FA turned off' });
+  
+    return res.redirect('https://localhost:3000/');
   }
 }
