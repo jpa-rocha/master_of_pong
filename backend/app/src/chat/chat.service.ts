@@ -5,6 +5,7 @@ import { Chat } from './entities/chat.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
+import { title } from 'process';
 
 interface ChatMessagesResult {
   chatID: number;
@@ -71,9 +72,7 @@ export class ChatService {
     if (!chat) {
       console.log('------new chat created------');
       const chat = new Chat();
-      if (userID === user1.id) chat.title = user2.username;
-      else chat.title = user1.username;
-
+      chat.title = 'direct';
       chat.creator = user1;
       chat.channel = 'direct';
       chat.users = [user1, user2];
