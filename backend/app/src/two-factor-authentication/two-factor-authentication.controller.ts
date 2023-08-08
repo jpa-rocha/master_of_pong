@@ -46,7 +46,7 @@ export class TwoFactorAuthenticationController {
       await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
         user,
       );
-    return this.twoFactorAuthenticationService.pipeQrCodeStream(
+    return await this.twoFactorAuthenticationService.pipeQrCodeStream(
       response,
       otpauthUrl.otpauthurl,
     );
@@ -64,7 +64,7 @@ export class TwoFactorAuthenticationController {
     console.log('---- 2FA turn-on ----');
     console.log('---- data ----', data);
     const user = await this.userService.findOne(id);
-    console.log('---- user ----', user);
+    // console.log('---- user ----', user);
     console.log('---- data.2fa ----', data.twoFactorAuthenticationCode);
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
@@ -75,21 +75,25 @@ export class TwoFactorAuthenticationController {
       console.log('---- 2FA HERE ----');
       throw new UnauthorizedException('Wrong authentication code');
     }
-    await this.userService.turnOnTwoFactorAuthentication(user.id);
-    const { accessToken } = await this.jwtAuthService.login(user, true);
+    console.log(' 2fa before ----', user.is_2fa_enabled);
+    const turnON = await this.userService.turnOnTwoFactorAuthentication(
+      user.id,
+    );
+    const updatedUser = await this.userService.findOne(user.id);
+    const { accessToken } = await this.jwtAuthService.login(updatedUser, true);
     console.log('accessToken = ', accessToken);
     console.log('---- 2FA HERE ----');
-    
+
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
+    console.log(' 2fa after ----', updatedUser.is_2fa_enabled);
     // return accessToken;
     return res.status(200).json({ message: '2FA turned on' });
   }
 
-  
   @Post('turn-off/:id')
   // @UseGuards(TwoFactorGuard)
   // @HttpCode(200)
@@ -103,22 +107,21 @@ export class TwoFactorAuthenticationController {
     const user = await this.userService.findOne(id);
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-          data.twoFactorAuthenticationCode,
-          user,
-        );
+        data.twoFactorAuthenticationCode,
+        user,
+      );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
     await this.userService.turnOffTwoFactorAuthentication(user.id);
-    const { accessToken } = await this.jwtAuthService.login(user, false);
+    const updatedUser = await this.userService.findOne(user.id);
+    const { accessToken } = await this.jwtAuthService.login(updatedUser, false);
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
     return res.status(200).json({ message: '2FA turned off' });
-    // return res.redirect('https://localhost:3000');
-    // return res.status(200).json({ message: '2FA turned off' });
   }
   @Post('authenticate/:id')
   // @UseGuards(JwtAuthGuard)
@@ -139,23 +142,12 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-  
-    /* TODO: 
-          create jwtToken cookie 
-          redirect to https://localhost:3000/main
-    */
-
-    
     const { accessToken } = await this.jwtAuthService.login(user, true);
-    
-    console.log('accessToken = ', accessToken);
-    
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
-  
     return res.redirect('https://localhost:3000/');
   }
 }
