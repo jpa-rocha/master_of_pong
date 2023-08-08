@@ -42,6 +42,7 @@ export class AuthController {
     return res.redirect('https://localhost:3000/main');
   }
 
+  // TODO secret is hardcoded
   @Post('verifyToken')
   async verifyToken(@Body() body) {
     const token = body.token;

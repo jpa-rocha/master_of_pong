@@ -22,6 +22,7 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
     console.log("handleTurnOff2fa CALLED");
     event.preventDefault();
     const config = {
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "https://localhost:3000",
@@ -31,9 +32,9 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
         "jwtToken": getToken("jwtToken"),
       },
     };
-    
+
     await axios
-      .post(`/api/2fa/turn-off/${UserId}`, {
+      .post(`http://localhost:5000/api/2fa/turn-off/${UserId}`, {
         twoFactorAuthenticationCode,
       }, config)
       .then((res) => {
@@ -58,7 +59,7 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
   return (
     <>
       <div className="relative bg-white rounded-lg shadow p-6">
-	  <button className="absolute top-3 right-3 text-gray-400 bg-transparent 
+	  <button className="absolute top-3 right-3 text-gray-400 bg-transparent
 	  	hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto " onClick={onClose}>
           X
         </button>

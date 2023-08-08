@@ -27,7 +27,7 @@ const root = ReactDOM.createRoot(
 async function getUserID() {
   console.log("INDEX GET USERID");
   const token = getToken("jwtToken");
-  const response = await axios.post<{ id: string }>("api/auth/getUserID", { token });
+  const response = await axios.post<{ id: string }>("http://localhost:5000/api/auth/getUserID", { token });
   console.log("Response = ", response.data);
   return response.data;
 }
