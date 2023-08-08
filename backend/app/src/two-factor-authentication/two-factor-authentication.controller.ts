@@ -106,8 +106,8 @@ export class TwoFactorAuthenticationController {
       throw new UnauthorizedException('Wrong authentication code');
     }
 
-    /* TODO: 
-          create jwtToken cookie 
+    /* TODO:
+          create jwtToken cookie
           redirect to https://localhost:3000/main
     */
     const { accessToken } = await this.jwtAuthService.login(user, true);
@@ -120,7 +120,7 @@ export class TwoFactorAuthenticationController {
   }
 
   @Post('turn-off/:id')
-  @UseGuards(TwoFactorGuard)
+  // @UseGuards(TwoFactorGuard)
   @HttpCode(200)
   async turnOffTwoFactorAuthentication(
     @Req() request: Request,
@@ -145,7 +145,7 @@ export class TwoFactorAuthenticationController {
       sameSite: 'none',
       secure: true,
     });
-    // return res.redirect('https://localhost:3000/main');
+    return res.redirect('https://localhost:3000/main');
     return res.status(200).json({ message: '2FA turned off' });
   }
 }
