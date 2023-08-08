@@ -13,15 +13,16 @@ async function bootstrap() {
   //   next();
   // });
   app.enableCors({
-    origin: function(origin, callback) {
-      if (whitelist.indexOf(origin) !== -1) {
-        console.log("Allowed cors for:", origin)
-        callback(null, true)
-      } else {
-        console.log("Blocked CORS for:", origin)
-        callback(new Error('Not allowed by CORS'))
-      }
-    },
+    // origin: function(origin, callback) {
+    //   if (whitelist.indexOf(origin) !== -1) {
+    //     console.log("Allowed cors for:", origin)
+    //     callback(null, true)
+    //   } else {
+    //     console.log("Blocked CORS for:", origin)
+    //     callback(new Error('Not allowed by CORS'))
+    //   }
+    // },
+    origin: "https://localhost:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
     // preflightContinue: true,

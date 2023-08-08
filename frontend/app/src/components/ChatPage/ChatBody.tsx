@@ -128,19 +128,23 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         <h1 className="underline decoration-gray-500">{chat?.title}</h1>
         {chat?.channel !== "direct" ? (
           <div className="flex flex-col md:flex-row ">
-            <button onClick={() => handleLeaveChat()} className={btnStyle}>
-              Leave
-            </button>
-            {isUserAdmin ? (
-              <button onClick={() => togglePopup()}  className={btnStyle}>
-                Banned Users
-              </button>
+            {chat ? (
+              <div>
+                <button onClick={() => handleLeaveChat()} className={btnStyle}>
+                  Leave
+                </button>
+                {isUserAdmin ? (
+                  <button onClick={() => togglePopup()}  className={btnStyle}>
+                    Banned Users
+                  </button>
+                ):null}
+                {user?.id === chat?.creator.id ? (
+                  <button onClick={() => togglePopupPassword()} className={btnStyle}>
+                    Manage Password
+                  </button>
+                ): null}
+              </div>
             ):null}
-            {user?.id === chat?.creator.id ? (
-              <button onClick={() => togglePopupPassword()} className={btnStyle}>
-                Manage Password
-              </button>
-            ): null}
           </div>
         ) : null}
       </header>
