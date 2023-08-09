@@ -22,6 +22,7 @@ async function bootstrap() {
     //     callback(new Error('Not allowed by CORS'))
     //   }
     // },
+    origin: "https://localhost:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
     // preflightContinue: true,

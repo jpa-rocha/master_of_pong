@@ -2,6 +2,9 @@ import axios from "axios";
 import { useEffect } from "react";
 import { getToken } from "../../utils/Utils";
 
+axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.withCredentials = true;
+
 type PopUpTurnOff2fa = {
   isOpen: boolean;
   onClose: () => void;
@@ -26,11 +29,12 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "https://localhost:3000",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
         "jwtToken": getToken("jwtToken"),
       },
+      credentials: "include",
     };
 
     await axios
@@ -39,7 +43,10 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
       }, config)
       .then((res) => {
         console.log(res);
-        onClose();
+        if (res.status === 200) {
+          // data
+          onClose();
+        }
       })
       .catch((err) => {
         console.log(err);

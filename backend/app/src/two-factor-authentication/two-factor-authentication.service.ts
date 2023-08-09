@@ -32,7 +32,7 @@ export class TwoFactorAuthenticationService {
   }
 
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-    return toFileStream(stream, otpauthUrl);
+    return await toFileStream(stream, otpauthUrl);
   }
 
   public isTwoFactorAuthenticationCodeValid(

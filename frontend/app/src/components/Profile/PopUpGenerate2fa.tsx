@@ -7,6 +7,7 @@ import { ThemeContext } from "@emotion/react";
 import { on } from "events";
 
 axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.withCredentials = true;
 
 type PopUpGenerate2fa = {
   isOpen: boolean;
@@ -55,15 +56,16 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "https://localhost:3000",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
         jwtToken: getToken("jwtToken"),
       },
+      credentials: "include",
     };
     const res = await axios
       .post(
-        `/api/2fa/turn-on/${userID}`,
+        `http://localhost:5000/api/2fa/turn-on/${userID}`,
         {
           twoFactorAuthenticationCode,
         },
@@ -72,6 +74,9 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
       .then((data) => {
         console.log("res: ", data);
         if (data.status === 200) {
+          // data
+          
+          
           onClose();
         }
       })
