@@ -6,6 +6,7 @@ axios.defaults.baseURL = "http://localhost:5000/";
 interface User {
   id: string;
   username: string;
+  is_2fa_enabled: boolean;
 }
 
 export function getToken(tokenName: string): string {
@@ -40,6 +41,6 @@ export async function getUser(token: string): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error getting user", error);
-    return (user = { id: "", username: "" });
+    return (user = { id: "", username: "", is_2fa_enabled: false });
   }
 }
