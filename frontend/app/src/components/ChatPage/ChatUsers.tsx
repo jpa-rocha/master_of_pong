@@ -30,6 +30,10 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [mutedUsers, setMutedUsers] = useState<boolean[]>([]);
 	const [mutedMe, setMutedMe] = useState<boolean>();
 
+	const [blockedAdmins, setBlockedAdmins] = useState<boolean[]>([]);
+	const [blockedUsers, setBlockedUsers] = useState<boolean[]>([]);
+	const [blockedOwner, setBlockedOwner] = useState<boolean>();
+
 	const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
 	const [interactTarget, setInteractTarget] = useState<User>();
@@ -41,6 +45,12 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			setMutedAdmins(adminResult);
 			setMutedUsers(regularResult);
 		}
+
+		const handleBlockedResult = (ownerResult: boolean, adminResult: boolean[], regularResult: boolean[]) => {
+			setBlockedOwner(ownerResult);
+			setBlockedAdmins(adminResult);
+			setBlockedUsers(regularResult);
+		}
 		
 		if (userCurrent && userAdmin && userRegular) {
 			const adminIDs = userAdmin.map(user => user.id);
@@ -49,11 +59,21 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				socket.emit('checkMuted', { userID: userCurrent.id, adminID: adminIDs, regularID: regularIDs, chatID: chat?.id });
 		}
 
+		if (userOwner && userAdmin && userRegular) {
+			const adminIDs = userAdmin.map(user => user.id);
+			const regularIDs = userRegular.map(user => user.id);
+			if (userCurrent)
+				socket.emit('checkBlockedUsers', { userID: userCurrent.id, ownerID: userOwner.id, adminID: adminIDs, regularID: regularIDs, chatID: chat?.id });
+		}
+
+
 		socket.on('isMutedReturn', handleMutedResult);
+		socket.on('isBlockedUsersReturn', handleBlockedResult);
 		return () => {
 			socket.off('isMutedReturn', handleMutedResult);
+			socket.off('isBlockedUsersReturn', handleBlockedResult);
 		};
-	  }, [userAdmin, userRegular, userME, chat, socket]);
+	  }, [userOwner, userAdmin, userRegular, userME, chat, socket]);
 
 	useEffect(() => {
 		const getUserGET = async () => {
@@ -156,8 +176,9 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			): null}
 
 			{userOwner ? (
-				<div>
+				<div className="user-container">
 					{userOwner.username} {userOwner.status === "online" ? <>🟢</> : <>🔴</>} 👑
+					{blockedOwner ? <div>&nbsp;⛔</div> : null}
 					{userME ? (
 						<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(userOwner, "Owner")} >interact</button>
 					):null}
@@ -170,6 +191,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 						{user.username} {user.status === "online" ? <span>🟢</span> : <span>🔴</span>} 👮
 					</div>
 					{mutedAdmins[index] ? <div>&nbsp;🔇</div> : null}
+					{blockedAdmins[index] ? <div>&nbsp;⛔</div> : null}
 					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")}>interact</button>
 				</div>
 			))}
@@ -178,6 +200,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				<div key={user.id}  className="user-container">
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
 					{mutedUsers[index] ? <div>&nbsp;🔇</div> : null}
+					{blockedUsers[index] ? <div>&nbsp;⛔</div> : null}
 					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Regular")} >interact</button>
 				</div>
 			))}

@@ -406,6 +406,18 @@ export class ChatService {
     return false;
   }
 
+  async checkBlockedArray(userID: string, targets: string[]) {
+    const user = await this.usersService.findOne(userID);
+    const result: boolean[] = [];
+
+    for (const targetID of targets) {
+      const isBlocked = user.blocked.some((user) => user.id === targetID);
+      result.push(isBlocked);
+    }
+
+    return result;
+  }
+
   // what's left :
   // 1 + change/set/remove channel password
   // 2 +- mute users in chat

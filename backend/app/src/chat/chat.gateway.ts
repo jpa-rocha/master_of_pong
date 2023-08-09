@@ -326,8 +326,10 @@ export class ChatGateway {
   async blockUser(client: Socket, data: { targetID: string; chatID: number }) {
     // contact usersservice to add the target to the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.findOneChat(data.chatID);
     await this.userService.blockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
+    this.server.to(client.id).emit('returnChatUsersOnly', chat);
   }
 
   @SubscribeMessage('unblockUser')
@@ -337,8 +339,10 @@ export class ChatGateway {
   ) {
     // contact usersservice to remove the target from the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.findOneChat(data.chatID);
     await this.userService.unblockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
+    this.server.to(client.id).emit('returnChatUsersOnly', chat);
   }
 
   @SubscribeMessage('checkMuted')
@@ -385,5 +389,35 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     const result = await this.chatService.checkBlocked(userID, data.targetID);
     this.server.to(client.id).emit('isBlockedReturn', result);
+  }
+
+  @SubscribeMessage('checkBlockedUsers')
+  async checkBlockedUsers(
+    client: Socket,
+    data: {
+      userID: string;
+      ownerID: string;
+      adminID: string[];
+      regularID: string[];
+    },
+  ) {
+    const ownerResult = await this.chatService.checkBlocked(
+      data.userID,
+      data.ownerID,
+    );
+    const adminResult = await this.chatService.checkBlockedArray(
+      data.userID,
+      data.adminID,
+    );
+    const regularResult = await this.chatService.checkBlockedArray(
+      data.userID,
+      data.regularID,
+    );
+    console.log('ownerResult   = ', ownerResult);
+    console.log('adminResult   = ', adminResult);
+    console.log('regularResult = ', regularResult);
+    this.server
+      .to(client.id)
+      .emit('isBlockedUsersReturn', ownerResult, adminResult, regularResult);
   }
 }
