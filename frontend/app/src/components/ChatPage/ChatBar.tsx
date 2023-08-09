@@ -141,7 +141,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 			{user.isFriend ? (
 			   <button onClick={() => handleGetDirectChat(user)}
 			   className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-				 <div className="ml-2 text-sm font-semibold">{user.username} {user.status} </div>
+				 <div className="ml-2 text-sm font-semibold">{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>} </div>
 			   </button>
 			   ) : null}
 			</div>
@@ -152,7 +152,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 		{directChat.map((chat) => (
 			<div key={chat.id} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
 			   <button onClick={() => handleGetChatRoom(chat.id)} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-				 <div className="ml-2 text-sm font-semibold">{chat.title} {chat.users[0].status}</div>
+				 <div className="ml-2 text-sm font-semibold">{chat.title} {chat.users[0].status === "online" ? <>🟢</> : <>🔴</>}</div>
 			   </button>
 			</div>
 		))}
