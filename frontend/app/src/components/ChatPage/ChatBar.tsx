@@ -53,7 +53,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         setDirectTemp(data.direct);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
-      console.log("BEFORE 1 => ", directTemp);
     };
 
     const handleStatusRender = () => {
@@ -87,14 +86,19 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   useEffect(() => {
     if (directTemp) {
-      directTemp.forEach((chat) => {
+      const updatedDirectChat = directTemp.filter((chat) => {
         if (chat.title === 'direct' && chat.users[0]) {
-          chat.title = chat.users[0].username;
+          if (friendsChat.some(friend => friend.id ===  chat.users[0].id && friend.isFriend))
+            return false;
+          else 
+            chat.title = chat.users[0].username;
         }
-      })
-      setDirectChat(directTemp);
+        return true;
+      });
+  
+      setDirectChat(updatedDirectChat);
     }
-  }, [directTemp]);
+  }, [directTemp, friendsChat]);
 
   function handleGetDirectChat(user: User) {
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
