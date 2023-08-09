@@ -147,7 +147,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 			</div>
 		))}
     <div className="flex flex-row items-center justify-between text-xs">
-			<span className="font-bold">Randoms</span>
+			<span className="font-bold">Non-Friends</span>
 	  </div>
 		{directChat.map((chat) => (
 			<div key={chat.id} className="flex flex-col space-y-1 mt-4 overflow-y-auto">

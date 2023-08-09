@@ -153,10 +153,11 @@ export class ChatGateway {
       chat.id,
       data.password,
     );
+    console.log(result.users);
     result.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
+      this.server.to(user.socketID).emit('returnChatUsers', result);
     });
-    return result;
   }
 
   @SubscribeMessage('sendMessage')

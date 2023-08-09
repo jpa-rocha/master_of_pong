@@ -135,11 +135,15 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			}
 		}
 
-		const handleReturnChat = (chat: Chat) => {
-			if (chat && chat.id) {
-				setChat(chat);
-				setUsers(chat.users);
-				setAdmins(chat.admins);
+		const handleReturnChat = (result: Chat) => {
+			if (!chat && result) {
+				setChat(result);
+				setUsers(result.users);
+				setAdmins(result.admins);
+			} else if (chat && chat.id === result.id) {
+				setChat(result);
+				setUsers(result.users);
+				setAdmins(result.admins);
 			}
 		}
 
