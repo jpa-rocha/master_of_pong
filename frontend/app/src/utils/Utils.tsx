@@ -22,12 +22,11 @@ export function getToken(tokenName: string): string {
 export async function getUserID(token: string): Promise<string> {
   try {
     const id = await axios.post("api/auth/getUserID", { token });
-    // console.log("id data", id.data);
     return id.data;
   } catch (error) {
     console.error("Error getting user id", error);
     throw new Error("Failed to get user id");
-   // return "";
+    // return "";
   }
 }
 

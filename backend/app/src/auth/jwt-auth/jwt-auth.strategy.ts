@@ -24,13 +24,10 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     // private usersService: UsersService) {
     const extractJwtFromCookie = (req: any) => {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
-      // console.log('----- REQ NOrmal guard-----', req.headers.jwttoken);
-      // console.log('----- REQ COOKIES -----', req.jwtToken);
       let token = null;
       if (req && req.headers.jwttoken) {
         token = req.headers.jwttoken;
       }
-      console.log('----- TOKEN -----', token);
       return token;
     };
 

@@ -62,9 +62,7 @@ export class TwoFactorAuthenticationController {
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
     console.log('---- 2FA turn-on ----');
-    console.log('---- data ----', data);
     const user = await this.userService.findOne(id);
-    // console.log('---- user ----', user);
     console.log('---- data.2fa ----', data.twoFactorAuthenticationCode);
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
@@ -72,25 +70,19 @@ export class TwoFactorAuthenticationController {
         user,
       );
     if (!isCodeValid) {
-      console.log('---- 2FA HERE ----');
       throw new UnauthorizedException('Wrong authentication code');
     }
-    console.log(' 2fa before ----', user.is_2fa_enabled);
     const turnON = await this.userService.turnOnTwoFactorAuthentication(
       user.id,
     );
     const updatedUser = await this.userService.findOne(user.id);
     const { accessToken } = await this.jwtAuthService.login(updatedUser, true);
-    console.log('accessToken = ', accessToken);
-    console.log('---- 2FA HERE ----');
 
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
-    console.log(' 2fa after ----', updatedUser.is_2fa_enabled);
-    // return accessToken;
     return res.status(200).json({ message: '2FA turned on' });
   }
 

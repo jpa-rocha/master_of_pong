@@ -21,14 +21,6 @@ export class ChatGateway {
 
   async handleConnection(client: Socket) {
     console.log('user connected');
-    // try {
-    //   await this.userService.updateSocket(client.id, {
-    //     status: 'online',
-    //     socketID: client.id,
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
     try {
       await this.userService.updateSocket(client.id, {
         status: 'online',
