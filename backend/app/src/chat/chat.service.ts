@@ -387,6 +387,18 @@ export class ChatService {
     return false;
   }
 
+  async checkMutedArray(targets: string[], chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const result: boolean[] = [];
+
+    for (const targetID of targets) {
+      const isMuted = chat.muted.some((user) => user.id === targetID);
+      result.push(isMuted);
+    }
+
+    return result;
+  }
+
   async checkBlocked(userID: string, targetID: string) {
     const user = await this.usersService.findOne(userID);
     const index = user.blocked.findIndex((user) => user.id === targetID);

@@ -142,7 +142,7 @@ export class ChatGateway {
 
   // called in ChatBar
   @SubscribeMessage('joinChatRoom')
-  async jpinChatRoom(
+  async joinChatRoom(
     client: Socket,
     data: { title: string; password: string },
   ) {
@@ -156,7 +156,7 @@ export class ChatGateway {
     console.log(result.users);
     result.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
-      this.server.to(user.socketID).emit('returnChatUsers', result);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', result);
     });
   }
 
@@ -207,9 +207,9 @@ export class ChatGateway {
       data.chatID,
     );
     chatRoom.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chatRoom);
     });
-    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    this.server.to(client.id).emit('returnChatUsersOnly', chatRoom);
     return chatRoom;
   }
 
@@ -223,9 +223,9 @@ export class ChatGateway {
       data.chatID,
     );
     chatRoom.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chatRoom);
     });
-    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    this.server.to(client.id).emit('returnChatUsersOnly', chatRoom);
     return chatRoom;
   }
 
@@ -235,6 +235,7 @@ export class ChatGateway {
     const chat = await this.chatService.leaveChat(userID, data.chatID);
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -250,7 +251,7 @@ export class ChatGateway {
     );
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
     this.server.to(target.socketID).emit('checkKick', chat);
   }
@@ -268,7 +269,7 @@ export class ChatGateway {
     );
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
       this.server.to(user.socketID).emit('returnChat', chat);
     });
     this.server.to(target.socketID).emit('checkKick', chat);
@@ -296,7 +297,7 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -309,7 +310,7 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -318,7 +319,6 @@ export class ChatGateway {
     client: Socket,
     data: { password: string; chatID: number },
   ) {
-    console.log('Change PASSWORD REACHED');
     return await this.chatService.changePassword(data.password, data.chatID);
   }
 
@@ -342,12 +342,42 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('checkMuted')
-  async checkMuted(client: Socket, data: { targetID: string; chatID: number }) {
+  async checkMuted(
+    client: Socket,
+    data: {
+      userID: string;
+      adminID: string[];
+      regularID: string[];
+      chatID: number;
+    },
+  ) {
+    const meResult = await this.chatService.checkMuted(
+      data.userID,
+      data.chatID,
+    );
+    const adminResult = await this.chatService.checkMutedArray(
+      data.adminID,
+      data.chatID,
+    );
+    const regularResult = await this.chatService.checkMutedArray(
+      data.regularID,
+      data.chatID,
+    );
+    this.server
+      .to(client.id)
+      .emit('isMutedReturn', meResult, adminResult, regularResult);
+  }
+
+  @SubscribeMessage('checkMutedUser')
+  async checkMutedUser(
+    client: Socket,
+    data: { targetID: string; chatID: number },
+  ) {
     const result = await this.chatService.checkMuted(
       data.targetID,
       data.chatID,
     );
-    this.server.to(client.id).emit('isMutedReturn', result);
+    this.server.to(client.id).emit('isMutedUserReturn', result);
   }
 
   @SubscribeMessage('checkBlocked')

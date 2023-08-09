@@ -26,9 +26,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [userRegular, setUserRegular] = useState<User[]>([]);
 	const [userAdmin, setUserAdmin] = useState<User[]>([]);
 
-
-	const [mutedAdmins, setMutedAdmins] = useState<{ id: string; isMuted: boolean }[]>([]);
-	const [mutedUsers, setMutedUsers] = useState<{ id: string; isMuted: boolean }[]>([]);
+	const [mutedAdmins, setMutedAdmins] = useState<boolean[]>([]);
+	const [mutedUsers, setMutedUsers] = useState<boolean[]>([]);
 	const [mutedMe, setMutedMe] = useState<boolean>();
 
 	const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
@@ -37,57 +36,23 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [interactTargetRole, setInteractTargetRole] = useState<string>("");
 
 	useEffect(() => {
-		const fetchMutedStatus = async () => {
-			const checkIfMuted = (targetID: string): Promise<boolean> => {
-				return new Promise((resolve, reject) => {
-				  socket.emit('checkMuted', { targetID: targetID, chatID: chat?.id });
-			  
-				  socket.on('isMutedReturn', (response) => {
-					socket.off('isMutedReturn'); // Remove the event listener
-					resolve(response);
-				  });
-				});
-			  };
+		const handleMutedResult = (meResult: boolean, adminResult: boolean[], regularResult: boolean[]) => {
+			setMutedMe(meResult);
+			setMutedAdmins(adminResult);
+			setMutedUsers(regularResult);
+		}
+		
+		if (userCurrent && userAdmin && userRegular) {
+			const adminIDs = userAdmin.map(user => user.id);
+			const regularIDs = userRegular.map(user => user.id);
+			if (userCurrent)
+				socket.emit('checkMuted', { userID: userCurrent.id, adminID: adminIDs, regularID: regularIDs, chatID: chat?.id });
+		}
 
-			async function checkMute(targetID: string) {
-				try {
-					const isMuted = await checkIfMuted(targetID);
-					return isMuted;
-				} catch (error) {
-					console.error('Error:', error);
-				}
-			}
-
-		  const mutedAdminsStatus = await Promise.all(
-			userAdmin.map(async (user) => ({
-			  id: user.id,
-			  isMuted: await checkMute(user.id),
-			}))
-		  );
-
-		  const mutedRegularStatus = await Promise.all(
-			userRegular.map(async (user) => ({
-			  id: user.id,
-			  isMuted: await checkMute(user.id),
-			}))
-		  );
-
-		  const transformedMutedAdminStatus = mutedAdminsStatus.map((status) => ({
-			id: status.id,
-			isMuted: status.isMuted || false, // Set to false if it's undefined
-		  }));
-		  const transformedMutedRegularStatus = mutedRegularStatus.map((status) => ({
-			id: status.id,
-			isMuted: status.isMuted || false, // Set to false if it's undefined
-		  }));
-
-		  setMutedAdmins(transformedMutedAdminStatus);
-		  setMutedUsers(transformedMutedRegularStatus);
-		  if (userME)
-		  	setMutedMe(await checkMute(userME.id));
+		socket.on('isMutedReturn', handleMutedResult);
+		return () => {
+			socket.off('isMutedReturn', handleMutedResult);
 		};
-	
-		fetchMutedStatus();
 	  }, [userAdmin, userRegular, userME, chat, socket]);
 
 	useEffect(() => {
@@ -136,26 +101,32 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		}
 
 		const handleReturnChat = (result: Chat) => {
-			if (!chat && result) {
-				setChat(result);
-				setUsers(result.users);
-				setAdmins(result.admins);
-			} else if (chat && chat.id === result.id) {
+			if (result) {
 				setChat(result);
 				setUsers(result.users);
 				setAdmins(result.admins);
 			}
 		}
 
-		const handleStatusRender = () => {
-			socket.emit('getChatRoom', {chatID: chat?.id})
-		};
+		const handleReturnChatUsers = (result: Chat) => {
+			if (chat && chat.id === result.id) {
+				setChat(result);
+				setUsers(result.users);
+				setAdmins(result.admins);
+			}
+		}
+
+		// const handleStatusRender = () => {
+		// 	socket.emit('getChatRoom', {chatID: chat?.id})
+		// };
 
 		socket.on("returnChatUsers", handleReturnChat);
+		socket.on("returnChatUsersOnly", handleReturnChatUsers);
 		// socket.on("user connected users", handleStatusRender);
     	// socket.on("user disconnected users", handleStatusRender);
 		return () => {
 			socket.off("returnChatUsers", handleReturnChat);
+			socket.off("returnChatUsersOnly", handleReturnChatUsers);
 			// socket.off("user connected users", handleStatusRender);
     		// socket.off("user disconnected users", handleStatusRender);
 		};
@@ -198,7 +169,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 					<div>
 						{user.username} {user.status === "online" ? <span>🟢</span> : <span>🔴</span>} 👮
 					</div>
-					{mutedAdmins[index]?.isMuted ? <div>&nbsp;🔇</div> : null}
+					{mutedAdmins[index] ? <div>&nbsp;🔇</div> : null}
 					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")}>interact</button>
 				</div>
 			))}
@@ -206,7 +177,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			{userRegular && userRegular.map((user, index) => (
 				<div key={user.id}  className="user-container">
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
-					{mutedUsers[index]?.isMuted ? <div>&nbsp;🔇</div> : null}
+					{mutedUsers[index] ? <div>&nbsp;🔇</div> : null}
 					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Regular")} >interact</button>
 				</div>
 			))}
