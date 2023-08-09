@@ -15,6 +15,8 @@ interface ChatBarProps {
 const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   const [friendsChat, setFriendsChats] = useState<User[]>([]);
   const [directTemp, setDirectTemp] = useState<Chat[]>([]);
+  const [directChat, setDirectChat] = useState<Chat[]>([]);
+  // const [user, setUser] = useState<User>();
   const [userID, setUserID] = useState<string | undefined>(undefined);
   const [chatRooms, setChatRooms] = useState<Chat[]>();
 
@@ -27,6 +29,22 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   useEffect(() => {
     const token = getToken("jwtToken");
+    // const getUser = async () => {
+    //   const id = await axios
+    //     .post("api/auth/getUserID", { token })
+    //     .then((res) => res.data);
+    //   const user = await axios.get(`api/users/${id}`);
+
+    //   return user.data;
+    // };
+
+    // const getUserEffect = async () => {
+    //   const temp = await getUser();
+    //   if (temp) {
+    //     setUser(temp);
+    //   }
+    // };
+    // getUserEffect();
   
     const handleReturnChatBar = (data: {friends: User[], direct: Chat[], chatRooms: Chat[]}) => {
       if (data.friends)
@@ -35,6 +53,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         setDirectTemp(data.direct);
       if (data.chatRooms)
         setChatRooms(data.chatRooms);
+      console.log("BEFORE 1 => ", directTemp);
     };
 
     const handleStatusRender = () => {
@@ -65,6 +84,17 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       socket.off("user disconnected bar", handleStatusRender);
     };
   }, [socket, userID])
+
+  useEffect(() => {
+    if (directTemp) {
+      directTemp.forEach((chat) => {
+        if (chat.title === 'direct' && chat.users[0]) {
+          chat.title = chat.users[0].username;
+        }
+      })
+      setDirectChat(directTemp);
+    }
+  }, [directTemp]);
 
   function handleGetDirectChat(user: User) {
     socket.emit("getDirectChat", { user1ID: userID, user2ID: user.id });
@@ -119,10 +149,10 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     <div className="flex flex-row items-center justify-between text-xs">
 			<span className="font-bold">Randoms</span>
 	  </div>
-		{directTemp.map((chat) => (
+		{directChat.map((chat) => (
 			<div key={chat.id} className="flex flex-col space-y-1 mt-4 overflow-y-auto">
 			   <button onClick={() => handleGetChatRoom(chat.id)} className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-				 <div className="ml-2 text-sm font-semibold">{chat.title}</div>
+				 <div className="ml-2 text-sm font-semibold">{chat.title} {chat.users[0].status}</div>
 			   </button>
 			</div>
 		))}

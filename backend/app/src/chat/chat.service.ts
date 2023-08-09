@@ -121,10 +121,13 @@ export class ChatService {
   async getDirectChats(userID: string) {
     const chatRooms = await this.chatRepository
       .createQueryBuilder('chat')
-      .innerJoin('chat.users', 'user')
-      .where('user.id = :userID', { userID })
-      .andWhere('chat.channel != :channel', { channel: 'public' })
+      .innerJoinAndSelect('chat.users', 'user1')
+      .innerJoinAndSelect('chat.users', 'user2')
+      .where('chat.channel = :channel', { channel: 'direct' })
+      .andWhere('user1.id = :user1Id', { user1Id: userID })
+      .andWhere('user2.id != :user1Id', { user1Id: userID })
       .getMany();
+
     return chatRooms;
   }
 
