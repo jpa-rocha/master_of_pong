@@ -22,8 +22,6 @@ export class JwtAuthService {
     const Token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
     });
-    // console.log('----- AFTER SIGN -----');
-    // console.log('----- Token -----', Token);
     return {
       accessToken: Token,
     };

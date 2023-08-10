@@ -6,6 +6,7 @@ axios.defaults.baseURL = "http://localhost:5000/";
 interface User {
   id: string;
   username: string;
+  is_2fa_enabled: boolean;
 }
 
 export function getToken(tokenName: string): string {
@@ -22,12 +23,11 @@ export function getToken(tokenName: string): string {
 export async function getUserID(token: string): Promise<string> {
   try {
     const id = await axios.post("api/auth/getUserID", { token });
-    // console.log("id data", id.data);
     return id.data;
   } catch (error) {
     console.error("Error getting user id", error);
     throw new Error("Failed to get user id");
-   // return "";
+    // return "";
   }
 }
 
@@ -41,6 +41,6 @@ export async function getUser(token: string): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error getting user", error);
-    return (user = { id: "", username: "" });
+    return (user = { id: "", username: "", is_2fa_enabled: false });
   }
 }

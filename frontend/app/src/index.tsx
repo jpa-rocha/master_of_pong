@@ -23,18 +23,18 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
-
 async function getUserID() {
   console.log("INDEX GET USERID");
   const token = getToken("jwtToken");
-  const response = await axios.post<{ id: string }>("http://localhost:5000/api/auth/getUserID", { token });
-  console.log("Response = ", response.data);
+  const response = await axios.post<{ id: string }>(
+    "http://localhost:5000/api/auth/getUserID",
+    { token }
+  );
   return response.data;
 }
 
 (async () => {
   const userID = await getUserID();
-  console.log("USERID INDEX = ", userID);
   root.render(
     <React.StrictMode>
       <BrowserRouter>
@@ -42,7 +42,10 @@ async function getUserID() {
           <Route element={<PrivateRoutes />}>
             <Route path="/game" element={<Game />} />
             <Route path="/main" element={<MainPage socket={socket} />} />
-            <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />} />
+            <Route
+              path="/profile"
+              element={<ProfilePage socket={socket} profileID={userID} />}
+            />
             <Route path="/chat" element={<ChatPage socket={socket} />} />
             <Route path="/friends" element={<FriendsPage socket={socket} />} />
           </Route>

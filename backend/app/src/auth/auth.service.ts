@@ -22,9 +22,7 @@ export class AuthService {
     // const user: User = await this.usersService.findOne(user_dto.forty_two_id);
 
     console.log('----- AT SERVICE -----');
-    console.log(user.is_2fa_enabled);
     const { accessToken } = await this.jwtAuthService.login(user, false);
-    console.log(accessToken);
     // if (!user) return undefined;
 
     return accessToken;

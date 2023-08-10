@@ -59,7 +59,6 @@ export class UsersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    console.log('updateUserDto = ' + updateUserDto);
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -107,7 +106,6 @@ export class UsersController {
     @Param('userId') userId: string,
     @Param('friendId') friendId: string,
   ) {
-    console.log('addFriend');
     return this.usersService.sendFriendRequest(userId, friendId);
   }
 
