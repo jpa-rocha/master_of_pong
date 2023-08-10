@@ -163,7 +163,6 @@ export class ChatGateway {
       if (user.blocked)
         index = user.blocked.findIndex((user) => user.id === userID);
       if (index === -1) this.server.to(user.socketID).emit('message', messages);
-      else console.log("Didn't send to : ", user.username);
     });
   }
 
@@ -406,5 +405,15 @@ export class ChatGateway {
     this.server
       .to(client.id)
       .emit('isBlockedUsersReturn', ownerResult, adminResult, regularResult);
+  }
+
+  @SubscribeMessage('checkBlockedDirect')
+  async checkBlockedDirect(client: Socket, data: { targetID: string[] }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const result = await this.chatService.checkBlockedArray(
+      userID,
+      data.targetID,
+    );
+    this.server.to(client.id).emit('isDirectBlockedReturn', result);
   }
 }
