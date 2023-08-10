@@ -134,30 +134,12 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-<<<<<<< HEAD
-
-    /* TODO:
-          create jwtToken cookie
-          redirect to https://localhost:3000/main
-    */
-
-
     const { accessToken } = await this.jwtAuthService.login(user, true);
-
-    console.log('accessToken = ', accessToken);
-
-=======
-    const { accessToken } = await this.jwtAuthService.login(user, true);
->>>>>>> f0856772de79102d4f0dbaf98a202b00b2804341
     res.cookie('jwtToken', accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
-<<<<<<< HEAD
-
-=======
->>>>>>> f0856772de79102d4f0dbaf98a202b00b2804341
     return res.redirect('https://localhost:3000/');
   }
 }
