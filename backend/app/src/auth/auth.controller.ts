@@ -37,7 +37,7 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: false});
+    res.cookie('jwtToken', token, { httpOnly: false });
 
     return res.redirect('https://localhost:3000/main');
   }
@@ -53,13 +53,10 @@ export class AuthController {
 
   @Post('getUserID')
   async getUserID(@Body() body) {
-    console.log('GETUSERID backend');
     const token = body.token;
-
     return this.jwtService.getTokenInformation(token);
   }
 
-  // api/auth/redirect
   @Get('redirect')
   @UseGuards(oauth2Guard)
   handleRedirect(@Req() req: Request, @Res() res: Response) {
@@ -68,10 +65,8 @@ export class AuthController {
     console.log('AT REDIRECT');
 
     // Send the response.
-    console.log('AT REDIRECT: %s', req.user);
     const encodedData = encodeURIComponent(JSON.stringify(req.user));
     const redirectUrl = `signin?param=${encodedData}`;
-    console.log('AT REDIRECT: %s', encodedData);
     return res.redirect(redirectUrl);
   }
 
@@ -80,50 +75,4 @@ export class AuthController {
     res.cookie('jwtToken', '', { expires: new Date(0) });
     return res.redirect('https://localhost:3000/');
   }
-
-  /*  @Post('2fa/turn-on')
-  @UseGuards(JwtAuthGuard)
-  async turnOnTwoFactorAuthentication(id: string) {
-    console.log('2fa/turn-on');
-    const user = await this.usersService.findOne(id);
-    user.is_2fa_enabled = true;
-    this.usersService.update(user.id, user);
-    return user;
-  }
- */
-
-  /*   @Post('2fa/authenticate')
-  @HttpCode(200)
-  // @UseGuards(JwtAuthGuard)
-  // async turnOnTwoFactorAuthentication(id: string) {
-  //   console.log('2fa/turn-on');
-  //   const user = await this.usersService.findOne(id);
-  //   user.is_2fa_enabled = true;
-  //   this.usersService.update(user.id, user);
-  //   return user;
-  // }
-
-  // @Post('2fa/authenticate')
-  // @HttpCode(200)
-  // // @UseGuards(JwtAuthGuard)
-  // async authenticate(@Req() req: Request, @Body() body) {
-  //   const cookieHeader = req.headers.cookie;
-  //   const cookie = cookieHeader
-  //     .split(';')
-  //     .find((cookie) => cookie.trim().startsWith('jwtToken='));
-  //   const token = cookie.split('=')[1];
-
-    const id = this.jwtService.getTokenInformation(token);
-    const user: User = await this.usersService.findOne(id);
-    const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
-      body.twoFactorAuthenticationCode,
-      user,
-    );
-    console.log('We reached this part! 111');
-    if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code.');
-    }
-    console.log('We reached this part! 222');
-    return this.authService.loginWithTwoFactorAuthentication(user);
-  } */
 }

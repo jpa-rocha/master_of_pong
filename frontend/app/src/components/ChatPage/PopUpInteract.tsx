@@ -33,13 +33,13 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 			setIsBlocked(result);
 		}
 
-		socket.emit('checkMuted', {targetID: target.id, chatID: chat.id});
+		socket.emit('checkMutedUser', {targetID: target.id, chatID: chat.id});
 		socket.emit('checkBlocked', {targetID: target.id});
 
-		socket.on('isMutedReturn', handleMutedResult);
+		socket.on('isMutedUserReturn', handleMutedResult);
 		socket.on('isBlockedReturn', handleBlockedResult);
 		return () => {
-			socket.off('isMutedReturn', handleMutedResult);
+			socket.off('isMutedUserReturn', handleMutedResult);
 			socket.off('isBlockedReturn', handleBlockedResult);
 		}
 	}, [socket, target, chat]);

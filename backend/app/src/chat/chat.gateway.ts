@@ -21,14 +21,6 @@ export class ChatGateway {
 
   async handleConnection(client: Socket) {
     console.log('user connected');
-    // try {
-    //   await this.userService.updateSocket(client.id, {
-    //     status: 'online',
-    //     socketID: client.id,
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
     try {
       await this.userService.updateSocket(client.id, {
         status: 'online',
@@ -63,7 +55,6 @@ export class ChatGateway {
     client: Socket,
     data: { userID: string; status: string },
   ) {
-    console.log('SET TO ONLINE');
     await this.userService.update(data.userID, {
       socketID: client.id,
       status: data.status,
@@ -120,7 +111,6 @@ export class ChatGateway {
       data.chatID,
       userID,
     );
-    console.log('MESSAGES = ', messages.messages);
     this.server.to(client.id).emit('message', messages);
   }
 
@@ -142,7 +132,7 @@ export class ChatGateway {
 
   // called in ChatBar
   @SubscribeMessage('joinChatRoom')
-  async jpinChatRoom(
+  async joinChatRoom(
     client: Socket,
     data: { title: string; password: string },
   ) {
@@ -155,8 +145,8 @@ export class ChatGateway {
     );
     result.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
+      this.server.to(user.socketID).emit('returnChatUsersOnly', result);
     });
-    return result;
   }
 
   @SubscribeMessage('sendMessage')
@@ -169,7 +159,11 @@ export class ChatGateway {
     );
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('message', messages);
+      let index = -1;
+      if (user.blocked)
+        index = user.blocked.findIndex((user) => user.id === userID);
+      if (index === -1) this.server.to(user.socketID).emit('message', messages);
+      else console.log("Didn't send to : ", user.username);
     });
   }
 
@@ -198,7 +192,6 @@ export class ChatGateway {
 
   @SubscribeMessage('addAdmin')
   async addAdmin(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('add admin reached');
     const userID = await this.userService.findIDbySocketID(client.id);
     const chatRoom = await this.chatService.addAdmin(
       userID,
@@ -206,15 +199,14 @@ export class ChatGateway {
       data.chatID,
     );
     chatRoom.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chatRoom);
     });
-    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    this.server.to(client.id).emit('returnChatUsersOnly', chatRoom);
     return chatRoom;
   }
 
   @SubscribeMessage('removeAdmin')
   async removeAdmin(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('remove admin reached');
     const userID = await this.userService.findIDbySocketID(client.id);
     const chatRoom = await this.chatService.removeAdmin(
       userID,
@@ -222,9 +214,9 @@ export class ChatGateway {
       data.chatID,
     );
     chatRoom.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chatRoom);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chatRoom);
     });
-    this.server.to(client.id).emit('returnChatUsers', chatRoom);
+    this.server.to(client.id).emit('returnChatUsersOnly', chatRoom);
     return chatRoom;
   }
 
@@ -234,6 +226,7 @@ export class ChatGateway {
     const chat = await this.chatService.leaveChat(userID, data.chatID);
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -249,14 +242,13 @@ export class ChatGateway {
     );
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
     this.server.to(target.socketID).emit('checkKick', chat);
   }
 
   @SubscribeMessage('banUser')
   async banUser(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('BAN USER');
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
     const target = await this.userService.findOne(data.userID);
@@ -267,7 +259,7 @@ export class ChatGateway {
     );
     this.server.to(user.socketID).emit('renderChatBar');
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
       this.server.to(user.socketID).emit('returnChat', chat);
     });
     this.server.to(target.socketID).emit('checkKick', chat);
@@ -295,7 +287,7 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -308,7 +300,7 @@ export class ChatGateway {
       data.chatID,
     );
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('returnChatUsers', chat);
+      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
   }
 
@@ -317,7 +309,6 @@ export class ChatGateway {
     client: Socket,
     data: { password: string; chatID: number },
   ) {
-    console.log('Change PASSWORD REACHED');
     return await this.chatService.changePassword(data.password, data.chatID);
   }
 
@@ -325,8 +316,10 @@ export class ChatGateway {
   async blockUser(client: Socket, data: { targetID: string; chatID: number }) {
     // contact usersservice to add the target to the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.findOneChat(data.chatID);
     await this.userService.blockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
+    this.server.to(client.id).emit('returnChatUsersOnly', chat);
   }
 
   @SubscribeMessage('unblockUser')
@@ -336,17 +329,49 @@ export class ChatGateway {
   ) {
     // contact usersservice to remove the target from the blocked users relation
     const userID = await this.userService.findIDbySocketID(client.id);
+    const chat = await this.chatService.findOneChat(data.chatID);
     await this.userService.unblockUser(userID, data.targetID);
     await this.getMessages(client, { chatID: data.chatID });
+    this.server.to(client.id).emit('returnChatUsersOnly', chat);
   }
 
   @SubscribeMessage('checkMuted')
-  async checkMuted(client: Socket, data: { targetID: string; chatID: number }) {
+  async checkMuted(
+    client: Socket,
+    data: {
+      userID: string;
+      adminID: string[];
+      regularID: string[];
+      chatID: number;
+    },
+  ) {
+    const meResult = await this.chatService.checkMuted(
+      data.userID,
+      data.chatID,
+    );
+    const adminResult = await this.chatService.checkMutedArray(
+      data.adminID,
+      data.chatID,
+    );
+    const regularResult = await this.chatService.checkMutedArray(
+      data.regularID,
+      data.chatID,
+    );
+    this.server
+      .to(client.id)
+      .emit('isMutedReturn', meResult, adminResult, regularResult);
+  }
+
+  @SubscribeMessage('checkMutedUser')
+  async checkMutedUser(
+    client: Socket,
+    data: { targetID: string; chatID: number },
+  ) {
     const result = await this.chatService.checkMuted(
       data.targetID,
       data.chatID,
     );
-    this.server.to(client.id).emit('isMutedReturn', result);
+    this.server.to(client.id).emit('isMutedUserReturn', result);
   }
 
   @SubscribeMessage('checkBlocked')
@@ -354,5 +379,32 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     const result = await this.chatService.checkBlocked(userID, data.targetID);
     this.server.to(client.id).emit('isBlockedReturn', result);
+  }
+
+  @SubscribeMessage('checkBlockedUsers')
+  async checkBlockedUsers(
+    client: Socket,
+    data: {
+      userID: string;
+      ownerID: string;
+      adminID: string[];
+      regularID: string[];
+    },
+  ) {
+    const ownerResult = await this.chatService.checkBlocked(
+      data.userID,
+      data.ownerID,
+    );
+    const adminResult = await this.chatService.checkBlockedArray(
+      data.userID,
+      data.adminID,
+    );
+    const regularResult = await this.chatService.checkBlockedArray(
+      data.userID,
+      data.regularID,
+    );
+    this.server
+      .to(client.id)
+      .emit('isBlockedUsersReturn', ownerResult, adminResult, regularResult);
   }
 }

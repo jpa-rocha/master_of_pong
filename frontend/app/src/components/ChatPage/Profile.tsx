@@ -19,11 +19,13 @@ interface UserProps {
 
 interface ProfilePageProps {
   socket: Socket;
-  profileID: { id: string; } | string
-;
+  profileID: { id: string } | string;
 }
 
-const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
+const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
+  socket,
+  profileID,
+}) => {
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(1);
   const [wins, setWins] = useState(0);
@@ -31,25 +33,20 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, pr
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
-  const [userID, setUserID] = useState<{ id: string; } | string >(profileID);
-
-  console.log("ProfileID = ", profileID);
+  const [userID, setUserID] = useState<{ id: string } | string>(profileID);
 
   useEffect(() => {
     async function getUserName() {
-      console.log("userID (getUserName()) = ", userID);
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
         setUserName(userData.username);
       }
     }
-    console.log("userID = ", userID);
     getUserName();
   }, [userID, socket]);
 
   const setUser = async (newName: string) => {
-    console.log("SetUser function called");
     const data = { username: newName };
     const config = {
       headers: {
@@ -59,9 +56,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, pr
       },
     };
     if (userID !== undefined) {
-      console.log("userID (setUser()) = ", userID);
       const response = await axios.patch(`api/users/${userID}`, data, config);
-      console.log("response data: ", response.data);
       setUserName(newName);
     }
   };
@@ -77,11 +72,11 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, pr
   return (
     <>
       <Grid container>
-
-        <Grid item xs={6} md={12} >
-        <div
+        <Grid item xs={6} md={12}>
+          <div
             className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
-			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 ">
+			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 "
+          >
             <img
               className="md:h-auto md:w-[20%] md:rounded-l-lg"
               src={profileImg}
@@ -103,7 +98,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({ socket, pr
                 </p>
               </div>
             </div>
-        </div>
+          </div>
         </Grid>
         <Grid item xs={6} md={12}>
           <h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
