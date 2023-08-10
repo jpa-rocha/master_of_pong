@@ -1,39 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { getToken, getUser } from "./Utils";
-import { get } from "http";
+import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
-import { User } from "../components/ChatPage/PropUtils";
 
-interface UserProps {
-  id: string;
-  username: string;
-  is_2fa_enabled: boolean;
-}
+
 
 const PrivateRoutes = () => {
   const token: string = getToken("jwtToken");
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
   const [togglePopUp, setTogglePopUp] = useState<boolean>(false);
-  const [is_2fa_enabled, setIs_2fa_enabled] = useState<boolean>(false);
-  const [userInfo, setUserInfo] = useState<UserProps | null>(null);
+  const [userInfo, setUserInfo] = useState<Token | null>(null);
   const [render, setRender] = useState<boolean>(false);
 
   useEffect(() => {
-    const createUser = async () => {
-      const user: any = await getUser(token);
-      console.log("user: ", user);
-      setIs_2fa_enabled(user.data.is_2fa_enabled);
-      console.log("is_2fa_enabled: ", is_2fa_enabled);
-      // const user2: UserProps = user.data;
-      // // userInfo = user2;
-      // console.log("user2: ", user2);
-      // console.log("user.data: ",user.data);
-      setUserInfo(user.data);
-      console.log("userInfo: ", userInfo);
-      if (userInfo && userInfo.is_2fa_enabled) {
-        console.log("----- HERE ----");
-        setTogglePopUp(true);
+    const check_validation = async () => {
+      const decoded: Token | null = decodeToken(token)
+      console.log(decoded)
+      if (decoded !== null) {
+          if (decoded.is_2fa_enabled === true && decoded.is_validated === false) {
+            setUserInfo(decoded)
+            setTogglePopUp(true);
+          }
       }
     };
 
@@ -53,19 +40,17 @@ const PrivateRoutes = () => {
 
         console.log("data: ", data);
         setTokenValid(data);
-        await createUser();
+        await check_validation();
         console.log("userInfo: ", userInfo);
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);
       }
     };
-
     verifyToken();
-
-    // if (userInfo === null) {
-    //   setRender(!render);
-    // }
+    if (userInfo === null) {
+      setRender(!render);
+    }
   }, [render]);
 
   const handlePopUp = () => {

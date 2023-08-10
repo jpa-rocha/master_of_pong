@@ -64,6 +64,8 @@ services:
       - type: bind
         source: ./frontend/app
         target: /frontend
+    env_file:
+      - .env
     stop_grace_period: 1s
 
 volumes:

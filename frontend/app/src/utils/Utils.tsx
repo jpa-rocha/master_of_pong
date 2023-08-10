@@ -1,4 +1,5 @@
 import axios from "axios";
+import jwt from 'jwt-decode'
 import { Socket } from "socket.io-client";
 
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -7,6 +8,20 @@ interface User {
   id: string;
   username: string;
   is_2fa_enabled: boolean;
+}
+
+export interface Token {
+  id: string;
+  is_2fa_enabled: boolean;
+  is_validated: boolean;
+}
+
+interface JwtToken {
+    id: string;
+    is_2fa_enabled: boolean;
+    is_validated: boolean;
+    iat: number;
+    exp: number;
 }
 
 export function getToken(tokenName: string): string {
@@ -43,4 +58,18 @@ export async function getUser(token: string): Promise<User> {
     console.error("Error getting user", error);
     return (user = { id: "", username: "", is_2fa_enabled: false });
   }
+}
+
+export function decodeToken(coded: string): Token | null {
+  if (coded !== '') {
+    const token_full: JwtToken = jwt(coded)
+    const token: Token = {
+        id: token_full.id,
+        is_2fa_enabled: token_full.is_2fa_enabled,
+        is_validated: token_full.is_validated
+      }
+      return token
+  }
+
+  return null
 }

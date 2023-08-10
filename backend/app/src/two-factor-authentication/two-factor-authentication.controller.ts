@@ -24,7 +24,6 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import TwoFactorGuard from './two-factor-authentication.guard';
 
 @Controller('2fa')
-// @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthenticationController {
   constructor(
     private readonly userService: UsersService,
