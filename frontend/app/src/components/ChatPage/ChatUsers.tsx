@@ -71,13 +71,10 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				socket.emit('checkBlockedUsers', { userID: userCurrent.id, ownerID: userOwner.id, adminID: adminIDs, regularID: regularIDs, chatID: chat?.id });
 		}
 
-		console.log("HERE 1");
 		if (userME && userRegular[0] && !userOwner && userAdmin.length === 0) {
-			console.log("HERE 2");
 			const regularIDs = userRegular.map(user => user.id);
 			socket.emit('checkBlockedDirect', {targetID: regularIDs})
 		}
-
 
 		socket.on('isMutedReturn', handleMutedResult);
 		socket.on('isBlockedUsersReturn', handleBlockedResult);
