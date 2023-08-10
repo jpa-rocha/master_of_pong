@@ -21,14 +21,6 @@ export class ChatGateway {
 
   async handleConnection(client: Socket) {
     console.log('user connected');
-    // try {
-    //   await this.userService.updateSocket(client.id, {
-    //     status: 'online',
-    //     socketID: client.id,
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
     try {
       await this.userService.updateSocket(client.id, {
         status: 'online',
@@ -63,7 +55,6 @@ export class ChatGateway {
     client: Socket,
     data: { userID: string; status: string },
   ) {
-    console.log('SET TO ONLINE');
     await this.userService.update(data.userID, {
       socketID: client.id,
       status: data.status,
@@ -120,7 +111,6 @@ export class ChatGateway {
       data.chatID,
       userID,
     );
-    console.log('MESSAGES = ', messages.messages);
     this.server.to(client.id).emit('message', messages);
   }
 
@@ -153,7 +143,6 @@ export class ChatGateway {
       chat.id,
       data.password,
     );
-    console.log(result.users);
     result.users.forEach((user) => {
       this.server.to(user.socketID).emit('renderChatBar');
       this.server.to(user.socketID).emit('returnChatUsersOnly', result);
@@ -170,7 +159,11 @@ export class ChatGateway {
     );
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('message', messages);
+      let index = -1;
+      if (user.blocked)
+        index = user.blocked.findIndex((user) => user.id === userID);
+      if (index === -1) this.server.to(user.socketID).emit('message', messages);
+      else console.log("Didn't send to : ", user.username);
     });
   }
 
@@ -199,7 +192,6 @@ export class ChatGateway {
 
   @SubscribeMessage('addAdmin')
   async addAdmin(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('add admin reached');
     const userID = await this.userService.findIDbySocketID(client.id);
     const chatRoom = await this.chatService.addAdmin(
       userID,
@@ -215,7 +207,6 @@ export class ChatGateway {
 
   @SubscribeMessage('removeAdmin')
   async removeAdmin(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('remove admin reached');
     const userID = await this.userService.findIDbySocketID(client.id);
     const chatRoom = await this.chatService.removeAdmin(
       userID,
@@ -258,7 +249,6 @@ export class ChatGateway {
 
   @SubscribeMessage('banUser')
   async banUser(client: Socket, data: { userID: string; chatID: number }) {
-    console.log('BAN USER');
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
     const target = await this.userService.findOne(data.userID);
@@ -413,9 +403,6 @@ export class ChatGateway {
       data.userID,
       data.regularID,
     );
-    console.log('ownerResult   = ', ownerResult);
-    console.log('adminResult   = ', adminResult);
-    console.log('regularResult = ', regularResult);
     this.server
       .to(client.id)
       .emit('isBlockedUsersReturn', ownerResult, adminResult, regularResult);

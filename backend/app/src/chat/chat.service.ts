@@ -52,7 +52,6 @@ export class ChatService {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
-    // console.log('findDirectChat HERE');
     const user1 = await this.usersService.findOne(user1ID);
     const user2 = await this.usersService.findOne(user2ID);
     if (!user1 || !user2) {
@@ -68,9 +67,7 @@ export class ChatService {
       .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
-    // console.log(chat);
     if (!chat) {
-      console.log('------new chat created------');
       const chat = new Chat();
       chat.title = 'direct';
       chat.creator = user1;
@@ -191,10 +188,7 @@ export class ChatService {
     */
     const chat = await this.findOneChat(chatID);
     const index = chat.muted.findIndex((user) => user.id === clientID);
-    if (index !== -1) {
-      console.log("User muted, he can't send any messages");
-      return null;
-    }
+    if (index !== -1) return null;
     const newMessage = new Message();
     newMessage.chat = chat;
     newMessage.content = message;
@@ -256,7 +250,6 @@ export class ChatService {
   }
 
   async leaveChat(userID: string, chatID: number) {
-    console.log('LEAVE CHAT');
     const chat = await this.findOneChat(chatID);
     const indexUsers = chat.users.findIndex((user) => user.id === userID);
     const indexAdmins = chat.admins.findIndex((user) => user.id === userID);
@@ -266,7 +259,6 @@ export class ChatService {
       if (chat.admins.length > 0) chat.creator = chat.admins[0];
       else if (chat.users.length > 0) chat.creator = chat.users[0];
       else {
-        console.log('NEW OWNER');
         await this.chatRepository.remove(chat);
         return null;
       }
