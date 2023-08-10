@@ -256,9 +256,19 @@ export class ChatService {
     if (indexAdmins !== -1) chat.admins.splice(indexAdmins, 1);
     if (indexUsers !== -1) chat.users.splice(indexUsers, 1);
     if (chat.creator.id === userID) {
-      if (chat.admins.length > 0) chat.creator = chat.admins[0];
-      else if (chat.users.length > 0) chat.creator = chat.users[0];
-      else {
+      if (chat.admins.length > 0) {
+        chat.creator = chat.admins[0];
+        const index = chat.muted.findIndex(
+          (user) => user.id === chat.admins[0].id,
+        );
+        if (index !== -1) chat.muted.splice(index, 1);
+      } else if (chat.users.length > 0) {
+        chat.creator = chat.users[0];
+        const index = chat.muted.findIndex(
+          (user) => user.id === chat.users[0].id,
+        );
+        if (index !== -1) chat.muted.splice(index, 1);
+      } else {
         await this.chatRepository.remove(chat);
         return null;
       }
