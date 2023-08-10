@@ -407,4 +407,15 @@ export class ChatGateway {
       .to(client.id)
       .emit('isBlockedUsersReturn', ownerResult, adminResult, regularResult);
   }
+
+  @SubscribeMessage('checkBlockedDirect')
+  async checkBlockedDirect(client: Socket, data: { targetID: string[] }) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const result = await this.chatService.checkBlockedArray(
+      userID,
+      data.targetID,
+    );
+    console.log('result = ', result);
+    this.server.to(client.id).emit('isDirectBlockedReturn', result);
+  }
 }

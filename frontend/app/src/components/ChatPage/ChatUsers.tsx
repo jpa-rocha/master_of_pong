@@ -52,6 +52,10 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			setBlockedAdmins(adminResult);
 			setBlockedUsers(regularResult);
 		}
+
+		const handleDirectBlockedResult = (result: boolean[]) => {
+			setBlockedUsers(result);
+		}
 		
 		if (userCurrent && userAdmin && userRegular) {
 			const adminIDs = userAdmin.map(user => user.id);
@@ -67,12 +71,21 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				socket.emit('checkBlockedUsers', { userID: userCurrent.id, ownerID: userOwner.id, adminID: adminIDs, regularID: regularIDs, chatID: chat?.id });
 		}
 
+		console.log("HERE 1");
+		if (userME && userRegular[0] && !userOwner && userAdmin.length === 0) {
+			console.log("HERE 2");
+			const regularIDs = userRegular.map(user => user.id);
+			socket.emit('checkBlockedDirect', {targetID: regularIDs})
+		}
+
 
 		socket.on('isMutedReturn', handleMutedResult);
 		socket.on('isBlockedUsersReturn', handleBlockedResult);
+		socket.on('isDirectBlockedReturn', handleDirectBlockedResult);
 		return () => {
 			socket.off('isMutedReturn', handleMutedResult);
 			socket.off('isBlockedUsersReturn', handleBlockedResult);
+			socket.off('isDirectBlockedReturn', handleDirectBlockedResult);
 		};
 	  }, [userOwner, userAdmin, userRegular, userME, chat, socket]);
 
