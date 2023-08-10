@@ -29,6 +29,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	const [mutedAdmins, setMutedAdmins] = useState<boolean[]>([]);
 	const [mutedUsers, setMutedUsers] = useState<boolean[]>([]);
 	const [mutedMe, setMutedMe] = useState<boolean>();
+	const [adminMe, setAdminMe] = useState<boolean>();
 
 	const [blockedAdmins, setBlockedAdmins] = useState<boolean[]>([]);
 	const [blockedUsers, setBlockedUsers] = useState<boolean[]>([]);
@@ -104,6 +105,9 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 				setUserOwner(owner);
 				if (owner.id !== userCurrent.id) {
 					setUserME(userCurrent);
+					const index = admins.findIndex((user) => user.id === userCurrent.id);
+					if (index !== -1) setAdminMe(true);
+					else setAdminMe(false);
 					setUserCurrentRole("Regular");
 				} else {
 					setUserME(undefined);
@@ -171,6 +175,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			{userME ? (
 				<div className="user-container">
 					{userME.username} {userME.status === "online" ? <>🟢</> : <>🔴</>}
+					{adminMe ? <div>&nbsp;👮</div>: null}
 					{mutedMe ? <div>&nbsp;🔇</div>: null}
 				</div>
 			): null}

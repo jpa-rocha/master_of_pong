@@ -63,9 +63,9 @@ const PrivateRoutes = () => {
 
     verifyToken();
 
-    if (userInfo === null) {
-      setRender(!render);
-    }
+    // if (userInfo === null) {
+    //   setRender(!render);
+    // }
   }, [render]);
 
   const handlePopUp = () => {
