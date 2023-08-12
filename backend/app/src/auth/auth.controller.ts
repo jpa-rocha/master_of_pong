@@ -19,6 +19,7 @@ import { User } from 'src/users/entities/user.entity';
 import { encode } from 'punycode';
 import { UsersService } from 'src/users/users.service';
 import { strict } from 'assert';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
     private jwtService: JwtAuthService,
+    private configService: ConfigService
   ) {}
 
   // api/auth/signin
@@ -46,7 +48,7 @@ export class AuthController {
   @Post('verifyToken')
   async verifyToken(@Body() body) {
     const token = body.token;
-    const secret = 'alsosecret';
+    const secret = this.configService.get<string>('JWT_SECRET');
 
     return this.jwtService.verifyToken(token, secret);
   }

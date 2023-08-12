@@ -13,9 +13,8 @@ const PrivateRoutes = () => {
   const [render, setRender] = useState<boolean>(false);
 
   useEffect(() => {
-    const check_validation = async () => {
+    const check_validation = () => {
       const decoded: Token | null = decodeToken(token)
-      console.log(decoded)
       if (decoded !== null) {
           if (decoded.is_2fa_enabled === true && decoded.is_validated === false) {
             setUserInfo(decoded)
@@ -38,20 +37,20 @@ const PrivateRoutes = () => {
         );
         const data = await response.json();
 
-        console.log("data: ", data);
         setTokenValid(data);
-        await check_validation();
-        console.log("userInfo: ", userInfo);
+        check_validation();
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);
       }
     };
     verifyToken();
-    if (userInfo === null) {
-      setRender(!render);
-    }
-  }, [render]);
+  }, []);
+
+  // useEffect(() => {
+  // if (userInfo === null) {
+  //   setRender(!render);
+  // }}, [render]);
 
   const handlePopUp = () => {
     setTogglePopUp(!togglePopUp);

@@ -33,7 +33,7 @@ export class TwoFactorAuthenticationController {
   ) {}
 
   @Post('generate/:id')
-  // @UseGuards(JwtTwoFactorGuard)
+  @UseGuards(JwtAuthGuard)
   async register(
     @Res() response: Response,
     @Req() request: Request,
@@ -53,7 +53,7 @@ export class TwoFactorAuthenticationController {
 
   @Post('turn-on/:id')
   // @HttpCode(200)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: Request,
     @Res() res: Response,
@@ -63,11 +63,13 @@ export class TwoFactorAuthenticationController {
     console.log('---- 2FA turn-on ----');
     const user = await this.userService.findOne(id);
     console.log('---- data.2fa ----', data.twoFactorAuthenticationCode);
+    console.log(data)
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         user,
       );
+      console.log('CODE VALID', isCodeValid)
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
@@ -86,7 +88,7 @@ export class TwoFactorAuthenticationController {
   }
 
   @Post('turn-off/:id')
-  // @UseGuards(TwoFactorGuard)
+  @UseGuards(TwoFactorGuard)
   // @HttpCode(200)
   async turnOffTwoFactorAuthentication(
     @Req() request: Request,
@@ -115,7 +117,7 @@ export class TwoFactorAuthenticationController {
     return res.status(200).json({ message: '2FA turned off' });
   }
   @Post('authenticate/:id')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   // @HttpCode(200)
   async authenticate(
     @Req() request: Request,
