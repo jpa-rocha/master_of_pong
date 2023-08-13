@@ -8,7 +8,7 @@ import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 
 const btnToggleStyle = `
-block px-4 py-2 
+block px-4 py-2
 text-sm text-gray-700
 hover:bg-gray-100
 `;

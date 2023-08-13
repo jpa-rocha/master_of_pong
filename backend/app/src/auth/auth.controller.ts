@@ -39,7 +39,7 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: false });
+    res.cookie(this.configService.get<string>('JWT_NAME'), token, { httpOnly: false });
 
     return res.redirect('https://localhost:3000/main');
   }
@@ -74,7 +74,7 @@ export class AuthController {
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    res.cookie('jwtToken', '', { expires: new Date(0) });
+    res.cookie(this.configService.get<string>('JWT_NAME'), '', { expires: new Date(0) });
     return res.redirect('https://localhost:3000/');
   }
 }

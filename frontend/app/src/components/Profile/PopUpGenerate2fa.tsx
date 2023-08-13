@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getToken, getUser } from "../../utils/Utils";
 import { get } from "http";
 import fs from "fs";
@@ -26,23 +26,27 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
   userID,
 }) => {
   const [qrCode, setQrCode] = useState<string>();
-
+  const generate = useRef(true)
   useEffect(() => {
-    (async () => {
-      const getQrCode = await axios.post(
-        `/api/2fa/generate/${userID}`,
-        {},
-        { responseType: "arraybuffer" }
-      );
-      const imageSrc = `data:image/png;base64,${btoa(
-        new Uint8Array(getQrCode.data).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ""
-        )
-      )}`;
+      if (generate.current) {
+        generate.current = false;
+        (async () => {
+          const getQrCode = await axios.post(
+            `/api/2fa/generate/${userID}`,
+            {},
+            { responseType: "arraybuffer" }
+          );
+          const imageSrc = `data:image/png;base64,${btoa(
+            new Uint8Array(getQrCode.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ""
+            )
+          )}`;
 
-      setQrCode(imageSrc);
-    })();
+          setQrCode(imageSrc);
+        })();
+      }
+
   }, []);
 
   const handle2faTurnOn = async (

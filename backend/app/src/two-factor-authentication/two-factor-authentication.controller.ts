@@ -52,7 +52,6 @@ export class TwoFactorAuthenticationController {
   }
 
   @Post('turn-on/:id')
-  // @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: Request,
@@ -89,7 +88,6 @@ export class TwoFactorAuthenticationController {
 
   @Post('turn-off/:id')
   @UseGuards(TwoFactorGuard)
-  // @HttpCode(200)
   async turnOffTwoFactorAuthentication(
     @Req() request: Request,
     @Res() res: Response,
@@ -127,9 +125,10 @@ export class TwoFactorAuthenticationController {
   ) {
     console.log('---- 2FA authenticate ----');
     const user = await this.userService.findOne(id);
+    console.log(data)
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-        data.twoFactorAuthenticationCode,
+        data.twoFactorAuthenticationCode.trim(),
         user,
       );
     if (!isCodeValid) {
