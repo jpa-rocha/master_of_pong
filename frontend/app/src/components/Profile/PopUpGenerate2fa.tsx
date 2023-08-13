@@ -43,7 +43,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
 
       setQrCode(imageSrc);
     })();
-  }, [userID]);
+  }, []);
 
   const handle2faTurnOn = async (
     twoFactorAuthenticationCode: string,
@@ -95,7 +95,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
     <>
       <div className="relative bg-white rounded-lg shadow p-6">
         <button
-          className="absolute top-3 right-3 text-gray-400 bg-transparent 
+          className="absolute top-3 right-3 text-gray-400 bg-transparent
 	  	hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto "
           onClick={onClose}
         >
