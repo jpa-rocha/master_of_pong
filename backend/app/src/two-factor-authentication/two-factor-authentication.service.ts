@@ -34,14 +34,16 @@ export class TwoFactorAuthenticationService {
     return await toFileStream(stream, otpauthUrl);
   }
 
-  public isTwoFactorAuthenticationCodeValid(
+  public async isTwoFactorAuthenticationCodeValid(
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
     console.log('USER SECRET', user.twofa_secret)
-    return authenticator.verify({
+    const verify = authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twofa_secret,
     });
+    console.log(verify)
+    return verify;
   }
 }
