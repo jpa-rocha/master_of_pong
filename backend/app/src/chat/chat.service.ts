@@ -52,7 +52,6 @@ export class ChatService {
     // after pressing on a friend in /chat it sends clientID and userID
     // to check if a chat entity containing them exists and returns it
     // maybe create the direct chat entity after accepting a friend request???
-    // console.log('findDirectChat HERE');
     const user1 = await this.usersService.findOne(user1ID);
     const user2 = await this.usersService.findOne(user2ID);
     if (!user1 || !user2) {
@@ -68,9 +67,7 @@ export class ChatService {
       .andWhere('users2.id = :user2Id', { user2Id: user2.id })
       .getOne();
 
-    // console.log(chat);
     if (!chat) {
-      console.log('------new chat created------');
       const chat = new Chat();
       chat.title = 'direct';
       chat.creator = user1;
@@ -121,10 +118,13 @@ export class ChatService {
   async getDirectChats(userID: string) {
     const chatRooms = await this.chatRepository
       .createQueryBuilder('chat')
-      .innerJoin('chat.users', 'user')
-      .where('user.id = :userID', { userID })
-      .andWhere('chat.channel != :channel', { channel: 'public' })
+      .innerJoinAndSelect('chat.users', 'user1')
+      .innerJoinAndSelect('chat.users', 'user2')
+      .where('chat.channel = :channel', { channel: 'direct' })
+      .andWhere('user1.id = :user1Id', { user1Id: userID })
+      .andWhere('user2.id != :user1Id', { user1Id: userID })
       .getMany();
+
     return chatRooms;
   }
 
@@ -188,10 +188,7 @@ export class ChatService {
     */
     const chat = await this.findOneChat(chatID);
     const index = chat.muted.findIndex((user) => user.id === clientID);
-    if (index !== -1) {
-      console.log("User muted, he can't send any messages");
-      return null;
-    }
+    if (index !== -1) return null;
     const newMessage = new Message();
     newMessage.chat = chat;
     newMessage.content = message;
@@ -253,17 +250,29 @@ export class ChatService {
   }
 
   async leaveChat(userID: string, chatID: number) {
-    console.log('LEAVE CHAT');
     const chat = await this.findOneChat(chatID);
     const indexUsers = chat.users.findIndex((user) => user.id === userID);
     const indexAdmins = chat.admins.findIndex((user) => user.id === userID);
     if (indexAdmins !== -1) chat.admins.splice(indexAdmins, 1);
     if (indexUsers !== -1) chat.users.splice(indexUsers, 1);
     if (chat.creator.id === userID) {
-      if (chat.admins.length > 0) chat.creator = chat.admins[0];
-      else if (chat.users.length > 0) chat.creator = chat.users[0];
-      else {
-        console.log('NEW OWNER');
+      if (chat.admins.length > 0) {
+        chat.creator = chat.admins[0];
+        if (chat.muted) {
+          const index = chat.muted.findIndex(
+            (user) => user.id === chat.admins[0].id,
+          );
+          if (index !== -1) chat.muted.splice(index, 1);
+        }
+      } else if (chat.users.length > 0) {
+        chat.creator = chat.users[0];
+        if (chat.muted) {
+          const index = chat.muted.findIndex(
+            (user) => user.id === chat.users[0].id,
+          );
+          if (index !== -1) chat.muted.splice(index, 1);
+        }
+      } else {
         await this.chatRepository.remove(chat);
         return null;
       }
@@ -384,11 +393,35 @@ export class ChatService {
     return false;
   }
 
+  async checkMutedArray(targets: string[], chatID: number) {
+    const chat = await this.findOneChat(chatID);
+    const result: boolean[] = [];
+
+    for (const targetID of targets) {
+      const isMuted = chat.muted.some((user) => user.id === targetID);
+      result.push(isMuted);
+    }
+
+    return result;
+  }
+
   async checkBlocked(userID: string, targetID: string) {
     const user = await this.usersService.findOne(userID);
     const index = user.blocked.findIndex((user) => user.id === targetID);
     if (index !== -1) return true;
     return false;
+  }
+
+  async checkBlockedArray(userID: string, targets: string[]) {
+    const user = await this.usersService.findOne(userID);
+    const result: boolean[] = [];
+
+    for (const targetID of targets) {
+      const isBlocked = user.blocked.some((user) => user.id === targetID);
+      result.push(isBlocked);
+    }
+
+    return result;
   }
 
   // what's left :

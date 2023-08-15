@@ -6,6 +6,7 @@ import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { JwtAuthService } from './jwt-auth.service';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
+import { Request } from 'express';
 
 export type JwtPayload = {
   id: string;
@@ -22,15 +23,20 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     private jwtAuthService: JwtAuthService,
   ) {
     // private usersService: UsersService) {
-    const extractJwtFromCookie = (req: any) => {
+      // TODO could put token name in the .env?
+    const extractJwtFromCookie = (req: Request) => {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
-      // console.log('----- REQ NOrmal guard-----', req.headers.jwttoken);
-      // console.log('----- REQ COOKIES -----', req.jwtToken);
       let token = null;
-      if (req && req.headers.jwttoken) {
-        token = req.headers.jwttoken;
+      if (req && req.headers.cookie) {
+        let cookies = req.headers.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          let keyValuePairs = cookies[i].split('=');
+          if (keyValuePairs.length === 2 && keyValuePairs[0].trim() === this.configService.get<string>('JWT_NAME')) {
+              token = keyValuePairs[1];
+              console.log('TOKEN =',token)
+          }
+        }
       }
-      console.log('----- TOKEN -----', token);
       return token;
     };
 
@@ -44,12 +50,6 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   async validate(token: JwtPayload): Promise<User> {
     console.log('----- AT VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
-
-    // if (token.is_2fa_enabled === true) {
-    //   if (token.is_validated === false) {
-    //     return null;
-    //   }
-    // }
     return userInfo;
   }
 }

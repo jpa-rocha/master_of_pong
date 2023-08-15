@@ -2,8 +2,9 @@ FROM node:20
 
 
 WORKDIR /frontend
-# RUN npm install --silent
-# RUN npm install react-scripts@3.4.1 -g --silent
-EXPOSE 3000
 
-CMD ["npm", "start"]
+EXPOSE 3000
+RUN pwd
+# RUN "npm install"
+# CMD ["npm", "start"]
+ENTRYPOINT [ "python3", "entrypoint.py" ]

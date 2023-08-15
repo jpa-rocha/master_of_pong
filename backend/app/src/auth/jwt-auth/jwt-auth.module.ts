@@ -9,11 +9,13 @@ import { Repository } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Friend } from 'src/users/entities/friend.entity';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
     ConfigModule,
     UsersModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     TypeOrmModule.forFeature([User, Friend]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

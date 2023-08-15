@@ -19,6 +19,7 @@ import { User } from 'src/users/entities/user.entity';
 import { encode } from 'punycode';
 import { UsersService } from 'src/users/users.service';
 import { strict } from 'assert';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
     private jwtService: JwtAuthService,
+    private configService: ConfigService
   ) {}
 
   // api/auth/signin
@@ -37,7 +39,7 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie('jwtToken', token, { httpOnly: false});
+    res.cookie(this.configService.get<string>('JWT_NAME'), token, { httpOnly: false });
 
     return res.redirect('https://localhost:3000/main');
   }
@@ -46,20 +48,17 @@ export class AuthController {
   @Post('verifyToken')
   async verifyToken(@Body() body) {
     const token = body.token;
-    const secret = 'alsosecret';
+    const secret = this.configService.get<string>('JWT_SECRET');
 
     return this.jwtService.verifyToken(token, secret);
   }
 
   @Post('getUserID')
   async getUserID(@Body() body) {
-    console.log('GETUSERID backend');
     const token = body.token;
-
     return this.jwtService.getTokenInformation(token);
   }
 
-  // api/auth/redirect
   @Get('redirect')
   @UseGuards(oauth2Guard)
   handleRedirect(@Req() req: Request, @Res() res: Response) {
@@ -68,62 +67,14 @@ export class AuthController {
     console.log('AT REDIRECT');
 
     // Send the response.
-    console.log('AT REDIRECT: %s', req.user);
     const encodedData = encodeURIComponent(JSON.stringify(req.user));
     const redirectUrl = `signin?param=${encodedData}`;
-    console.log('AT REDIRECT: %s', encodedData);
     return res.redirect(redirectUrl);
   }
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    res.cookie('jwtToken', '', { expires: new Date(0) });
+    res.cookie(this.configService.get<string>('JWT_NAME'), '', { expires: new Date(0) });
     return res.redirect('https://localhost:3000/');
   }
-
-  /*  @Post('2fa/turn-on')
-  @UseGuards(JwtAuthGuard)
-  async turnOnTwoFactorAuthentication(id: string) {
-    console.log('2fa/turn-on');
-    const user = await this.usersService.findOne(id);
-    user.is_2fa_enabled = true;
-    this.usersService.update(user.id, user);
-    return user;
-  }
- */
-
-  /*   @Post('2fa/authenticate')
-  @HttpCode(200)
-  // @UseGuards(JwtAuthGuard)
-  // async turnOnTwoFactorAuthentication(id: string) {
-  //   console.log('2fa/turn-on');
-  //   const user = await this.usersService.findOne(id);
-  //   user.is_2fa_enabled = true;
-  //   this.usersService.update(user.id, user);
-  //   return user;
-  // }
-
-  // @Post('2fa/authenticate')
-  // @HttpCode(200)
-  // // @UseGuards(JwtAuthGuard)
-  // async authenticate(@Req() req: Request, @Body() body) {
-  //   const cookieHeader = req.headers.cookie;
-  //   const cookie = cookieHeader
-  //     .split(';')
-  //     .find((cookie) => cookie.trim().startsWith('jwtToken='));
-  //   const token = cookie.split('=')[1];
-
-    const id = this.jwtService.getTokenInformation(token);
-    const user: User = await this.usersService.findOne(id);
-    const isCodeValid = this.authService.isTwoFactorAuthenticationValid(
-      body.twoFactorAuthenticationCode,
-      user,
-    );
-    console.log('We reached this part! 111');
-    if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code.');
-    }
-    console.log('We reached this part! 222');
-    return this.authService.loginWithTwoFactorAuthentication(user);
-  } */
 }

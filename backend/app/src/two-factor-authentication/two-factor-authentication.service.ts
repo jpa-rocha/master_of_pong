@@ -11,18 +11,16 @@ export class TwoFactorAuthenticationService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-  ) {}
+  ){};
 
-  // TODO could take a cookie instead of a user, as long as the cookie has the email and the id
   public async generateTwoFactorAuthenticationSecret(user: User) {
-    const secret = authenticator.generateSecret();
-
+    const secret: string = authenticator.generateSecret();
     const otpauthurl = authenticator.keyuri(
       user.email,
       this.configService.get('POSTGRES_DB'),
       secret,
     );
-
+    authenticator.allOptions()
     await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
 
     return {
@@ -32,16 +30,19 @@ export class TwoFactorAuthenticationService {
   }
 
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-    return toFileStream(stream, otpauthUrl);
+    return await toFileStream(stream, otpauthUrl);
   }
 
-  public isTwoFactorAuthenticationCodeValid(
+  public async isTwoFactorAuthenticationCodeValid(
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
-    return authenticator.verify({
+    console.log('USER SECRET', user.twofa_secret)
+    const verify = authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twofa_secret,
     });
+    console.log(verify)
+    return verify;
   }
 }

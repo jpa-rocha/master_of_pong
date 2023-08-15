@@ -1,4 +1,5 @@
 import axios from "axios";
+import jwt from 'jwt-decode'
 import { Socket } from "socket.io-client";
 
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -6,6 +7,21 @@ axios.defaults.baseURL = "http://localhost:5000/";
 interface User {
   id: string;
   username: string;
+  is_2fa_enabled: boolean;
+}
+
+export interface Token {
+  id: string;
+  is_2fa_enabled: boolean;
+  is_validated: boolean;
+}
+
+interface JwtToken {
+    id: string;
+    is_2fa_enabled: boolean;
+    is_validated: boolean;
+    iat: number;
+    exp: number;
 }
 
 export function getToken(tokenName: string): string {
@@ -22,12 +38,11 @@ export function getToken(tokenName: string): string {
 export async function getUserID(token: string): Promise<string> {
   try {
     const id = await axios.post("api/auth/getUserID", { token });
-    // console.log("id data", id.data);
     return id.data;
   } catch (error) {
     console.error("Error getting user id", error);
     throw new Error("Failed to get user id");
-   // return "";
+    // return "";
   }
 }
 
@@ -41,6 +56,20 @@ export async function getUser(token: string): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error getting user", error);
-    return (user = { id: "", username: "" });
+    return (user = { id: "", username: "", is_2fa_enabled: false });
   }
+}
+
+export function decodeToken(coded: string): Token | null {
+  if (coded !== '') {
+    const token_full: JwtToken = jwt(coded)
+    const token: Token = {
+        id: token_full.id,
+        is_2fa_enabled: token_full.is_2fa_enabled,
+        is_validated: token_full.is_validated
+      }
+      return token
+  }
+
+  return null
 }

@@ -70,7 +70,7 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findOne(id);
-    return this.usersRepository.save({ ...user, ...updateUserDto });
+    return await this.usersRepository.save({ ...user, ...updateUserDto });
   }
 
   async remove(id: string) {
@@ -231,19 +231,19 @@ export class UsersService {
   }
 
   async setTwoFactorAuthenticationSecret(secret: string, userId: string) {
-    return this.usersRepository.update(userId, {
+    return await this.usersRepository.update(userId, {
       twofa_secret: secret,
     });
   }
 
   async turnOnTwoFactorAuthentication(userId: string) {
-    return this.usersRepository.update(userId, {
+    return await this.usersRepository.update(userId, {
       is_2fa_enabled: true,
     });
   }
 
   async turnOffTwoFactorAuthentication(userId: string) {
-    return this.usersRepository.update(userId, {
+    return await this.usersRepository.update(userId, {
       is_2fa_enabled: false,
     });
   }
