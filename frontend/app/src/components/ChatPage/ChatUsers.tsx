@@ -84,7 +84,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			socket.off('isBlockedUsersReturn', handleBlockedResult);
 			socket.off('isDirectBlockedReturn', handleDirectBlockedResult);
 		};
-	  }, [userOwner, userAdmin, userRegular, userME, chat, socket]);
+	  }, [userCurrent, userOwner, userAdmin, userRegular, userME, chat, socket]);
 
 	useEffect(() => {
 		const getUserGET = async () => {

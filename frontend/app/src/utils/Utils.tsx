@@ -1,6 +1,6 @@
 import axios from "axios";
-import jwt from 'jwt-decode'
-import { Socket } from "socket.io-client";
+import jwt from 'jwt-decode';
+
 
 axios.defaults.baseURL = "http://localhost:5000/";
 

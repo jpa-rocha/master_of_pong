@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
@@ -42,10 +42,7 @@ async function getUserID() {
           <Route element={<PrivateRoutes />}>
             <Route path="/game" element={<Game />} />
             <Route path="/main" element={<MainPage socket={socket} />} />
-            <Route
-              path="/profile"
-              element={<ProfilePage socket={socket} profileID={userID} />}
-            />
+            <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />}/>
             <Route path="/chat" element={<ChatPage socket={socket} />} />
             <Route path="/friends" element={<FriendsPage socket={socket} />} />
           </Route>

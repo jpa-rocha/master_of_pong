@@ -161,8 +161,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                   <div className="flex flex-row items-center">
                     <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
-                        <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
+                        <div className="text-sm italic ml-5 text-gray-900">{message.sender.username}</div>
+                        <div className="relative ml-3 text-sm 2xl:text-md bg-white py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
                       </div>
@@ -174,8 +174,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                     <div className="flex items-center justify-start flex-row-reverse">
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm text-center italic text-gray-900">{message.sender.username}</div>
-                        <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                        <div className="text-sm ml-5 italic text-gray-900">{message.sender.username}</div>
+                        <div className="relative mr-3 text-sm 2xl:text-md bg-indigo-100 py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
                       </div>

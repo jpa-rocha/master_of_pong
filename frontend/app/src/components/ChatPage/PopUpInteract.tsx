@@ -98,7 +98,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
   return (
     <>
 		{profileToggle ? (
-			<ProfilePageChat socket={socket} profileID={target.id}/>
+			<ProfilePageChat profileToggle={profileToggle} setProfileToggle={setProfileToggle} socket={socket} profileID={target.id}/>
 		): (
     	<div>
 

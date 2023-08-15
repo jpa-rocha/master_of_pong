@@ -42,7 +42,7 @@ const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
       </Grid>
       <Grid item xs={12}>
         <div className="relative h-[100vh]">
-          <img className="w-full max-h-full" src={angry} alt="angry"></img>
+          <img className="w-full h-full" src={angry} alt="angry"></img>
           <div className="absolute inset-0 opacity-50" style={imgStyle}></div>
         </div>
       </Grid>
