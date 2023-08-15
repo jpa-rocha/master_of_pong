@@ -8,7 +8,7 @@ import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 
 const btnToggleStyle = `
-block px-4 py-2 
+block px-4 py-2
 text-sm text-gray-700
 hover:bg-gray-100
 `;
@@ -36,7 +36,6 @@ const NavBarTest: React.FunctionComponent = () => {
     (async () => {
       setUserID(await getUserID(getToken("jwtToken")));
     })();
-    //console.log("UserID: " + userID);
     if (userID) {
       setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
       (async () => {
@@ -47,7 +46,6 @@ const NavBarTest: React.FunctionComponent = () => {
         setToggle2fa(user.data.is_2fa_enabled);
       })();
     }
-    //console.log("Profile Image: " + profileImg);
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
   const getName = (value: String) => {
@@ -136,7 +134,6 @@ const NavBarTest: React.FunctionComponent = () => {
     } else {
       setGenerate2fa(true);
     }
-    console.log("toggle2fa = ", toggle2fa);
   };
 
   const close2faTurnOffPopUp = () => {
