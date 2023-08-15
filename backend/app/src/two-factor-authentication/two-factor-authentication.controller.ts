@@ -24,6 +24,7 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import TwoFactorGuard from './two-factor-authentication.guard';
 import { ConfigService } from '@nestjs/config';
 
+
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
   constructor(
@@ -32,7 +33,7 @@ export class TwoFactorAuthenticationController {
     private readonly authService: AuthService,
     private readonly jwtAuthService: JwtAuthService,
     private readonly configService: ConfigService
-  ) {}
+  ){};
 
   @Post('generate/:id')
   @UseGuards(JwtAuthGuard)
@@ -61,16 +62,11 @@ export class TwoFactorAuthenticationController {
     @Param('id') id: string,
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
-    console.log('---- 2FA turn-on ----');
     const user = await this.userService.findOne(id);
-    console.log('---- data.2fa ----', data.twoFactorAuthenticationCode);
-    console.log(data)
-    const isCodeValid =
-      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+    const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         user,
       );
-      console.log('CODE VALID', isCodeValid)
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
@@ -96,7 +92,6 @@ export class TwoFactorAuthenticationController {
     @Param('id') id: string,
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
-    console.log('---- 2FA turn-off ----');
     const user = await this.userService.findOne(id);
     const isCodeValid =
       this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
@@ -125,15 +120,12 @@ export class TwoFactorAuthenticationController {
     @Param('id') id: string,
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
-    console.log('---- 2FA authenticate ----');
     const user = await this.userService.findOne(id);
-    console.log(data)
     const isCodeValid =
       await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode.trim(),
         user,
       );
-    console.log('ISCODEVALID',isCodeValid)
     if (isCodeValid !== true) {
       throw new UnauthorizedException('Wrong authentication code');
     }
@@ -143,7 +135,6 @@ export class TwoFactorAuthenticationController {
       sameSite: 'none',
       secure: true,
     });
-    console.log(res.cookie)
     return res.status(200).json({ message: '2FA code accepted' });
   }
 }

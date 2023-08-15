@@ -11,17 +11,16 @@ export class TwoFactorAuthenticationService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-  ) {}
+  ){};
 
   public async generateTwoFactorAuthenticationSecret(user: User) {
     const secret: string = authenticator.generateSecret();
-
     const otpauthurl = authenticator.keyuri(
       user.email,
       this.configService.get('POSTGRES_DB'),
       secret,
     );
-    console.log('SECRET GENERATED', secret)
+    authenticator.allOptions()
     await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
 
     return {
