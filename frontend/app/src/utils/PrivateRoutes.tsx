@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
@@ -10,7 +10,7 @@ const PrivateRoutes = () => {
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
   const [togglePopUp, setTogglePopUp] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<Token | null>(null);
-  const [render, setRender] = useState<boolean>(false);
+  //const [render, setRender] = useState<boolean>(false);
 
   useEffect(() => {
     const check_validation = () => {

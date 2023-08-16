@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import logo from "../../images/logo.png";
 import { useNavigate } from "react-router-dom";
-import { getToken, getUser, getUserID } from "../../utils/Utils";
+import { getToken, getUserID } from "../../utils/Utils";
 import HamburgerMenu from "./HamburgerMenu";
 import axios from "axios";
 import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 
 const btnToggleStyle = `
-block px-4 py-2
-text-sm text-gray-700
-hover:bg-gray-100
+block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2 
+text-md text-gray-700 text-center
+hover:bg-gray-800 rounded-lg hover:text-white
 `;
 
 interface UserProps {
@@ -48,9 +48,10 @@ const NavBarTest: React.FunctionComponent = () => {
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
-  const getName = (value: String) => {
+ /*  const getName = (value: String) => {
     return `${value.split(" ")[0][0]}${value.split(" ")[1][0]}`;
-  };
+  }; */
+//console.log(userInfo);
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -151,7 +152,7 @@ const NavBarTest: React.FunctionComponent = () => {
           <div className="flex items-center md:order-2">
             <button
               type="button"
-              className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-700"
+              className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0"
               id="user-menu-button"
               aria-expanded={isDropdownOpen}
               onClick={handleDropdownToggle}
@@ -164,19 +165,16 @@ const NavBarTest: React.FunctionComponent = () => {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
+              <div className="absolute z-50 top-16 right-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
                 <div className="px-4 py-3">
-                  <span className="block text-sm italic text-black">
-                    username
+                  <span className="block text-sm 2xl:text-xl italic text-black">
+                    {userInfo?.username}
                   </span>
                 </div>
                 <ul className="py-2" aria-labelledby="user-menu-button">
                   <li>
-                    <button
-                      onClick={handleUserProfile}
-                      className={btnToggleStyle}
-                    >
-                      Profile
+                    <button onClick={handleUserProfile} className={btnToggleStyle}>
+                    	Profile
                     </button>
                   </li>
                   <li>
@@ -190,7 +188,7 @@ const NavBarTest: React.FunctionComponent = () => {
                     </button>
                   </li>
                   <li>
-                    <div>
+                    <div className="py-2 px-4">
                       <button onClick={handle2faButton}>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -200,8 +198,8 @@ const NavBarTest: React.FunctionComponent = () => {
                             onChange={() => {}}
                             checked={toggle2fa}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                          <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          <span className="ml-3 x-4 text-md 2xl:text-xl font-medium text-gray-900"></span>
                           <div>2fa</div>
                         </label>
                       </button>
@@ -224,7 +222,7 @@ const NavBarTest: React.FunctionComponent = () => {
               data-collapse-toggle="navbar-user"
               type="button"
               className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
-						hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+						hover:bg-gray-100 focus:outline-none"
               aria-controls="navbar-user"
               aria-expanded={hamburgerMenu}
               onClick={handleHamburgerMenu}

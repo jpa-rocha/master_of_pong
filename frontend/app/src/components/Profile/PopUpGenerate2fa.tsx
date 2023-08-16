@@ -1,10 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { getToken, getUser } from "../../utils/Utils";
-import { get } from "http";
-import fs from "fs";
-import { ThemeContext } from "@emotion/react";
-import { on } from "events";
+import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 axios.defaults.withCredentials = true;

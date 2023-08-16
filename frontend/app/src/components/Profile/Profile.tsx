@@ -2,13 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Grid } from "@mui/material";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
-/* import "./profileStyle/profile.css"; */
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
-import PopUpGenerate2fa from "./PopUpGenerate2fa";
-import PopUpTurnOff2fa from "./PopUp2faInput";
-//import ProfileDetails from './ProfileDetails';
+
 
 axios.defaults.baseURL = "http://localhost:5000/";
 

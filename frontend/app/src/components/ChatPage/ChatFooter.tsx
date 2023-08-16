@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Socket } from "socket.io-client";
 import { useEffect } from "react";
 import axios from "axios";
-import { Message, User, Chat } from "./PropUtils";
+import { Chat } from "./PropUtils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -38,7 +38,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
 	{chatID ? (
 		<div>
 			<form onSubmit={handleSendMessage}>
-		<div className="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
+		<div className="flex flex-row items-center h-16 rounded-xl bg-yellow-50 w-full px-4">
 			<div className="flex-grow ml-4">
 				<div className="relative w-full">
 				<input
