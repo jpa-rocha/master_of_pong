@@ -45,7 +45,7 @@ const PrivateRoutes = () => {
       }
     };
     verifyToken();
-  }, []);
+  }, [token]);
 
   // useEffect(() => {
   // if (userInfo === null) {
