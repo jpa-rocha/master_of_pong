@@ -50,6 +50,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
       generate.current = false;
       (async () => {
         try {
+          console.log("IM at the begining");
           const response = await axios.post(
             `/api/2fa/generate/${userID}`,
             {},

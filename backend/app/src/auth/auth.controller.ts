@@ -39,7 +39,11 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie(this.configService.get<string>('JWT_NAME'), token, { httpOnly: false });
+    res.cookie(this.configService.get<string>('JWT_NAME'), token, {
+      httpOnly: false,
+      sameSite: 'none',
+      secure: true,
+    });
 
     return res.redirect('https://localhost:3000/main');
   }
