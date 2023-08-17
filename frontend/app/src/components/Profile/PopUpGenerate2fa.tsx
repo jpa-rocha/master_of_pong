@@ -2,27 +2,26 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { getToken } from "../../utils/Utils";
 
+
 axios.defaults.baseURL = "http://localhost:5000/";
 axios.defaults.withCredentials = true;
 
-type PopUpGenerate2fa = {
+type PopUpGenerate2faProps = {
   isOpen: boolean;
   onClose: () => void;
   userID: string | undefined;
 };
 
-interface User {
+/* interface User {
   id: string;
   username: string;
-}
+} */
 
-const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
-  isOpen,
-  onClose,
-  userID,
-}) => {
+const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, userID }) => 
+{
   const [qrCode, setQrCode] = useState<string>();
-  const generate = useRef(true)
+  const generate = useRef(true);
+
   useEffect(() => {
       if (generate.current) {
         generate.current = false;
@@ -44,6 +43,8 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
       }
 
   }, []);
+
+
 
   const handle2faTurnOn = async (
     twoFactorAuthenticationCode: string,
@@ -88,7 +89,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2fa> = ({
       event.currentTarget.value = "";
     }
   };
-
+  console.log(qrCode);
   if (!isOpen) return null;
 
   return (
