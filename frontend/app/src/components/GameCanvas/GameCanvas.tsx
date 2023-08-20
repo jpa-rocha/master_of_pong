@@ -47,6 +47,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	const [isPlayerWaiting, setPlayerWaiting] = useState<boolean>(false);
 	const [isGameInit, setGameInit] = useState<boolean>(false);
 	const [winner, setWinner] = useState<number>(-1);
+	const [result, setResult] = useState<number>(0);
 	const [winnerName, setWinnerName] = useState<string>("");
 	const [score, setScore] = useState<{ p1: number; p2: number }>({ p1: 0, p2: 0 });
 	const [arrowDown, setArrowDown] = useState<boolean>(false);
@@ -120,9 +121,9 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 	}, [canvas]);
 
 	const gamemodeButtons = useMemo(() => {
-		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70}, Images.buttonModeSingle);
-		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70}, Images.buttonModeMaster);
-		var RegularPong:Button = new Button("Regular", Mode.Regular, {x:200, y:50}, {x:570, y:70}, Images.buttonModeRegular);
+		var Singleplayer:Button = new Button("Singleplayer", Mode.Singleplayer, {x:200, y:50}, {x:30, y:70}, Images.buttonModeSingle, null, "Play against a bot\nA - Special Ability\nS - Regular Ability\nC - Clear Ability");
+		var MasterOfPong:Button = new Button("Master Of Pong", Mode.MasterOfPong, {x:200, y:50}, {x:300, y:70}, Images.buttonModeMaster, null, "Play against another player\nA - Special Ability\nS - Regular Ability\nC - Clear Ability");
+		var RegularPong:Button = new Button("Regular", Mode.Regular, {x:200, y:50}, {x:570, y:70}, Images.buttonModeRegular, null, "Play standard Pong\nwith no abilities");
 		if (canvas)
 		{
 			Singleplayer.setSizeLocation({x:300 * canvas.width / 1200, y:75 * canvas.height / 800}, {x:75 * canvas.width / 1200, y:100 * canvas.height / 800});
@@ -300,6 +301,11 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			drawButton(ctx, characterButtons[index], selectedCharacter);
 			if (mouseOnAbility(characterButtons[index].coordinates.x, characterButtons[index].coordinates.y, mouseX, mouseY))
 				drawAbilityInfo(characterButtons[index], mouseX, mouseY, ctx);
+		}
+		for (index in gamemodeButtons) {
+			if (gamemodeButtons[index].isFocused) {
+				drawAbilityInfo(gamemodeButtons[index], gamemodeButtons[index].coordinates.x + 50, gamemodeButtons[index].coordinates.y + gamemodeButtons[index].size.y, ctx);
+			}
 		}
 	}, [gamemodeButtons, paddleButtons, canvas, ctx, selectedGamemode, drawButton, selectedPaddle, characterButtons, selectedCharacter, startButton, hyperButton, dodgeButton, drawAbilityInfo, Images.headCharacter, Images.headGamemode, Images.headPaddle]);
 	
@@ -483,6 +489,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			setBallSize(15);
 			setBallPosition({x: 600, y: 400});
 			setWinner(0);
+			setResult(0);
+			setAbilities(false);
 		}
 	}, [canvas, ctx, resetButton]);
 
@@ -686,12 +694,14 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				setPlayer2PositionX(player2X);
 			});
 			socket.current.on('winnerUpdate', (event: any) => {
-				const { winner } = event;
+				const { winner, result } = event;
 				setWinner(winner);
 				if (winner === 1)
 					setWinnerName(player1Name);
 				else if (winner === 2)
 					setWinnerName(player2Name);
+				if (result)
+					setResult(result);
 				setScore({p1: 0, p2: 0});
 			});
 			socket.current.on('gameStatus', (event: any) => {
@@ -823,7 +833,12 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 					}
 				});
 				socket.current.on('playerCharacter', (event: any) => {
-					const { player1Character, player1Size, player2Character, player2Size } = event;
+					const { player1Character, player1Size, player1X, player1Y, player2Character, player2Size, player2X, player2Y } = event;
+
+					setPlayer1PositionX(player1X);
+					setPlayer2PositionX(player2X);
+					setPlayer1Position(player1Y);
+					setPlayer2Position(player2Y);
 					switch (player2Character) {
 						case Character.Venomtail:
 							switch (player2Size) {
@@ -1057,8 +1072,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.strokeRect(player1PositionX, player1Position, 20, 100);
 						ctx.strokeRect(player2PositionX, player2Position, 20, 100);
 					}
-
-
 					if (player1Frozen) {
 							ctx.globalAlpha = 0.50;
 							ctx.drawImage(Images.iceBlock, player1PositionX - 5, player1Position - 10, player1Size.width + 10, player1Size.height + 20);
@@ -1069,7 +1082,6 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(Images.iceBlock, player2PositionX - 5, player2Position - 10, player2Size.width + 10, player2Size.height + 20);
 						ctx.globalAlpha = 1;
 					}
-			
 					if (abilities) {
 						// p1 health border
 						ctx.drawImage(Images.healthText, 185, 60, 140, 25);
@@ -1261,6 +1273,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				} else if (isGameInit) {
 					var rotaIndex = 0;
 					var endIndex = 0;
+					if (result)
+						setGameInit(false);
 					const animInterval = setInterval(() => {
 						if (rotaIndex === Images.YinYangRotate.length) {
 							ctx.fillStyle = backgroundColor;
@@ -1387,7 +1401,7 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 				}
 			}
 		}
-	}, [player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen, player1Name, player2Name]);
+	}, [result, player1Position, player2Position, ballPosition, VenomtailSpecial, score, winner, ballSize, drawButton, isGameStarted, gamemodeButtons, canvas, ctx, handleMouseMove, Images.iceBlock, abilityMirage, miragePos, paddleButtons, selectedGamemode, selectedPaddle, abilityFreeze, characterButtons, selectedCharacter, raivenSpecial, abilities, hasAbility, Images.healthText, Images.icon, Images.iconBackground, Images.left_bar, Images.left_health, Images.mid_bar, Images.mid_health, Images.right_bar, Images.right_health, player1Character, player2Character, secondsLeft, hasUlt, player1Size, playerAbility, playerUlt, secondsLeftUlt, player2Size.height, player2Size.width, VenomtailTarget, Images.headGamemode, startButton, Images, isPlayerWaiting, isGameSelection, isGameInit, player1Frozen, player2Frozen, player, abilityCooldownImage, ultimateCooldownImage, resetButton, handleFinishClick, handleFinishMove, hyperButton, dodgeButton, playerChose, handleStartGame, player1PositionX, player2PositionX, playerScored, endScreen, player1Name, player2Name]);
 
 	useEffect(() => {
 		if (canvas && ctx && (winner === 1 || winner === 2)) {
@@ -1409,6 +1423,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 			let timer: NodeJS.Timeout;
 			if (winner === player) {
 				ctx.fillStyle = 'white';
+				if (result)
+					ctx.fillText("Opponent disconnected", 600, 150);
 				ctx.fillText("You have reached transcendence", 600, 200);
 				ctx.drawImage(endScreen.Mountains, 100, 300);
 				ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
@@ -1443,6 +1459,8 @@ const GameComponent: React.FC<GameComponentProps> = () => {
 						ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
 					}
 					ctx.fillStyle = 'white';
+					if (result)
+						ctx.fillText("Opponent disconnected", 600, 150);
 					ctx.fillText("You have reached transcendence", 600, 200);
 					drawButton(ctx, resetButton, Mode.Reset);
 					if (endScreen.c1x === endScreen.c1max || endScreen.c1x === endScreen.c1min)

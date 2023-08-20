@@ -12,4 +12,5 @@ export class CreateUserDto {
   wins: number;
   losses: number;
   rank: number;
+  elo: number;
 }

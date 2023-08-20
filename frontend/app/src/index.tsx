@@ -45,6 +45,7 @@ async function getUserID() {
             <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />}/>
             <Route path="/chat" element={<ChatPage socket={socket} />} />
             <Route path="/friends" element={<FriendsPage socket={socket} />} />
+            <Route path="/leaders" element={<LeaderBoard />} />
           </Route>
           <Route path="/" element={<App />} />
         </Routes>

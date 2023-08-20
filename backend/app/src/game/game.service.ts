@@ -51,13 +51,21 @@ export class GameService {
     this.gameObject.sendToClients<{
       player1Character: number;
       player1Size: number;
+	    player1X: number;
+      player1Y: number;
       player2Character: number;
       player2Size: number;
+	    player2X: number;
+      player2Y: number;
     }>('playerCharacter', {
       player1Character: this.gameObject.player1.options.character,
       player1Size: this.gameObject.player1.options.paddle,
+	    player1X: this.gameObject.player1.pos.x,
+	    player1Y: this.gameObject.player1.pos.y,
       player2Character: this.gameObject.player2.options.character,
       player2Size: this.gameObject.player2.options.paddle,
+	    player2X: this.gameObject.player2.pos.x,
+	    player2Y: this.gameObject.player2.pos.y,
     });
    (async () => {
 
@@ -112,36 +120,58 @@ export class GameService {
     }
   }
 
-  stopGame(): void {
+  stopGame(leftID: string = ""): void {
     // if (this.gameObject.gameStarted == false) {
     //   console.log('Can not end the game, it has not started yet');
     //   return;
     // }
-
     // Stops calling the moveBall function
+    if (this.gameObject.gameEnded === true)
+      return;
+    this.gameObject.gameEnded = true;
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
       this.ballTimer = null;
     }
-
+    
     // Stops calling the moveBot function
     if (this.botTimer) {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
+    if (!this.gameObject.player2)
+      return;
+    let result: number;
     let winningPlayer: number;
     let winningPlayerId: string;
     if (this.gameObject.score.p1 === 11) {
+      result = 0;
       winningPlayer = 1;
       if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
-        winningPlayerId = this.gameObject.player1.databaseId;
-    } else if (this.gameObject.score.p2 === 11) {
+      winningPlayerId = this.gameObject.player1.databaseId;
+  } else if (this.gameObject.score.p2 === 11) {
+      result = 0;
       winningPlayer = 2;
       if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
         winningPlayerId = this.gameObject.player2.databaseId;
+    } else {
+      result = 1;
+      if (leftID === this.gameObject.player2.id)
+      {
+        winningPlayer = 1;
+        if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+          winningPlayerId = this.gameObject.player1.databaseId;
+      }
+      else
+      {
+        winningPlayer = 2;
+        if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
+          winningPlayerId = this.gameObject.player2.databaseId;
+      }
     }
-    this.gameObject.sendToClients<{ winner: number }>('winnerUpdate', {
+    this.gameObject.sendToClients<{ winner: number, result: number }>('winnerUpdate', {
       winner: winningPlayer,
+      result: result,
     });
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
       this.gameGateway.addGameData(
@@ -155,7 +185,6 @@ export class GameService {
       console.log('Winner = ' + winningPlayerId);
     }
 
-    // Reset player, ball and score
     this.gameObject.default();
     this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,

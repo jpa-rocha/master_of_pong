@@ -56,6 +56,9 @@ export class User {
   @Column()
   rank: number;
 
+  @Column()
+  elo: number;
+
   /* Friends Relations */
   @OneToMany(() => Friend, (friend) => friend.sender, { onDelete: 'CASCADE' })
   sentFriendRequests: Friend[];

@@ -155,4 +155,9 @@ export class UsersController {
   async testFriends(@Param('user') user: string) {
     return this.usersService.getUsersWithFriends(user);
   }
+
+  @Get('leaderboard')
+  async getLeaderBoard() {
+    return this.usersService.getLeaderBoard();
+  }
 }

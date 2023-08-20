@@ -138,12 +138,13 @@ export class GameCollection {
           current.player1.options.dodge === options.dodge
         ) {
           current.player2 = new Player(this.server, options);
-          current.player2.pos.x = 1170;
+          current.player2.pos.x = 1180 - current.player2.width;
           console.log('Returning an already created game');
           current.addClient(client, playerID);
           return;
         }
       }
+      // x20 ->40          30<-left
     }
     console.log('creating a new game');
     const game = new GameObject(this.server, options, this.gameGateway);

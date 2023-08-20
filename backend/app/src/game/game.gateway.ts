@@ -182,6 +182,15 @@ export class GameGateway
       winner: await this.usersService.findOne(winner),
       timestamp: date,
     };
+    if (p1 === winner) {
+      await this.usersService.playerWon(p1);
+      await this.usersService.playerLost(p2);
+      await this.usersService.newELO(p1, p2);
+    } else if (p2 === winner) {
+      await this.usersService.playerWon(p2);
+      await this.usersService.playerLost(p1);
+      await this.usersService.newELO(p2, p1);
+    }
     await this.gameDataService.create(gameDataDto);
   }
 

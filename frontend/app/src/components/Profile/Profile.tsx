@@ -22,6 +22,7 @@ interface UserProps {
   wins: number;
   losses: number;
   rank: number;
+  elo: number;
 }
 
 interface MatchProps
@@ -41,6 +42,7 @@ interface ProfilePageProps {
 const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(0);
+  const [elo, setElo] = useState(0);
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [ratio, setRatio] = useState(1);
@@ -59,10 +61,13 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
 		setWins(userData.wins);
 		setLosses(userData.losses);
 		setRank(userData.rank);
+    	setElo(userData.elo);
 		if (userData.losses === 0)
 			setRatio(userData.wins);
-		else
-			setRatio(userData.wins / userData.losses);
+		else {
+      		const temp = (userData.wins / userData.losses);
+			setRatio(Math.round(temp * 100) / 100);
+    	}
       }
     }
 
@@ -195,6 +200,9 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
               <div className="md:text-lg text-gray-500 flex flex-col mt-3">
                 <p>
                   <span className="font-bold">Rank:</span> {rank}{" "}
+                </p>
+                <p>
+                  <span className="font-bold">Elo:</span> {elo}{" "}
                 </p>
                 <p>
                   <span className="font-bold">Wins:</span> {wins}{" "}
