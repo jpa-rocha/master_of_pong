@@ -20,28 +20,51 @@ type PopUpGenerate2faProps = {
 const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, userID }) => 
 {
   const [qrCode, setQrCode] = useState<string>();
-  const generate = useRef(true);
+  const generate = useRef(true)
+  // useEffect(() => {
+  //   console.log("IM HERE")
+  //     if (generate.current) {
+  //       generate.current = false;
+  //       (async () => {
+  //         const getQrCode = await axios.post(
+  //           `/api/2fa/generate/${userID}`,
+  //           {},
+  //           { responseType: "arraybuffer" }
+  //         );
+  //         const imageSrc = `data:image/png;base64,${btoa(
+  //           new Uint8Array(getQrCode.data).reduce(
+  //             (data, byte) => data + String.fromCharCode(byte),
+  //             ""
+  //           )
+  //         )}`;
 
+  //         setQrCode(imageSrc);
+  //       })();
+  //     }
+
+  // }, []);
   useEffect(() => {
-      if (generate.current) {
-        generate.current = false;
-        (async () => {
-          const getQrCode = await axios.post(
+    if (generate.current) {
+      generate.current = false;
+      (async () => {
+        try {
+          console.log("IM at the begining");
+          const response = await axios.post(
             `/api/2fa/generate/${userID}`,
             {},
             { responseType: "arraybuffer" }
-          );
-          const imageSrc = `data:image/png;base64,${btoa(
-            new Uint8Array(getQrCode.data).reduce(
-              (data, byte) => data + String.fromCharCode(byte),
-              ""
-            )
-          )}`;
+            );
+
+            console.log("IM HERE");
+          const imageBlob = new Blob([response.data], { type: "image/png" });
+          const imageSrc = URL.createObjectURL(imageBlob);
 
           setQrCode(imageSrc);
-        })();
-      }
-
+        } catch (error) {
+          console.error("Error generating QR code:", error);
+        }
+      })();
+    }
   }, []);
 
 

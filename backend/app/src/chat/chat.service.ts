@@ -6,6 +6,7 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
 import { title } from 'process';
+import * as bcrypt from 'bcrypt';
 
 interface ChatMessagesResult {
   chatID: number;
@@ -95,8 +96,10 @@ export class ChatService {
     chatRoom.banned = [];
     chatRoom.muted = [];
     if (password) {
-      chatRoom.channel = 'private';
-      chatRoom.password = password;
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(password, saltRounds);
+    chatRoom.channel = 'private';
+    chatRoom.password = hash;
     } else {
       chatRoom.channel = 'public';
       chatRoom.password = '';
@@ -136,7 +139,8 @@ export class ChatService {
       return this.chatRepository.save(chatRoom);
     } else if (chatRoom.channel === 'private') {
       // TODO seems like a really unsafe way of handling passwords
-      if (chatRoom.password === password) {
+      const passwordValid = await bcrypt.compare(password, chatRoom.password);
+      if (passwordValid) {
         chatRoom.users.push(user);
         return this.chatRepository.save(chatRoom);
       }
@@ -148,8 +152,8 @@ export class ChatService {
     chatID: number,
     userID: string,
   ): Promise<ChatMessagesResult> {
-    /* 
-        Think about a user that is blocked by another user.  
+    /*
+        Think about a user that is blocked by another user.
     */
     const user = await this.usersService.findOne(userID);
     const blockedUserIDs = user.blocked.map((blockedUser) => blockedUser.id);
@@ -183,7 +187,7 @@ export class ChatService {
   }
 
   async sendMessage(clientID: string, chatID: number, message: string) {
-    /* 
+    /*
           User sends a message to a chat and the message is saved in the database.
     */
     const chat = await this.findOneChat(chatID);
@@ -203,7 +207,10 @@ export class ChatService {
 
   async checkPassword(id: number, password: string) {
     const chat = await this.findOneChat(id);
-    if (chat.password == password) return true;
+    const compare = await bcrypt.compare(password, chat.password);
+    if (compare) {
+      return true;
+    }
     return false;
   }
 
@@ -380,8 +387,10 @@ export class ChatService {
       chat.channel = 'public';
       chat.password = password;
     } else {
+      const saltRounds = 10;
+      const hash = await bcrypt.hash(password, saltRounds);
       chat.channel = 'private';
-      chat.password = password;
+      chat.password = hash;
     }
     return this.chatRepository.save(chat);
   }

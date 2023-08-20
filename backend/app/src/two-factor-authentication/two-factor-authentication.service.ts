@@ -19,8 +19,8 @@ export class TwoFactorAuthenticationService {
       user.email,
       this.configService.get('POSTGRES_DB'),
       secret,
-    );
-    authenticator.allOptions()
+    )
+    console.log('SECRET', secret);
     await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
 
     return {
