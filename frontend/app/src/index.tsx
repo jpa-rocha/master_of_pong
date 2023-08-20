@@ -12,6 +12,7 @@ import { Socket } from "socket.io-client";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import FriendsPage from "./components/Friends/Friends";
 import PageNotFound from "./components/PageNotFound";
+import LeaderBoard from "./components/LeaderBoard/LeaderBoard"
 import { getToken } from "../src/utils/Utils";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -46,7 +47,7 @@ async function getUserID() {
             <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />}/>
             <Route path="/chat" element={<ChatPage socket={socket} />} />
             <Route path="/friends" element={<FriendsPage socket={socket} />} />
-            <Route path="/leaders" element={<LeaderBoard />} />
+            <Route path="/leaders" element={<LeaderBoard socket={socket}/>} />
           </Route>
           <Route path="/" element={<App />} />
 		  <Route path="*" element={<PageNotFound />} />

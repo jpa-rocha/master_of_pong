@@ -13,10 +13,6 @@ import { AuthenticatedSocket } from './dto/types';
 import { UsersService } from 'src/users/users.service';
 import { GameDataService } from 'src/game-data/game-data.service';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
-import * as jwt from 'jsonwebtoken';
-import { User } from 'src/users/entities/user.entity';
-import { Req } from '@nestjs/common';
-import { parse } from 'cookie';
 import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 
 @WebSocketGateway(8002, { cors: '*' })
@@ -175,12 +171,25 @@ export class GameGateway
     // this.gameService.startGame(client.id, options);
   }
 
-  async addGameData(p1: string, p2: string, winner: string, date: Date) {
+  async addGameData(
+    p1: string,
+    p2: string,
+    winner: string,
+    date: Date,
+    score1: number,
+    score2: number,
+    gameMode: string,
+    gameModeOptions: string,
+  ) {
     const gameDataDto: CreateGameDto = {
       userOne: await this.usersService.findOne(p1),
       userTwo: await this.usersService.findOne(p2),
       winner: await this.usersService.findOne(winner),
       timestamp: date,
+      gameMode: gameMode,
+      gameModeOptions: gameModeOptions,
+      score1: score1,
+      score2: score2,
     };
     if (p1 === winner) {
       await this.usersService.playerWon(p1);
@@ -195,8 +204,6 @@ export class GameGateway
   }
 
   async getUserName(playerID: string) {
-    console.log("GetUSERNAME ID => ", playerID);
-    console.log("RESULT => ", await this.usersService.findOne(playerID));
     return await this.usersService.findOne(playerID);
   }
 }

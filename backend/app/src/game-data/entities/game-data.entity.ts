@@ -9,6 +9,18 @@ export class GameData {
   @Column({ type: 'timestamp' })
   timestamp: Date;
 
+  @Column()
+  gameMode: string;
+
+  @Column()
+  gameModeOptions: string;
+
+  @Column()
+  score1: number;
+
+  @Column()
+  score2: number;
+
   @ManyToOne(() => User, (user) => user.gamesAsUserOne, { onDelete: 'CASCADE' })
   userOne: User;
 

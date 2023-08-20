@@ -14,6 +14,10 @@ interface ChatPageProps {
   socket: Socket;
 }
 
+const imgStyle = {
+  background: 'linear-gradient(to right, #EA4224 0%, #c49b2b 50%, #EA4224 100%)',
+};
+
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
 
   (async () => {
@@ -23,12 +27,12 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
 
   return (
     <>
- <Grid container>
+ <Grid container className="flex h-[100vh]" style={imgStyle}>
+        {/* <div className="flex flex-col justify-center items-center h-[100vh]" style={imgStyle} /> */}
 
     <Grid item xs={12}> 
 		  <NavBarMainPage></NavBarMainPage>
    	</Grid>
-
 	   <Grid item xs={12} >
 		    <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">
           <ChatBar socket={socket}></ChatBar>

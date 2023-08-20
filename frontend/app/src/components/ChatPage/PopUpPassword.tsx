@@ -49,12 +49,12 @@ const PopUpPassword: React.FC<PopUpPasswordProps> = ({ isOpen, onClose, socket, 
 				{/* Input Part */}
 				{chat.channel === "private" ? (
 					<div className="name-input">
-						<input type="password" placeholder="Old Password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
+						<input type="password" placeholder="Old Password" maxLength={50} value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
 						<div className="error-message">{passwordError}</div> 
 					</div>
 				): null}
 				<div className="password-input">
-					<input type="password" placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+					<input type="password" placeholder="New Password" maxLength={50} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
 				</div>
 				<div>
 					* private chat room - put in a Password

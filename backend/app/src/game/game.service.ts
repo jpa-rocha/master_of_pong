@@ -1,6 +1,5 @@
 import { Player } from './dto/player.dto';
 import { GameObject } from './gameObject';
-import { GameCollection } from './gameCollection';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
 import { Inject, forwardRef } from '@nestjs/common';
@@ -11,21 +10,10 @@ export class GameService {
   private ballTimer: NodeJS.Timeout | null = null;
   private botTimer: NodeJS.Timeout | null = null;
 
-  private moveUpTimer: NodeJS.Timeout | null = null;
-  private moveDownTimer: NodeJS.Timeout | null = null;
-
-  private scoreTimer: NodeJS.Timeout | null = null;
-
-  private pressUp = 0;
-  private pressDown = 0;
-
   private freezeTimer: NodeJS.Timeout | null = null;
-  private timeWarpTimer: NodeJS.Timeout | null = null;
   private mirageTimer: NodeJS.Timeout | null = null;
   private shrinkTimer: NodeJS.Timeout | null = null;
   private lightningTimer: NodeJS.Timeout | null = null;
-  private abilityTimer: NodeJS.Timeout | null = null;
-  private ultimateTimer: NodeJS.Timeout | null = null;
   private ventailTimer: NodeJS.Timeout | null = null;
 
   private readyToServe = true;
@@ -40,53 +28,55 @@ export class GameService {
   }
 
   async getUsernames() {
-    this.gameObject.player1.user = await this.gameGateway.getUserName(this.gameObject.player1.databaseId);
+    this.gameObject.player1.user = await this.gameGateway.getUserName(
+      this.gameObject.player1.databaseId,
+    );
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
-      this.gameObject.player2.user = await this.gameGateway.getUserName(this.gameObject.player2.databaseId);
+      this.gameObject.player2.user = await this.gameGateway.getUserName(
+        this.gameObject.player2.databaseId,
+      );
   }
-  
+
   initGame(): void {
     if (this.gameObject.gameStarted) return;
     this.gameObject.gameStarted = true;
     this.gameObject.sendToClients<{
       player1Character: number;
       player1Size: number;
-	    player1X: number;
+      player1X: number;
       player1Y: number;
       player2Character: number;
       player2Size: number;
-	    player2X: number;
+      player2X: number;
       player2Y: number;
     }>('playerCharacter', {
       player1Character: this.gameObject.player1.options.character,
       player1Size: this.gameObject.player1.options.paddle,
-	    player1X: this.gameObject.player1.pos.x,
-	    player1Y: this.gameObject.player1.pos.y,
+      player1X: this.gameObject.player1.pos.x,
+      player1Y: this.gameObject.player1.pos.y,
       player2Character: this.gameObject.player2.options.character,
       player2Size: this.gameObject.player2.options.paddle,
-	    player2X: this.gameObject.player2.pos.x,
-	    player2Y: this.gameObject.player2.pos.y,
+      player2X: this.gameObject.player2.pos.x,
+      player2Y: this.gameObject.player2.pos.y,
     });
-   (async () => {
-
-      console.log("before await");
+    (async () => {
+      console.log('before await');
       await this.getUsernames();
       let finalName2: string;
-      let finalName1 = this.gameObject.player1.user.username;
+      const finalName1 = this.gameObject.player1.user.username;
       if (this.gameObject.player2.user)
         finalName2 = this.gameObject.player2.user.username;
-      else
-        finalName2 = "Bot";
+      else finalName2 = 'Bot';
       this.gameObject.sendToClients<{
-          player1Username: string;
-          player2Username: string;
-        }>('playerUsernames', {
-            player1Username: finalName1,
-            player2Username: finalName2,
-          });
-      })();
-        console.log("GAME SERVICE => player1 = ", this.gameObject.player1.user);
-        console.log("GAME SERVICE => player2 = ", this.gameObject.player2.user);
+        player1Username: string;
+        player2Username: string;
+      }>('playerUsernames', {
+        player1Username: finalName1,
+        player2Username: finalName2,
+      });
+    })();
+    console.log('GAME SERVICE => player1 = ', this.gameObject.player1.user);
+    console.log('GAME SERVICE => player2 = ', this.gameObject.player2.user);
     this.gameObject.sendToPlayer1<{
       player: number;
       ability: number;
@@ -120,27 +110,20 @@ export class GameService {
     }
   }
 
-  stopGame(leftID: string = ""): void {
-    // if (this.gameObject.gameStarted == false) {
-    //   console.log('Can not end the game, it has not started yet');
-    //   return;
-    // }
-    // Stops calling the moveBall function
-    if (this.gameObject.gameEnded === true)
-      return;
+  stopGame(leftID = ''): void {
+    if (this.gameObject.gameEnded === true) return;
     this.gameObject.gameEnded = true;
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
       this.ballTimer = null;
     }
-    
+
     // Stops calling the moveBot function
     if (this.botTimer) {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
-    if (!this.gameObject.player2)
-      return;
+    if (!this.gameObject.player2) return;
     let result: number;
     let winningPlayer: number;
     let winningPlayerId: string;
@@ -148,41 +131,56 @@ export class GameService {
       result = 0;
       winningPlayer = 1;
       if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
-      winningPlayerId = this.gameObject.player1.databaseId;
-  } else if (this.gameObject.score.p2 === 11) {
+        winningPlayerId = this.gameObject.player1.databaseId;
+    } else if (this.gameObject.score.p2 === 11) {
       result = 0;
       winningPlayer = 2;
       if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
         winningPlayerId = this.gameObject.player2.databaseId;
     } else {
       result = 1;
-      if (leftID === this.gameObject.player2.id)
-      {
+      if (leftID === this.gameObject.player2.id) {
         winningPlayer = 1;
         if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
           winningPlayerId = this.gameObject.player1.databaseId;
-      }
-      else
-      {
+      } else {
         winningPlayer = 2;
         if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
           winningPlayerId = this.gameObject.player2.databaseId;
       }
     }
-    this.gameObject.sendToClients<{ winner: number, result: number }>('winnerUpdate', {
-      winner: winningPlayer,
-      result: result,
-    });
+    this.gameObject.sendToClients<{ winner: number; result: number }>(
+      'winnerUpdate',
+      {
+        winner: winningPlayer,
+        result: result,
+      },
+    );
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
+      let gameMode: string;
+      let gameModeOptions: string;
+      if (this.gameObject.gameOptions.gameMode === Mode.MasterOfPong)
+        gameMode = 'Master Of Pong';
+      else if (this.gameObject.gameOptions.gameMode === Mode.Regular)
+        gameMode = 'Regular Pong';
+      if (
+        this.gameObject.gameOptions.dodge &&
+        this.gameObject.gameOptions.hyper
+      )
+        gameModeOptions = 'Hyper DodgeBall';
+      else if (this.gameObject.gameOptions.dodge) gameModeOptions = 'DodgeBall';
+      else if (this.gameObject.gameOptions.hyper) gameModeOptions = 'Hyper';
+      else gameModeOptions = 'Default';
       this.gameGateway.addGameData(
         this.gameObject.player1.databaseId,
         this.gameObject.player2.databaseId,
         winningPlayerId,
         this.gameObject.createdAt,
+        this.gameObject.score.p1,
+        this.gameObject.score.p2,
+        gameMode,
+        gameModeOptions,
       );
-      console.log('P1 = ' + this.gameObject.player1.databaseId);
-      console.log('P2 = ' + this.gameObject.player2.databaseId);
-      console.log('Winner = ' + winningPlayerId);
     }
 
     this.gameObject.default();
@@ -403,75 +401,111 @@ export class GameService {
   }
 
   private moveBot(): void {
-    if (this.gameObject.gameStarted == false)
-      return;
-	if (this.gameObject.player2.hasAbility) {
-		switch(this.gameObject.player2.ability) {
-			case 0:
-				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 200) {
-					this.ballReset();
-					this.gameObject.player2.setAbility();
-				}
-				break;
-			case 1:
-				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 1140 && this.gameObject.ballPos.x < 1180 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 60) {
-					this.abFreeze();
-					this.gameObject.player2.setAbility();
-				}
-				break;
-			case 2:
-				this.gameObject.player2.setAbility();
-				break;
-			case 3:
-				if (this.gameObject.ballVel.x > 0) {
-					this.BallSize();
-					this.gameObject.player2.setAbility();
-				}
-				break;
-			case 4:
-				if (this.gameObject.ballVel.x < 0) {
-					this.abMirage();
-					this.gameObject.player2.setAbility();
-				}
-				break;
-			case 5:
-				if (this.gameObject.gameOptions.dodge) {
-					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
-					this.gameObject.player2.setAbility();
-				}
-				else {
-					if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x < 200 && this.gameObject.ballPos.x > 100) {
-						this.abDeflect(this.gameObject.player2);
-						this.gameObject.player2.setAbility();
-					}
-				}
-				break;
-		}
-	}
-	if (this.gameObject.player2.hasSpecial && !this.gameObject.gameOptions.dodge) {
-		switch (this.gameObject.player2.options.character) {
-			case Character.BelowZero:
-				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 500) {
-					this.ultBelowZero(this.gameObject.player1);
-					this.gameObject.player2.setSpecial();
-				}
-				break;
-			case Character.Venomtail:
-				if (this.gameObject.ballVel.x > 0 && this.gameObject.ballPos.x > 950 && this.gameObject.ballPos.x < 1150 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player2.pos.y + (this.gameObject.player2.height / 2))) > 100) {
-					this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
-					this.gameObject.player2.setSpecial();
-				}
-				break;
-			case Character.Raiven:
-				if (this.gameObject.ballVel.x < 0 && this.gameObject.ballPos.x < 100 && Math.abs(this.gameObject.ballPos.y - (this.gameObject.player1.pos.y + (this.gameObject.player1.height / 2))) < 50) {
-					this.abLightning();
-					this.gameObject.player2.setSpecial();
-				}
-				break;
-		}
-	}
-	if (this.gameObject.player2.freeze)
-		return;
+    if (this.gameObject.gameStarted == false) return;
+    if (this.gameObject.player2.hasAbility) {
+      switch (this.gameObject.player2.ability) {
+        case 0:
+          if (
+            this.gameObject.ballVel.x < 0 &&
+            this.gameObject.ballPos.x < 200
+          ) {
+            this.ballReset();
+            this.gameObject.player2.setAbility();
+          }
+          break;
+        case 1:
+          if (
+            this.gameObject.ballVel.x > 0 &&
+            this.gameObject.ballPos.x > 1140 &&
+            this.gameObject.ballPos.x < 1180 &&
+            Math.abs(
+              this.gameObject.ballPos.y -
+                (this.gameObject.player2.pos.y +
+                  this.gameObject.player2.height / 2),
+            ) > 60
+          ) {
+            this.abFreeze();
+            this.gameObject.player2.setAbility();
+          }
+          break;
+        case 2:
+          this.gameObject.player2.setAbility();
+          break;
+        case 3:
+          if (this.gameObject.ballVel.x > 0) {
+            this.BallSize();
+            this.gameObject.player2.setAbility();
+          }
+          break;
+        case 4:
+          if (this.gameObject.ballVel.x < 0) {
+            this.abMirage();
+            this.gameObject.player2.setAbility();
+          }
+          break;
+        case 5:
+          if (this.gameObject.gameOptions.dodge) {
+            this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+            this.gameObject.player2.setAbility();
+          } else {
+            if (
+              this.gameObject.ballVel.x > 0 &&
+              this.gameObject.ballPos.x < 200 &&
+              this.gameObject.ballPos.x > 100
+            ) {
+              this.abDeflect(this.gameObject.player2);
+              this.gameObject.player2.setAbility();
+            }
+          }
+          break;
+      }
+    }
+    if (
+      this.gameObject.player2.hasSpecial &&
+      !this.gameObject.gameOptions.dodge
+    ) {
+      switch (this.gameObject.player2.options.character) {
+        case Character.BelowZero:
+          if (
+            this.gameObject.ballVel.x < 0 &&
+            this.gameObject.ballPos.x < 500
+          ) {
+            this.ultBelowZero(this.gameObject.player1);
+            this.gameObject.player2.setSpecial();
+          }
+          break;
+        case Character.Venomtail:
+          if (
+            this.gameObject.ballVel.x > 0 &&
+            this.gameObject.ballPos.x > 950 &&
+            this.gameObject.ballPos.x < 1150 &&
+            Math.abs(
+              this.gameObject.ballPos.y -
+                (this.gameObject.player2.pos.y +
+                  this.gameObject.player2.height / 2),
+            ) > 100
+          ) {
+            this.ultVenomtail(this.gameObject.player2, this.gameObject.player1);
+            this.gameObject.player2.setSpecial();
+          }
+          break;
+        case Character.Raiven:
+          if (
+            this.gameObject.ballVel.x < 0 &&
+            this.gameObject.ballPos.x < 100 &&
+            Math.abs(
+              this.gameObject.ballPos.y -
+                (this.gameObject.player1.pos.y +
+                  this.gameObject.player1.height / 2),
+            ) < 50
+          ) {
+            this.abLightning();
+            this.gameObject.player2.setSpecial();
+          }
+          break;
+      }
+    }
+    if (this.gameObject.player2.freeze) return;
     if (this.gameObject.gameOptions.dodge) {
       if (this.gameObject.ballVel.x < 0 || this.gameObject.ballPos.x < 600) {
         this.gameObject.player2.moveUp = false;
@@ -859,20 +893,20 @@ export class GameService {
         scored++;
       }
       if (scored > 0) {
-      	this.scored = true;
-      	setTimeout(() => {
-			this.resetEffects();
-			this.serve();
-			this.scored = false;
-			this.readyToServe = false;
-			this.gameObject.player1.pos.x = 20;
-			this.gameObject.player1.pos.y = 350;
-			this.gameObject.player2.pos.x = 1170;
-			this.gameObject.player2.pos.y = 350;
-			setTimeout(() => {
-			this.readyToServe = true;
-			}, 500);
-		}, 500);
+        this.scored = true;
+        setTimeout(() => {
+          this.resetEffects();
+          this.serve();
+          this.scored = false;
+          this.readyToServe = false;
+          this.gameObject.player1.pos.x = 20;
+          this.gameObject.player1.pos.y = 350;
+          this.gameObject.player2.pos.x = 1170;
+          this.gameObject.player2.pos.y = 350;
+          setTimeout(() => {
+            this.readyToServe = true;
+          }, 500);
+        }, 500);
       }
       return;
     }

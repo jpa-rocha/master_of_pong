@@ -344,18 +344,21 @@ export class UsersService {
     }
   }
 
-  async newELO(winnerID: string, loserID: string)
-  {
-    const winner = await this.usersRepository.findOne({ where: { id: winnerID },});
-    const loser = await this.usersRepository.findOne({ where: { id: loserID },});
+  async newELO(winnerID: string, loserID: string) {
+    const winner = await this.usersRepository.findOne({
+      where: { id: winnerID },
+    });
+    const loser = await this.usersRepository.findOne({
+      where: { id: loserID },
+    });
 
-    if (winner && loser)
-    {
-      let expectationWinner = 1 / (1 + 10**((loser.elo - winner.elo) / 400));
-	    let expectationLoser = 1 - expectationWinner;
+    if (winner && loser) {
+      const expectationWinner =
+        1 / (1 + 10 ** ((loser.elo - winner.elo) / 400));
+      const expectationLoser = 1 - expectationWinner;
 
-      let nextWinner = winner.elo + (32 * (1 - expectationWinner));
-      let nextLoser = loser.elo + (32 * (0 - expectationLoser));
+      const nextWinner = winner.elo + 32 * (1 - expectationWinner);
+      const nextLoser = loser.elo + 32 * (0 - expectationLoser);
 
       winner.elo = Math.round(nextWinner);
       loser.elo = Math.round(nextLoser);
@@ -373,10 +376,8 @@ export class UsersService {
     allUsers.sort((a, b) => b.elo - a.elo);
     let rank = 1;
     let previous = allUsers[0].elo;
-    for (let i = 0; i < allUsers.length; i++)
-    {
-      if (allUsers[i].elo < previous)
-      {
+    for (let i = 0; i < allUsers.length; i++) {
+      if (allUsers[i].elo < previous) {
         rank = i + 1;
         previous = allUsers[i].elo;
       }

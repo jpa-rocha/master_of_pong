@@ -6,9 +6,7 @@ import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
 
-
 axios.defaults.baseURL = "http://localhost:5000/";
-
 
 interface UserProps {
   id: string;
@@ -25,21 +23,27 @@ interface UserProps {
   elo: number;
 }
 
-interface MatchProps
-{
+interface MatchProps {
   id: number;
   timestamp: Date;
   userOne: UserProps;
   userTwo: UserProps;
   winner: UserProps;
+  gameMode: string;
+  gameModeOptions: string;
+  score1: number;
+  score2: number;
 }
 
 interface ProfilePageProps {
   socket: Socket;
-  profileID: { id: string; } | string;
+  profileID: { id: string } | string;
 }
 
-const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
+const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
+  socket,
+  profileID,
+}) => {
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(0);
   const [elo, setElo] = useState(0);
@@ -50,7 +54,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
-  const [userID, setUserID] = useState<{ id: string; } | string >(profileID);
+  const [userID, setUserID] = useState<{ id: string } | string>(profileID);
 
   useEffect(() => {
     async function getUserName() {
@@ -58,16 +62,15 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
         setUserName(userData.username);
-		setWins(userData.wins);
-		setLosses(userData.losses);
-		setRank(userData.rank);
-    	setElo(userData.elo);
-		if (userData.losses === 0)
-			setRatio(userData.wins);
-		else {
-      		const temp = (userData.wins / userData.losses);
-			setRatio(Math.round(temp * 100) / 100);
-    	}
+        setWins(userData.wins);
+        setLosses(userData.losses);
+        setRank(userData.rank);
+        setElo(userData.elo);
+        if (userData.losses === 0) setRatio(userData.wins);
+        else {
+          const temp = userData.wins / userData.losses;
+          setRatio(Math.round(temp * 100) / 100);
+        }
       }
     }
 
@@ -140,6 +143,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
     const dialog = document.createElement("div");
     dialog.classList.add("dialog");
     const input = document.createElement("input");
+    input.maxLength = 15;
     input.type = "text";
     input.placeholder = "Enter new username";
     const okButton = document.createElement("button");
@@ -168,7 +172,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
     input.focus();
   };
 
-
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [userID]);
@@ -184,89 +187,127 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
           <NavBarMainPage></NavBarMainPage>
         </Grid>
 
-        <Grid item xs={6} md={12} >
-        <div
-            className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
-			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 ">
-            <img
-              className="md:h-auto md:w-[20%] md:rounded-l-lg"
-              src={profileImg}
-              alt="profile_picture"
-            />
-            <div className="flex flex-col items-center md:p-4">
-              <h2 className="mb-1 md:text-xl font-medium text-gray-900">
-                {userName}
-              </h2>
-              <div className="md:text-lg text-gray-500 flex flex-col mt-3">
-                <p>
-                  <span className="font-bold">Rank:</span> {rank}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Elo:</span> {elo}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Wins:</span> {wins}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Losses:</span> {losses}
-                </p>
-				<p>
-					<span className="font-bold">Win Ratio:</span> {ratio}
-				</p>
-              </div>
-              <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
-                <button
-                  className="items-center px-3 py-2 text-sm text-center 
+        <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">
+          <Grid item xs={6} md={12}>
+            <div
+              className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
+			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 "
+            >
+              <img
+                className="md:h-auto md:w-[20%] md:rounded-l-lg"
+                src={profileImg}
+                alt="profile_picture"
+              />
+              <div className="flex flex-col items-center md:p-4">
+                <h2 className="mb-1 md:text-xl font-medium text-gray-900">
+                  {userName}
+                </h2>
+                <div className="md:text-lg text-gray-500 flex flex-col mt-3">
+                  <p>
+                    <span className="font-bold">Rank:</span> {rank}{" "}
+                  </p>
+                  <p>
+                    <span className="font-bold">Elo:</span> {elo}{" "}
+                  </p>
+                  <p>
+                    <span className="font-bold">Wins:</span> {wins}{" "}
+                  </p>
+                  <p>
+                    <span className="font-bold">Losses:</span> {losses}
+                  </p>
+                  <p>
+                    <span className="font-bold">Win Ratio:</span> {ratio}
+                  </p>
+                </div>
+                <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
+                  <button
+                    className="items-center px-3 py-2 text-sm text-center 
 					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
-                  onClick={handleUserNameChange}>
-                  Change User Name
-                </button>
-                <button
-                  className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
+                    onClick={handleUserNameChange}
+                  >
+                    Change User Name
+                  </button>
+                  <button
+                    className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
 					border border-gray-300 rounded-lg 
 					hover:bg-green-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
-                	onClick={handleProfileImgChange}>
-                	Change Profile Picture
-                </button>
+                    onClick={handleProfileImgChange}
+                  >
+                    Change Profile Picture
+                  </button>
+                </div>
               </div>
             </div>
-        </div>
-        </Grid>
-        <Grid item xs={6} md={12}>
-          <h2 className="text-center font-bold mt-5 md:mt-0"> Match History</h2>
-          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
-            <table className="w-full text-lg text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-1">
-                    Opponent
-                  </th>
-                  <th scope="col" className="px-6 py-1">
-                    Result
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {match.map((match, index) => (
-                  <tr className="bg-white border-b" key={index}>
-                    {userID === match.userOne.id ? (
-                      <td className="px-6 py-1">{match.userTwo.username}</td>
+          </Grid>
+          <Grid item xs={6} md={12}>
+            <h2 className="text-center font-bold mt-5 md:mt-0">
+              {" "}
+              Match History
+            </h2>
+            <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
+              <table className="w-full text-lg text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-1">
+                      Opponent
+                    </th>
+                    <th scope="col" className="px-6 py-1">
+                      GameMode
+                    </th>
+                    <th scope="col" className="px-6 py-1">
+                      Options
+                    </th>
+                    <th scope="col" className="px-6 py-1">
+                      Result
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {match.map((match, index) => (
+                    <tr className="bg-white border-b" key={index}>
+                      {userID === match.userOne.id ? (
+                        <td className="px-6 py-1">{match.userTwo.username}</td>
                       ) : (
                         <td className="px-6 py-1">{match.userOne.username}</td>
-                    )}
-                    {userID === match.winner.id ? (
-                      <td className="px-6 py-1">WIN</td>
-                      ) : (
-                        <td className="px-6 py-1">LOSS</td>
                       )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Grid>
+                      <td className="px-6 py-1">{match.gameMode}</td>
+                      <td className="px-6 py-1">{match.gameModeOptions}</td>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {userID === match.winner.id ? (
+                          <td
+                            className="px-6 py-1"
+                            style={{ marginRight: "5px", color: "green" }}
+                          >
+                            WIN
+                          </td>
+                        ) : (
+                          <td
+                            className="px-6 py-1"
+                            style={{ marginRight: "5px", color: "red" }}
+                          >
+                            LOSS
+                          </td>
+                        )}
+
+                        {match.score1 !== 11 && match.score2 !== 11 ? (
+                          <div style={{ marginLeft: "5px" }}>
+                            (Disconnection)
+                          </div>
+                        ) : (
+                          <div style={{ marginLeft: "5px" }}>
+                            {match.score1}-{match.score2}
+                          </div>
+                        )}
+                      </div>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Grid>
+        </div>
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>

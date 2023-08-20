@@ -31,6 +31,11 @@ interface FriendsPageProps {
   socket: Socket;
 }
 
+const imgStyle = {
+	background:
+	  "linear-gradient(to right, #EA4224 0%, #c49b2b 50%, #EA4224 100%)",
+};
+
 axios.defaults.baseURL = "http://localhost:5000/";
 
 const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
@@ -112,7 +117,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 
   return (
     <>
-    <Grid container direction="column">
+    <Grid container style={imgStyle} direction="column">
         <Grid item xs={2}>
         	<NavBarMainPage></NavBarMainPage>
         </Grid>
@@ -185,11 +190,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
-      </Grid>
 	  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 mt-2">
 	  <div className="px-3 my-6"><span className="text-black text-xl font-bold">Friend Requests : </span></div>
 	  {requests && requests.map((item, index) => (
-		<div className="flex justify-start px-3" key={index}>
+		  <div className="flex justify-start px-3" key={index}>
 			<span className="ml-2">{item.sender.username}</span>
 			<button className="mx-3 font-medium text-blue-600 hover:underline" onClick={() => handleAccept(item.sender.id)}>
 				Accept Friend
@@ -200,6 +204,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 		</div>
 	  ))}
 	  </div>
+	  </Grid>
     </>
   );
 };
