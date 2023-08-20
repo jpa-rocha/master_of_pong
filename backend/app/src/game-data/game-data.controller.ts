@@ -25,6 +25,11 @@ export class GameDataController {
     return this.gameDataService.findAll();
   }
 
+  @Get(':id')
+  getUserMatches(@Param('id') id: string) {
+    return this.gameDataService.getUserMatches(id);
+  }
+
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.gameDataService.findOne(+id);

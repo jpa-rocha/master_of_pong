@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Param } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,6 +19,17 @@ export class GameDataService {
 
   findAll() {
     return this.gameDataRepository.find();
+  }
+
+  async getUserMatches(userID: string) {
+    const games = await this.gameDataRepository
+      .createQueryBuilder('gameData')
+      .leftJoinAndSelect('gameData.userOne', 'userOne')
+      .leftJoinAndSelect('gameData.userTwo', 'userTwo')
+      .leftJoinAndSelect('gameData.winner', 'winner')
+      .where('userOne.id = :userID OR userTwo.id = :userID', { userID })
+      .getMany();
+    return games;
   }
 
   // TODO add a game id, or find a way to find all games played by a player by passing User

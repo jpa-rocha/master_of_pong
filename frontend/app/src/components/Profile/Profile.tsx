@@ -9,7 +9,9 @@ import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
+
 interface UserProps {
+  id: string;
   forty_two_id: number;
   username: string;
   refresh_token: string;
@@ -22,10 +24,18 @@ interface UserProps {
   rank: number;
 }
 
+interface MatchProps
+{
+  id: number;
+  timestamp: Date;
+  userOne: UserProps;
+  userTwo: UserProps;
+  winner: UserProps;
+}
+
 interface ProfilePageProps {
   socket: Socket;
-  profileID: { id: string; } | string
-;
+  profileID: { id: string; } | string;
 }
 
 const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profileID }) => {
@@ -35,15 +45,13 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
   const [losses, setLosses] = useState(0);
   const [ratio, setRatio] = useState(1);
   const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
+  const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<{ id: string; } | string >(profileID);
 
-  console.log("ProfileID = ", profileID);
-
   useEffect(() => {
     async function getUserName() {
-      console.log("userID (getUserName()) = ", userID);
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
@@ -57,8 +65,16 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
 			setRatio(userData.wins / userData.losses);
       }
     }
-    console.log("userID = ", userID);
+
+    async function getMatches() {
+      if (userID) {
+        const userMatches = await axios.get(`api/game-data/${userID}`);
+        setMatch(userMatches.data);
+      }
+    }
     getUserName();
+    getMatches();
+    console.log("Matches = ", match);
     socket.emit("activityStatus", { userID: userID, status: "online" });
   }, [userID, socket]);
 
@@ -225,10 +241,18 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
                 </tr>
               </thead>
               <tbody>
-                {matches.map((match, index) => (
+                {match.map((match, index) => (
                   <tr className="bg-white border-b" key={index}>
-                    <td className="px-6 py-1">{match.opponent}</td>
-                    <td className="px-6 py-1">{match.result}</td>
+                    {userID === match.userOne.id ? (
+                      <td className="px-6 py-1">{match.userTwo.username}</td>
+                      ) : (
+                        <td className="px-6 py-1">{match.userOne.username}</td>
+                    )}
+                    {userID === match.winner.id ? (
+                      <td className="px-6 py-1">WIN</td>
+                      ) : (
+                        <td className="px-6 py-1">LOSS</td>
+                      )}
                   </tr>
                 ))}
               </tbody>

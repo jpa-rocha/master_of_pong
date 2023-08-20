@@ -22,6 +22,11 @@ interface UserProps {
   status: string;
 }
 
+interface RequestProp {
+	id: number;
+	sender: UserProps;
+}
+
 interface FriendsPageProps {
   socket: Socket;
 }
@@ -33,6 +38,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   const [input, setInput] = useState<string>("");
   const [render, setRender] = useState<boolean>(false);
   const [userID, setUserID] = useState<string>("");
+  const [requests, setRequests] = useState<RequestProp[]>([]);
   const token = getToken("jwtToken");
 
   (async () => {
@@ -58,6 +64,11 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
             .get(`api/users/friends/name/${id}/${input}`)
             .then((res) => res.data)
         );
+		setRequests(
+		  await axios
+		  	.get(`api/users/requests/${id}`)
+			.then((res) => res.data)
+		)
     }
     getUsers(input);
     setRender(false);
@@ -74,6 +85,30 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     await axios.post(`api/users/addFriend/${userID}/${friendID}`);
     setRender(true);
   };
+
+  const handleAccept = async (friendID: string) => {
+	const userID = await axios
+		.post("api/auth/getUserID", { token })
+		.then((res) => res.data);
+  	await axios.post(`api/users/acceptFriend/${userID}/${friendID}`);
+  	setRender(true);
+  }
+
+  const handleReject = async (friendID: string) => {
+	const userID = await axios
+		.post("api/auth/getUserID", { token })
+		.then((res) => res.data);
+  	await axios.post(`api/users/rejectFriend/${userID}/${friendID}`);
+  	setRender(true);
+  }
+
+  const removeFriend = async (friendID: string) => {
+	const userID = await axios
+		.post("api/auth/getUserID", { token })
+		.then((res) => res.data);
+  	await axios.post(`api/users/removeFriend/${userID}/${friendID}`);
+  	setRender(true);
+  }
 
   return (
     <>
@@ -101,55 +136,49 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 						onChange={handleSearchChange}/>
         		</div>
     			</div>
-				{users && users.map( (item, index) => (
-				<table key={index} className="w-full text-sm text-left text-gray-500 pb-4">
+				<div>
 					<thead className="text-xs text-gray-700 uppercase bg-gray-50">
 						<tr>
 							<th scope="col" className="px-6 py-3"></th>
 							<th scope="col" className="px-6 py-3">User</th>
 							<th scope="col" className="px-6 py-3">Status</th>
 							<th scope="col" className="px-6 py-3">Add</th>
-							<th scope="col" className="px-6 py-3">Remove</th>
 							<th scope="col" className="px-6 py-3"></th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr className="bg-white border-b hover:bg-gray-50">
-							<th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
-								<img className="w-10 h-10 rounded-full" src="" alt="user"/>
-								<div className="pl-3">
-									<div className="text-base font-semibold">{item.username}</div>
-									<div className="font-normal text-gray-500"></div>
-								</div>  
-							</th>
-							<td className="px-6 py-4">Friend</td>
-							<td className="px-6 py-4">
-								<div className="flex items-center">
-									<div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+				</div>
+				{users && users.map( (item, index) => (
+					<table key={index} className="w-full text-sm text-left text-gray-500 pb-4">
+						<tbody>
+							<tr className="bg-white border-b hover:bg-gray-50">
+								<th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap">
+									<img className="w-10 h-10 rounded-full" src="" alt="user"/>
+									<div className="pl-3">
+										<div className="text-base font-semibold">{item.username}</div>
+										<div className="font-normal text-gray-500"></div>
+									</div>  
+								</th>
+								<td className="px-6 py-4">
+									<div className="flex items-center">
+										<div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
 										{item.status}
 									</div>
-							</td>
-							<td className="px-6 py-4">
-								{ !item.isFriend ? (
-									<button className="font-medium text-blue-600 hover:underline" onClick={() => handleSendFriendRequest(item.id)}>
-										Add as Friend
-									</button>
-								) : (
-									<span>Already a friend</span>
-								)}
-							</td>
-							<td className="px-6 py-4">
-								{item.isFriend ? (
-									<button className="font-medium text-blue-600 hover:underline">
-										Remove Friend
-									</button>	
-								) : (
-									<span>Not a friend</span>
-								)}
-							</td>
-						</tr>
-					</tbody>
-				</table>))}
+								</td>
+								<td className="px-6 py-4">
+									{ !item.isFriend ? (
+										<button className="font-medium text-blue-600 hover:underline" onClick={() => handleSendFriendRequest(item.id)}>
+											Add as Friend
+										</button>
+									) : (
+										<button className="font-medium text-blue-600 hover:underline" onClick={() => removeFriend(item.id)}>
+											Remove Friend
+										</button>
+									)}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				))}
     		</div>
 		</Grid>
 
@@ -157,6 +186,18 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
           <Footer></Footer>
         </Grid>
       </Grid>
+	  <div>Requests : </div>
+	  {requests && requests.map((item, index) => (
+		<div key={index}>
+			{item.sender.username}
+			<button className="font-medium text-blue-600 hover:underline" onClick={() => handleAccept(item.sender.id)}>
+				Accept Friend
+			</button>
+			<button className="font-medium text-blue-600 hover:underline" onClick={() => handleReject(item.sender.id)}>
+				Reject Friend
+			</button>
+		</div>
+	  ))}
     </>
   );
 };

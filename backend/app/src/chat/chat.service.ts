@@ -96,10 +96,10 @@ export class ChatService {
     chatRoom.banned = [];
     chatRoom.muted = [];
     if (password) {
-    const saltRounds = 10;
-    const hash = await bcrypt.hash(password, saltRounds);
-    chatRoom.channel = 'private';
-    chatRoom.password = hash;
+      const saltRounds = 10;
+      const hash = await bcrypt.hash(password, saltRounds);
+      chatRoom.channel = 'private';
+      chatRoom.password = hash;
     } else {
       chatRoom.channel = 'public';
       chatRoom.password = '';

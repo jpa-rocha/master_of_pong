@@ -109,9 +109,38 @@ export class UsersController {
     return this.usersService.sendFriendRequest(userId, friendId);
   }
 
+  @Post('acceptFriend/:userId/:friendId')
+  async acceptFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    return this.usersService.acceptFriendRequest(userId, friendId);
+  }
+
+  @Post('rejectFriend/:userId/:friendId')
+  async rejectFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    return this.usersService.rejectFriendRequest(userId, friendId);
+  }
+
+  @Post('removeFriend/:userId/:friendId')
+  async removeFriend(
+    @Param('userId') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
+    return this.usersService.removeFriend(userId, friendId);
+  }
+
   @Get('friends/:user')
   async getFriends(@Param('user') user: string) {
     return this.usersService.getFriends(user);
+  }
+
+  @Get('requests/:user')
+  async getRequests(@Param('user') user: string) {
+    return this.usersService.getRequests(user);
   }
 
   @Get('friends/name/:user/:input')
