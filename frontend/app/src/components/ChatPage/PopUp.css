@@ -1,7 +1,15 @@
+.PopUpContainer{
+	background-color: #fff;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
 .PopHeader {
 	font-weight: bold;
 	padding: 1rem;
-	background-color: #2e3133;
+	background-color: #2a2a2b;
 	color: #fff;
 	text-align: center;
 	border-top-left-radius: 8px;
@@ -9,10 +17,14 @@
 }
 
 .PopBody {
-	padding: 3rem;
+	padding: 4rem;
 	background-color: #ffffff;
 	border-bottom-left-radius: 8px;
 	border-bottom-right-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .bannedDiv{
@@ -50,7 +62,8 @@ right: 0;
 	font-weight: bold;
 	text-align: center;
 }
-  
+
+
 .create-button {
 	background-color: #1e2227;
 	color: #ffffff;
@@ -59,12 +72,23 @@ right: 0;
   
 .cancel-button {
 	background-color: #f1f1f1;
-	color: #333333;
-	background-color: #f59918f0;
+	background-color: #b88e35f0;
+}
+
+.cancel-button.password{
+	padding: 0.5rem 2rem;
+	width: 50%;
+	background-color: #cc3507f0;
+	color: #ffffff;
+}
+
+.create-button.password{
+	background-color: #3c5713f0;
+	color: #ffffff;
 }
 
 .cancel-button.join{
-	width:50%;
+	width:100%;
 }
 
 .button-container.join{
@@ -83,7 +107,7 @@ right: 0;
 }
   
 .create-button:hover, .cancel-button:hover {
-	opacity: 0.8;
+	opacity: 0.9;
 }
 
 
@@ -161,18 +185,58 @@ right: 0;
 }
 
 .red-back {
-	background-color: red;
+	background-color: rgba(204, 23, 23, 0.852);
 }
 
 .green-back {
-	background-color: rgb(38, 207, 38);
+	background-color: rgba(8, 131, 8, 0.825);
 }
 
 .blue-back {
-	background-color: #007bff;
+	background-color: #0b64c2ce;
 }
 
 .user-container {
 	display: flex;
 	align-items: center;
 }
+
+
+
+@media (max-width: 768px) {
+	.PopUpContainer{
+		width: 80%;
+	}
+	.PopBody.interact {
+	  padding: 2rem;
+	  flex-direction: row;
+	}
+	.owner-buttons,
+	.admin-buttons,
+	.regular-buttons {
+		flex-direction: column;
+	}
+	.red-back, .green-back, .blue-back{
+		margin: 0.5rem;
+	}
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+	.PopUpContainer{
+		width: 80%;
+	}
+
+	.PopBody.interact {
+	  padding: 3.5rem;
+	  flex-direction: row;
+	}
+	.owner-buttons,
+.admin-buttons,
+.regular-buttons {
+	flex-direction: column;
+}
+.red-back, .green-back, .blue-back{
+	margin: 0.5rem;
+}
+  }
+  
