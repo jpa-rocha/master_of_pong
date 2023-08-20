@@ -79,6 +79,15 @@ export class UsersService {
   }
 
   async sendFriendRequest(userId: string, friendId: string) {
+    // TODO NEED A BETTER SOLUTION ------------------------------------------------
+    const checkIfExists = await this.friendsRepository.findOne({
+      where: {
+        sender: { id: userId },
+        receiver: { id: friendId },
+      },
+    });
+    if (checkIfExists) return null;
+    // ----------------------------------------------------------------------------
     const sender = await this.usersRepository.findOne({
       where: { id: userId },
       relations: ['sentFriendRequests', 'receivedFriendRequests'],
@@ -97,18 +106,18 @@ export class UsersService {
     friendRequest.receiver = receiver;
     friendRequest.isFriend = false;
 
-    console.log('sendFriendRequest => Friend request sent');
-    await this.friendsRepository.save(friendRequest);
+    // console.log('sendFriendRequest => Friend request sent');
+    return await this.friendsRepository.save(friendRequest);
 
-    console.log('sendFriendRequest => Automatically accepting friend request');
-    return this.acceptFriendRequest(userId, friendId);
+    // console.log('sendFriendRequest => Automatically accepting friend request');
+    // return this.acceptFriendRequest(userId, friendId);
   }
 
   async acceptFriendRequest(userId: string, friendId: string) {
     const friendRequest = await this.friendsRepository.findOne({
       where: {
-        sender: { id: userId },
-        receiver: { id: friendId },
+        sender: { id: friendId },
+        receiver: { id: userId },
       },
     });
 
@@ -136,6 +145,36 @@ export class UsersService {
     console.log('acceptFriendRequest => Second instance of friend created');
 
     return friendRequest;
+  }
+
+  async rejectFriendRequest(userId: string, friendId: string) {
+    const friendRequest = await this.friendsRepository.findOne({
+      where: {
+        sender: { id: friendId },
+        receiver: { id: userId },
+      },
+    });
+    console.log(friendRequest);
+    if (friendRequest) await this.friendsRepository.remove(friendRequest);
+    return null;
+  }
+
+  async removeFriend(userId, friendId) {
+    const friendRequest1 = await this.friendsRepository.findOne({
+      where: {
+        sender: { id: friendId },
+        receiver: { id: userId },
+      },
+    });
+    const friendRequest2 = await this.friendsRepository.findOne({
+      where: {
+        sender: { id: userId },
+        receiver: { id: friendId },
+      },
+    });
+    if (friendRequest1) await this.friendsRepository.remove(friendRequest1);
+    if (friendRequest2) await this.friendsRepository.remove(friendRequest2);
+    return null;
   }
 
   async getFriends(userID: string) {
@@ -171,6 +210,7 @@ export class UsersService {
         })),
       ];
 
+      console.log('AAAAAAAAAAAAAAAAAAAA');
       const confirmedFriends = friends.filter(
         (friend) => friend.isFriend === true,
       );
@@ -182,7 +222,6 @@ export class UsersService {
             (friend) => friend.friendUser.id === user.id,
           ),
         }));
-
         return extendedAllUsers;
       } else {
         console.log('getFriends => No confirmed friends found.');
@@ -229,6 +268,19 @@ export class UsersService {
       .addSelect('friend2.isFriend')
       .getMany();
   }
+
+  async getRequests(userId: string) {
+    const requests = await this.friendsRepository
+      .createQueryBuilder('friend')
+      .leftJoinAndSelect('friend.sender', 'sender')
+      .where('friend.receiver.id = :userId', { userId })
+      .andWhere('friend.isFriend = :isFriend', { isFriend: false })
+      .getMany();
+    console.log('requests = ', requests);
+    return requests;
+  }
+
+  //c102072e-9057-4344-976b-ed01fcde0b33
 
   async setTwoFactorAuthenticationSecret(secret: string, userId: string) {
     return await this.usersRepository.update(userId, {
