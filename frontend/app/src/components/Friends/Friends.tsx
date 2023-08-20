@@ -137,13 +137,13 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
         		</div>
     			</div>
 				<div>
-					<thead className="text-xs text-gray-700 uppercase bg-gray-50">
+					<thead className="w-full text-xs text-gray-700 uppercase bg-gray-200">
 						<tr>
-							<th scope="col" className="px-6 py-3"></th>
-							<th scope="col" className="px-6 py-3">User</th>
-							<th scope="col" className="px-6 py-3">Status</th>
-							<th scope="col" className="px-6 py-3">Add</th>
-							<th scope="col" className="px-6 py-3"></th>
+							<th scope="col" className="px-2 py-3 "></th>
+							<th scope="col" className="px-20 py-3">User</th>
+							<th scope="col" className="pl-30 py-3 w-full">Status</th>
+							<th scope="col" className="px-20 py-3">Add</th>
+							<th scope="col" className="pr-30 py-3"></th>
 						</tr>
 					</thead>
 				</div>
@@ -186,18 +186,20 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
           <Footer></Footer>
         </Grid>
       </Grid>
-	  <div>Requests : </div>
+	  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 mt-2">
+	  <div className="px-3 my-6"><span className="text-black text-xl font-bold">Friend Requests : </span></div>
 	  {requests && requests.map((item, index) => (
-		<div key={index}>
-			{item.sender.username}
-			<button className="font-medium text-blue-600 hover:underline" onClick={() => handleAccept(item.sender.id)}>
+		<div className="flex justify-start px-3" key={index}>
+			<span className="ml-2">{item.sender.username}</span>
+			<button className="mx-3 font-medium text-blue-600 hover:underline" onClick={() => handleAccept(item.sender.id)}>
 				Accept Friend
 			</button>
-			<button className="font-medium text-blue-600 hover:underline" onClick={() => handleReject(item.sender.id)}>
+			<button className="mx-3 font-medium text-blue-600 hover:underline" onClick={() => handleReject(item.sender.id)}>
 				Reject Friend
 			</button>
 		</div>
 	  ))}
+	  </div>
     </>
   );
 };

@@ -11,6 +11,7 @@ import * as socketIO from "socket.io-client";
 import { Socket } from "socket.io-client";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import FriendsPage from "./components/Friends/Friends";
+import PageNotFound from "./components/PageNotFound";
 import { getToken } from "../src/utils/Utils";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:5000/";
@@ -48,6 +49,7 @@ async function getUserID() {
             <Route path="/leaders" element={<LeaderBoard />} />
           </Route>
           <Route path="/" element={<App />} />
+		  <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
     </React.StrictMode>

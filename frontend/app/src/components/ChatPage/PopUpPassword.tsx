@@ -65,10 +65,10 @@ const PopUpPassword: React.FC<PopUpPasswordProps> = ({ isOpen, onClose, socket, 
 
 				{/* Button Part : Create, Cancel */}
 				<div className="button-container">
-					<button className="create-button" onClick={handleChangePassword}>
+					<button className="create-button password" onClick={handleChangePassword}>
 						Change Password
 					</button>
-					<button className="cancel-button" onClick={onClose}>
+					<button className="cancel-button password" onClick={onClose}>
 						Cancel
 					</button>
 				</div>

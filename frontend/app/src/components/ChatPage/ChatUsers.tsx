@@ -181,7 +181,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 	return (
 		<>
 		<div className="flex flex-col py-8 pl-6 pr-2 rounded-2xl md:w-64 m-1 md:m-0 bg-yellow-50 flex-shrink-0">
-			<div className="ml-2 font-bold text-2xl">Users</div>
+			<div className="ml-2 mb-2 font-bold text-2xl">Users</div>
 			{userME ? (
 				<div className="user-container">
 					{userME.username} {userME.status === "online" ? <>🟢</> : <>🔴</>}
@@ -207,7 +207,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 					</div>
 					{mutedAdmins[index] ? <div>&nbsp;🔇</div> : null}
 					{blockedAdmins[index] ? <div>&nbsp;⛔</div> : null}
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")}>interact</button>
+					<button className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Admin")}>interact</button>
 				</div>
 			))}
 
@@ -216,7 +216,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 					{user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
 					{mutedUsers[index] ? <div>&nbsp;🔇</div> : null}
 					{blockedUsers[index] ? <div>&nbsp;⛔</div> : null}
-					<button className="relative ml-3 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Regular")} >interact</button>
+					<button className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl" onClick={() => interactWithUser(user, "Regular")} >interact</button>
 				</div>
 			))}
 		</div>

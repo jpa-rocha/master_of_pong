@@ -3,6 +3,7 @@ import './PopUp.css'
 import { Socket } from 'socket.io-client';
 import { Message, User, Chat } from "./PropUtils";
 import ProfilePageChat from './Profile';
+import { log } from 'console';
 
 type InteractPopUpProps = {
   isOpen: boolean;
@@ -23,6 +24,9 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 	const [isMuted, setIsMuted] = useState<boolean>();
 	const [isBlocked, setIsBlocked] = useState<boolean>();
 	const [profileToggle, setProfileToggle] = useState<boolean>(false);
+	const [activeTimeout, setActiveTimeout] = useState<NodeJS.Timeout | null>(null);
+	const [remainingTime, setRemainingTime] = useState<number>(0);
+	const [showTimeoutOptions, setShowTimeoutOptions] = useState<boolean>(false);
 
 	useEffect(() => {
 		const handleMutedResult = (result: boolean) => {
@@ -43,6 +47,59 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 			socket.off('isBlockedReturn', handleBlockedResult);
 		}
 	}, [socket, target, chat]);
+
+	const startTimeout = (time: number): void => {
+		if (activeTimeout) {
+		  clearTimeout(activeTimeout);
+		}
+		setActiveTimeout(setTimeout(() => {
+		  setRemainingTime(0);
+		}, time));
+		setRemainingTime(time);
+	  };
+
+	  const handle15Mins = () => {
+		startTimeout(15 * 60 * 1000); 
+		setShowTimeoutOptions(false); 
+		//console.log("clicked")
+	  };
+
+	  const handle1Hour = () => {
+		startTimeout(60 * 60 * 1000); 
+		setShowTimeoutOptions(false); 
+	  };
+
+	  const handle3Hours = () => {
+		startTimeout(3 * 60 * 60 * 1000); 
+		setShowTimeoutOptions(false); 
+	  };
+
+	  const handle8Hours = () => {
+		startTimeout(8 * 60 * 60 * 1000); 
+		setShowTimeoutOptions(false); 
+	  };
+
+	  const handle24Hours = () => {
+		startTimeout(24 * 60 * 60 * 1000); 
+		setShowTimeoutOptions(false); 
+	  };
+
+	  const handleManually = () => {
+		if (activeTimeout) {
+		  clearTimeout(activeTimeout);
+		}
+		setActiveTimeout(null);
+		setRemainingTime(0);
+	  };
+
+	useEffect(() => {
+		if (remainingTime > 0) {
+		  const interval = setInterval(() => {
+			setRemainingTime(prevTime => prevTime - 1000);
+		  }, 1000);
+		  return () => clearInterval(interval);
+		}
+	  }, [remainingTime]);
 
 	if (!isOpen) return null;
 
@@ -69,6 +126,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 	function handleMute() {
 		socket.emit("muteUser", {userID: target.id, chatID: chat.id});
 		setIsMuted(true);
+		setShowTimeoutOptions(true);
 	}
 	
 	function handleUnMute() {
@@ -95,18 +153,22 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 		onClose();
 	}
 
+	
+	
+
+
   return (
     <>
 		{profileToggle ? (
 			<ProfilePageChat profileToggle={profileToggle} setProfileToggle={setProfileToggle} socket={socket} profileID={target.id}/>
 		): (
-    	<div>
+    	<div className='PopUpContainer'>
 
 			<h3 className="PopHeader">
 				{target.username}
 			</h3>
 
-			<div className="PopBody">
+			<div className="PopBody interact">
 				{/* IF USER IS THE OWNER */}
 				<div className='interact-container'>
 					<div className='owner-buttons'>						
@@ -128,6 +190,20 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 								<button className='green-back' onClick={() => handleUnMute()}>Unmute</button>
 								): (
 								<button className='red-back' onClick={() => handleMute()}>Mute</button>
+								
+							)}
+							{isMuted && showTimeoutOptions && (
+								<div className="absolute z-50 top-[50%] right-[50%] left-70 bottom-50 list-none px-4 2xl:px-10 bg-black rounded-lg shadow">
+								<ul className="py-2">
+								  	<li><button onClick={handle15Mins}>For 15 Minutes</button></li>
+								  	<li><button onClick={handle1Hour}>For 1 Hour</button></li>
+								  	<li><button onClick={handle3Hours}>For 3 Hours</button></li>
+								  	<li><button onClick={handle8Hours}>For 8 Hours</button></li>
+							  		<li><button onClick={handle24Hours}>For 24 Hours</button></li>
+							  		<li><button onClick={handleManually}>Until I turn it back on</button></li>
+									<li><button onClick={() => setShowTimeoutOptions(false)}>Cancel</button></li>
+								</ul>
+							  </div>
 							)}
 							<button className='red-back' onClick={() => handleKick()}>Kick</button>
 							<button className='red-back' onClick={() => handleBan()}>Ban</button>
@@ -167,7 +243,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({ isOpen, onClose, socket, 
 
 
 			<div className="button-container">
-				<button className="cancel-button" onClick={onClose}>
+				<button className="cancel-button main" onClick={onClose}>
 				Cancel
 				</button>
 			</div>
