@@ -8,6 +8,11 @@ import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 import { use } from 'passport';
+import { stringify } from 'querystring';
+import { time } from 'console';
+
+const userTimers: { [userID: string]: { [chatID: number]: NodeJS.Timeout } } =
+  {};
 
 @WebSocketGateway(5050, { cors: '*' })
 export class ChatGateway {
@@ -279,13 +284,34 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('muteUser')
-  async muteUser(client: Socket, data: { userID: string; chatID: number }) {
+  async muteUser(
+    client: Socket,
+    data: { userID: string; chatID: number; time: number },
+  ) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const chat = await this.chatService.muteUser(
       userID,
       data.userID,
       data.chatID,
     );
+    console.log(Date());
+    if (data.time != 0) {
+      const unmuteTimer = setTimeout(async () => {
+        const chat2 = await this.chatService.unmuteUser(
+          userID,
+          data.userID,
+          data.chatID,
+        );
+        console.log(Date());
+        chat2.users.forEach((user) => {
+          this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
+        });
+      }, data.time);
+      if (!userTimers[data.userID]) {
+        userTimers[data.userID] = {};
+      }
+      userTimers[data.userID][data.chatID] = unmuteTimer;
+    }
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
@@ -299,6 +325,10 @@ export class ChatGateway {
       data.userID,
       data.chatID,
     );
+    if (userTimers[data.userID] && userTimers[data.userID][data.chatID]) {
+      clearTimeout(userTimers[data.userID][data.chatID]);
+      delete userTimers[data.userID][data.chatID];
+    }
     chat.users.forEach((user) => {
       this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
     });
