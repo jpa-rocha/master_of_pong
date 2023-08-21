@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { of } from 'rxjs';
 import { User } from './entities/user.entity';
+import { use } from 'passport';
 
 // const storage = {
 //   storage: diskStorage({
@@ -154,5 +155,13 @@ export class UsersController {
   @Get('testFriends/:user')
   async testFriends(@Param('user') user: string) {
     return this.usersService.getUsersWithFriends(user);
+  }
+
+  @Post('leaderboardGet/:user')
+  async getLeaderBoard(@Param('user') user: string) {
+    console.log('____________________________________________');
+    console.log(user);
+    console.log('____________________________________________');
+    return await this.usersService.getLeaderBoard();
   }
 }

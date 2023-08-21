@@ -117,7 +117,7 @@ const NavBarTest: React.FunctionComponent = () => {
 
   const handleLeaders = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/");
+    navigate("/leaders");
   };
 
   const handleUserMain = (e: React.FormEvent) => {

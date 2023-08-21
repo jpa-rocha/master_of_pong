@@ -5,19 +5,14 @@ import { getToken } from "../../utils/Utils";
 axios.defaults.baseURL = "http://localhost:5000/";
 axios.defaults.withCredentials = true;
 
-type PopUp2faValidate = {
+type PopUp2faValidateProps = {
   isOpen: boolean;
   onClose: () => void;
   UserId: string | undefined;
   // off: boolean; // True = turn off 2fa, False = validate 2fa
 };
 
-const PopUp2faValidate: React.FC<PopUp2faValidate> = ({
-  isOpen,
-  onClose,
-  UserId,
-  // off,
-}) => {
+const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, UserId }) => {
   const handleValidation = async (
     twoFactorAuthenticationCode: string,
     event: React.KeyboardEvent<HTMLInputElement>
@@ -38,8 +33,7 @@ const PopUp2faValidate: React.FC<PopUp2faValidate> = ({
     };
 
     await axios
-      .post(
-        `http://localhost:5000/api/2fa/authenticate/${UserId}`,
+    	.post(`http://localhost:5000/api/2fa/authenticate/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

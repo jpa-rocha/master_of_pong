@@ -15,10 +15,10 @@ export class Channel {
   @ManyToOne(() => User, (user) => user.channels)
   owner: User;
 
-  @Column()
+  @Column({ type: 'varchar', length: 15, unique: true })
   name: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   password: string;
 
   @CreateDateColumn()

@@ -56,11 +56,11 @@ const PopUpCreateChat: React.FC<PopUpCreateChatProps> = ({ isOpen, onClose, onCr
 
 				{/* Input Part */}
 				<div className="name-input">
-					<input type="text" placeholder="Chat Room Name" value={chatRoomName} onChange={(e) => setChatRoomName(e.target.value)} />
+					<input type="text" placeholder="Chat Room Name" maxLength={15} value={chatRoomName} onChange={(e) => setChatRoomName(e.target.value)} />
 					<div className="error">{nameError}</div>
 				</div>
 				<div className="password-input">
-					<input type="password" placeholder="Password" value={chatRoomPassword} onChange={(e) => setChatRoomPassword(e.target.value)} />
+					<input type="password" placeholder="Password" maxLength={50} value={chatRoomPassword} onChange={(e) => setChatRoomPassword(e.target.value)} />
 				</div>
 				<div>
 					* private chat room - put in a Password

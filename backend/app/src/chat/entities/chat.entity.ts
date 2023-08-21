@@ -16,7 +16,7 @@ export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 15, unique: true })
   title: string;
 
   @ManyToOne(() => User, (user) => user.chats)
@@ -41,10 +41,10 @@ export class Chat {
   @OneToMany(() => Message, (message) => message.chat)
   messages: Message[];
 
-  @Column()
+  @Column({ type: 'varchar', length: 15, unique: true })
   channel: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   password: string;
 
   @CreateDateColumn()

@@ -46,6 +46,7 @@ export class GameObject {
   public mirageBallsPos: number[][];
   public mirageBallsVel: number[][];
   public gameOptions: Options;
+  public gameEnded: boolean;
 
   // player1
   public player1: Player;
@@ -57,6 +58,7 @@ export class GameObject {
     @Inject(forwardRef(() => GameGateway))
     private readonly gameGateway: GameGateway,
   ) {
+    this.gameEnded = false;
     this.gameService = new GameService(this, this.gameGateway);
     this.allowAbilities = false;
     this.Width = 1200;
@@ -172,11 +174,21 @@ export class GameObject {
 
   removeClient(client: AuthenticatedSocket) {
     this.clients.delete(client.id);
+	// if (this.player1.user.id === client.id) {
+	// 	this.sendToClients('playerDisconnect', {
+	// 		player: 1,
+	// 	});
+	// } else if (this.player2.user.id === client.id) {
+	// 	this.sendToClients('playerDisconnect', {
+	// 		player: 2,
+	// 	});
+	// }
     client.data.lobby = null;
-    this.gameService.stopGame();
-    this.sendToClients('winnerUpdate', {
-      winner: 'Opponent has left the game.',
-    });
+    // userID = await this.userService.getidbysocketid(client.id);
+    this.gameService.stopGame(client.id);
+    // this.sendToClients('winnerUpdate', {
+    //   winner: 'Opponent has left the game.',
+    // });
   }
 
   sendToPlayer1<T>(event: any, payload: T) {

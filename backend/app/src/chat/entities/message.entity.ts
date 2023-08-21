@@ -19,7 +19,7 @@ export class Message {
   @ManyToOne(() => Chat, (chat) => chat.messages)
   chat: Chat;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   content: string;
 
   @CreateDateColumn()

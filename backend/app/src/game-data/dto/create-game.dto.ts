@@ -5,4 +5,8 @@ export class CreateGameDto {
   userTwo: User;
   winner: User;
   timestamp: Date;
+  gameMode: string;
+  gameModeOptions: string;
+  score1: number;
+  score2: number;
 }

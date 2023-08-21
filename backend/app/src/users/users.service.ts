@@ -18,7 +18,6 @@ export class UsersService {
 
   create(createUserDto: CreateUserDto) {
     const newUser = this.usersRepository.create(createUserDto);
-
     return this.usersRepository.save(newUser);
   }
 
@@ -323,5 +322,74 @@ export class UsersService {
     if (target === -1) return null;
     user.blocked.splice(target, 1);
     await this.usersRepository.save(user);
+  }
+
+  async playerWon(userID: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userID },
+    });
+    if (user) {
+      user.wins++;
+      return await this.usersRepository.save(user);
+    }
+  }
+
+  async playerLost(userID: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userID },
+    });
+    if (user) {
+      user.losses++;
+      return await this.usersRepository.save(user);
+    }
+  }
+
+  async newELO(winnerID: string, loserID: string) {
+    const winner = await this.usersRepository.findOne({
+      where: { id: winnerID },
+    });
+    const loser = await this.usersRepository.findOne({
+      where: { id: loserID },
+    });
+
+    if (winner && loser) {
+      const expectationWinner =
+        1 / (1 + 10 ** ((loser.elo - winner.elo) / 400));
+      const expectationLoser = 1 - expectationWinner;
+
+      const nextWinner = winner.elo + 32 * (1 - expectationWinner);
+      const nextLoser = loser.elo + 32 * (0 - expectationLoser);
+
+      winner.elo = Math.round(nextWinner);
+      loser.elo = Math.round(nextLoser);
+      if (loser.elo < 0) loser.elo = 0;
+      await this.usersRepository.save(winner);
+      await this.usersRepository.save(loser);
+      this.recalculateRanks();
+    }
+    return null;
+  }
+
+  async recalculateRanks() {
+    const allUsers = await this.findAll();
+
+    allUsers.sort((a, b) => b.elo - a.elo);
+    let rank = 1;
+    let previous = allUsers[0].elo;
+    for (let i = 0; i < allUsers.length; i++) {
+      if (allUsers[i].elo < previous) {
+        rank = i + 1;
+        previous = allUsers[i].elo;
+      }
+      allUsers[i].rank = rank;
+      await this.usersRepository.save(allUsers[i]);
+    }
+  }
+
+  async getLeaderBoard() {
+    const allUsers = await this.findAll();
+    allUsers.sort((a, b) => b.elo - a.elo);
+
+    return allUsers;
   }
 }
