@@ -50,7 +50,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [ratio, setRatio] = useState(1);
-  const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
+  // const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
@@ -97,9 +97,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       },
     };
     if (userID !== undefined) {
-      console.log("userID (setUser()) = ", userID);
       const response = await axios.patch(`api/users/${userID}`, data, config);
-      console.log("response data: ", response.data);
       setUserName(newName);
     }
   };
