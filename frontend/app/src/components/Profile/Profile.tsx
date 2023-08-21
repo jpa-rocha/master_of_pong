@@ -208,7 +208,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
               </div>
               <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
                 <button
-                  className="items-center px-3 py-2 text-sm text-center 
+                  className="items-center px-3 py-2 text-sm text-center
 					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
                   onClick={handleUserNameChange}>
@@ -216,7 +216,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({ socket, profil
                 </button>
                 <button
                   className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
-					border border-gray-300 rounded-lg 
+					border border-gray-300 rounded-lg
 					hover:bg-green-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
                 	onClick={handleProfileImgChange}>
