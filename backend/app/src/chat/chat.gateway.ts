@@ -158,10 +158,11 @@ export class ChatGateway {
       userID,
     );
     const chat = await this.chatService.findOneChat(data.chatID);
-    chat.users.forEach((user) => {
+    chat.users.forEach(async (user) => {
       let index = -1;
-      if (user.blocked)
-        index = user.blocked.findIndex((user) => user.id === userID);
+      const tmp = await this.userService.findOne(user.id);
+      if (tmp.blocked)
+        index = tmp.blocked.findIndex((user) => user.id === userID);
       if (index === -1) this.server.to(user.socketID).emit('message', messages);
     });
   }
