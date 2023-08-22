@@ -37,7 +37,7 @@ export class ChatService {
   findOneChat(id: number) {
     const options: FindOneOptions<Chat> = {
       where: { id },
-      relations: ['users', 'creator', 'admins', 'banned', 'muted'],
+      relations: ['users', 'creator', 'admins', 'banned', 'muted', 'messages'],
     };
     return this.chatRepository.findOne(options);
   }
@@ -366,7 +366,6 @@ export class ChatService {
   }
 
   async unmuteUser(userID: string, targetID: string, chatID: number) {
-    console.log('HELLO WORLD ---------------------------------');
     const chat = await this.findOneChat(chatID);
     const index = chat.muted.findIndex((user) => user.id === targetID);
     if (chat.creator.id === userID) {

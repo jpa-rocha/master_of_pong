@@ -16,7 +16,7 @@ export class Chat {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 15, unique: true })
+  @Column({ type: 'varchar', length: 15 })
   title: string;
 
   @ManyToOne(() => User, (user) => user.chats)
@@ -38,13 +38,13 @@ export class Chat {
   @JoinTable()
   muted: User[];
 
-  @OneToMany(() => Message, (message) => message.chat)
+  @OneToMany(() => Message, (message) => message.chat, { onDelete: 'CASCADE' })
   messages: Message[];
 
-  @Column({ type: 'varchar', length: 15, unique: true })
+  @Column({ type: 'varchar', length: 15 })
   channel: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password: string;
 
   @CreateDateColumn()
