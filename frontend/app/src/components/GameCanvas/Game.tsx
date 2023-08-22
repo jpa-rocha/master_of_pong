@@ -29,9 +29,9 @@ const Game = () => {
       <Grid container>
         {/* This is navigation */}
 
-        <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
-        </Grid>
+        {/* <Grid item xs={12}>
+          <NavBarMainPage socket={socket}></NavBarMainPage>
+        </Grid> */}
 
         {/* This is main */}
         <Grid item xs={12}>
@@ -91,9 +91,8 @@ const Game = () => {
             </Box>
           </Box>
         </Grid>
-
-			  <Grid item xs={12}>
-		      <Footer/>
+		<Grid item xs={12}>
+			<Footer/>
         </Grid>
       </Grid>
     </>

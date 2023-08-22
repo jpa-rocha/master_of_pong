@@ -62,7 +62,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
     <>
       <Grid container className="flex h-[100vh]" style={imgStyle}>
         <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
+          <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
         <Grid item xs={6} md={12}>
           <h2 className="text-center font-bold mt-5 md:mt-0">Leaderboard</h2>
