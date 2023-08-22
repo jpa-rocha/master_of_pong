@@ -112,6 +112,14 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     fileInput.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
+        if (file.size > 1024 * 1024) {
+          console.error("File size exceeds 1MB limit");
+          return;
+        }
+        if (!["image/png", "image/jpeg"].includes(file.type)) {
+          console.error("File type not supported");
+          return;
+        }
         const formData = new FormData();
         formData.append("file", file, file.name);
         const config = {

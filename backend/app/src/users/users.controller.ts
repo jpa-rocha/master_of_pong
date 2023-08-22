@@ -90,7 +90,6 @@ export class UsersController {
       const fs = require('fs');
       const path = require('path');
       const filePath = path.join('./src/assets/avatars/', user.avatar);
-      console.log('---- filePath: ' + filePath + '----');
       fs.unlinkSync(filePath);
     }
 
