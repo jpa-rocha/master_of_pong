@@ -16,6 +16,8 @@ type InteractPopUpProps = {
 
   target: User;
   targetRole: string;
+
+  onChallenge: (targetID: string) => void;
 };
 
 const InteractPopUp: React.FC<InteractPopUpProps> = ({
@@ -27,6 +29,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({
   userRole,
   target,
   targetRole,
+  onChallenge,
 }) => {
   const [targetState, setTargetState] = useState(targetRole);
   const [isMuted, setIsMuted] = useState<boolean>();
@@ -121,6 +124,11 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({
 
   function handleGetDirectChat() {
     socket.emit("getDirectChat", { user1ID: user.id, user2ID: target.id });
+    onClose();
+  }
+
+  function handleChallenge(targetID: string) {
+    onChallenge(targetID);
     onClose();
   }
 

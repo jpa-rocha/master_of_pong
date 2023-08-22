@@ -5,6 +5,7 @@ import axios from "axios";
 import InteractPopUp from "./PopUpInteract";
 import { User, Chat } from "./PropUtils";
 import './PopUp.css'
+import ChallengeRoomPopup from "./PopUpChallenge";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -39,6 +40,9 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 
 	const [interactTarget, setInteractTarget] = useState<User>();
 	const [interactTargetRole, setInteractTargetRole] = useState<string>("");
+
+	const [isChallengePopupOpen, setIsChallengePopupOpen] = useState(false);
+	const [challengeTarget, setChallengeTarget] = useState<string>("");
 
 	useEffect(() => {
 		const handleMutedResult = (meResult: boolean, adminResult: boolean[], regularResult: boolean[]) => {
@@ -150,6 +154,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 			}
 		}
 
+
 		// const handleStatusRender = () => {
 		// 	socket.emit('getChatRoom', {chatID: chat?.id})
 		// };
@@ -176,6 +181,15 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 		setInteractTarget(target);
 		setInteractTargetRole(targetRole);
 		setIsPopupOpen(!isPopupOpen);
+	}
+
+	const toggleChallengePopup = () => {
+		setIsChallengePopupOpen(!isChallengePopupOpen);
+	};
+
+	function handleChallengeTarget(targetID: string) {
+		setChallengeTarget(targetID);
+		toggleChallengePopup();
 	}
 
 	return (
@@ -236,9 +250,27 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
             zIndex: 999,
           }}
         >
-          <InteractPopUp isOpen={isPopupOpen} onClose={togglePopup} socket={socket} chat={chat} user={userCurrent} userRole={userCurrentRole} target={interactTarget} targetRole={interactTargetRole}/>
+          <InteractPopUp isOpen={isPopupOpen} onClose={togglePopup} socket={socket} chat={chat} user={userCurrent} userRole={userCurrentRole} target={interactTarget} targetRole={interactTargetRole} onChallenge={handleChallengeTarget}/>
         </div>
       	)}
+		  {isChallengePopupOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <ChallengeRoomPopup isOpen={isChallengePopupOpen} onClose={toggleChallengePopup} targetID={challengeTarget} socket={socket} />
+        </div>
+      )}
 		</>
 	);
 }
