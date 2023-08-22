@@ -207,6 +207,7 @@ export class ChatService {
 
   async checkPassword(id: number, password: string) {
     const chat = await this.findOneChat(id);
+    if (chat.channel !== 'protected') return true;
     const compare = await bcrypt.compare(password, chat.password);
     if (compare) {
       return true;

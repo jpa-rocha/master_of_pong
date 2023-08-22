@@ -47,7 +47,6 @@ const JoinChatRoomPopup: React.FC<JoinChatRoomPopupProps> = ({
       ? foundPasswordInput.password
       : "";
 
-    console.log("JOIN BUTTON PRESSED");
     const checkResult = await checkPassword(chatID, passwordToSend);
     if (!checkResult) {
       setPasswordError("Wrong password, please try again");
