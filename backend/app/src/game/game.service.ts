@@ -13,6 +13,7 @@ export class GameService {
   private freezeTimer: NodeJS.Timeout | null = null;
   private mirageTimer: NodeJS.Timeout | null = null;
   private shrinkTimer: NodeJS.Timeout | null = null;
+	private lightningSlowTimer: NodeJS.Timeout | null = null;
   private lightningTimer: NodeJS.Timeout | null = null;
   private ventailTimer: NodeJS.Timeout | null = null;
 
@@ -249,31 +250,47 @@ export class GameService {
   }
 
   abLightning(): void {
-    this.gameObject.lightning = true;
-    if (this.freezeTimer) {
-      clearTimeout(this.freezeTimer);
+		if (this.freezeTimer) {
+			clearTimeout(this.freezeTimer);
       this.freezeTimer = null;
       this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
       this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
       this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
-        'AbilityFreeze',
-        {
-          AbilityFreeze: false,
-        },
-      );
-    }
-    this.gameObject.ballMagnitude = Math.sqrt(
-      this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-    );
-    this.gameObject.sendToClients<{ RaivenSpecial: boolean }>('RaivenSpecial', {
-      RaivenSpecial: true,
-    });
-  }
+			'AbilityFreeze',
+      {
+				AbilityFreeze: false,
+      },
+			);
+		}
+		this.gameObject.ballMagnitude = Math.sqrt(
+			this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+		);
+		this.gameObject.sendToClients<{ RaivenSpecial: boolean }>('RaivenSpecial', {
+			RaivenSpecial: true,
+		});
+		this.gameObject.ballVel.x /= 4;
+		this.gameObject.ballVel.y /= 4;
+		this.lightningSlowTimer = setTimeout(() => {
+			this.gameObject.ballVel.x *= 4;
+			this.gameObject.ballVel.y *= 4;
+			this.gameObject.lightning = true;
+			this.lightningSlowTimer = null;
+		}, 500);
+	}
 
-  abMirage(): void {
-    this.gameObject.mirage = true;
-    this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
-      AbilityMirage: true,
+	revertLightningSlow(): void {
+		if (this.lightningSlowTimer) {
+			clearTimeout(this.lightningSlowTimer);
+			this.gameObject.ballVel.x *= 4;
+			this.gameObject.ballVel.y *= 4;
+			this.lightningSlowTimer = null;
+		}
+	}
+
+	abMirage(): void {
+		this.gameObject.mirage = true;
+		this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
+			AbilityMirage: true,
     });
     if (this.mirageTimer) {
       clearTimeout(this.mirageTimer);
@@ -617,6 +634,7 @@ export class GameService {
       if (this.freezeTimer) {
         clearTimeout(this.freezeTimer);
       } else {
+				this.revertLightningSlow()
         if (this.lightningTimer) {
           clearTimeout(this.lightningTimer);
           this.lightningTimer = null;
@@ -791,6 +809,7 @@ export class GameService {
   private resetEffects(): void {
     this.gameObject.player1.freeze = false;
     this.gameObject.player2.freeze = false;
+		this.revertLightningSlow()
     this.gameObject.lightning = false;
     this.gameObject.freeze = false;
     this.gameObject.player1.getOverHere = false;
@@ -821,6 +840,12 @@ export class GameService {
     }
     if (this.freezeTimer) {
       clearTimeout(this.freezeTimer);
+			this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
+				'AbilityFreeze',
+				{
+					AbilityFreeze: false,
+				},
+      );
       this.freezeTimer = null;
     }
   }
