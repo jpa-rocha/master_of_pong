@@ -22,7 +22,7 @@ my-1 mx-0 md:mx-1 md:ml-3 text-sm bg-red-500 text-gray-50
 hover:bg-red-800 
 py-2 px-4
 shadow rounded-xl
-`
+`;
 
 const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   const [user, setUser] = useState<User>();
@@ -39,9 +39,8 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     if (chat && chat.id === compare.id) {
       window.location.reload();
     }
-  }
+  };
   socket.on("checkKick", handleCheckKick);
-
 
   useEffect(() => {
     const getUser = async () => {
@@ -50,7 +49,6 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         .post("api/auth/getUserID", { token })
         .then((res) => res.data);
       const user = await axios.get(`api/users/${id}`);
-
       return user.data;
     };
 
@@ -67,15 +65,14 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         setChat(chat);
         socket.emit("getMessages", { chatID: chat.id });
       }
-    }
-    
+    };
+
     const handleReturnMessages = (data: ChatMessagesResult) => {
-      if (chat && chat?.id === data.chatID)
-      setMessages(data.messages);
-    }
-    
+      if (chat && chat?.id === data.chatID) setMessages(data.messages);
+    };
+
     if (chat && user && chat.admins) {
-      const check = chat.admins.some(admin => admin.id === user.id);
+      const check = chat.admins.some((admin) => admin.id === user.id);
       if (check) setIsUserAdmin(true);
       else setIsUserAdmin(false);
     }
@@ -89,17 +86,17 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   }, [messages, user?.username, socket, chat]);
 
   useEffect(() => {
-    if (chat?.id && user?.username && chat.title === 'direct') {
+    if (chat?.id && user?.username && chat.title === "direct") {
       if (user.username === chat.users[0].username && chat.users[1].username)
         chat.title = chat.users[1].username;
-      else if (chat.users[0].username)
-        chat.title = chat.users[0].username;
+      else if (chat.users[0].username) chat.title = chat.users[0].username;
     }
   }, [chat, user]);
 
   useEffect(() => {
     if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -109,122 +106,162 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
   }
 
   const handleLeaveChat = () => {
-    socket.emit('leaveChat', {chatID: chat?.id})
+    socket.emit("leaveChat", { chatID: chat?.id });
     document.location.reload();
   };
 
   const togglePopup = () => {
     setIsBannedPopupOpen(!isBannedPopupOpen);
-  }
+  };
 
   const togglePopupPassword = () => {
     setIsPasswordPopupOpen(!isPasswordPopupOpen);
-  }
+  };
 
   return (
-	<>
-    <div>
-      <header className="md:ml-2 font-bold text-2xl flex md:justify-between md:flex-row flex-col">
-        <h1 className="underline decoration-gray-500">{chat?.title}</h1>
-        {chat?.channel !== "direct" ? (
-          <div className="flex flex-col md:flex-row ">
-            {chat ? (
-              <div>
-                <button onClick={() => handleLeaveChat()} className={btnStyle}>
-                  Leave
-                </button>
-                {isUserAdmin ? (
-                  <button onClick={() => togglePopup()}  className={btnStyle}>
-                    Banned Users
+    <>
+      <div>
+        <header className="md:ml-2 font-bold text-2xl flex md:justify-between md:flex-row flex-col">
+          <h1 className="underline decoration-gray-500">{chat?.title}</h1>
+          {chat?.channel !== "direct" ? (
+            <div className="flex flex-col md:flex-row ">
+              {chat ? (
+                <div>
+                  <button
+                    onClick={() => handleLeaveChat()}
+                    className={btnStyle}
+                  >
+                    Leave
                   </button>
-                ):null}
-                {user?.id === chat?.creator.id ? (
-                  <button onClick={() => togglePopupPassword()} className={btnStyle}>
-                    Manage Password
-                  </button>
-                ): null}
-              </div>
-            ):null}
-          </div>
-        ) : null}
-      </header>
-    </div>
-
-    <div className="flex flex-col h-full overflow-x-auto mb-4" ref={messageContainerRef}>
-      <div className="flex flex-col h-full">
-
-        <div className="grid grid-cols-12 gap-y-2">
-          {messages &&
-            messages.map((message) =>
-              message.sender.username === user?.username ? (
-                <div className="col-start-1 col-end-8 p-3 rounded-lg" key={message.id}>
-                  <div className="flex flex-row items-center">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
-                      <div>
-                        <div className="text-sm italic ml-5 text-gray-900">{message.sender.username}</div>
-                        <div className="relative ml-3 text-sm 2xl:text-md bg-white py-2 px-4 shadow rounded-xl">
-                          {message.content}
-                        </div>
-                      </div>
-                  </div>
+                  {isUserAdmin ? (
+                    <button onClick={() => togglePopup()} className={btnStyle}>
+                      Banned Users
+                    </button>
+                  ) : null}
+                  {user?.id === chat?.creator.id ? (
+                    <button
+                      onClick={() => togglePopupPassword()}
+                      className={btnStyle}
+                    >
+                      Manage Password
+                    </button>
+                  ) : null}
                 </div>
-              ) : (
-                <div className="col-start-6 col-end-13 p-3 rounded-lg" key={message.id}>
-                  <div className="flex flex-col">
-                    <div className="flex items-center justify-start flex-row-reverse">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"></div>
+              ) : null}
+            </div>
+          ) : null}
+        </header>
+      </div>
+
+      <div
+        className="flex flex-col h-full overflow-x-auto mb-4"
+        ref={messageContainerRef}
+      >
+        <div className="flex flex-col h-full">
+          <div className="grid grid-cols-12 gap-y-2">
+            {messages &&
+              messages.map((message) =>
+                message.sender.username === user?.username ? (
+                  <div
+                    className="col-start-1 col-end-8 p-3 rounded-lg"
+                    key={message.id}
+                  >
+                    <div className="flex flex-row items-center">
+                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                        <img
+                          className="w-10 h-10 rounded-full"
+                          src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
+                          alt="user"
+                        />
+                      </div>
                       <div>
-                        <div className="text-sm ml-5 italic text-gray-900">{message.sender.username}</div>
-                        <div className="relative mr-3 text-sm 2xl:text-md bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                        <div className="text-sm italic ml-5 text-gray-900">
+                          {message.sender.username}
+                        </div>
+                        <div className="relative ml-3 text-sm 2xl:text-md bg-white py-2 px-4 shadow rounded-xl">
                           {message.content}
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            )}
+                ) : (
+                  <div
+                    className="col-start-6 col-end-13 p-3 rounded-lg"
+                    key={message.id}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-start flex-row-reverse">
+                        <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
+                          <img
+                            className="w-10 h-10 rounded-full"
+                            src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
+                            alt="user"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-sm ml-5 italic text-gray-900">
+                            {message.sender.username}
+                          </div>
+                          <div className="relative mr-3 text-sm 2xl:text-md bg-indigo-100 py-2 px-4 shadow rounded-xl">
+                            {message.content}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+          </div>
         </div>
       </div>
-    </div>
-    {isBannedPopupOpen && chat && (
+      {isBannedPopupOpen && chat && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             zIndex: 999,
           }}
         >
-          <BannedUsersPopUp isOpen={isBannedPopupOpen} onClose={togglePopup} socket={socket} chat={chat} />
+          <BannedUsersPopUp
+            isOpen={isBannedPopupOpen}
+            onClose={togglePopup}
+            socket={socket}
+            chat={chat}
+          />
         </div>
       )}
-    {isPasswordPopupOpen && chat && user && (
+      {isPasswordPopupOpen && chat && user && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             zIndex: 999,
           }}
         >
-          <PopUpPassword isOpen={isPasswordPopupOpen} onClose={togglePopupPassword} socket={socket} chat={chat} user={user} />
+          <PopUpPassword
+            isOpen={isPasswordPopupOpen}
+            onClose={togglePopupPassword}
+            socket={socket}
+            chat={chat}
+            user={user}
+          />
         </div>
       )}
     </>
-   
   );
 };
 
