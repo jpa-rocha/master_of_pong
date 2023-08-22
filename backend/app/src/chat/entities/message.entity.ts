@@ -16,7 +16,7 @@ export class Message {
   @ManyToOne(() => User, (user) => user.messages)
   sender: User;
 
-  @ManyToOne(() => Chat, (chat) => chat.messages)
+  @ManyToOne(() => Chat, (chat) => chat.messages, { onDelete: 'CASCADE' })
   chat: Chat;
 
   @Column({ type: 'varchar', length: 255 })

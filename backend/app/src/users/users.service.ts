@@ -56,8 +56,6 @@ export class UsersService {
   }
 
   async updateSocket(socketID: string, updateUserDto: UpdateUserDto) {
-    console.log('updateSocket => socketID = ', socketID);
-    console.log('updateSocket => UserDTO  = ', updateUserDto);
     const user = await this.usersRepository.findOne({ where: { socketID } });
 
     if (!user) {
@@ -209,7 +207,6 @@ export class UsersService {
         })),
       ];
 
-      console.log('AAAAAAAAAAAAAAAAAAAA');
       const confirmedFriends = friends.filter(
         (friend) => friend.isFriend === true,
       );
@@ -275,7 +272,6 @@ export class UsersService {
       .where('friend.receiver.id = :userId', { userId })
       .andWhere('friend.isFriend = :isFriend', { isFriend: false })
       .getMany();
-    console.log('requests = ', requests);
     return requests;
   }
 

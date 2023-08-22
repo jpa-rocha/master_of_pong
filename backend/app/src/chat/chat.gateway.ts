@@ -294,7 +294,6 @@ export class ChatGateway {
       data.userID,
       data.chatID,
     );
-    console.log(Date());
     if (data.time != 0) {
       const unmuteTimer = setTimeout(async () => {
         const chat2 = await this.chatService.unmuteUser(
@@ -302,7 +301,6 @@ export class ChatGateway {
           data.userID,
           data.chatID,
         );
-        console.log(Date());
         chat2.users.forEach((user) => {
           this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
         });
