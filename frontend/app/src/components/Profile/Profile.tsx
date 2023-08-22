@@ -190,7 +190,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     <>
       <Grid container>
         <Grid item xs={12}>
-          <NavBarMainPage></NavBarMainPage>
+          <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
         <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">

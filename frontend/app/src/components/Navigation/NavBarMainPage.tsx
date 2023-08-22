@@ -6,6 +6,8 @@ import HamburgerMenu from "./HamburgerMenu";
 import axios from "axios";
 import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
+import { Socket } from "socket.io-client";
+import IncomingChallengePopUp from "../../utils/incomingChallengePopUp";
 
 const btnToggleStyle = `
 block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2 
@@ -19,7 +21,19 @@ interface UserProps {
   is_2fa_enabled: boolean;
 }
 
-const NavBarTest: React.FunctionComponent = () => {
+interface ChallengeDetails {
+  mode: number;
+  hyper:boolean
+  dodge: boolean;
+  character: number;
+  paddle: number;
+}
+
+interface NavBarProps {
+  socket: Socket;
+}
+
+const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [hamburgerMenu, setHamburgerMenu] = useState<boolean>(false);
   const [userID, setUserID] = React.useState<string>("");
@@ -31,6 +45,26 @@ const NavBarTest: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
   const hamburgerMenuRef = useRef<HTMLDivElement>(null);
+
+  const [isChallengePopUp, setIsChallengePopUp] = useState(false);
+  const [challengeDetails, setChallengeDetails] = useState<ChallengeDetails>();
+
+  useEffect(() => {
+    
+    function handleIncomingChallenge(result: ChallengeDetails) {
+      setChallengeDetails(result);
+      toggleChallengePopUp();
+    }
+    console.log("HERE");
+    socket.on("challenge", handleIncomingChallenge);
+    return () => {
+      socket.off("challenge", handleIncomingChallenge);
+    }
+  }, [])
+
+  function toggleChallengePopUp() {
+    setIsChallengePopUp(!isChallengePopUp);
+  }
 
   useEffect(() => {
     (async () => {
@@ -306,6 +340,24 @@ const NavBarTest: React.FunctionComponent = () => {
             UserId={userID}
             off={true}
           />
+        </div>
+      )}
+          {isChallengePopUp && challengeDetails && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20%',
+            left: 0,
+            width: '20%',
+            height: '10%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}
+        >
+          <IncomingChallengePopUp isOpen={isChallengePopUp} onClose={toggleChallengePopUp} userID="HELLOWORLD" challengerID="GOODBYEWORLD" challengeDetais={challengeDetails} socket={socket} />
         </div>
       )}
     </>

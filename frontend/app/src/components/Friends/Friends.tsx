@@ -117,7 +117,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     <>
       <Grid container style={imgStyle} direction="column">
         <Grid item xs={2}>
-          <NavBarMainPage></NavBarMainPage>
+        	<NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
         <Grid item xs={10} mt={9}>

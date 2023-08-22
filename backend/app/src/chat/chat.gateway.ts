@@ -445,4 +445,13 @@ export class ChatGateway {
     );
     this.server.to(client.id).emit('isDirectBlockedReturn', result);
   }
+
+  @SubscribeMessage('sendChallenge')
+  async sendChallenge(client: Socket, data: { userID: string, targetID: string, mode: number, hyper: boolean, dodge: boolean, character: number, paddle: number}) {
+    const target = await this.userService.findOne(data.targetID);
+    this.server.to(target.socketID).emit('challenge', {mode: data.mode, hyper: data.hyper, dodge: data.dodge, character: data.character, paddle: data.paddle});
+    // implement accept / decline
+    // redirect the users to /game
+    // contact gameGateway to start the game
+  }
 }

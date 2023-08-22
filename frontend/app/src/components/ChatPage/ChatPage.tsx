@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
@@ -8,7 +8,7 @@ import ChatFooter from "./ChatFooter";
 import { Grid } from "@mui/material";
 import { getUserID, getToken } from "../../utils/Utils";
 import ChatUsers from "./ChatUsers";
-
+import IncomingChallengePopUp from "../../utils/incomingChallengePopUp"
 
 interface ChatPageProps {
   socket: Socket;
@@ -19,7 +19,6 @@ const imgStyle = {
 };
 
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
-
   (async () => {
     const userID = await getUserID(getToken("jwtToken"));
     socket.emit("activityStatus", { userID: userID, status: "online" });
@@ -31,7 +30,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
         {/* <div className="flex flex-col justify-center items-center h-[100vh]" style={imgStyle} /> */}
 
     <Grid item xs={12}> 
-		  <NavBarMainPage></NavBarMainPage>
+		  <NavBarMainPage socket={socket}></NavBarMainPage>
    	</Grid>
 	   <Grid item xs={12} >
 		    <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">
@@ -50,7 +49,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
 		<Footer></Footer>
     </Grid>
 
-    </Grid> 
+    </Grid>
     </>
   );
 };

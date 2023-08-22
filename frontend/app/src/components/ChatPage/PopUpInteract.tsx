@@ -278,7 +278,7 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({
                 <button className="blue-back" onClick={handleGetDirectChat}>
                   DM
                 </button>
-                <button className="blue-back">Challenge</button>
+                <button onClick={() => handleChallenge(target.id)} className="blue-back">Challenge</button>
                 {isBlocked ? (
                   <button
                     className="green-back"

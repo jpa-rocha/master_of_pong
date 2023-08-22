@@ -253,7 +253,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
           <InteractPopUp isOpen={isPopupOpen} onClose={togglePopup} socket={socket} chat={chat} user={userCurrent} userRole={userCurrentRole} target={interactTarget} targetRole={interactTargetRole} onChallenge={handleChallengeTarget}/>
         </div>
       	)}
-		  {isChallengePopupOpen && (
+		  {isChallengePopupOpen && userCurrent && (
         <div
           style={{
             position: 'fixed',
@@ -268,7 +268,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
             zIndex: 999,
           }}
         >
-          <ChallengeRoomPopup isOpen={isChallengePopupOpen} onClose={toggleChallengePopup} targetID={challengeTarget} socket={socket} />
+          <ChallengeRoomPopup isOpen={isChallengePopupOpen} onClose={toggleChallengePopup} userID={userCurrent.id} targetID={challengeTarget} socket={socket} />
         </div>
       )}
 		</>

@@ -38,7 +38,7 @@ const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   return (
     <Grid container>
       <Grid item xs={12}>
-        <NavBarMainPage></NavBarMainPage>
+        <NavBarMainPage socket={socket}></NavBarMainPage>
       </Grid>
       <Grid item xs={12}>
         <div className="relative h-[100vh]">
