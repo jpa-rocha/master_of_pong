@@ -21,19 +21,6 @@ import { of } from 'rxjs';
 import { User } from './entities/user.entity';
 import { use } from 'passport';
 
-// const storage = {
-//   storage: diskStorage({
-//     destination: './src/uploads/avatars',
-//     filename: (req, file, cb) => {
-//       const filename: string =
-//         path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-//       const extension: string = path.parse(file.originalname).ext;
-
-//       cb(null, `${filename}${extension}`);
-//     },
-//   }),
-// };
-
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -97,6 +84,16 @@ export class UsersController {
     @Param('id') id: string,
   ) {
     const user = await this.findOne(id);
+
+    /* if there is already an avatar, delete the old one */
+    if (user.avatar && user.avatar !== 'default-avatar.jpg') {
+      const fs = require('fs');
+      const path = require('path');
+      const filePath = path.join('./src/assets/avatars/', user.avatar);
+      console.log('---- filePath: ' + filePath + '----');
+      fs.unlinkSync(filePath);
+    }
+
     this.usersService.update(id, { avatar: file.filename });
 
     return of({ imagePath: file.filename });
