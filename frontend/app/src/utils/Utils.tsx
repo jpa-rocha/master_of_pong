@@ -70,6 +70,5 @@ export function decodeToken(coded: string): Token | null {
       }
       return token
   }
-
   return null
 }

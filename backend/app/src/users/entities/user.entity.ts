@@ -20,7 +20,7 @@ export class User {
   @Column()
   forty_two_id: number;
 
-  @Column({ type: 'varchar', length: 15, unique: true })
+  @Column({ type: 'varchar', length: 15, unique: true, nullable: false})
   username: string;
 
   @Column({ type: 'varchar', nullable: true })

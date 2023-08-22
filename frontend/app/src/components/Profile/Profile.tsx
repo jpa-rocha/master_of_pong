@@ -5,6 +5,7 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
+import NameChangePopUp from "./PopUpNameChange";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 
@@ -55,12 +56,15 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   const [profileImg, setProfileImg] = useState("");
   const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<{ id: string } | string>(profileID);
+  const [isNameChangedPopUp, setIsNameChangedPopUp] = useState(false);
 
   useEffect(() => {
     async function getUserName() {
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
+        setUserID(userData.id)
+        setUserName(userData.username);
         setUserName(userData.username);
         setWins(userData.wins);
         setLosses(userData.losses);
@@ -84,24 +88,31 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     getMatches();
     console.log("Matches = ", match);
     socket.emit("activityStatus", { userID: userID, status: "online" });
-  }, [userID, socket]);
+  }, [userID, socket, isNameChangedPopUp]);
 
-  const setUser = async (newName: string) => {
-    console.log("SetUser function called");
-    const data = { username: newName };
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
-      },
-    };
-    if (userID !== undefined) {
-      const response = await axios.patch(`api/users/${userID}`, data, config);
-      setUserName(newName);
-    }
-  };
+  // const setUser = async (newName: string) => {
+  //   console.log("SetUser function called");
+  //   const data = { username: newName };
+  //   const config = {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "Access-Control-Allow-Origin": "https://localhost:3000",
+  //       "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+  //     },
+  //   };
+  //   if (userID !== undefined) {
+  //     const response = await axios.patch(`api/users/${userID}`, data, config);
+  //     setUserName(newName);
+  //   }
+  // };
+  
+  useEffect(() => {
+    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+  }, [userID]);
 
+  if (!userName) {
+    return <div>Loading...</div>;
+  }
   const handleProfileImgChange = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -142,49 +153,47 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     fileInput.click();
   };
 
-  const handleUserNameChange = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    const dialog = document.createElement("div");
-    dialog.classList.add("dialog");
-    const input = document.createElement("input");
-    input.maxLength = 15;
-    input.type = "text";
-    input.placeholder = "Enter new username";
-    const okButton = document.createElement("button");
-    okButton.textContent = "OK";
-    okButton.addEventListener("click", () => {
-      const newUserName = input.value;
-      if (newUserName) {
-        // update database
-        setUser(newUserName);
-        document.body.removeChild(dialog);
-      }
-    });
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", () => {
-      document.body.removeChild(dialog);
-    });
-    dialog.appendChild(input);
-    dialog.appendChild(okButton);
-    dialog.appendChild(cancelButton);
-    document.body.appendChild(dialog);
-    const rect = e.currentTarget.getBoundingClientRect();
-    dialog.style.position = "absolute";
-    dialog.style.top = `${rect.bottom}px`;
-    dialog.style.left = `${rect.left}px`;
-    input.focus();
+  const handleUserNameChange = () => {
+    setIsNameChangedPopUp(!isNameChangedPopUp);
+    console.log("isNameChangedPopUp = ", isNameChangedPopUp);
   };
+  // const handleUserNameChange = (
+  //   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  // ) => {
+  //   e.preventDefault();
+  //   const dialog = document.createElement("div");
+  //   dialog.classList.add("dialog");
+  //   const input = document.createElement("input");
+  //   input.maxLength = 15;
+  //   input.type = "text";
+  //   input.placeholder = "Enter new username";
+  //   const okButton = document.createElement("button");
+  //   okButton.textContent = "OK";
+  //   okButton.addEventListener("click", () => {
+  //     const newUserName = input.value;
+  //     if (newUserName) {
+  //       // update database
+  //       setUser(newUserName);
+  //       document.body.removeChild(dialog);
+  //     }
+  //   });
+  //   const cancelButton = document.createElement("button");
+  //   cancelButton.textContent = "Cancel";
+  //   cancelButton.addEventListener("click", () => {
+  //     document.body.removeChild(dialog);
+  //   });
+  //   dialog.appendChild(input);
+  //   dialog.appendChild(okButton);
+  //   dialog.appendChild(cancelButton);
+  //   document.body.appendChild(dialog);
+  //   const rect = e.currentTarget.getBoundingClientRect();
+  //   dialog.style.position = "absolute";
+  //   dialog.style.top = `${rect.bottom}px`;
+  //   dialog.style.left = `${rect.left}px`;
+  //   input.focus();
+  // };
 
-  useEffect(() => {
-    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
-  }, [userID]);
-
-  if (!userName) {
-    return <div>Loading...</div>;
-  }
+ 
 
   return (
     <>
@@ -318,6 +327,27 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           <Footer></Footer>
         </Grid>
       </Grid>
+      {isNameChangedPopUp && (
+        <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 999,
+        }}
+      >
+        <NameChangePopUp
+          isOpen={isNameChangedPopUp}
+          onClose={handleUserNameChange}
+          UserId={userID} />
+      </div>
+        )}
     </>
   );
 };
