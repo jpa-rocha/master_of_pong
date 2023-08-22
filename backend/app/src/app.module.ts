@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GameModule } from './game/game.module';
+// import { GameModule } from './game/game.module';
 import { Server } from 'socket.io';
 import { GameDataModule } from './game-data/game-data.module';
 import { ChatModule } from './chat/chat.module';
@@ -22,7 +22,7 @@ import { JwtAuthService } from './auth/jwt-auth/jwt-auth.service';
 
 @Module({
   imports: [
-    GameModule,
+    // GameModule,
     ConfigModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

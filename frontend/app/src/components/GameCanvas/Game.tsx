@@ -16,8 +16,11 @@ import { useState } from "react";
 // interface GamePageProps {
 //   socket: Socket;
 // }
+type GameComponentProps = {
+  socket: Socket;
+};
 
-const Game = () => {
+const Game: React.FC<GameComponentProps> = ({ socket }) => {
   // const [userID, setUserID] = useState<string>("");
   // (async () => {
   //   setUserID(await getUserID(getToken("jwtToken")));
@@ -29,9 +32,9 @@ const Game = () => {
       <Grid container>
         {/* This is navigation */}
 
-        {/* <Grid item xs={12}>
+        <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
-        </Grid> */}
+        </Grid>
 
         {/* This is main */}
         <Grid item xs={12}>
@@ -85,14 +88,14 @@ const Game = () => {
                     alignItems: "center",
                   }}
                 >
-                  <GameCanvas />
+                  <GameCanvas socket={socket} />
                 </div>
               </div>
             </Box>
           </Box>
         </Grid>
-		<Grid item xs={12}>
-			<Footer/>
+        <Grid item xs={12}>
+          <Footer />
         </Grid>
       </Grid>
     </>

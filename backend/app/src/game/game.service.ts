@@ -3,7 +3,8 @@ import { GameObject } from './gameObject';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
 import { Inject, forwardRef } from '@nestjs/common';
-import { GameGateway } from './game.gateway';
+// import { GameGateway } from './game.gateway';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 // @Injectable()
 export class GameService {
@@ -13,7 +14,7 @@ export class GameService {
   private freezeTimer: NodeJS.Timeout | null = null;
   private mirageTimer: NodeJS.Timeout | null = null;
   private shrinkTimer: NodeJS.Timeout | null = null;
-	private lightningSlowTimer: NodeJS.Timeout | null = null;
+  private lightningSlowTimer: NodeJS.Timeout | null = null;
   private lightningTimer: NodeJS.Timeout | null = null;
   private ventailTimer: NodeJS.Timeout | null = null;
 
@@ -22,18 +23,18 @@ export class GameService {
 
   constructor(
     private readonly gameObject: GameObject,
-    @Inject(forwardRef(() => GameGateway))
-    private readonly gameGateway: GameGateway,
+    @Inject(forwardRef(() => ChatGateway))
+    private readonly chatGateway: ChatGateway,
   ) {
     console.log('new gameservice class created');
   }
 
   async getUsernames() {
-    this.gameObject.player1.user = await this.gameGateway.getUserName(
+    this.gameObject.player1.user = await this.chatGateway.getUserName(
       this.gameObject.player1.databaseId,
     );
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer)
-      this.gameObject.player2.user = await this.gameGateway.getUserName(
+      this.gameObject.player2.user = await this.chatGateway.getUserName(
         this.gameObject.player2.databaseId,
       );
   }
@@ -42,6 +43,9 @@ export class GameService {
     if (this.gameObject.gameStarted) return;
     this.gameObject.gameStarted = true;
     this.gameObject.sendToClients<{
+      mode: number;
+      hyper: boolean;
+      dodge: boolean;
       player1Character: number;
       player1Size: number;
       player1X: number;
@@ -50,7 +54,10 @@ export class GameService {
       player2Size: number;
       player2X: number;
       player2Y: number;
-    }>('playerCharacter', {
+    }>('gameOptions', {
+      mode: this.gameObject.player1.options.gameMode,
+      hyper: this.gameObject.player1.options.hyper,
+      dodge: this.gameObject.player1.options.dodge,
       player1Character: this.gameObject.player1.options.character,
       player1Size: this.gameObject.player1.options.paddle,
       player1X: this.gameObject.player1.pos.x,
@@ -113,6 +120,7 @@ export class GameService {
 
   stopGame(leftID = ''): void {
     if (this.gameObject.gameEnded === true) return;
+    console.log('GAME ENDED-------------------------------------------');
     this.gameObject.gameEnded = true;
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
@@ -172,7 +180,7 @@ export class GameService {
       else if (this.gameObject.gameOptions.dodge) gameModeOptions = 'DodgeBall';
       else if (this.gameObject.gameOptions.hyper) gameModeOptions = 'Hyper';
       else gameModeOptions = 'Default';
-      this.gameGateway.addGameData(
+      this.chatGateway.addGameData(
         this.gameObject.player1.databaseId,
         this.gameObject.player2.databaseId,
         winningPlayerId,
@@ -250,47 +258,47 @@ export class GameService {
   }
 
   abLightning(): void {
-		if (this.freezeTimer) {
-			clearTimeout(this.freezeTimer);
+    if (this.freezeTimer) {
+      clearTimeout(this.freezeTimer);
       this.freezeTimer = null;
       this.gameObject.ballVel.x = this.gameObject.ballVelOld.x;
       this.gameObject.ballVel.y = this.gameObject.ballVelOld.y;
       this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
-			'AbilityFreeze',
-      {
-				AbilityFreeze: false,
-      },
-			);
-		}
-		this.gameObject.ballMagnitude = Math.sqrt(
-			this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
-		);
-		this.gameObject.sendToClients<{ RaivenSpecial: boolean }>('RaivenSpecial', {
-			RaivenSpecial: true,
-		});
-		this.gameObject.ballVel.x /= 4;
-		this.gameObject.ballVel.y /= 4;
-		this.lightningSlowTimer = setTimeout(() => {
-			this.gameObject.ballVel.x *= 4;
-			this.gameObject.ballVel.y *= 4;
-			this.gameObject.lightning = true;
-			this.lightningSlowTimer = null;
-		}, 500);
-	}
+        'AbilityFreeze',
+        {
+          AbilityFreeze: false,
+        },
+      );
+    }
+    this.gameObject.ballMagnitude = Math.sqrt(
+      this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
+    );
+    this.gameObject.sendToClients<{ RaivenSpecial: boolean }>('RaivenSpecial', {
+      RaivenSpecial: true,
+    });
+    this.gameObject.ballVel.x /= 4;
+    this.gameObject.ballVel.y /= 4;
+    this.lightningSlowTimer = setTimeout(() => {
+      this.gameObject.ballVel.x *= 4;
+      this.gameObject.ballVel.y *= 4;
+      this.gameObject.lightning = true;
+      this.lightningSlowTimer = null;
+    }, 500);
+  }
 
-	revertLightningSlow(): void {
-		if (this.lightningSlowTimer) {
-			clearTimeout(this.lightningSlowTimer);
-			this.gameObject.ballVel.x *= 4;
-			this.gameObject.ballVel.y *= 4;
-			this.lightningSlowTimer = null;
-		}
-	}
+  revertLightningSlow(): void {
+    if (this.lightningSlowTimer) {
+      clearTimeout(this.lightningSlowTimer);
+      this.gameObject.ballVel.x *= 4;
+      this.gameObject.ballVel.y *= 4;
+      this.lightningSlowTimer = null;
+    }
+  }
 
-	abMirage(): void {
-		this.gameObject.mirage = true;
-		this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
-			AbilityMirage: true,
+  abMirage(): void {
+    this.gameObject.mirage = true;
+    this.gameObject.sendToClients<{ AbilityMirage: boolean }>('AbilityMirage', {
+      AbilityMirage: true,
     });
     if (this.mirageTimer) {
       clearTimeout(this.mirageTimer);
@@ -634,7 +642,7 @@ export class GameService {
       if (this.freezeTimer) {
         clearTimeout(this.freezeTimer);
       } else {
-				this.revertLightningSlow()
+        this.revertLightningSlow();
         if (this.lightningTimer) {
           clearTimeout(this.lightningTimer);
           this.lightningTimer = null;
@@ -809,7 +817,7 @@ export class GameService {
   private resetEffects(): void {
     this.gameObject.player1.freeze = false;
     this.gameObject.player2.freeze = false;
-		this.revertLightningSlow()
+    this.revertLightningSlow();
     this.gameObject.lightning = false;
     this.gameObject.freeze = false;
     this.gameObject.player1.getOverHere = false;
@@ -840,11 +848,11 @@ export class GameService {
     }
     if (this.freezeTimer) {
       clearTimeout(this.freezeTimer);
-			this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
-				'AbilityFreeze',
-				{
-					AbilityFreeze: false,
-				},
+      this.gameObject.sendToClients<{ AbilityFreeze: boolean }>(
+        'AbilityFreeze',
+        {
+          AbilityFreeze: false,
+        },
       );
       this.freezeTimer = null;
     }
