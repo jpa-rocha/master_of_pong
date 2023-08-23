@@ -183,7 +183,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
           ref={dropdownMenuRef}
           className="relative flex flex-wrap items-center justify-between px-5 py-4"
         >
-          <img src={logo} alt="logo" className="h-[50px]" />
           <div className="flex items-center md:order-2">
             <button
               type="button"
@@ -200,7 +199,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute z-50 top-16 right-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
+              <div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
                 <div className="px-4 py-3">
                   <span className="block text-sm 2xl:text-xl italic text-black">
                     {userInfo?.username}
@@ -256,6 +255,16 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             )}
           </div>
           <div ref={hamburgerMenuRef}>
+            <div
+              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
+						focus:outline-none"
+            >
+              <img
+                src={logo}
+                alt="logo"
+                className="h-[50px] absolute left-[50%] right-[50%]"
+              />
+            </div>
             <button
               data-collapse-toggle="navbar-user"
               type="button"
@@ -283,16 +292,19 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             </button>
           </div>
           {hamburgerMenu && (
-            <div className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-black divide-y divide-gray-100 rounded-lg shadow">
-              <HamburgerMenu
-                handleUserMain={handleUserMain}
-                handleGame={handleGame}
-                handleChat={handleChat}
-              ></HamburgerMenu>
+            <div>
+              <div className="absolute z-50 top-16 right-3 px-6 text-base list-none bg-black divide-y divide-gray-100 rounded-lg shadow">
+                <HamburgerMenu
+                  handleUserMain={handleUserMain}
+                  handleGame={handleGame}
+                  handleChat={handleChat}
+                ></HamburgerMenu>
+              </div>
             </div>
           )}
 
           <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
+            <img src={logo} alt="logo" className="h-[50px] absolute left-5" />
             <HamburgerMenu
               handleUserMain={handleUserMain}
               handleGame={handleGame}
