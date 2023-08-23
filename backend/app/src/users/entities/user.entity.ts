@@ -20,7 +20,7 @@ export class User {
   @Column()
   forty_two_id: number;
 
-  @Column({ type: 'varchar', length: 15, unique: true, nullable: false})
+  @Column({ type: 'varchar', length: 15, unique: true, nullable: false })
   username: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -43,6 +43,9 @@ export class User {
 
   @Column({ type: 'varchar', default: 'offline' })
   status: string;
+
+  @Column({ type: 'varchar', default: null })
+  gameID: string;
 
   @Column({ type: 'varchar', nullable: true })
   socketID: string;

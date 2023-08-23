@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import axios from "axios";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { Button, Options, ImageContainer } from "./Canvas";
 import GetOverHere from "../../sounds/getOverHere.mp3";
 import IceSound from "../../sounds/IceSound.mp3";
@@ -16,7 +16,7 @@ import { Mode } from "./enums/Modes";
 import { Paddles } from "./enums/Paddles";
 import { Character } from "./enums/Characters";
 import { EndScreen } from "./Canvas";
-import { getUserID, getToken } from "../../utils/Utils";
+import { getUserID } from "../../utils/Utils";
 
 axios.defaults.baseURL = "http://localhost:5000";
 
@@ -435,28 +435,10 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     (e: MouseEvent) => {
       if (!canvas.current || !ctx) return;
       ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, canvas.current.width, canvas.current.height);
-      ctx.drawImage(
-        Images.headGamemode,
-        canvas.current.width / 2 - 150,
-        20,
-        300,
-        75
-      );
-      ctx.drawImage(
-        Images.headPaddle,
-        canvas.current.width / 2 - 150,
-        190,
-        300,
-        75
-      );
-      ctx.drawImage(
-        Images.headCharacter,
-        canvas.current.width / 2 - 150,
-        420,
-        300,
-        75
-      );
+      ctx.fillRect(0, 0, 1200, 800);
+      ctx.drawImage(Images.headGamemode, 450, 20, 300, 75);
+      ctx.drawImage(Images.headPaddle, 450, 190, 300, 75);
+      ctx.drawImage(Images.headCharacter, 450, 420, 300, 75);
       const mouseX = e.clientX - canvas.current.offsetLeft;
       const mouseY = e.clientY - (canvas.current.offsetTop + 82);
       if (checkMouseOnButton(startButton, mouseX, mouseY))
@@ -726,6 +708,17 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const mouseY = e.clientY - (canvas.current.offsetTop + 82);
       if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
         setGameSelection(true);
+        switch (selectedGamemode) {
+          case Mode.Singleplayer:
+            gamemodeButtons[0].selected = true;
+            break;
+          case Mode.MasterOfPong:
+            gamemodeButtons[1].selected = true;
+            break;
+          case Mode.Regular:
+            gamemodeButtons[2].selected = true;
+            break;
+        }
         setBallSize(15);
         setBallPosition({ x: 600, y: 400 });
         setWinner(0);
@@ -733,7 +726,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         setAbilities(false);
       }
     },
-    [canvas, ctx, resetButton]
+    [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode]
   );
 
   const handleFinishMove = useCallback(
@@ -880,16 +873,190 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     ]
   );
 
+  interface rejoinData {
+    mode: number;
+    hyper: boolean;
+    dodge: boolean;
+    player: number;
+    ability: number;
+    player1Character: number;
+    player1Size: number;
+    player1X: number;
+    player1Y: number;
+    player1Name: string;
+    player2Character: number;
+    player2Size: number;
+    player2X: number;
+    player2Y: number;
+    player2Name: string;
+    score: { p1: number; p2: number };
+  }
+
   useEffect(() => {
-    // socket = io("http://localhost:8002");
-    // console.log("Trying to load the window");
     socket.emit("loadWindow");
-    // emitActivityStatus();
-    // return () => {
-    //   if (socket) {
-    //     socket.disconnect();
-    //   }
-    // };
+    socket.emit("checkOngoingGame");
+
+    function handleRejoin(data: rejoinData) {
+      setSelectedGamemode(data.mode);
+      dodgeButton.selected = data.dodge;
+      hyperButton.selected = data.hyper;
+      setPlayer(data.player);
+      setPlayer1PositionX(data.player1X);
+      setPlayer2PositionX(data.player2X);
+      setPlayer1Position(data.player1Y);
+      setPlayer2Position(data.player2Y);
+      setScore(data.score);
+      setPlayer1Name(data.player1Name);
+      setPlayer2Name(data.player2Name);
+      if (data.mode !== Mode.Regular) {
+        setAbilities(true);
+        switch (data.ability) {
+          case 0:
+            setPlayerAbility(Images.SmallerBallAbility);
+            break;
+          case 1:
+            setPlayerAbility(Images.FreezeAbility);
+            break;
+          case 2:
+            setPlayerAbility(Images.SoundGrenadeAbility);
+            break;
+          case 3:
+            setPlayerAbility(Images.BiggerBallAbility);
+            break;
+          case 4:
+            setPlayerAbility(Images.MirageAbility);
+            break;
+          case 5:
+            setPlayerAbility(Images.DeflectAbility);
+            break;
+          case 6:
+            break;
+        }
+        let playerNum;
+        if (player === 1) playerNum = data.player1Character;
+        else playerNum = data.player2Character;
+        switch (playerNum) {
+          case Character.Venomtail:
+            setPlayerUlt(Images.VenomtailSpecial);
+            break;
+          case Character.BelowZero:
+            setPlayerUlt(Images.BelowZeroSpecial);
+            break;
+          case Character.Raiven:
+            setPlayerUlt(Images.RaivenSpecial);
+            break;
+        }
+        if (data.dodge) {
+          setPlayerUlt(Images.RaivenSpecial);
+          setMaxTimerAnim(10);
+        } else if (data.hyper) setMaxTimerAnim(10);
+        switch (data.player2Character) {
+          case Character.Venomtail:
+            switch (data.player2Size) {
+              case Paddles.Small:
+                setPlayer2Character(Images.paddleVentailS);
+                setPlayer2Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer2Character(Images.paddleVentailM);
+                setPlayer2Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer2Character(Images.paddleVentailL);
+                setPlayer2Size({ width: 32, height: 160 });
+                break;
+            }
+            break;
+          case Character.BelowZero:
+            switch (data.player2Size) {
+              case Paddles.Small:
+                setPlayer2Character(Images.paddleBzS);
+                setPlayer2Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer2Character(Images.paddleBzM);
+                setPlayer2Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer2Character(Images.paddleBzL);
+                setPlayer2Size({ width: 32, height: 160 });
+                break;
+            }
+            break;
+          case Character.Raiven:
+            switch (data.player2Size) {
+              case Paddles.Small:
+                setPlayer2Character(Images.paddleRaivenS);
+                setPlayer2Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer2Character(Images.paddleRaivenM);
+                setPlayer2Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer2Character(Images.paddleRaivenL);
+                setPlayer2Size({ width: 32, height: 160 });
+                break;
+            }
+        }
+        switch (data.player1Character) {
+          case Character.Venomtail:
+            switch (data.player1Size) {
+              case Paddles.Small:
+                setPlayer1Character(Images.paddleVentailS);
+                setPlayer1Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer1Character(Images.paddleVentailM);
+                setPlayer1Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer1Character(Images.paddleVentailL);
+                setPlayer1Size({ width: 32, height: 160 });
+                break;
+            }
+            break;
+          case Character.BelowZero:
+            switch (data.player1Size) {
+              case Paddles.Small:
+                setPlayer1Character(Images.paddleBzS);
+                setPlayer1Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer1Character(Images.paddleBzM);
+                setPlayer1Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer1Character(Images.paddleBzL);
+                setPlayer1Size({ width: 32, height: 160 });
+                break;
+            }
+            break;
+          case Character.Raiven:
+            switch (data.player1Size) {
+              case Paddles.Small:
+                setPlayer1Character(Images.paddleRaivenS);
+                setPlayer1Size({ width: 10, height: 50 });
+                break;
+              case Paddles.AverageJoe:
+                setPlayer1Character(Images.paddleRaivenM);
+                setPlayer1Size({ width: 20, height: 100 });
+                break;
+              case Paddles.BigPete:
+                setPlayer1Character(Images.paddleRaivenL);
+                setPlayer1Size({ width: 32, height: 160 });
+                break;
+            }
+        }
+      }
+      setGameSelection(false);
+      setGameStarted(true);
+    }
+
+    socket.on("Game Info", handleRejoin);
+    return () => {
+      socket.off("Game Info");
+    };
   }, []);
 
   useEffect(() => {
@@ -919,9 +1086,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           case 6:
             break;
         }
-        setGameInit(true);
-        setGameSelection(false);
-        setPlayerWaiting(false);
       });
       socket.on("scoreUpdate", (event: any) => {
         const { newScore } = event;
@@ -994,9 +1158,29 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         console.log("mode: " + mode);
         console.log("hyper: " + hyper);
         setSelectedGamemode(mode);
-        // if (selectedGamemode !== Mode.Regular) setAbilities(true);
         dodgeButton.selected = dodge;
         hyperButton.selected = hyper;
+        if (mode !== Mode.Regular) {
+          setAbilities(true);
+          let playerNum;
+          if (player === 1) playerNum = player1Character;
+          else playerNum = player2Character;
+          switch (playerNum) {
+            case Character.Venomtail:
+              setPlayerUlt(Images.VenomtailSpecial);
+              break;
+            case Character.BelowZero:
+              setPlayerUlt(Images.BelowZeroSpecial);
+              break;
+            case Character.Raiven:
+              setPlayerUlt(Images.RaivenSpecial);
+              break;
+          }
+          if (dodgeButton.selected) {
+            setPlayerUlt(Images.RaivenSpecial);
+            setMaxTimerAnim(10);
+          } else if (hyperButton.selected) setMaxTimerAnim(10);
+        }
         if (mode === Mode.MasterOfPong) {
           setPlayer1PositionX(player1X);
           setPlayer2PositionX(player2X);
@@ -1103,6 +1287,9 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
               }
           }
         }
+        setGameInit(true);
+        setGameSelection(false);
+        setPlayerWaiting(false);
       });
       if (abilities) {
         // Ability timers
@@ -1280,6 +1467,10 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     player2Name,
     socket,
     hyperButton,
+    Images.BelowZeroSpecial,
+    Images.RaivenSpecial,
+    Images.VenomtailSpecial,
+    selectedGamemode,
   ]);
 
   useEffect(() => {
@@ -1324,21 +1515,23 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   useEffect(() => {
     if (canvas.current) {
       if (ctx) {
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
         if (isGameStarted) {
           ctx.fillStyle = backgroundColor;
           if (raivenSpecial) {
             ctx.fillRect(10, player1Position - 10, 20, 120);
             ctx.globalAlpha = 0.1;
           }
-          ctx.fillRect(0, 0, canvas.current?.width, canvas.current?.height);
+          ctx.fillRect(0, 0, 1200, 800);
           ctx.fillStyle = "white";
           ctx.globalAlpha = 1;
           if (playerScored > 0) {
             ctx.fillStyle = "red";
             if (playerScored === 2) {
-              ctx.fillRect(0, 0, 7, canvas.current?.height);
+              ctx.fillRect(0, 0, 7, 800);
             } else {
-              ctx.fillRect(1193, 0, 7, canvas.current?.height);
+              ctx.fillRect(1193, 0, 7, 800);
             }
           }
           if (selectedGamemode !== Mode.Regular) {
@@ -1551,16 +1744,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           } else {
             ctx.font = "30px Arial";
             ctx.fillStyle = "black";
-            ctx.fillText(player1Name, canvas.current?.width / 2 - 200, 30);
-            ctx.fillText(player2Name, canvas.current?.width / 2 + 200, 30);
+            ctx.fillText(player1Name, 400, 30);
+            ctx.fillText(player2Name, 800, 30);
             ctx.fillStyle = "white";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(
-              `${score.p1} - ${score.p2}`,
-              canvas.current.width / 2,
-              30
-            );
+            ctx.fillText(`${score.p1} - ${score.p2}`, 600, 30);
 
             // Draw the ball
             ctx.fillStyle = "white";
@@ -1576,35 +1765,17 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           }
         } else if (isGameSelection) {
           ctx.globalAlpha = 1;
-          ctx.clearRect(0, 0, canvas.current?.width, canvas.current?.height);
+          ctx.clearRect(0, 0, 1200, 800);
           ctx.fillStyle = backgroundColor;
-          ctx.fillRect(0, 0, canvas.current?.width, canvas.current?.height);
+          ctx.fillRect(0, 0, 1200, 800);
           ctx.font = "40px Arial"; //ITC Zapf Chancery
           ctx.fillStyle = "white";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
 
-          ctx.drawImage(
-            Images.headGamemode,
-            canvas.current.width / 2 - 150,
-            20,
-            300,
-            75
-          );
-          ctx.drawImage(
-            Images.headPaddle,
-            canvas.current.width / 2 - 150,
-            190,
-            300,
-            75
-          );
-          ctx.drawImage(
-            Images.headCharacter,
-            canvas.current.width / 2 - 150,
-            420,
-            300,
-            75
-          );
+          ctx.drawImage(Images.headGamemode, 450, 20, 300, 75);
+          ctx.drawImage(Images.headPaddle, 450, 190, 300, 75);
+          ctx.drawImage(Images.headCharacter, 450, 420, 300, 75);
 
           drawButton(ctx, startButton, Mode.Start);
           for (var index in gamemodeButtons) {
@@ -1622,13 +1793,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           var startIndex = Images.YinYangEnd.length - 1;
           const animInterval = setInterval(() => {
             if (canvas.current) {
-              ctx.drawImage(
-                Images.YinYangEnd[startIndex],
-                0,
-                0,
-                canvas.current.width,
-                canvas.current.height
-              );
+              ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, 1200, 800);
             }
             console.log("Image : " + startIndex);
             startIndex--;
@@ -1648,13 +1813,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           var rotIndex = 0;
           const animInterval = setInterval(() => {
             if (canvas.current) {
-              ctx.drawImage(
-                Images.YinYangRotate[rotIndex],
-                0,
-                0,
-                canvas.current.width,
-                canvas.current.height
-              );
+              ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, 1200, 800);
             }
             rotIndex++;
             if (rotIndex === Images.YinYangRotate.length) {
@@ -1669,7 +1828,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           const animInterval = setInterval(() => {
             if (rotaIndex === Images.YinYangRotate.length && canvas.current) {
               ctx.fillStyle = backgroundColor;
-              ctx.fillRect(0, 0, canvas.current.width, canvas.current.height);
+              ctx.fillRect(0, 0, 1200, 800);
               ctx.fillStyle = "white";
               ctx.globalAlpha = 1;
               if (selectedGamemode !== Mode.Regular) {
@@ -1783,25 +1942,15 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.fillText(
-                  `${score.p1} - ${score.p2}`,
-                  canvas.current?.width / 2,
-                  30
-                );
+                ctx.fillText(`${score.p1} - ${score.p2}`, 600, 30);
               }
               ctx.fillStyle = "black";
               ctx.font = "35px Arial";
-              ctx.fillText(player1Name, 600, 100);
-              ctx.fillText(player2Name, 600, 200);
+              ctx.fillText(player1Name, 400, 150);
+              ctx.fillText(player2Name, 800, 150);
               ctx.font = "40px Arial";
               ctx.fillText("VS", 600, 150);
-              ctx.drawImage(
-                Images.YinYangEnd[endIndex],
-                0,
-                0,
-                canvas.current.width,
-                canvas.current.height
-              );
+              ctx.drawImage(Images.YinYangEnd[endIndex], 0, 0, 1200, 800);
               endIndex++;
               if (endIndex === Images.YinYangEnd.length) {
                 clearInterval(animInterval);
@@ -1813,13 +1962,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             } else {
               if (rotaIndex === Images.YinYangRotate.length) rotaIndex = 0;
               if (canvas.current) {
-                ctx.drawImage(
-                  Images.YinYangRotate[rotaIndex],
-                  0,
-                  0,
-                  canvas.current.width,
-                  canvas.current.height
-                );
+                ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, 1200, 800);
                 rotaIndex++;
               }
             }
@@ -1930,8 +2073,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
         timer = setInterval(() => {
           ctx.fillStyle = grd;
-          if (canvas.current)
-            ctx.fillRect(0, 0, canvas.current?.width, canvas.current?.height);
+          if (cnv) ctx.fillRect(0, 0, cnv.width, cnv.height);
           if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
             endScreen.c1x -= 1;
             ctx.drawImage(endScreen.Cloud1, endScreen.c1x, 430);
@@ -1991,8 +2133,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         ctx.drawImage(endScreen.Cloud3, endScreen.c3x, 370);
         timer = setInterval(() => {
           ctx.fillStyle = grd;
-          if (canvas.current)
-            ctx.fillRect(0, 0, canvas.current?.width, canvas.current?.height);
+          if (canvas.current) ctx.fillRect(0, 0, 1200, 800);
           if (endScreen.c1behind && endScreen.c1x > endScreen.c1min) {
             endScreen.c1x -= 1;
             if (endScreen.c1LightningActive) {

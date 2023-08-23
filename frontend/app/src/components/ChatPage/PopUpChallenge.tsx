@@ -36,11 +36,17 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
   useEffect(() => {
     function handleAccepted() {
       setMessage("Challenge accepted");
-	  navigate("/game");
+      navigate("/game");
+      onClose();
     }
 
     function handleDeclined() {
       setMessage("Challenge declined");
+    }
+
+    function handleUnavailable(data: { username: string }) {
+      const msg = data.username + " is currently unavailable.";
+      setMessage(msg);
     }
 
     function handleJoinGame() {
@@ -54,15 +60,27 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
         paddle: paddle,
       });
     }
+    socket.on("targetUnavailable", handleUnavailable);
     socket.on("pleaseJoinGame", handleJoinGame);
     socket.on("challengeAccepted", handleAccepted);
     socket.on("challengeDeclined", handleDeclined);
     return () => {
+      socket.off("targetUnavailable", handleUnavailable);
       socket.off("challengeAccepted", handleAccepted);
       socket.off("challengeDeclined", handleDeclined);
       socket.off("pleaseJoinGame", handleJoinGame);
     };
-  }, [socket, character, dodge, hyper, mode, navigate, paddle, targetID, userID]);
+  }, [
+    socket,
+    character,
+    dodge,
+    hyper,
+    mode,
+    navigate,
+    paddle,
+    targetID,
+    userID,
+  ]);
   const handleModeSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -121,7 +139,14 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
         <h3 className="PopHeader">Challenge</h3>
         <div className="PopBody">
           {challengeSent ? (
-            <div> {message} </div>
+            <div>
+              {message}
+              <div className="button-container">
+                <button className="cancel-button" onClick={onClose}>
+                  Close
+                </button>
+              </div>
+            </div>
           ) : (
             <>
               <div>

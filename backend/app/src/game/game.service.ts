@@ -42,31 +42,6 @@ export class GameService {
   initGame(): void {
     if (this.gameObject.gameStarted) return;
     this.gameObject.gameStarted = true;
-    this.gameObject.sendToClients<{
-      mode: number;
-      hyper: boolean;
-      dodge: boolean;
-      player1Character: number;
-      player1Size: number;
-      player1X: number;
-      player1Y: number;
-      player2Character: number;
-      player2Size: number;
-      player2X: number;
-      player2Y: number;
-    }>('gameOptions', {
-      mode: this.gameObject.player1.options.gameMode,
-      hyper: this.gameObject.player1.options.hyper,
-      dodge: this.gameObject.player1.options.dodge,
-      player1Character: this.gameObject.player1.options.character,
-      player1Size: this.gameObject.player1.options.paddle,
-      player1X: this.gameObject.player1.pos.x,
-      player1Y: this.gameObject.player1.pos.y,
-      player2Character: this.gameObject.player2.options.character,
-      player2Size: this.gameObject.player2.options.paddle,
-      player2X: this.gameObject.player2.pos.x,
-      player2Y: this.gameObject.player2.pos.y,
-    });
     (async () => {
       console.log('before await');
       await this.getUsernames();
@@ -99,6 +74,31 @@ export class GameService {
       player: 2,
       ability: this.gameObject.player2.ability,
     });
+    this.gameObject.sendToClients<{
+      mode: number;
+      hyper: boolean;
+      dodge: boolean;
+      player1Character: number;
+      player1Size: number;
+      player1X: number;
+      player1Y: number;
+      player2Character: number;
+      player2Size: number;
+      player2X: number;
+      player2Y: number;
+    }>('gameOptions', {
+      mode: this.gameObject.player1.options.gameMode,
+      hyper: this.gameObject.player1.options.hyper,
+      dodge: this.gameObject.player1.options.dodge,
+      player1Character: this.gameObject.player1.options.character,
+      player1Size: this.gameObject.player1.options.paddle,
+      player1X: this.gameObject.player1.pos.x,
+      player1Y: this.gameObject.player1.pos.y,
+      player2Character: this.gameObject.player2.options.character,
+      player2Size: this.gameObject.player2.options.paddle,
+      player2X: this.gameObject.player2.pos.x,
+      player2Y: this.gameObject.player2.pos.y,
+    });
   }
 
   startGame(): void {
@@ -119,8 +119,11 @@ export class GameService {
   }
 
   stopGame(leftID = ''): void {
-    if (this.gameObject.gameEnded === true) return;
-    console.log('GAME ENDED-------------------------------------------');
+    if (this.gameObject.gameEnded === true || !this.gameObject.player2) return;
+    if (this.gameObject.player1.databaseId)
+      this.chatGateway.removeGameID(this.gameObject.player1.databaseId);
+    if (this.gameObject.player2.databaseId)
+      this.chatGateway.removeGameID(this.gameObject.player2.databaseId);
     this.gameObject.gameEnded = true;
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
@@ -270,6 +273,8 @@ export class GameService {
         },
       );
     }
+    this.revertLightningSlow();
+    this.revertLightning(false);
     this.gameObject.ballMagnitude = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
     );
@@ -292,6 +297,34 @@ export class GameService {
       this.gameObject.ballVel.x *= 4;
       this.gameObject.ballVel.y *= 4;
       this.lightningSlowTimer = null;
+    }
+  }
+
+  revertLightning(contact: boolean): void {
+    if (this.lightningTimer) {
+      clearTimeout(this.lightningTimer);
+      this.lightningTimer = null;
+      if (contact) {
+        this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
+          'RaivenSpecial',
+          {
+            RaivenSpecial: false,
+          },
+        );
+      }
+      this.gameObject.ballVel.x =
+        this.gameObject.ballVel.x *
+        (this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2));
+      this.gameObject.ballVel.y =
+        this.gameObject.ballVel.y *
+        (this.gameObject.ballMagnitude / (this.gameObject.ballMagnitude + 2));
+    } else if (this.gameObject.lightning) {
+      this.gameObject.ballVel.y = -this.gameObject.ballVel.y / 4;
+      if (this.gameObject.lightningDir < 0) {
+        this.gameObject.ballVel.x = -Math.sqrt(
+          this.gameObject.ballMagnitude ** 2 - this.gameObject.ballVel.y ** 2,
+        );
+      }
     }
   }
 
@@ -643,42 +676,9 @@ export class GameService {
         clearTimeout(this.freezeTimer);
       } else {
         this.revertLightningSlow();
-        if (this.lightningTimer) {
-          clearTimeout(this.lightningTimer);
-          this.lightningTimer = null;
-          this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
-            'RaivenSpecial',
-            {
-              RaivenSpecial: false,
-            },
-          );
-          this.gameObject.ballVelOld.x =
-            this.gameObject.ballVel.x *
-            (this.gameObject.ballMagnitude /
-              (this.gameObject.ballMagnitude + 2));
-          this.gameObject.ballVelOld.y =
-            this.gameObject.ballVel.y *
-            (this.gameObject.ballMagnitude /
-              (this.gameObject.ballMagnitude + 2));
-        } else if (this.gameObject.lightning) {
-          this.gameObject.ballVelOld.y = -this.gameObject.ballVel.y / 4;
-          if (this.gameObject.lightningDir < 0) {
-            this.gameObject.ballVelOld.x = -Math.sqrt(
-              this.gameObject.ballMagnitude ** 2 -
-                this.gameObject.ballVelOld.y ** 2,
-            );
-          } else {
-            this.gameObject.ballVelOld.x = Math.sqrt(
-              this.gameObject.ballMagnitude ** 2 -
-                this.gameObject.ballVelOld.y ** 2,
-            );
-          }
-          this.gameObject.lightningDir = 0;
-          this.gameObject.lightning = false;
-        } else {
-          this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
-          this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
-        }
+        this.revertLightning(true);
+        this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
+        this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
         this.gameObject.ballVel.x = 0;
         this.gameObject.ballVel.y = 0;
       }

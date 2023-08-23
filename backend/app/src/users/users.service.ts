@@ -388,4 +388,16 @@ export class UsersService {
 
     return allUsers;
   }
+
+  async saveGameID(userID: string, gameID: string) {
+    const user = await this.findOne(userID);
+    user.gameID = gameID;
+    await this.usersRepository.save(user);
+  }
+
+  async removeGameID(userID: string) {
+    const user = await this.findOne(userID);
+    user.gameID = null;
+    await this.usersRepository.save(user);
+  }
 }

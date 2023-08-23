@@ -13,7 +13,6 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import { AuthenticatedSocket } from 'src/game/dto/types';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
 import { Options } from 'src/game/movement.dto';
-import { Client } from 'socket.io/dist/client';
 
 const userTimers: { [userID: string]: { [chatID: number]: NodeJS.Timeout } } =
   {};
@@ -604,6 +603,12 @@ export class ChatGateway {
     },
   ) {
     const target = await this.userService.findOne(data.targetID);
+    if (target.status != 'online') {
+      this.server
+        .to(client.id)
+        .emit('targetUnavailable', { username: target.username });
+      return;
+    }
     this.server.to(target.socketID).emit('challenge', {
       mode: data.mode,
       hyper: data.hyper,
@@ -613,9 +618,6 @@ export class ChatGateway {
       challengerID: data.userID,
       userID: data.targetID,
     });
-    // implement accept / decline
-    // redirect the users to /game
-    // contact gameGateway to start the game
   }
 
   @SubscribeMessage('acceptChallenge')
@@ -685,5 +687,18 @@ export class ChatGateway {
   ) {
     const challenger = await this.userService.findOne(data.challengerID);
     this.server.to(challenger.socketID).emit('challengeDeclined');
+  }
+
+  @SubscribeMessage('checkOngoingGame')
+  async checkOngoingGame(client: Socket) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    const user = await this.userService.findOne(userID);
+
+    if (user.gameID === null) return;
+    this.gameCollection.findGame(client, user.gameID);
+  }
+
+  removeGameID(userID: string) {
+    this.userService.removeGameID(userID);
   }
 }

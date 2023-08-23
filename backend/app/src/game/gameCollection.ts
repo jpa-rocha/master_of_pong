@@ -137,6 +137,7 @@ export class GameCollection {
       console.log('TARGET SOCKET = ', client.id);
       const game = new GameObject(this.server, options, this.chatGateway);
       this.premadeGames.set(playerID, game);
+      this.userService.saveGameID(playerID, playerID);
       game.addClient(client, playerID);
     } else {
       if (options.gameMode !== Mode.Singleplayer) {
@@ -153,6 +154,7 @@ export class GameCollection {
             current.player2 = new Player(this.server, options);
             current.player2.pos.x = 1180 - current.player2.width;
             console.log('Returning an already created game');
+            this.userService.saveGameID(playerID, current.gameID);
             current.addClient(client, playerID);
             return;
           }
@@ -162,6 +164,7 @@ export class GameCollection {
       const game = new GameObject(this.server, options, this.chatGateway);
       this.gameObjects.set(game.gameID, game);
       this.totalGameCount++;
+      this.userService.saveGameID(playerID, game.gameID);
       game.addClient(client, playerID);
       return;
     }
@@ -182,7 +185,16 @@ export class GameCollection {
     game.player2 = new Player(this.server, options);
     game.player2.pos.x = 1180 - game.player2.width;
     console.log('Returning an already created game');
+    this.userService.saveGameID(newPlayerID, playerID);
     game.addClient(client, newPlayerID);
+  }
+
+  public findGame(client: AuthenticatedSocket, gameID: string) {
+    let game: GameObject;
+    game = this.gameObjects.get(gameID);
+    if (!game) game = this.premadeGames.get(gameID);
+    if (!game) return false;
+    game.rejoin(client);
   }
 
   // public addGameObject(game: gameObject): void {
