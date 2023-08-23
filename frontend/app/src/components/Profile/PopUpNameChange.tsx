@@ -21,10 +21,11 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
       },
     };
     if (UserId !== undefined) {
-      const response = await axios.patch(`api/users/${UserId}`, data, config);
-      if (response.status === 200) {
-        // setUserName(newName);
-      }
+      const response = await axios.patch(`api/users/${UserId}`, data, config).then((res) => {
+        console.log("User name changed successfully");
+      }).catch((err) => {
+        console.log("Error in changing user name");
+      });
     }
   };
   
