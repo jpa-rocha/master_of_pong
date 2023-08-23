@@ -5,23 +5,29 @@ import { Options } from './movement.dto';
 import { Mode } from './enums/Modes';
 import { Player } from './dto/player.dto';
 import { Inject, forwardRef } from '@nestjs/common';
-import { GameGateway } from './game.gateway';
+// import { GameGateway } from './game.gateway';
 import { UsersService } from '../users/users.service';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 export class GameCollection {
-	public server: Server;
-	public totalGameCount: number;
-	
-	constructor(
-	  @Inject(forwardRef(() => GameGateway))
-	  private readonly gameGateway: GameGateway,
-	  private readonly userService: UsersService,
-	) {
-	  this.totalGameCount = 0;
-	}
+  public server: Server;
+  public totalGameCount: number;
 
-	private readonly gameObjects: Map<GameObject['gameID'], GameObject> = new Map<
+  constructor(
+    @Inject(forwardRef(() => ChatGateway))
+    private readonly chatGateway: ChatGateway,
+    private readonly userService: UsersService,
+  ) {
+    this.totalGameCount = 0;
+  }
+
+  private readonly gameObjects: Map<GameObject['gameID'], GameObject> = new Map<
     GameObject['gameID'],
+    GameObject
+  >();
+
+  private readonly premadeGames: Map<string, GameObject> = new Map<
+    string,
     GameObject
   >();
 
@@ -104,7 +110,7 @@ export class GameCollection {
     if (client.data.lobby.player1.id === client.id) {
       client.data.lobby.player1.ability = 10;
       client.data.lobby.player1.useAbility = true;
-	}
+    }
     if (client.data.lobby.player2.id === client.id) {
       client.data.lobby.player2.ability = 10;
       client.data.lobby.player2.useAbility = true;
@@ -125,56 +131,59 @@ export class GameCollection {
     client: AuthenticatedSocket,
     options: Options,
     playerID: string,
+    premade = false,
   ): void {
-    if (options.gameMode !== Mode.Singleplayer) {
-      const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
-      let current: GameObject;
-      for (let i = 0; i < this.totalGameCount; i++) {
-        current = this.gameObjects.get(keys[i]);
-        if (
-          current.player1.options.gameMode === options.gameMode &&
-          current.clients.size === 1 &&
-          current.player1.options.hyper === options.hyper &&
-          current.player1.options.dodge === options.dodge
-        ) {
-          current.player2 = new Player(this.server, options);
-          current.player2.pos.x = 1180 - current.player2.width;
-          console.log('Returning an already created game');
-          current.addClient(client, playerID);
-          return;
+    if (premade) {
+      console.log('TARGET SOCKET = ', client.id);
+      const game = new GameObject(this.server, options, this.chatGateway);
+      this.premadeGames.set(playerID, game);
+      game.addClient(client, playerID);
+    } else {
+      if (options.gameMode !== Mode.Singleplayer) {
+        const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
+        let current: GameObject;
+        for (let i = 0; i < this.totalGameCount; i++) {
+          current = this.gameObjects.get(keys[i]);
+          if (
+            current.player1.options.gameMode === options.gameMode &&
+            current.clients.size === 1 &&
+            current.player1.options.hyper === options.hyper &&
+            current.player1.options.dodge === options.dodge
+          ) {
+            current.player2 = new Player(this.server, options);
+            current.player2.pos.x = 1180 - current.player2.width;
+            console.log('Returning an already created game');
+            current.addClient(client, playerID);
+            return;
+          }
         }
       }
-      // x20 ->40          30<-left
+      console.log('creating a new game');
+      const game = new GameObject(this.server, options, this.chatGateway);
+      this.gameObjects.set(game.gameID, game);
+      this.totalGameCount++;
+      game.addClient(client, playerID);
+      return;
     }
-    console.log('creating a new game');
-    const game = new GameObject(this.server, options, this.gameGateway);
-    this.gameObjects.set(game.gameID, game);
-    this.totalGameCount++;
-    game.addClient(client, playerID);
-    return;
   }
 
   public joinGame(
-    gameID: string,
     client: AuthenticatedSocket,
+    options: Options,
     playerID: string,
+    newPlayerID: string,
   ) {
-    const game = this.gameObjects.get(gameID);
-    if (!game) {
-      console.log('oh no');
-    } else if (
-      (game.clients.size === 1 &&
-        game.player1.options.gameMode === Mode.Singleplayer) ||
-      game.clients.size === 2
-    ) {
-      console.log('oh no');
-    }
+    console.log('CHALLENGER SOCKET = ', client.id);
+    console.log('playerID: ' + playerID);
+    console.log('newPlayerID: ' + newPlayerID);
+    console.log('game playerID: ' + this.premadeGames[0]);
+    const game = this.premadeGames.get(playerID);
     console.log('Adding client...');
-    game.addClient(client, playerID);
-    // console.log('Starting game...');
-    // game.gameService.startGame();
+    game.player2 = new Player(this.server, options);
+    game.player2.pos.x = 1180 - game.player2.width;
+    console.log('Returning an already created game');
+    game.addClient(client, newPlayerID);
   }
-
 
   // public addGameObject(game: gameObject): void {
   //   this.gameObjects.set(game.gameID, game);

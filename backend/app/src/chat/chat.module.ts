@@ -9,16 +9,37 @@ import { Friend } from 'src/users/entities/friend.entity';
 import { Chat } from './entities/chat.entity';
 import { ChatController } from './chat.controller';
 import { Message } from './entities/message.entity';
+import { GameData } from 'src/game-data/entities/game-data.entity';
+import { GameCollection } from '../game/gameCollection';
+import { GameDataService } from 'src/game-data/game-data.service';
+// import { GameModule } from 'src/game/game.module';
+import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
+import { GameDataModule } from 'src/game-data/game-data.module';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Socket } from 'dgram';
 
 @Module({
   imports: [
     UsersModule,
+    // GameModule,
+    GameDataModule,
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Friend]),
     TypeOrmModule.forFeature([Chat]),
     TypeOrmModule.forFeature([Message]),
+    TypeOrmModule.forFeature([GameData]),
   ],
   controllers: [ChatController],
-  providers: [ChatGateway, ChatService, UsersService],
+  providers: [
+    ChatGateway,
+    ChatService,
+    UsersService,
+    GameCollection,
+    GameDataService,
+    JwtAuthService,
+    JwtService,
+    ConfigService,
+  ],
 })
 export class ChatModule {}

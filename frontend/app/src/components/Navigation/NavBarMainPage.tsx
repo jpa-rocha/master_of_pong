@@ -23,10 +23,12 @@ interface UserProps {
 
 interface ChallengeDetails {
   mode: number;
-  hyper:boolean
+  hyper: boolean;
   dodge: boolean;
   character: number;
   paddle: number;
+  challengerID: string;
+  userID: string;
 }
 
 interface NavBarProps {
@@ -50,7 +52,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const [challengeDetails, setChallengeDetails] = useState<ChallengeDetails>();
 
   useEffect(() => {
-    
     function handleIncomingChallenge(result: ChallengeDetails) {
       setChallengeDetails(result);
       toggleChallengePopUp();
@@ -59,8 +60,8 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     socket.on("challenge", handleIncomingChallenge);
     return () => {
       socket.off("challenge", handleIncomingChallenge);
-    }
-  }, [])
+    };
+  }, []);
 
   function toggleChallengePopUp() {
     setIsChallengePopUp(!isChallengePopUp);
@@ -82,10 +83,10 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
- /*  const getName = (value: String) => {
+  /*  const getName = (value: String) => {
     return `${value.split(" ")[0][0]}${value.split(" ")[1][0]}`;
   }; */
-//console.log(userInfo);
+  //console.log(userInfo);
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -207,8 +208,11 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                 </div>
                 <ul className="py-2" aria-labelledby="user-menu-button">
                   <li>
-                    <button onClick={handleUserProfile} className={btnToggleStyle}>
-                    	Profile
+                    <button
+                      onClick={handleUserProfile}
+                      className={btnToggleStyle}
+                    >
+                      Profile
                     </button>
                   </li>
                   <li>
@@ -342,22 +346,27 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
           />
         </div>
       )}
-          {isChallengePopUp && challengeDetails && (
+      {isChallengePopUp && challengeDetails && (
         <div
           style={{
-            position: 'fixed',
-            top: '20%',
+            position: "fixed",
+            top: "20%",
             left: 0,
-            width: '20%',
-            height: '10%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            width: "20%",
+            height: "10%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             zIndex: 999,
           }}
         >
-          <IncomingChallengePopUp isOpen={isChallengePopUp} onClose={toggleChallengePopUp} userID="HELLOWORLD" challengerID="GOODBYEWORLD" challengeDetais={challengeDetails} socket={socket} />
+          <IncomingChallengePopUp
+            isOpen={isChallengePopUp}
+            onClose={toggleChallengePopUp}
+            challengeDetais={challengeDetails}
+            socket={socket}
+          />
         </div>
       )}
     </>

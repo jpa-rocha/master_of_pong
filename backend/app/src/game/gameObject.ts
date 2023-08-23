@@ -8,7 +8,8 @@ import { v4 } from 'uuid';
 import { Mode } from './enums/Modes';
 import { Paddles } from './enums/Paddles';
 import { Character } from './enums/Characters';
-import { GameGateway } from './game.gateway';
+// import { GameGateway } from './game.gateway';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class GameObject {
@@ -55,11 +56,11 @@ export class GameObject {
   constructor(
     private readonly server: Server,
     options: Options,
-    @Inject(forwardRef(() => GameGateway))
-    private readonly gameGateway: GameGateway,
+    @Inject(forwardRef(() => ChatGateway))
+    private readonly chatGateway: ChatGateway,
   ) {
     this.gameEnded = false;
-    this.gameService = new GameService(this, this.gameGateway);
+    this.gameService = new GameService(this, this.chatGateway);
     this.allowAbilities = false;
     this.Width = 1200;
     this.Height = 800;
@@ -131,7 +132,7 @@ export class GameObject {
   }
 
   async getUser(databaseId: string) {
-    return await this.gameGateway.getUserName(databaseId);
+    return await this.chatGateway.getUserName(databaseId);
   }
   addClient(client: AuthenticatedSocket, databaseId: string) {
     console.log('adding client...');
@@ -142,25 +143,23 @@ export class GameObject {
       this.player1.id = client.id;
       this.player1.databaseId = databaseId;
 
-
-      
-	  console.log("database ID: " + databaseId);
-	//   (async function () {
-	// 	console.log("finding username from database...");
-	// 	// this.player1.user = await this.gameGateway.findOne(databaseId);
-    // this.player1.user = await this.getUser(databaseId);
-    // console.log("Player === ", this.player1.user);
-	// 	console.log("p1 user: " + this.player1.user.username);
-	//   })();
+      console.log('database ID: ' + databaseId);
+      //   (async function () {
+      // 	console.log("finding username from database...");
+      // 	// this.player1.user = await this.gameGateway.findOne(databaseId);
+      // this.player1.user = await this.getUser(databaseId);
+      // console.log("Player === ", this.player1.user);
+      // 	console.log("p1 user: " + this.player1.user.username);
+      //   })();
     } else if (!this.player2.id) {
       this.player2.id = client.id;
       this.player2.databaseId = databaseId;
-	  console.log("database ID: " + databaseId);
-	//   (async function () {
-	// 	console.log("finding username from database...");
-	// 	this.player2.user = await this.userService.findOne(databaseId);
-	// 	console.log("p2 user: " + this.player2.user.username);
-	//   })();
+      console.log('database ID: ' + databaseId);
+      //   (async function () {
+      // 	console.log("finding username from database...");
+      // 	this.player2.user = await this.userService.findOne(databaseId);
+      // 	console.log("p2 user: " + this.player2.user.username);
+      //   })();
     }
     if (
       (this.clients.size === 1 &&
@@ -174,15 +173,15 @@ export class GameObject {
 
   removeClient(client: AuthenticatedSocket) {
     this.clients.delete(client.id);
-	// if (this.player1.user.id === client.id) {
-	// 	this.sendToClients('playerDisconnect', {
-	// 		player: 1,
-	// 	});
-	// } else if (this.player2.user.id === client.id) {
-	// 	this.sendToClients('playerDisconnect', {
-	// 		player: 2,
-	// 	});
-	// }
+    // if (this.player1.user.id === client.id) {
+    // 	this.sendToClients('playerDisconnect', {
+    // 		player: 1,
+    // 	});
+    // } else if (this.player2.user.id === client.id) {
+    // 	this.sendToClients('playerDisconnect', {
+    // 		player: 2,
+    // 	});
+    // }
     client.data.lobby = null;
     // userID = await this.userService.getidbysocketid(client.id);
     this.gameService.stopGame(client.id);

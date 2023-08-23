@@ -1,58 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import '../components/ChatPage/PopUp.css'
-import { Socket } from 'socket.io-client';
-import { Character } from '../components/GameCanvas/enums/Characters';
-import { Mode } from '../components/GameCanvas/enums/Modes';
-import { Paddles } from '../components/GameCanvas/enums/Paddles';
+import React, { useEffect, useState } from "react";
+import "../components/ChatPage/PopUp.css";
+import { Socket } from "socket.io-client";
+import { Character } from "../components/GameCanvas/enums/Characters";
+import { Mode } from "../components/GameCanvas/enums/Modes";
+import { Paddles } from "../components/GameCanvas/enums/Paddles";
+import { useNavigate } from "react-router-dom";
 
 interface ChallengeDetails {
   mode: number;
-  hyper:boolean
+  hyper: boolean;
   dodge: boolean;
   character: number;
   paddle: number;
+  challengerID: string;
+  userID: string;
 }
 
 type IncomingChallengePopUpProps = {
   isOpen: boolean;
   onClose: () => void;
-  userID: string;
-  challengerID: string;
-  challengeDetais:ChallengeDetails
+  challengeDetais: ChallengeDetails;
   socket: Socket;
 };
 
-const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({ socket, userID, challengerID, onClose, challengeDetais }) => {
-  
-	let gameInfo: string = "";
-	let declineTimer: NodeJS.Timeout | null = null;
+const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
+  socket,
+  onClose,
+  challengeDetais,
+}) => {
+  const navigate = useNavigate();
+  let masterToggle = false;
+  let character = 0;
+  let paddle = Paddles.AverageJoe;
 
-	switch (challengeDetais.mode) {
-		case Mode.Regular:
-			gameInfo = "Regular Match";
-			break;
-		case Mode.MasterOfPong:
-			gameInfo = "Master of Pong";
-			break;
-	}
-	if (challengeDetais.dodge && challengeDetais.hyper) {
-		gameInfo = gameInfo + ", HyperDodge Mode";
-	} else if (challengeDetais.dodge) {
-		gameInfo = gameInfo + ", Dodge Mode";
-	} else if (challengeDetais.hyper) {
-		gameInfo = gameInfo + ", Hyper Mode";
-	}
+  if (challengeDetais.mode === Mode.MasterOfPong) masterToggle = true;
+  let gameInfo: string = "";
+  let declineTimer: NodeJS.Timeout | null = null;
 
-	declineTimer = setTimeout(() => {
+  switch (challengeDetais.mode) {
+    case Mode.Regular:
+      gameInfo = "Regular Match";
+      break;
+    case Mode.MasterOfPong:
+      gameInfo = "Master of Pong";
+      break;
+  }
+  if (challengeDetais.dodge && challengeDetais.hyper) {
+    gameInfo = gameInfo + ", HyperDodge Mode";
+  } else if (challengeDetais.dodge) {
+    gameInfo = gameInfo + ", Dodge Mode";
+  } else if (challengeDetais.hyper) {
+    gameInfo = gameInfo + ", Hyper Mode";
+  }
+
+  declineTimer = setTimeout(() => {
     declineTimer = null;
-		handleDecline();
-	}, 20000);
+    handleDecline();
+  }, 20000);
 
   function handleAccept() {
     if (declineTimer) {
-		  clearTimeout(declineTimer);
-		  declineTimer = null;
-	  }
+      clearTimeout(declineTimer);
+      declineTimer = null;
+    }
+    socket.emit("acceptChallenge", {
+      userID: challengeDetais.userID,
+      challengerID: challengeDetais.challengerID,
+      mode: challengeDetais.mode,
+      hyper: challengeDetais.hyper,
+      dodge: challengeDetais.dodge,
+      challengerCharacter: challengeDetais.character,
+      userCharacter: character,
+      challengerPaddle: challengeDetais.paddle,
+      userPaddle: paddle,
+    });
   }
 
   function handleDecline() {
@@ -60,37 +81,90 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({ socket,
       clearTimeout(declineTimer);
       declineTimer = null;
     }
+    socket.emit("declineChallenge", {
+      userID: challengeDetais.userID,
+      challengerID: challengeDetais.challengerID,
+    });
     // emit decline message
     onClose();
   }
 
+  useEffect(() => {
+    function handleAccepted() {
+      navigate("/game");
+    }
+    socket.on("challengeAccepted", handleAccepted);
+    return () => {
+      socket.off("challengeAccepted", handleAccepted);
+    };
+  }, [socket]);
+
+  const handleCharacterSelectionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedValue = event.target.value;
+    character = +selectedValue;
+  };
+
+  const handlePaddleSelectionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedValue = event.target.value;
+    paddle = +selectedValue;
+  };
+
   return (
     <>
-	<div>
-		<h3 className="PopHeader">
-			INCOMING Challenge, GET READY TO RUMBLE
-		</h3>
-    <div className="PopBody">
-        <div>{gameInfo}</div>
-        <div>
-          mode = {challengeDetais.mode}
+      <div>
+        <h3 className="PopHeader">INCOMING Challenge, GET READY TO RUMBLE</h3>
+        <div className="PopBody">
+          <div>{gameInfo}</div>
+          <div>mode = {challengeDetais.mode}</div>
+          <div>character = {challengeDetais.character}</div>
+          <div>paddle = {challengeDetais.paddle}</div>
         </div>
-        <div>
-          character = {challengeDetais.character}
-        </div>
-        <div>
-          paddle = {challengeDetais.paddle}
+        {masterToggle ? (
+          <>
+            <div>
+              <label htmlFor="character">Choose a character:</label>
+            </div>
+            <div>
+              <select
+                name="character"
+                id="character"
+                onChange={handleCharacterSelectionChange}
+              >
+                <option value={0}>Random</option>
+                <option value={Character.Venomtail}>Venomtail</option>
+                <option value={Character.BelowZero}>BelowZero</option>
+                <option value={Character.Raiven}>Raiven</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="size">Select a size:</label>
+            </div>
+            <div>
+              <select
+                name="size"
+                id="size"
+                onChange={handlePaddleSelectionChange}
+              >
+                <option value={Paddles.AverageJoe}>Regular</option>
+                <option value={Paddles.Small}>Small</option>
+                <option value={Paddles.BigPete}>Large</option>
+              </select>
+            </div>
+          </>
+        ) : null}
+        <div className="button-container">
+          <button className="create-button" onClick={handleAccept}>
+            Accept
+          </button>
+          <button className="cancel-button" onClick={handleDecline}>
+            Decline
+          </button>
         </div>
       </div>
-      <div className="button-container">
-        <button className="create-button">
-          Accept
-        </button>
-				<button className="cancel-button" onClick={onClose}>
-					Decline
-				</button>
-			</div>
-  </div>
     </>
   );
 };

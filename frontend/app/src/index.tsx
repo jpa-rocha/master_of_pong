@@ -42,7 +42,7 @@ async function getUserID() {
       <BrowserRouter>
         <Routes>
           <Route element={<PrivateRoutes />}>
-            <Route path="/game" element={<Game />} />
+            <Route path="/game" element={<Game socket={socket}/>} />
             <Route path="/main" element={<MainPage socket={socket} />} />
             <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />}/>
             <Route path="/chat" element={<ChatPage socket={socket} />} />

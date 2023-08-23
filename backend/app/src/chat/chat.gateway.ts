@@ -7,9 +7,13 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
-import { use } from 'passport';
-import { stringify } from 'querystring';
-import { time } from 'console';
+import { GameCollection } from 'src/game/gameCollection';
+import { GameDataService } from 'src/game-data/game-data.service';
+import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
+import { AuthenticatedSocket } from 'src/game/dto/types';
+import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
+import { Options } from 'src/game/movement.dto';
+import { Client } from 'socket.io/dist/client';
 
 const userTimers: { [userID: string]: { [chatID: number]: NodeJS.Timeout } } =
   {};
@@ -22,10 +26,14 @@ export class ChatGateway {
   constructor(
     private readonly chatService: ChatService,
     private userService: UsersService,
+    private gameCollection: GameCollection,
+    private gameDataService: GameDataService,
+    private jwtAuthService: JwtAuthService,
   ) {}
 
   async handleConnection(client: Socket) {
     console.log('user connected');
+    this.gameCollection.initialiseSocket(client as AuthenticatedSocket);
     try {
       await this.userService.updateSocket(client.id, {
         status: 'online',
@@ -49,12 +57,21 @@ export class ChatGateway {
     } catch (e) {
       console.log(e);
     }
+    this.gameCollection.terminateSocket(client);
     this.server.emit('user disconnected');
     this.server.emit('user disconnected bar');
     this.server.emit('user disconnected users');
   }
 
+  afterInit(server: Server): any {
+    // Pass server instance to managers
+    this.gameCollection.server = server;
+
+    // this.logger.log('Game server initialized !');
+  }
+
   // Sent from ChatPage after opening the chat page. Sets user socket and status
+  // TODO make a separate activity status
   @SubscribeMessage('activityStatus')
   async handleActivityStatus(
     client: Socket,
@@ -446,12 +463,227 @@ export class ChatGateway {
     this.server.to(client.id).emit('isDirectBlockedReturn', result);
   }
 
+  @SubscribeMessage('moveDownEnable')
+  gameMoveDownEnable(client: AuthenticatedSocket): void {
+    this.gameCollection.moveDownEnable(client);
+  }
+
+  @SubscribeMessage('moveDownDisable')
+  gameMoveDownDisable(client: AuthenticatedSocket): void {
+    this.gameCollection.moveDownDisable(client);
+  }
+
+  @SubscribeMessage('moveUpEnable')
+  gameMoveUpEnable(client: AuthenticatedSocket): void {
+    this.gameCollection.moveUpEnable(client);
+  }
+
+  @SubscribeMessage('moveUpDisable')
+  gameMoveUpDisable(client: AuthenticatedSocket): void {
+    this.gameCollection.moveUpDisable(client);
+  }
+
+  @SubscribeMessage('moveEnable')
+  gameMoveEnable(client: AuthenticatedSocket, direction: number): void {
+    this.gameCollection.moveEnable(client, direction);
+  }
+
+  @SubscribeMessage('moveDisable')
+  gameMoveDisable(client: AuthenticatedSocket, direction: number): void {
+    this.gameCollection.moveDisable(client, direction);
+  }
+
+  @SubscribeMessage('specialAbility')
+  gameUseSpecial(client: AuthenticatedSocket): void {
+    this.gameCollection.useSpecial(client);
+  }
+
+  // TODO WORK ON gameobject.allowAbilities
+
+  @SubscribeMessage('randomAbility')
+  gameUseAbility(client: AuthenticatedSocket): void {
+    this.gameCollection.useAbility(client);
+  }
+
+  @SubscribeMessage('clearAbility')
+  gameClearAbility(client: AuthenticatedSocket): void {
+    this.gameCollection.clearAbility(client);
+  }
+
+  @SubscribeMessage('readyToPlay')
+  async readyToPlay(client: AuthenticatedSocket) {
+    this.gameCollection.playerReady(client);
+    try {
+      await this.userService.updateSocket(client.id, {
+        status: 'in game',
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  @SubscribeMessage('loadWindow')
+  loadWindow(client: AuthenticatedSocket): void {
+    console.log('Load window in the backend');
+    this.server.to(client.id).emit('loadWindow', true);
+  }
+
+  // Start move up
+  // Stop move up
+  // Start move down
+  // Stop move down
+  // Character Special abilities
+  // Random abilities
+
+  // handleEvent(client: Socket, data: string): string {
+  //   return data;
+  // }
+  @SubscribeMessage('start')
+  initGame(client: AuthenticatedSocket, data: { opt: Options; token: string }) {
+    console.log('start message received...');
+    this.gameCollection.createGame(
+      client,
+      data.opt,
+      this.jwtAuthService.getTokenInformation(data.token),
+    );
+    console.log(this.gameCollection.totalGameCount);
+    console.log('TOKEN = ' + data.token);
+    console.log('ID = ' + this.jwtAuthService.getTokenInformation(data.token));
+    // game.addClient(client);
+    // this.gameCollection.joinGame(game.gameID, client);
+    // this.gameService.startGame(client.id, options);
+  }
+
+  async addGameData(
+    p1: string,
+    p2: string,
+    winner: string,
+    date: Date,
+    score1: number,
+    score2: number,
+    gameMode: string,
+    gameModeOptions: string,
+  ) {
+    const gameDataDto: CreateGameDto = {
+      userOne: await this.userService.findOne(p1),
+      userTwo: await this.userService.findOne(p2),
+      winner: await this.userService.findOne(winner),
+      timestamp: date,
+      gameMode: gameMode,
+      gameModeOptions: gameModeOptions,
+      score1: score1,
+      score2: score2,
+    };
+    if (p1 === winner) {
+      await this.userService.playerWon(p1);
+      await this.userService.playerLost(p2);
+      await this.userService.newELO(p1, p2);
+    } else if (p2 === winner) {
+      await this.userService.playerWon(p2);
+      await this.userService.playerLost(p1);
+      await this.userService.newELO(p2, p1);
+    }
+    await this.gameDataService.create(gameDataDto);
+  }
+
+  async getUserName(playerID: string) {
+    return await this.userService.findOne(playerID);
+  }
+
   @SubscribeMessage('sendChallenge')
-  async sendChallenge(client: Socket, data: { userID: string, targetID: string, mode: number, hyper: boolean, dodge: boolean, character: number, paddle: number}) {
+  async sendChallenge(
+    client: Socket,
+    data: {
+      userID: string;
+      targetID: string;
+      mode: number;
+      hyper: boolean;
+      dodge: boolean;
+      character: number;
+      paddle: number;
+    },
+  ) {
     const target = await this.userService.findOne(data.targetID);
-    this.server.to(target.socketID).emit('challenge', {mode: data.mode, hyper: data.hyper, dodge: data.dodge, character: data.character, paddle: data.paddle});
+    this.server.to(target.socketID).emit('challenge', {
+      mode: data.mode,
+      hyper: data.hyper,
+      dodge: data.dodge,
+      character: data.character,
+      paddle: data.paddle,
+      challengerID: data.userID,
+      userID: data.targetID,
+    });
     // implement accept / decline
     // redirect the users to /game
     // contact gameGateway to start the game
+  }
+
+  @SubscribeMessage('acceptChallenge')
+  async acceptChallenge(
+    client: AuthenticatedSocket,
+    data: {
+      userID: string;
+      challengerID: string;
+      mode: number;
+      hyper: boolean;
+      dodge: boolean;
+      challengerCharacter: number;
+      userCharacter: number;
+      challengerPaddle: number;
+      userPaddle: number;
+    },
+  ) {
+    const challenger = await this.userService.findOne(data.challengerID);
+    const user = await this.userService.findOne(data.userID);
+    const options = new Options(
+      data.mode,
+      data.userPaddle,
+      data.userCharacter,
+      data.hyper,
+      data.dodge,
+    );
+    this.server.to(challenger.socketID).emit('challengeAccepted');
+    this.server.to(user.socketID).emit('challengeAccepted');
+    this.gameCollection.createGame(client, options, data.userID, true);
+    this.server.to(challenger.socketID).emit('pleaseJoinGame');
+  }
+
+  @SubscribeMessage('joinChallengeGame')
+  async joinChallengeGame(
+    client: AuthenticatedSocket,
+    data: {
+      userID: string;
+      targetID: string;
+      mode: number;
+      hyper: boolean;
+      dodge: boolean;
+      character: number;
+      paddle: number;
+    },
+  ) {
+    console.log('SECOND userID = ', data.userID);
+    console.log('SECOND targetID = ', data.targetID);
+    console.log('SECOND mode = ', data.mode);
+    console.log('SECOND hyper = ', data.hyper);
+    console.log('SECOND dodge = ', data.dodge);
+    console.log('SECOND character = ', data.character);
+    console.log('SECOND paddle = ', data.paddle);
+    const options = new Options(
+      data.mode,
+      data.paddle,
+      data.character,
+      data.hyper,
+      data.dodge,
+    );
+    this.gameCollection.joinGame(client, options, data.targetID, data.userID);
+  }
+
+  @SubscribeMessage('declineChallenge')
+  async declineChallenge(
+    client: Socket,
+    data: { userID: string; challengerID: string },
+  ) {
+    const challenger = await this.userService.findOne(data.challengerID);
+    this.server.to(challenger.socketID).emit('challengeDeclined');
   }
 }
