@@ -1,7 +1,8 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
-
+import TwoFactorGuard from './two-factor-authentication/two-factor-authentication.guard';
 @Controller()
+// @UseGuards(TwoFactorGuard)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -11,6 +12,7 @@ export class AppController {
     @return {string} 'Hello World!'
   */
   @Get()
+  @UseGuards(TwoFactorGuard)
   getHello(): string {
     return this.appService.getHello();
   }
