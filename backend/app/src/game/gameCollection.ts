@@ -133,6 +133,8 @@ export class GameCollection {
     playerID: string,
     premade = false,
   ): void {
+    console.log('GAMES = ', this.gameObjects);
+    console.log('PREMADE = ', this.premadeGames);
     if (premade) {
       console.log('TARGET SOCKET = ', client.id);
       const game = new GameObject(this.server, options, this.chatGateway);
@@ -208,10 +210,12 @@ export class GameCollection {
   public removeGame(gameID: string) {
     let game: GameObject;
     game = this.gameObjects.get(gameID);
-    if (game) this.gameObjects.delete(gameID);
-    else {
+    if (game) {
+      this.gameObjects.delete(gameID);
+      this.totalGameCount--;
+    } else {
       game = this.premadeGames.get(gameID);
-      if (game) this.premadeGames.delete(gameID);
+      if (game) this.gameObjects.delete(gameID);
     }
   }
 

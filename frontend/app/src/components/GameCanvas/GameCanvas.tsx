@@ -1325,10 +1325,36 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         socket.on("secondsLeft", (event: any) => {
           const { secondsLeft } = event;
           setSecondsLeft(secondsLeft);
+          if (hasAbility && secondsLeft > 0) {
+            console.log("LABASSSSSSSSSSSSSSSSSSSSS");
+            setHasAbility(false);
+            setAbilityCooldownImage(Images.Cooldown[0]);
+            var animFrame = 1;
+            const abilTimer = setInterval(() => {
+              setAbilityCooldownImage(
+                Images.Cooldown[animFrame % Images.Cooldown.length]
+              );
+              animFrame++;
+              if (animFrame >= maxTimerAnim) clearInterval(abilTimer);
+            }, 500);
+          }
         });
         socket.on("secondsLeftUlt", (event: any) => {
           const { secondsLeftUlt } = event;
           setSecondsLeftUlt(secondsLeftUlt);
+          if (hasUlt && secondsLeft > 0) {
+            console.log("LABASSSSSSSSSSSSSSSSSSSSS");
+            setHasUlt(false);
+            setUltimateCooldownImage(Images.Cooldown[0]);
+            var animFrame = 1;
+            let ultTimer = setInterval(() => {
+              setUltimateCooldownImage(
+                Images.Cooldown[animFrame % Images.Cooldown.length]
+              );
+              animFrame++;
+              if (animFrame >= maxTimerAnim) clearInterval(ultTimer);
+            }, 500);
+          }
         });
         // Character special abilities
         socket.on("VenomtailSpecial", (event: any) => {
@@ -1547,7 +1573,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
         if (isGameStarted) {
-          console.log("BYBI DEJAU");
           ctx.fillStyle = backgroundColor;
           if (raivenSpecial) {
             ctx.fillRect(10, player1Position - 10, 20, 120);
@@ -1565,7 +1590,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             }
           }
           if (selectedGamemode !== Mode.Regular) {
-            console.log("Selected Gamemode = ", selectedGamemode);
             ctx.drawImage(player1Character, player1PositionX, player1Position);
             ctx.drawImage(player2Character, player2PositionX, player2Position);
             if (player === 1) {
