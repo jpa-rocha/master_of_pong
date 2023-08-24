@@ -1526,6 +1526,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     Images.RaivenSpecial,
     Images.VenomtailSpecial,
     selectedGamemode,
+    hasUlt,
   ]);
 
   useEffect(() => {
