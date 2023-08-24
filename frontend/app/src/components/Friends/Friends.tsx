@@ -181,7 +181,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                         className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
                       >
                         <img
-                          className="w-10 h-10 rounded-full"
+                          className="w-10 h-10 rounded-full object-cover"
                           src={`http://localhost:5000/api/users/avatars/${item.id}`}
                           alt="user"
                         />

@@ -169,7 +169,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                     <div className="flex flex-row items-center">
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                         <img
-                          className="w-10 h-10 rounded-full"
+                          className="w-10 h-10 rounded-full object-cover"
                           src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
                           alt="user"
                         />
@@ -193,7 +193,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                       <div className="flex items-center justify-start flex-row-reverse">
                         <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                           <img
-                            className="w-10 h-10 rounded-full"
+                            className="w-10 h-10 rounded-full object-cover"
                             src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
                             alt="user"
                           />

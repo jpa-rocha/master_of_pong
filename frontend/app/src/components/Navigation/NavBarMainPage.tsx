@@ -193,7 +193,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
               onClick={handleDropdownToggle}
             >
               <img
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
                 src={profileImg}
                 alt="user"
               />
@@ -304,7 +304,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             </div>
           )}
           <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-            <img src={logo} alt="logo" className="h-[50px] absolute left-5" />
+            <img src={logo} alt="logo" className="h-[50px] absolute left-5 object-cover" />
             <HamburgerMenu
               handleUserMain={handleUserMain}
               handleGame={handleGame}
