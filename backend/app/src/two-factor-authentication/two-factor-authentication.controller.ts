@@ -126,6 +126,7 @@ export class TwoFactorAuthenticationController {
         data.twoFactorAuthenticationCode.trim(),
         user,
       );
+      console.log("ISCODEVALID -------", isCodeValid)
     if (isCodeValid !== true) {
       throw new UnauthorizedException('Wrong authentication code');
     }
