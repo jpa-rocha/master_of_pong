@@ -127,7 +127,13 @@ export class GameService {
   }
 
   stopGame(leftID = ''): void {
-    if (this.gameObject.gameEnded === true || !this.gameObject.player2) return;
+    if (this.gameObject.gameEnded === true) return;
+    if (!this.gameObject.player2) {
+      console.log('Disconnected from queue -> removes game');
+      console.log('TODO handle leave queue if the user doesnt disconnect');
+      this.chatGateway.removeGame(this.gameObject.gameID);
+      return;
+    }
     if (this.gameObject.player1.databaseId)
       this.chatGateway.removeGameID(this.gameObject.player1.databaseId);
     if (this.gameObject.player2.databaseId)
