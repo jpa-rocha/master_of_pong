@@ -102,6 +102,14 @@ export class GameService {
   }
 
   startGame(): void {
+    this.chatGateway.addGameID(
+      this.gameObject.player1.databaseId,
+      this.gameObject.gameID,
+    );
+    this.chatGateway.addGameID(
+      this.gameObject.player2.databaseId,
+      this.gameObject.gameID,
+    );
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSizeDefault,
     });
@@ -199,6 +207,7 @@ export class GameService {
     this.gameObject.sendToClients<{ gameStatus: boolean }>('gameStatus', {
       gameStatus: this.gameObject.gameStarted,
     });
+    this.chatGateway.removeGame(this.gameObject.gameID);
   }
 
   ultVenomtail(player: Player, opponent: Player): void {

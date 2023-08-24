@@ -694,11 +694,23 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
 
+    console.log('=======================================================');
+    console.log('User.id = ', user.id);
     if (user.gameID === null) return;
+    console.log('Game.id = ', user.gameID);
     this.gameCollection.findGame(client, user.gameID);
+    console.log('-------------------------------------------------------');
   }
 
   removeGameID(userID: string) {
     this.userService.removeGameID(userID);
+  }
+
+  addGameID(userID: string, gameID: string) {
+    this.userService.addGameID(userID, gameID);
+  }
+
+  removeGame(gameID: string) {
+    this.gameCollection.removeGame(gameID);
   }
 }

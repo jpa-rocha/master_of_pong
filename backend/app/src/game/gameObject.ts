@@ -13,7 +13,7 @@ import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Injectable()
 export class GameObject {
-  public readonly gameID: string = v4();
+  public gameID: string = v4();
   public readonly createdAt: Date = new Date();
   public readonly clients: Map<Socket['id'], AuthenticatedSocket> = new Map<
     Socket['id'],
@@ -131,6 +131,10 @@ export class GameObject {
     this.player2.pos.y = 350;
   }
 
+  setGameID(gameID: string) {
+    this.gameID = gameID;
+  }
+
   async getUser(databaseId: string) {
     return await this.chatGateway.getUserName(databaseId);
   }
@@ -191,6 +195,7 @@ export class GameObject {
   }
 
   rejoin(client: AuthenticatedSocket) {
+    console.log('Reached rejoin function in gameObject.ts');
     let playerNo: number;
     let playerAbility: number;
     if (this.player1.id === client.id) {

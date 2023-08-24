@@ -897,6 +897,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     socket.emit("checkOngoingGame");
 
     function handleRejoin(data: rejoinData) {
+      console.log("HANEL REJOIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       setSelectedGamemode(data.mode);
       dodgeButton.selected = data.dodge;
       hyperButton.selected = data.hyper;
@@ -1050,6 +1051,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         }
       }
       setGameSelection(false);
+      setGameSelection(false);
       setGameStarted(true);
     }
 
@@ -1057,7 +1059,30 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     return () => {
       socket.off("Game Info");
     };
-  }, []);
+  }, [
+    Images.BelowZeroSpecial,
+    Images.BiggerBallAbility,
+    Images.DeflectAbility,
+    Images.FreezeAbility,
+    Images.MirageAbility,
+    Images.RaivenSpecial,
+    Images.SmallerBallAbility,
+    Images.SoundGrenadeAbility,
+    Images.VenomtailSpecial,
+    Images.paddleBzL,
+    Images.paddleBzM,
+    Images.paddleBzS,
+    Images.paddleRaivenL,
+    Images.paddleRaivenM,
+    Images.paddleRaivenS,
+    Images.paddleVentailL,
+    Images.paddleVentailM,
+    Images.paddleVentailS,
+    dodgeButton,
+    hyperButton,
+    player,
+    socket,
+  ]);
 
   useEffect(() => {
     if (socket) {
@@ -1518,6 +1543,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
         if (isGameStarted) {
+          console.log("BYBI DEJAU");
           ctx.fillStyle = backgroundColor;
           if (raivenSpecial) {
             ctx.fillRect(10, player1Position - 10, 20, 120);

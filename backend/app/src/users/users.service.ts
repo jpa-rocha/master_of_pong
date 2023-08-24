@@ -400,4 +400,10 @@ export class UsersService {
     user.gameID = null;
     await this.usersRepository.save(user);
   }
+
+  async addGameID(userID: string, gameID: string) {
+    const user = await this.findOne(userID);
+    user.gameID = gameID;
+    await this.usersRepository.save(user);
+  }
 }
