@@ -45,7 +45,7 @@ export class UsersService {
   async findIDbySocketID(socketID: string) {
     const user = await this.usersRepository.findOne({ where: { socketID } });
     if (!user) {
-      throw new Error("This ain't gonna work out");
+      throw new Error("Couldn't find user by socketID");
     }
     return user.id;
   }

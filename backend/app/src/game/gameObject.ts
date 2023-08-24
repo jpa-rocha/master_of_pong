@@ -222,8 +222,27 @@ export class GameObject {
       player2Y: this.player2.pos.y,
       player2Name: this.player2.user.username,
       score: this.score,
+      ballSize: this.ballSize,
     };
     this.server.to(client.id).emit('Game Info', payload);
+    if (client.id == this.player1.id) {
+      this.server.to(this.player1.id).emit('hasAbility', {
+        hasAbility: this.player1.hasAbility,
+        ability: this.player1.ability,
+      });
+      this.server.to(this.player1.id).emit('hasUlt', {
+        hasUlt: this.player1.hasSpecial,
+      });
+    } else if (client.id == this.player2.id) {
+      this.server.to(this.player2.id).emit('hasAbility', {
+        hasAbility: this.player2.hasAbility,
+        ability: this.player2.ability,
+      });
+      this.server.to(this.player2.id).emit('hasUlt', {
+        hasUlt: this.player2.hasSpecial,
+      });
+    }
+    console.log('LABAS');
   }
 
   sendToPlayer1<T>(event: any, payload: T) {
