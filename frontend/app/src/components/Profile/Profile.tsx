@@ -142,7 +142,10 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           const response = await axios
             .post(`api/users/upload/${userID}`, formData, config)
             .then((res) => {
-              console.log(res);
+              if (res.status === 200)
+                console.log("Profile picture changed successfully");
+            }).catch((err) => {
+              console.log("Profile picture change failed");
             });
           window.location.reload();
         } catch (error: any) {
