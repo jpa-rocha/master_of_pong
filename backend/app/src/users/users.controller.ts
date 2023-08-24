@@ -42,12 +42,26 @@ export class UsersController {
 
   @Get('name/:userName')
   findAllName(@Param('userName') userName: string) {
-    return this.usersService.findAllName(userName);
+    const name = this.usersService.findAllName(userName);
+    return name;
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    const update = this.usersService.update(id, updateUserDto);
+    console.log(update)
+    return update;
+  }
+
+  @Patch('change/name/:id')
+  async changeName(@Param('id') id: string, @Body() data: {username: string}, @Res() res: any) {
+    const result = await this.usersService.changeName(id, data.username);
+    if (result) {
+      return res.status(200).json({ message: 'Username changed successfully' });
+    }
+    else {
+      return res.status(200).json({ message: 'Username already exists' });
+    }
   }
 
   @Delete(':id')

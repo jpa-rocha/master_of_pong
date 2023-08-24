@@ -5,7 +5,7 @@ axios.defaults.baseURL = "http://localhost:5000/";
 
 type Prop = {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (newName: string) => void;
   UserId: { id: string } | string;
 };
 
@@ -21,21 +21,28 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
       },
     };
     if (UserId !== undefined) {
-      const response = await axios.patch(`api/users/${UserId}`, data, config).then((res) => {
-        console.log("User name changed successfully");
-      }).catch((err) => {
-        console.log("Error in changing user name");
-      });
+      const response = await axios
+        .patch(`api/users/change/name/${UserId}`, data, config)
+        .then((res) => {
+          alert(res.data.message);
+          onClose(newName);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.response.status === 400) {
+            alert("User name already exists");
+            onClose("");
+          }
+        });
     }
   };
-  
+
   const handleUserNameChange = async (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-
     if (event.key === "Enter") {
       event.preventDefault();
-      let newname = event.currentTarget.value.trim()
+      let newname = event.currentTarget.value.trim();
       if (newname.length > 15) {
         alert("Username must be less than 15 characters");
         return;
@@ -44,8 +51,12 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
         alert("Username must be more than 3 characters");
         return;
       }
+      /* check if there are special characters */
+      if (!/^[a-zA-Z0-9]+$/.test(newname)) {
+        alert("Username must be alphanumeric");
+        return;
+      }
       setUser(newname);
-      onClose();
     }
   };
 
@@ -56,7 +67,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
         <button
           className="absolute top-3 right-3 text-gray-400 bg-transparent
 	  	hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto "
-          onClick={onClose}
+          onClick={() => onClose("")}
         >
           X
         </button>

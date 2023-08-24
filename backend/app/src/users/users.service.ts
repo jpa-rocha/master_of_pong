@@ -75,6 +75,19 @@ export class UsersService {
     return this.usersRepository.remove(user);
   }
 
+  async changeName(userID: string, username: string) {
+    const options: FindOneOptions<User> = {
+      where: { username },
+    };
+    const check = await this.usersRepository.findOne(options);
+    if (!check) {
+      const user = await this.findOne(userID);
+      user.username = username;
+      return await this.usersRepository.save(user);
+    } else
+      return null;
+  }
+
   async sendFriendRequest(userId: string, friendId: string) {
     // TODO NEED A BETTER SOLUTION ------------------------------------------------
     const checkIfExists = await this.friendsRepository.findOne({

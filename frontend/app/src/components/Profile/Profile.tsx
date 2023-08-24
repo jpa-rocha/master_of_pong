@@ -163,9 +163,12 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     fileInput.click();
   };
 
-  const handleUserNameChange = () => {
+  const handleUserNameChange = (newName: string) => {
     setIsNameChangedPopUp(!isNameChangedPopUp);
-    console.log("isNameChangedPopUp = ", isNameChangedPopUp);
+    if (newName.length > 0)
+    {
+      setUserName(newName);
+    }
   };
   // const handleUserNameChange = (
   //   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -249,7 +252,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
                     className="items-center px-3 py-2 text-sm text-center
 					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
-                    onClick={handleUserNameChange}
+                    onClick={() => handleUserNameChange("")}
                     title="must be between 3 and 15 characters"
                   >
                     Change Username
