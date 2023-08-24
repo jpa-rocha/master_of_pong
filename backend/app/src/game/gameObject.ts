@@ -222,6 +222,7 @@ export class GameObject {
       player2Y: this.player2.pos.y,
       player2Name: this.player2.user.username,
       score: this.score,
+      ballSize: this.ballSize,
     };
     this.server.to(client.id).emit('Game Info', payload);
   }

@@ -890,6 +890,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     player2Y: number;
     player2Name: string;
     score: { p1: number; p2: number };
+    ballSize: number;
   }
 
   useEffect(() => {
@@ -909,6 +910,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       setScore(data.score);
       setPlayer1Name(data.player1Name);
       setPlayer2Name(data.player2Name);
+      setBallSize(data.ballSize);
+
       if (data.mode !== Mode.Regular) {
         setAbilities(true);
         switch (data.ability) {
@@ -1082,6 +1085,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     hyperButton,
     player,
     socket,
+    ballSize,
   ]);
 
   useEffect(() => {
