@@ -167,6 +167,10 @@ export class GameCollection {
       this.totalGameCount++;
       // this.userService.saveGameID(playerID, game.gameID);
       game.addClient(client, playerID);
+      this.userService.updateSocket(client.id, {
+        status: 'in queue',
+        socketID: client.id,
+      });
       return;
     }
   }

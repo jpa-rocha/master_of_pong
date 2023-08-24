@@ -29,6 +29,7 @@ interface ChallengeDetails {
   paddle: number;
   challengerID: string;
   userID: string;
+  challengerUsername: string;
 }
 
 interface NavBarProps {
@@ -365,7 +366,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             left: 0,
             width: "20%",
             height: "10%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",

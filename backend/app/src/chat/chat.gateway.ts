@@ -602,6 +602,7 @@ export class ChatGateway {
       paddle: number;
     },
   ) {
+    const user = await this.userService.findOne(data.userID);
     const target = await this.userService.findOne(data.targetID);
     if (target.status != 'online') {
       this.server
@@ -617,6 +618,7 @@ export class ChatGateway {
       paddle: data.paddle,
       challengerID: data.userID,
       userID: data.targetID,
+      challengerUsername: user.username,
     });
   }
 

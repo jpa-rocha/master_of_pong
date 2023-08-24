@@ -170,6 +170,12 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
                     Opponent
                   </th>
                   <th scope="col" className="px-6 py-1">
+                    GameMode
+                  </th>
+                  <th scope="col" className="px-6 py-1">
+                    Options
+                  </th>
+                  <th scope="col" className="px-6 py-1">
                     Result
                   </th>
                 </tr>

@@ -14,6 +14,7 @@ interface ChallengeDetails {
   paddle: number;
   challengerID: string;
   userID: string;
+  challengerUsername: string;
 }
 
 type IncomingChallengePopUpProps = {
@@ -34,29 +35,33 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
   let paddle = Paddles.AverageJoe;
 
   if (challengeDetais.mode === Mode.MasterOfPong) masterToggle = true;
-  let gameInfo: string = "";
+  let gameMode: string = "";
+  let gameOptions: string = "";
   let declineTimer: NodeJS.Timeout | null = null;
 
   switch (challengeDetais.mode) {
     case Mode.Regular:
-      gameInfo = "Regular Match";
+      gameMode = "Regular Match";
       break;
     case Mode.MasterOfPong:
-      gameInfo = "Master of Pong";
+      gameMode = "Master of Pong";
       break;
   }
   if (challengeDetais.dodge && challengeDetais.hyper) {
-    gameInfo = gameInfo + ", HyperDodge Mode";
+    gameOptions = "HyperDodgeball";
   } else if (challengeDetais.dodge) {
-    gameInfo = gameInfo + ", Dodge Mode";
+    gameOptions = "Dodgeball";
   } else if (challengeDetais.hyper) {
-    gameInfo = gameInfo + ", Hyper Mode";
+    gameOptions = " Hyper";
+  } else {
+    gameOptions = "Default";
   }
 
   declineTimer = setTimeout(() => {
     declineTimer = null;
     handleDecline();
-  }, 20000);
+  }, 200000000);
+  // }, 20000);
 
   function handleAccept() {
     if (declineTimer) {
@@ -116,53 +121,53 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
   return (
     <>
       <div>
-        <h3 className="PopHeader">INCOMING Challenge, GET READY TO RUMBLE</h3>
+        <h3 className="PopHeader">
+          Incoming challenge from {challengeDetais.challengerUsername}
+        </h3>
         <div className="PopBody">
-          <div>{gameInfo}</div>
-          <div>mode = {challengeDetais.mode}</div>
-          <div>character = {challengeDetais.character}</div>
-          <div>paddle = {challengeDetais.paddle}</div>
-        </div>
-        {masterToggle ? (
-          <>
-            <div>
-              <label htmlFor="character">Choose a character:</label>
-            </div>
-            <div>
-              <select
-                name="character"
-                id="character"
-                onChange={handleCharacterSelectionChange}
-              >
-                <option value={0}>Random</option>
-                <option value={Character.Venomtail}>Venomtail</option>
-                <option value={Character.BelowZero}>BelowZero</option>
-                <option value={Character.Raiven}>Raiven</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="size">Select a size:</label>
-            </div>
-            <div>
-              <select
-                name="size"
-                id="size"
-                onChange={handlePaddleSelectionChange}
-              >
-                <option value={Paddles.AverageJoe}>Regular</option>
-                <option value={Paddles.Small}>Small</option>
-                <option value={Paddles.BigPete}>Large</option>
-              </select>
-            </div>
-          </>
-        ) : null}
-        <div className="button-container">
-          <button className="create-button" onClick={handleAccept}>
-            Accept
-          </button>
-          <button className="cancel-button" onClick={handleDecline}>
-            Decline
-          </button>
+          <div>Mode: {gameMode}</div>
+          <div>Options: {gameOptions}</div>
+          {masterToggle ? (
+            <>
+              <div>
+                <label htmlFor="character">Choose a character:</label>
+              </div>
+              <div>
+                <select
+                  name="character"
+                  id="character"
+                  onChange={handleCharacterSelectionChange}
+                >
+                  <option value={0}>Random</option>
+                  <option value={Character.Venomtail}>Venomtail</option>
+                  <option value={Character.BelowZero}>BelowZero</option>
+                  <option value={Character.Raiven}>Raiven</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="size">Select a size:</label>
+              </div>
+              <div>
+                <select
+                  name="size"
+                  id="size"
+                  onChange={handlePaddleSelectionChange}
+                >
+                  <option value={Paddles.AverageJoe}>Regular</option>
+                  <option value={Paddles.Small}>Small</option>
+                  <option value={Paddles.BigPete}>Large</option>
+                </select>
+              </div>
+            </>
+          ) : null}
+          <div className="button-container">
+            <button className="create-button" onClick={handleAccept}>
+              Accept
+            </button>
+            <button className="cancel-button" onClick={handleDecline}>
+              Decline
+            </button>
+          </div>
         </div>
       </div>
     </>
