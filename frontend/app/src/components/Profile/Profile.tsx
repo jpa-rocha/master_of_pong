@@ -125,10 +125,17 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       if (file) {
         if (file.size > 1024 * 1024) {
           console.error("File size exceeds 1MB limit");
+          alert("File size exceeds 1MB limit");
+          return;
+        }
+        if (file.size < 50 * 50) {
+          console.error("File size is less than 50x50 limit");
+          alert("File size is less than 50x50 limit");
           return;
         }
         if (!["image/png", "image/jpeg"].includes(file.type)) {
           console.error("File type not supported");
+          alert("File type not supported");
           return;
         }
         const formData = new FormData();
@@ -212,7 +219,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 "
             >
               <img
-                className="md:h-auto md:w-[20%] md:rounded-l-lg"
+                className="md:h-auto md:w-[20%] md:rounded-l-lg md:rounded-r-lg"
                 src={profileImg}
                 alt="profile_picture"
               />
@@ -243,8 +250,9 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
                     onClick={handleUserNameChange}
+                    title="must be between 3 and 15 characters"
                   >
-                    Change User Name
+                    Change Username
                   </button>
                   <button
                     className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
@@ -252,6 +260,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 					hover:bg-green-600 focus:ring-4 focus:outline-none
 					focus:ring-gray-200"
                     onClick={handleProfileImgChange}
+                    title="Upload Image (JPEG/PNG, max 1MB)"
                   >
                     Change Profile Picture
                   </button>
