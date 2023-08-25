@@ -83,7 +83,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       socket.off("message", handleReturnMessages);
       socket.off("returnChat", handleReturnChatBody);
     };
-  }, [messages, user?.username, socket, chat]);
+  }, [user, messages, user?.username, socket, chat]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === "direct") {

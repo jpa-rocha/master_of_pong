@@ -1,18 +1,18 @@
 import axios from "axios";
-import { useEffect } from "react";
+//import { useEffect } from "react";
 import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 axios.defaults.withCredentials = true;
 
-type PopUpTurnOff2fa = {
+type PopUpTurnOff2faProps = {
   isOpen: boolean;
   onClose: () => void;
   UserId: string | undefined;
   off: boolean; // True = turn off 2fa, False = validate 2fa
 };
 
-const PopUpTurnOff2fa: React.FC<PopUpTurnOff2fa> = ({
+const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
   isOpen,
   onClose,
   UserId,

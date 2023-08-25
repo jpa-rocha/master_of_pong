@@ -56,68 +56,67 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
     }
     getUserID();
     getLeaders();
-  }, []);
+  }, [userID]);
 
   return (
     <>
-      <Grid container className="flex h-[100vh]" style={imgStyle}>
+      <Grid container className="h-[100vh]" style={imgStyle}>
         <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
-        <Grid item xs={6} md={12}>
-          <h2 className="text-center font-bold mt-5 md:mt-0">Leaderboard</h2>
-          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
-            <table className="w-full text-lg text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+        <Grid item md={12}> 
+          <h2 className="text-center text-4xl 2xl:text-6xl font-bold m-5 md:mt-0">Leaderboard</h2>
+          <div className="shadow-md sm:rounded-lg mx-2">
+            <table className="text-lg text-left text-gray-500 w-full">
+              <thead className="text-sm border-2 text-gray-700 uppercase bg-gray-100 w-full">
                 <tr>
-                  <th scope="col" className="px-6 py-1">
+                  <th scope="col" className="px-6 py-2">
                     Player
                   </th>
-                  <th scope="col" className="px-6 py-1">
+                  <th scope="col" className="px-6 py-2">
                     Wins
                   </th>
-                  <th scope="col" className="px-6 py-1">
+                  <th scope="col" className="px-6 py-2">
                     Losses
                   </th>
-                  <th scope="col" className="px-6 py-1">
+                  <th scope="col" className="px-6 py-2">
                     Win Ratio
                   </th>
-                  <th scope="col" className="px-6 py-1">
+                  <th scope="col" className=" px-6 py-2">
                     Rating
+                  </th>
+				  <th scope="col" className=" px-6 py-2">
+                    Rank
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {leaders.map((leader, index) => (
-                  <tr className="bg-white border-b" key={index}>
-                    <div key={index} style={{ display: "flex" }}>
-                      <div style={{ flex: 1 }}>
-                        <div>
-                          {userID === leader.id ? (
+                  <tr className="bg-gray-100" key={index}>
+                    <th scope="row"  className="px-6 py-4 font-medium text-gray-900" >
+                        {userID === leader.id ? (
                             <div>{leader.username} ⭐</div>
                           ) : (
                             <div>{leader.username}</div>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{ flex: 1 }}>wins : {leader.wins}</div>
-                      <div style={{ flex: 1 }}>losses : {leader.losses}</div>
-                      <div style={{ flex: 1 }}>
-                        win rate :{" "}
+                        )}
+                      </th>
+                      <td className="px-6 py-4">{leader.wins}</td>
+                      <td className="px-6 py-4">{leader.losses}</td>
+                      <td className="px-6 py-4">
+                        {" "}
                         {leader.losses === 0
                           ? leader.wins
                           : Math.round((leader.wins / leader.losses) * 100) /
                             100}
-                      </div>
-                      <div style={{ flex: 1 }}>elo : {leader.elo}</div>
-                      <div style={{ flex: 1 }}>rank : {leader.rank}</div>
-                    </div>
+                      </td>
+                      <td className="px-6 py-4">{leader.elo}</td>
+                      <td className="px-6 py-4">{leader.rank}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </Grid>
+       </Grid> 
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>

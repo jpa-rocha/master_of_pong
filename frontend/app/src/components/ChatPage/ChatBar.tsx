@@ -4,8 +4,8 @@ import axios from "axios";
 import { getToken } from "../../utils/Utils";
 import PopUpCreateChat from "./PopUpCreateChat";
 import PopUpJoinChat from "./PopUpJoinChat";
-import { Message, User, Chat } from "./PropUtils";
-import ChallengeRoomPopup from "./PopUpChallenge";
+import { User, Chat } from "./PropUtils";
+//import ChallengeRoomPopup from "./PopUpChallenge";
 
 axios.defaults.baseURL = "http://localhost:5000/";
 

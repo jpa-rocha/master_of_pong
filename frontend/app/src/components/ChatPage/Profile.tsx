@@ -54,7 +54,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   // const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
-  const token: string = getToken("jwtToken");
+  //const token: string = getToken("jwtToken");
   const [userID, setUserID] = useState<{ id: string } | string>(profileID);
   const [isOpen, setIsOpen] = useState(true);
 
