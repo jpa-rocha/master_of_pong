@@ -115,13 +115,13 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 
   return (
     <>
-      <Grid container style={imgStyle} direction="column">
-        <Grid item xs={2}>
+      <Grid container>
+        <Grid item xs={12}>
         	<NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
-        <Grid item xs={10} mt={9}>
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg md:px-10">
+        <Grid item xs={12} style={imgStyle} className="h-[100vh]">
+          <div className="relativew-full  overflow-x-auto shadow-md sm:rounded-lg px-2 mt-10">
             <div className="flex items-center justify-end pb-4 bg-white">
               {/* For the search bar */}
               <div className="relative">
@@ -220,12 +220,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 </table>
               ))}
           </div>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
-        <div className="flex flex-col justify-center items-center bg-gray-100 p-3 mt-2">
+		  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 m-2">
           <div className="px-3 my-6">
             <span className="text-black text-xl font-bold">
               Friend Requests :{" "}
@@ -250,6 +245,12 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
               </div>
             ))}
         </div>
+        </Grid>
+
+  
+		<Grid item xs={12}>
+          <Footer></Footer>
+        </Grid>
       </Grid>
     </>
   );
