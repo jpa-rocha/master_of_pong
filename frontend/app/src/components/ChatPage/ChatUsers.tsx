@@ -7,7 +7,7 @@ import { User, Chat } from "./PropUtils";
 import "./PopUp.css";
 import ChallengeRoomPopup from "./PopUpChallenge";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface ChatUsersProps {
   socket: Socket;
@@ -110,7 +110,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 
   useEffect(() => {
     const getUserGET = async () => {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       const id = await axios
         .post("api/auth/getUserID", { token })
         .then((res) => res.data);

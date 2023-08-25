@@ -10,7 +10,7 @@ import { Socket } from "socket.io-client";
 import IncomingChallengePopUp from "../../utils/incomingChallengePopUp";
 
 const btnToggleStyle = `
-block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2 
+block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2
 text-md text-gray-700 text-center
 hover:bg-gray-800 rounded-lg hover:text-white
 `;
@@ -71,13 +71,13 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   useEffect(() => {
     (async () => {
-      setUserID(await getUserID(getToken("jwtToken")));
+      setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
     })();
     if (userID) {
-      setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+      setProfileImg(`${process.env.REACT_APP_BACKEND}api/users/avatars/${userID}`);
       (async () => {
         const user = await axios.get<UserProps>(
-          `http://localhost:5000/api/users/${userID}`
+          `${process.env.REACT_APP_BACKEND}api/users/${userID}`
         );
         setUserInfo(user.data);
         setToggle2fa(user.data.is_2fa_enabled);
@@ -85,7 +85,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
- 
+
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -136,7 +136,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const handleChat = (e: React.FormEvent) => {
     e.preventDefault();
 	console.log("clicked!");
-	
+
     navigate("/chat");
   };
 
@@ -234,7 +234,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                   </li>
                   <li>
                     <a
-                      href="http://localhost:5000/api/auth/signout"
+                      href={`${process.env.REACT_APP_BACKEND}api/auth/signout`}
                       className={btnToggleStyle}
                     >
                       Sign out
@@ -245,7 +245,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
         	</div>
         	<div ref={hamburgerMenuRef}>
             	<div className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden focus:outline-none">
-            		<img src={logo} alt="logo" className="h-[50px] absolute left-[50%] right-[50%]"/> 
+            		<img src={logo} alt="logo" className="h-[50px] absolute left-[50%] right-[50%]"/>
             	</div>
             	<button
             		data-collapse-toggle="navbar-user"
@@ -265,7 +265,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 						handleUserMain={handleUserMain}
 						handleGame={handleGame}
 						handleChat={handleChat}
-		  			></HamburgerMenu> 
+		  			></HamburgerMenu>
 				</div>)}
         	</div>
         	<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">

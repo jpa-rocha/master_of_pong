@@ -22,7 +22,7 @@ type GameComponentProps = {
 const Game: React.FC<GameComponentProps> = ({ socket }) => {
   // const [userID, setUserID] = useState<string>("");
   // (async () => {
-  //   setUserID(await getUserID(getToken("jwtToken")));
+  //   setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
   //   socket.emit("activityStatus", { userID: userID, status: "online" });
   // })();
 

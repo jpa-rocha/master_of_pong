@@ -23,7 +23,9 @@ import { JwtAuthService } from './auth/jwt-auth/jwt-auth.service';
 @Module({
   imports: [
     // GameModule,
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // Make the ConfigService available application-wide
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

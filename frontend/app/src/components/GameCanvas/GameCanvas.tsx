@@ -18,7 +18,7 @@ import { Character } from "./enums/Characters";
 import { EndScreen } from "./Canvas";
 import { getUserID } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 type GameComponentProps = {
   socket: Socket;
@@ -287,8 +287,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         dodgeButton.selected
       );
       console.log("Socket:", socket);
-      console.log("TOKEN TEST " + getToken("jwtToken"));
-      socket.emit("start", { opt: opt, token: getToken("jwtToken") });
+      console.log("TOKEN TEST " + getToken(process.env.REACT_APP_JWT_NAME as string));
+      socket.emit("start", { opt: opt, token: getToken(process.env.REACT_APP_JWT_NAME as string) });
     } catch (error) {
       console.error("Failed to start the game:", error);
     }
@@ -1532,7 +1532,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   useEffect(() => {
     let cnv = canvas.current;
     async function emitActivityStatus() {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       if (token) {
         const userID = await getUserID(token);
         setUserID(userID);

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { on } from "events";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 type Prop = {
   isOpen: boolean;
@@ -16,7 +16,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
     const config = {
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
       },
     };

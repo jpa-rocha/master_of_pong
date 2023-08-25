@@ -3,7 +3,7 @@ import './PopUp.css'
 import { Socket } from 'socket.io-client';
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 type ChallengePopupProps = {
   isOpen: boolean;

@@ -2,7 +2,7 @@ import axios from "axios";
 import jwt from 'jwt-decode';
 
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface User {
   id: string;

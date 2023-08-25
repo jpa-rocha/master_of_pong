@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { Chat } from "./PropUtils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface ChatFooterProps {
   socket: Socket;
@@ -13,7 +13,7 @@ interface ChatFooterProps {
 const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const [message, setMessage] = useState("");
   const [chatID, setChatID] = useState<number>(0);
-  
+
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (message !== "")

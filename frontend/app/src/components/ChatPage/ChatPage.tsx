@@ -20,7 +20,7 @@ const imgStyle = {
 
 const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
   (async () => {
-    const userID = await getUserID(getToken("jwtToken"));
+    const userID = await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string));
     socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
 
@@ -29,7 +29,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
  <Grid container className="flex h-[100vh]" style={imgStyle}>
         {/* <div className="flex flex-col justify-center items-center h-[100vh]" style={imgStyle} /> */}
 
-    <Grid item xs={12}> 
+    <Grid item xs={12}>
 		  <NavBarMainPage socket={socket}></NavBarMainPage>
    	</Grid>
 	   <Grid item xs={12} >
@@ -37,7 +37,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
           <ChatBar socket={socket}></ChatBar>
           <div className="flex flex-col flex-auto px-6">
               <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-yellow-50 h-full p-4">
-                <ChatBody socket={socket}/> 
+                <ChatBody socket={socket}/>
                 <ChatFooter socket={socket}/>
               </div>
           </div>
@@ -45,7 +45,7 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
         </div>
       </Grid>
 
-     <Grid item xs={12}> 
+     <Grid item xs={12}>
 		<Footer></Footer>
     </Grid>
 

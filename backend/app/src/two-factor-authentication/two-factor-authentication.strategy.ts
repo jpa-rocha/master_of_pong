@@ -26,7 +26,7 @@ export class TwoFactorStrategy extends PassportStrategy(Strategy) {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
       let token = null;
       if (req && req.cookies) {
-        token = req.cookies['jwtToken'];
+        token = req.cookies[configService.get<string>('REACT_APP_JWT_NAME')];
       }
       return token;
     };
@@ -34,7 +34,7 @@ export class TwoFactorStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: extractJwtFromCookie,
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>('REACT_APP_JWT_NAME'),
     });
   }
   async validate(token: JwtPayload): Promise<User> {

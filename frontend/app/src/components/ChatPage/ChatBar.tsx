@@ -7,7 +7,7 @@ import PopUpJoinChat from "./PopUpJoinChat";
 import { User, Chat } from "./PropUtils";
 //import ChallengeRoomPopup from "./PopUpChallenge";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface ChatBarProps {
   socket: Socket;
@@ -29,7 +29,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
   }, [directTemp]);
 
   useEffect(() => {
-    const token = getToken("jwtToken");
+    const token = getToken(process.env.REACT_APP_JWT_NAME as string);
     // const getUser = async () => {
     //   const id = await axios
     //     .post("api/auth/getUserID", { token })
@@ -46,7 +46,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     //   }
     // };
     // getUserEffect();
-  
+
     const handleReturnChatBar = (data: {friends: User[], direct: Chat[], chatRooms: Chat[]}) => {
       if (data.friends)
         setFriendsChats(data.friends);
@@ -68,7 +68,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
       const id = await axios.post("api/auth/getUserID", { token });
       setUserID(id.data);
     }
-  
+
     if (!userID)
       getUserID();
     socket.emit("getChatBar", {userID: userID});
@@ -91,12 +91,12 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         if (chat.title === 'direct' && chat.users[0]) {
           if (friendsChat.some(friend => friend.id ===  chat.users[0].id && friend.isFriend))
             return false;
-          else 
+          else
             chat.title = chat.users[0].username;
         }
         return true;
       });
-  
+
       setDirectChat(updatedDirectChat);
     }
   }, [directTemp, friendsChat]);
@@ -136,7 +136,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 	  		</div>
 	  	<div className="ml-2 font-bold text-2xl">Chat</div>
 	</div>
-  
+
 	<div className="flex flex-col mt-8 flex-1">
 		<div className="flex flex-row items-center justify-between text-xs">
 			<span className="font-bold">Friends</span>
@@ -187,7 +187,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
     	  	</div>
 	  	</div>
 	</div>
-	
+
 	{isCreatePopupOpen && (
         <div
           style={{
@@ -225,7 +225,7 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
         </div>
       )}
 </div>
-    
+
   );
 };
 

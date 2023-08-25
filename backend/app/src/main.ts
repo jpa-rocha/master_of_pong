@@ -3,10 +3,11 @@ import { AppModule } from './app.module';
 import * as cors from 'cors';
 import * as cookieParser from 'cookie-parser'
 import { NextFunction, Request, Response } from 'express';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  var whitelist = ["https://localhost:3000"]
+  const configService = app.get(ConfigService);
   app.setGlobalPrefix('api');
   // app.use(function(request: Request, response: Response, next: NextFunction){
   //   response.setHeader('Access-Control-Allow-Origin', 'https://localhost:3000');
@@ -22,7 +23,7 @@ async function bootstrap() {
     //     callback(new Error('Not allowed by CORS'))
     //   }
     // },
-    origin: "https://localhost:3000",
+    origin: configService.get<string>('REACT_APP_FRONTEND'),
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
     // preflightContinue: true,

@@ -2,7 +2,7 @@ import axios from "axios";
 //import { useEffect } from "react";
 import { getToken } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
 
 type PopUpTurnOff2faProps = {
@@ -27,19 +27,19 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
         "Access-Control-Allow-Methods":
           "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken("jwtToken"),
+        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
       },
       credentials: "include",
     };
 
     await axios
       .post(
-        `http://localhost:5000/api/2fa/turn-off/${UserId}`,
+        `${process.env.REACT_APP_BACKEND}api/2fa/turn-off/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

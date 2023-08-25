@@ -23,7 +23,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     private jwtAuthService: JwtAuthService,
   ) {
     // private usersService: UsersService) {
-      // TODO could put token name in the .env?
+
     const extractJwtFromCookie = (req: Request) => {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
       let token = null;
@@ -31,7 +31,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
         let cookies = req.headers.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
           let keyValuePairs = cookies[i].split('=');
-          if (keyValuePairs.length === 2 && keyValuePairs[0].trim() === this.configService.get<string>('JWT_NAME')) {
+          if (keyValuePairs.length === 2 && keyValuePairs[0].trim() === this.configService.get<string>('REACT_APP_JWT_NAME')) {
               token = keyValuePairs[1];
               console.log('TOKEN =',token)
           }

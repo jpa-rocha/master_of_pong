@@ -7,7 +7,7 @@ import axios from "axios";
 import { getToken } from "../../utils/Utils";
 import NameChangePopUp from "./PopUpNameChange";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface UserProps {
   id: string;
@@ -54,7 +54,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   // const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
-  const token: string = getToken("jwtToken");
+  const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [userID, setUserID] = useState<{ id: string } | string>(profileID);
   const [isNameChangedPopUp, setIsNameChangedPopUp] = useState(false);
 
@@ -107,7 +107,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   // };
 
   useEffect(() => {
-    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+    setProfileImg(`${process.env.REACT_APP_BACKEND}api/users/avatars/${userID}`);
   }, [userID]);
 
   if (!userName) {

@@ -20,9 +20,10 @@ const imgStyle = {
 const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   let userID: string = "";
 
-  
+
   (async () => {
-    userID = await getUserID(getToken("jwtToken"));
+
+    userID = await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string));
     socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
 

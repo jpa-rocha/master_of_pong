@@ -76,7 +76,7 @@ export class TwoFactorAuthenticationController {
     const updatedUser = await this.userService.findOne(user.id);
     const { accessToken } = await this.jwtAuthService.login(updatedUser, true);
 
-    res.cookie(this.configService.get<string>('JWT_NAME'), accessToken, {
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
@@ -104,7 +104,7 @@ export class TwoFactorAuthenticationController {
     await this.userService.turnOffTwoFactorAuthentication(user.id);
     const updatedUser = await this.userService.findOne(user.id);
     const { accessToken } = await this.jwtAuthService.login(updatedUser, false);
-    res.cookie(this.configService.get<string>('JWT_NAME'), accessToken, {
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
@@ -131,7 +131,7 @@ export class TwoFactorAuthenticationController {
       throw new UnauthorizedException('Wrong authentication code');
     }
     const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie(this.configService.get<string>('JWT_NAME'), accessToken, {
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,

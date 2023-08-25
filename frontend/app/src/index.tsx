@@ -15,10 +15,10 @@ import PageNotFound from "./components/PageNotFound";
 import LeaderBoard from "./components/LeaderBoard/LeaderBoard"
 import { getToken } from "../src/utils/Utils";
 import axios from "axios";
-axios.defaults.baseURL = "http://localhost:5000/";
 
-const URI = "http://localhost:5050";
-
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
+const URI = process.env.REACT_APP_GATEWAY as string;
+console.log("-----URI: ", URI);
 const socket: Socket = socketIO.connect(URI);
 
 const root = ReactDOM.createRoot(
@@ -27,9 +27,10 @@ const root = ReactDOM.createRoot(
 
 async function getUserID() {
   console.log("INDEX GET USERID");
-  const token = getToken("jwtToken");
+  console.log("-----URI: ", URI);
+  const token = getToken(process.env.REACT_APP_JWT_NAME as string);
   const response = await axios.post<{ id: string }>(
-    "http://localhost:5000/api/auth/getUserID",
+   `${process.env.REACT_APP_BACKEND}api/auth/getUserID`,
     { token }
   );
   return response.data;

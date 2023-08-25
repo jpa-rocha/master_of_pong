@@ -39,16 +39,15 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie(this.configService.get<string>('JWT_NAME'), token, {
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), token, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
 
-    return res.redirect('https://localhost:3000/main');
+    return res.redirect(`${this.configService.get<string>('REACT_APP_FRONTEND')}/main`);
   }
 
-  // TODO secret is hardcoded
   @Post('verifyToken')
   async verifyToken(@Body() body) {
     const token = body.token;
@@ -78,7 +77,7 @@ export class AuthController {
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    res.cookie(this.configService.get<string>('JWT_NAME'), '', { expires: new Date(0) });
-    return res.redirect('https://localhost:3000/');
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), '', { expires: new Date(0) });
+    return res.redirect(this.configService.get<string>('REACT_APP_FRONTEND'));
   }
 }

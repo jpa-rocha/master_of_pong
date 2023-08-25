@@ -6,7 +6,7 @@ import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
 
 
 const PrivateRoutes = () => {
-  const token: string = getToken("jwtToken");
+  const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
   const [togglePopUp, setTogglePopUp] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<Token | null>(null);
@@ -37,7 +37,7 @@ const PrivateRoutes = () => {
     const verifyToken = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/verifyToken",
+          `${process.env.REACT_APP_BACKEND}api/auth/verifyToken`,
           {
             method: "POST",
             headers: {
@@ -50,7 +50,7 @@ const PrivateRoutes = () => {
         check_validation();
         // setTokenValid(true);
         // this needs to be true after its checked
-       
+
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);

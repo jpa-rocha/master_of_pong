@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface UserProps {
   id: string;
@@ -54,7 +54,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   // const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
-  //const token: string = getToken("jwtToken");
+  //const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [userID, setUserID] = useState<{ id: string } | string>(profileID);
   const [isOpen, setIsOpen] = useState(true);
 
@@ -91,7 +91,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
     const config = {
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
       },
     };
@@ -107,7 +107,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   };
 
   useEffect(() => {
-    setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+    setProfileImg(`${process.env.REACT_APP_BACKEND}api/users/avatars/${userID}`);
   }, [userID]);
 
   if (!userName) {
@@ -119,7 +119,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
       {isOpen && (
         <div className="flex relative justify-between bg-white p-10 2xl:p-20">
           <button
-            className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 
+            className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900
 					rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
             onClick={closeProfile}
           >

@@ -6,7 +6,7 @@ import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface UserProps {
   id: string;
@@ -40,9 +40,9 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
   useEffect(() => {
     async function getUserID() {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       const response = await axios.post<{ id: string }>(
-        "http://localhost:5000/api/auth/getUserID",
+        `${process.env.REACT_APP_BACKEND}api/auth/getUserID`,
         { token }
       );
       setUserID(response.data);
@@ -50,7 +50,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
     async function getLeaders() {
       const response = await axios.post(
-        `http://localhost:5000/api/users/leaderboardGet/${userID}`
+        `${process.env.REACT_APP_BACKEND}api/users/leaderboardGet/${userID}`
       );
       setLeaders(response.data);
     }
@@ -64,7 +64,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
         <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
-        <Grid item md={12}> 
+        <Grid item md={12}>
           <h2 className="text-center text-4xl 2xl:text-6xl font-bold m-5 md:mt-0">Leaderboard</h2>
           <div className="shadow-md sm:rounded-lg mx-2">
             <table className="text-lg text-left text-gray-500 w-full">
@@ -116,7 +116,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
               </tbody>
             </table>
           </div>
-       </Grid> 
+       </Grid>
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
