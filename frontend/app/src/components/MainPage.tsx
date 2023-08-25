@@ -15,21 +15,12 @@ const imgStyle = {
     "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
 };
 
-/* This is the Main Page after User Login */
 
+/* This is the Main Page after User Login */
 const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
-  //socket.emit("activityStatus", {userID: userID, status: activityStatus});
-  // const [data, setData] = React.useState("");
-  // const [userID, setUserID] = React.useState<string>("");
   let userID: string = "";
 
-  // React.useEffect(() => {
-  //   fetch("https://api.intra.42.fr/v2/accreditations")
-  //     .then((response) => response.json())
-  //     .then((json) => setData(json))
-  //     .catch((error) => console.error(error));
-  // }, []);
-
+  
   (async () => {
     userID = await getUserID(getToken("jwtToken"));
     socket.emit("activityStatus", { userID: userID, status: "online" });

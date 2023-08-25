@@ -15,12 +15,6 @@ text-md text-gray-700 text-center
 hover:bg-gray-800 rounded-lg hover:text-white
 `;
 
-const btnMenuStyle = `
-py-2 px-3 text-lg 2xl:text-2xl
-text-white rounded md:py-0
-hover:bg-gray-100 hover:text-black md:hover:bg-transparent md:hover:text-white
-
-`
 
 interface UserProps {
   id: string;
@@ -91,11 +85,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
-  /*  const getName = (value: String) => {
-    return `${value.split(" ")[0][0]}${value.split(" ")[1][0]}`;
-  }; */
-  //console.log(userInfo);
-
+ 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -270,7 +260,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             		</svg>
             	</button>
 				{hamburgerMenu && (
-				<div className="absolute z-50 top-36  bg-black  rounded-lg shadow " style={{border:"1px solid red"}}>
+				<div className="absolute z-50 top-16 right-0 px-6 2xl:px-10 text-base list-none bg-black rounded-lg shadowght-3 bg-black rounded-lg shadow">
 	  				<HamburgerMenu
 						handleUserMain={handleUserMain}
 						handleGame={handleGame}

@@ -1,16 +1,5 @@
-/* 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
- */
-/* @font-face {
-  font-family: 'ITC Zapf Chancery';
-  src: local('ITC Zapf Chancery'), url(./fonts/RifficFree-Bold.ttf), format('truetype');
-  } */
 
-  
+
  @tailwind base;
  @tailwind components;
  @tailwind utilities;
