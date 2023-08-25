@@ -63,7 +63,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
-        setUserID(userData.id)
+        setUserID(userData.id);
         setUserName(userData.username);
         setUserName(userData.username);
         setWins(userData.wins);
@@ -105,7 +105,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   //     setUserName(newName);
   //   }
   // };
-  
+
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [userID]);
@@ -133,7 +133,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           alert("File size is less than 50x50 limit");
           return;
         }
-        if (!["image/png", "image/jpeg"].includes(file.type)) {
+        if (!["image/png", "image/jpeg", "image/gif"].includes(file.type)) {
           console.error("File type not supported");
           alert("File type not supported");
           return;
@@ -149,9 +149,13 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           const response = await axios
             .post(`api/users/upload/${userID}`, formData, config)
             .then((res) => {
-              if (res.status === 200)
-                console.log("Profile picture changed successfully");
-            }).catch((err) => {
+              alert(res.data.message);
+              // if (res.status === 200)
+              //   console.log("Profile picture changed successfully");
+              // if (res.status === 403)
+              //   console.log("Profile picture change failed");
+            })
+            .catch((err) => {
               console.log("Profile picture change failed");
             });
           window.location.reload();
@@ -165,8 +169,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 
   const handleUserNameChange = (newName: string) => {
     setIsNameChangedPopUp(!isNameChangedPopUp);
-    if (newName.length > 0)
-    {
+    if (newName.length > 0) {
       setUserName(newName);
     }
   };
@@ -205,8 +208,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   //   dialog.style.left = `${rect.left}px`;
   //   input.focus();
   // };
-
- 
 
   return (
     <>
@@ -344,25 +345,26 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       </Grid>
       {isNameChangedPopUp && (
         <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 999,
-        }}
-      >
-        <NameChangePopUp
-          isOpen={isNameChangedPopUp}
-          onClose={handleUserNameChange}
-          UserId={userID} />
-      </div>
-        )}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
+          <NameChangePopUp
+            isOpen={isNameChangedPopUp}
+            onClose={handleUserNameChange}
+            UserId={userID}
+          />
+        </div>
+      )}
     </>
   );
 };
