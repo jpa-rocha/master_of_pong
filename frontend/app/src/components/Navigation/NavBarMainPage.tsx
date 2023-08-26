@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import logo from "../../images/logo.png";
 import { useNavigate } from "react-router-dom";
-import { getToken, getUserID } from "../../utils/Utils";
+import { getToken, getUserID, AxiosConfig } from "../../utils/Utils";
 import HamburgerMenu from "./HamburgerMenu";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 import { Socket } from "socket.io-client";
@@ -121,7 +121,8 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
       );
       (async () => {
         const user = await axios.get<UserProps>(
-          `${process.env.REACT_APP_BACKEND}/api/users/${userID}`
+          `${process.env.REACT_APP_BACKEND}/api/users/${userID}`,
+          AxiosConfig
         );
         setUserInfo(user.data);
         setToggle2fa(user.data.is_2fa_enabled);
