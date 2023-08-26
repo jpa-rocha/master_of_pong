@@ -26,5 +26,4 @@ export class ChatController {
     return this.chatService.findAllChat();
   }
 
-  //getDirectChat(@Body() data: {user1: string, user2: string}) {
 }
