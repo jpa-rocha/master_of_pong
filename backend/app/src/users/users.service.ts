@@ -5,9 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Friend } from './entities/friend.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { CreateChatDto } from 'src/chat/dto/create-chat.dto';
-import { Chat } from 'src/chat/entities/chat.entity';
-import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
 export class UsersService {

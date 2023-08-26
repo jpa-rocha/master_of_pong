@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./PopUp.css";
 import { Socket } from "socket.io-client";
-import { Message, User, Chat } from "./PropUtils";
+import { Chat } from "./PropUtils";
 
 type JoinChatRoomPopupProps = {
   isOpen: boolean;

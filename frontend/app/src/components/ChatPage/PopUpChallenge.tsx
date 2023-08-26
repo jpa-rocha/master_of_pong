@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./PopUp.css";
 import { Socket } from "socket.io-client";
-import { Message, User, Chat } from "./PropUtils";
-import { getToken } from "../../utils/Utils";
 import { Character } from "../GameCanvas/enums/Characters";
 import { Mode } from "../GameCanvas/enums/Modes";
 import { Paddles } from "../GameCanvas/enums/Paddles";
@@ -80,6 +78,7 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
     paddle,
     targetID,
     userID,
+    onClose,
   ]);
   const handleModeSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "../components/ChatPage/PopUp.css";
 import { Socket } from "socket.io-client";
 import { Character } from "../components/GameCanvas/enums/Characters";
@@ -108,7 +108,7 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
     return () => {
       socket.off("challengeAccepted", handleAccepted);
     };
-  }, [socket, navigate, onCloseAll]);
+  }, [socket, navigate]);
 
   const handleCharacterSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>

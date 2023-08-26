@@ -206,26 +206,49 @@ export class GameObject {
       playerNo = 2;
       playerAbility = this.player2.ability;
     }
-    const payload = {
-      mode: this.gameOptions.gameMode,
-      hyper: this.gameOptions.hyper,
-      dodge: this.gameOptions.dodge,
-      player: playerNo,
-      ability: playerAbility,
-      player1Character: this.player1.options.character,
-      player1Size: this.player1.options.paddle,
-      player1X: this.player1.pos.x,
-      player1Y: this.player1.pos.y,
-      player1Name: this.player1.user.username,
-      player2Character: this.player2.options.character,
-      player2Size: this.player2.options.paddle,
-      player2X: this.player2.pos.x,
-      player2Y: this.player2.pos.y,
-      player2Name: this.player2.user.username,
-      score: this.score,
-      ballSize: this.ballSize,
-    };
-    this.server.to(client.id).emit('Game Info', payload);
+    if (this.player2) {
+      const payload = {
+        mode: this.gameOptions.gameMode,
+        hyper: this.gameOptions.hyper,
+        dodge: this.gameOptions.dodge,
+        player: playerNo,
+        ability: playerAbility,
+        player1Character: this.player1.options.character,
+        player1Size: this.player1.options.paddle,
+        player1X: this.player1.pos.x,
+        player1Y: this.player1.pos.y,
+        player1Name: this.player1.user.username,
+        player2Character: this.player2.options.character,
+        player2Size: this.player2.options.paddle,
+        player2X: this.player2.pos.x,
+        player2Y: this.player2.pos.y,
+        player2Name: this.player2.user.username,
+        score: this.score,
+        ballSize: this.ballSize,
+      };
+      this.server.to(client.id).emit('Game Info', payload);
+    } else {
+      const payload = {
+        mode: this.gameOptions.gameMode,
+        hyper: this.gameOptions.hyper,
+        dodge: this.gameOptions.dodge,
+        player: playerNo,
+        ability: playerAbility,
+        player1Character: this.player1.options.character,
+        player1Size: this.player1.options.paddle,
+        player1X: this.player1.pos.x,
+        player1Y: this.player1.pos.y,
+        player1Name: '',
+        player2Character: 0,
+        player2Size: 0,
+        player2X: 0,
+        player2Y: 0,
+        player2Name: '',
+        score: this.score,
+        ballSize: this.ballSize,
+      };
+      this.server.to(client.id).emit('Game Info', payload);
+    }
     if (client.id == this.player1.id) {
       this.server.to(this.player1.id).emit('hasAbility', {
         hasAbility: this.player1.hasAbility,
@@ -243,7 +266,6 @@ export class GameObject {
         hasUlt: this.player2.hasSpecial,
       });
     }
-    console.log('LABAS');
   }
 
   sendToPlayer1<T>(event: any, payload: T) {

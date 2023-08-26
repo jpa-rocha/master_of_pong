@@ -179,6 +179,7 @@ export class GameCollection {
         status: 'in queue',
         socketID: client.id,
       });
+      this.chatGateway.addGameID(game.player1.databaseId, game.gameID);
       return;
     }
   }

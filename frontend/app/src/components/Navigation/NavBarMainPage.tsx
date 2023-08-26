@@ -11,7 +11,7 @@ import IncomingChallengePopUp from "../../utils/incomingChallengePopUp";
 import { arrayBuffer } from "stream/consumers";
 
 const btnToggleStyle = `
-block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2 
+block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2
 text-md text-gray-700 text-center
 hover:bg-gray-800 rounded-lg hover:text-white
 `;
@@ -59,6 +59,9 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const [challenges, setChallenges] = useState<ChallengeProp[]>([]);
 
   useEffect(() => {
+    function toggleChallengePopUp() {
+      setIsChallengePopUp(!isChallengePopUp);
+    }
     function handleIncomingChallenge(result: ChallengeDetails) {
       const newChallenge = {
         challengeDetails: result,
@@ -108,19 +111,24 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   useEffect(() => {
     (async () => {
-      setUserID(await getUserID(getToken("jwtToken")));
+      setUserID(
+        await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
+      );
     })();
     if (userID) {
-      setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
+      setProfileImg(
+        `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
+      );
       (async () => {
         const user = await axios.get<UserProps>(
-          `http://localhost:5000/api/users/${userID}`
+          `${process.env.REACT_APP_BACKEND}/api/users/${userID}`
         );
         setUserInfo(user.data);
         setToggle2fa(user.data.is_2fa_enabled);
       })();
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
+
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -173,6 +181,8 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     e.preventDefault();
     console.log("clicked!");
 
+    console.log("clicked!");
+
     navigate("/chat");
   };
 
@@ -214,6 +224,27 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   return (
     <>
+      <nav className="bg-black border-gray-200 w-full">
+        <div
+          ref={dropdownMenuRef}
+          className="relative flex flex-wrap items-center justify-between px-5 py-4"
+        >
+          <div className="flex items-center md:order-2">
+            <button
+              type="button"
+              className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0"
+              id="user-menu-button"
+              aria-expanded={isDropdownOpen}
+              onClick={handleDropdownToggle}
+            >
+              <img
+                className="w-10 h-10 rounded-full object-cover"
+                src={profileImg}
+                alt="user"
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
       <nav className="bg-black border-gray-200 w-full">
         <div
           ref={dropdownMenuRef}
@@ -279,7 +310,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                   </li>
                   <li>
                     <a
-                      href="http://localhost:5000/api/auth/signout"
+                      href={`${process.env.REACT_APP_BACKEND}/api/auth/signout`}
                       className={btnToggleStyle}
                     >
                       Sign out
@@ -433,6 +464,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                   alignItems: "center",
                   zIndex: 999,
                 }}
+        
               >
                 <IncomingChallengePopUp
                   isOpen={challenge.isChallengePopUp}

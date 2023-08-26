@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
@@ -18,5 +26,4 @@ export class ChatController {
     return this.chatService.findAllChat();
   }
 
-  //getDirectChat(@Body() data: {user1: string, user2: string}) {
 }

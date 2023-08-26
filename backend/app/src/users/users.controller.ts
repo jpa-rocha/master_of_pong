@@ -18,8 +18,6 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { of } from 'rxjs';
-import { User } from './entities/user.entity';
-import { use } from 'passport';
 import * as fs from 'fs';
 
 @Controller('users')
@@ -180,9 +178,6 @@ export class UsersController {
 
   @Post('leaderboardGet/:user')
   async getLeaderBoard(@Param('user') user: string) {
-    console.log('____________________________________________');
-    console.log(user);
-    console.log('____________________________________________');
     return await this.usersService.getLeaderBoard();
   }
 }

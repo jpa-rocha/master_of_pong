@@ -1,8 +1,7 @@
 import axios from "axios";
-import jwt from 'jwt-decode';
+import jwt from "jwt-decode";
 
-
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface User {
   id: string;
@@ -17,11 +16,11 @@ export interface Token {
 }
 
 interface JwtToken {
-    id: string;
-    is_2fa_enabled: boolean;
-    is_validated: boolean;
-    iat: number;
-    exp: number;
+  id: string;
+  is_2fa_enabled: boolean;
+  is_validated: boolean;
+  iat: number;
+  exp: number;
 }
 
 export function getToken(tokenName: string): string {
@@ -61,14 +60,14 @@ export async function getUser(token: string): Promise<User> {
 }
 
 export function decodeToken(coded: string): Token | null {
-  if (coded !== '') {
-    const token_full: JwtToken = jwt(coded)
+  if (coded !== "") {
+    const token_full: JwtToken = jwt(coded);
     const token: Token = {
-        id: token_full.id,
-        is_2fa_enabled: token_full.is_2fa_enabled,
-        is_validated: token_full.is_validated
-      }
-      return token
+      id: token_full.id,
+      is_2fa_enabled: token_full.is_2fa_enabled,
+      is_validated: token_full.is_validated,
+    };
+    return token;
   }
-  return null
+  return null;
 }

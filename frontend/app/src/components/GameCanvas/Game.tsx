@@ -1,20 +1,10 @@
 import { Grid, Box } from "@mui/material";
 import calm from "../../images/CalmScorpion.gif";
-//import Footer from "./Footer";
-//import Chat from './Messages/Chat'
-//import ChatOnGame from "./ChatOnGamePage/ChatOnGame";
 import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
-import { getUserID, getToken } from "../../utils/Utils";
-//import { useState } from "react";
 
-/* import * as socketIO  from "socket.io-client"; */
-
-// interface GamePageProps {
-//   socket: Socket;
-// }
 type GameComponentProps = {
   socket: Socket;
 };
@@ -22,7 +12,7 @@ type GameComponentProps = {
 const Game: React.FC<GameComponentProps> = ({ socket }) => {
   // const [userID, setUserID] = useState<string>("");
   // (async () => {
-  //   setUserID(await getUserID(getToken("jwtToken")));
+  //   setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
   //   socket.emit("activityStatus", { userID: userID, status: "online" });
   // })();
 
