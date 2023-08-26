@@ -29,7 +29,7 @@ const PageNotFound = () => {
       </p>
 
       <button className={btnClass}>
-        <Link to="/">Return to Home Page</Link>
+        <Link to="/main">Return to Home Page</Link>
       </button>
     </div>
   );

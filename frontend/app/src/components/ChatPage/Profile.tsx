@@ -118,7 +118,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   return (
     <>
       {isOpen && (
-        <div className="flex relative justify-between bg-white p-10 2xl:p-20">
+        <div className="flex relative justify-between bg-gray-100  py-10 w-[90%] 2xl:p-20">
           <button
             className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900
 					rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
@@ -127,45 +127,45 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
             x
           </button>
           <div
-            className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
+            className="flex flex-col items-center bg-yellow-50 border border-gray-200 rounded-lg shadow
 							my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2"
           >
             <img
-              className="md:h-auto md:w-[20%] md:rounded-l-lg"
+              className="w-24 h-24 mb-3 rounded-full shadow-lg mt-4 object-cover"
               src={profileImg}
               alt="profile_picture"
             />
-            <div className="flex flex-col items-center md:p-4">
-              <h2 className="mb-1 md:text-xl font-medium text-gray-900">
-                {userName}
-              </h2>
-              <div className="md:text-lg text-gray-500 flex flex-col mt-3">
-                <p>
-                  <span className="font-bold">Rank:</span> {rank}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Elo:</span> {elo}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Wins:</span> {wins}{" "}
-                </p>
-                <p>
-                  <span className="font-bold">Losses:</span> {losses}
-                </p>
-                <p>
-                  <span className="font-bold">Win Ratio:</span> {ratio}
-                </p>
-              </div>
+            <h2 className="my-1 text-lg 2xl:text-4xl font-medium text-gray-900">
+              {userName}
+            </h2>
+            <div className="md:text-lg flex flex-row my-10">
+              <p className="mx-2">
+                <span className="font-bold text-gray-600">Rank:</span> {rank}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-600">Elo:</span> {elo}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-600">Wins:</span> {wins}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-600">Losses:</span>{" "}
+                {losses}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-600">Win Ratio:</span>{" "}
+                {ratio}
+              </p>
             </div>
           </div>
 
-          <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
+          <div className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-4 h-[60vh] ">
             <h2 className="text-center font-bold my-5 md:mt-0">
               {" "}
               Match History
             </h2>
-            <table className="w-full text-lg text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+            <table className="w-full text-md text-left text-gray-500 ">
+              <thead className="text-xs text-gray-700 uppercase bg-yellow-100">
                 <tr>
                   <th scope="col" className="px-6 py-1">
                     Opponent
@@ -179,11 +179,14 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
                   <th scope="col" className="px-6 py-1">
                     Result
                   </th>
+                  <th scope="col" className="px-6 py-1">
+                    Score
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {match.map((match, index) => (
-                  <tr className="bg-white border-b" key={index}>
+                  <tr className="bg-yellow-50 border-b" key={index}>
                     {userID === match.userOne.id ? (
                       <td className="px-6 py-1">{match.userTwo.username}</td>
                     ) : (
@@ -191,31 +194,20 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
                     )}
                     <td className="px-6 py-1">{match.gameMode}</td>
                     <td className="px-6 py-1">{match.gameModeOptions}</td>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      {userID === match.winner.id ? (
-                        <td
-                          className="px-6 py-1"
-                          style={{ marginRight: "5px", color: "green" }}
-                        >
-                          WIN
-                        </td>
-                      ) : (
-                        <td
-                          className="px-6 py-1"
-                          style={{ marginRight: "5px", color: "red" }}
-                        >
-                          LOSS
-                        </td>
-                      )}
-
-                      {match.score1 !== 11 && match.score2 !== 11 ? (
-                        <div style={{ marginLeft: "5px" }}>(Disconnection)</div>
-                      ) : (
-                        <div style={{ marginLeft: "5px" }}>
-                          {match.score1}-{match.score2}
-                        </div>
-                      )}
-                    </div>
+                    {userID === match.winner.id ? (
+                      <td className="px-6 py-1 text-green-600">WIN</td>
+                    ) : (
+                      <td className="px-6 py-1 text-red-800">LOSS</td>
+                    )}
+                    {match.score1 !== 11 && match.score2 !== 11 ? (
+                      <td className="px-6 py-1 text-red-800 text-center">
+                        (Disconnection)
+                      </td>
+                    ) : (
+                      <td className="px-6 py-1 text-green-800">
+                        {match.score1}-{match.score2}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

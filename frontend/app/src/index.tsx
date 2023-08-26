@@ -24,7 +24,6 @@ async function getUserID() {
   console.log("INDEX GET USERID");
   console.log("-----URI: ", URI);
   const token = getToken(process.env.REACT_APP_JWT_NAME as string);
-  console.log(token);
   const response = await axios.post<{ id: string }>(
     `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
     { token }
