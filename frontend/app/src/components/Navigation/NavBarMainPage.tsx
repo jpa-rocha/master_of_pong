@@ -129,7 +129,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
 
-
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -245,27 +244,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             </button>
             {isDropdownOpen && (
               <div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
-      <nav className="bg-black border-gray-200 w-full">
-        <div
-          ref={dropdownMenuRef}
-          className="relative flex flex-wrap items-center justify-between px-5 py-4"
-        >
-          <div className="flex items-center md:order-2">
-            <button
-              type="button"
-              className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0"
-              id="user-menu-button"
-              aria-expanded={isDropdownOpen}
-              onClick={handleDropdownToggle}
-            >
-              <img
-                className="w-10 h-10 rounded-full object-cover"
-                src={profileImg}
-                alt="user"
-              />
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
                 <div className="px-4 py-3">
                   <span className="block text-sm 2xl:text-xl italic text-black">
                     {userInfo?.username}
@@ -332,7 +310,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
               data-collapse-toggle="navbar-user"
               type="button"
               className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
-								hover:bg-gray-100 focus:outline-none"
+                          hover:bg-gray-100 focus:outline-none"
               aria-controls="navbar-user"
               aria-expanded={hamburgerMenu}
               onClick={handleHamburgerMenu}
@@ -374,6 +352,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
               handleGame={handleGame}
               handleChat={handleChat}
             ></HamburgerMenu>
+            {/* ); */}
           </div>
         </div>
       </nav>
@@ -448,34 +427,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             />
           </div>
         )}
-      {/* {challenges &&
-        challenges.map((challenge, index) => (
-          <div key={index}>
-            {challenge.isChallengePopUp && challenge.challengeDetails && (
-              <div
-                style={{
-                  position: "fixed",
-                  top: "20%",
-                  left: 0,
-                  width: "20%",
-                  height: "10%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 999,
-                }}
-        
-              >
-                <IncomingChallengePopUp
-                  isOpen={challenge.isChallengePopUp}
-                  onClose={() => removeChallenge(index)}
-                  challengeDetais={challenge.challengeDetails}
-                  socket={socket}
-                />
-              </div>
-            )}
-          </div>
-        ))} */}
     </>
   );
 };
