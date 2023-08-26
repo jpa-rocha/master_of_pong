@@ -41,6 +41,10 @@ interface ProfilePageProps {
   profileID: { id: string } | string;
 }
 
+const imgStyle = {
+	background:
+	  "linear-gradient(to right, #EA4224 0%, #c49b2b 50%, #EA4224 100%)",
+  };
 const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   socket,
   profileID,
@@ -216,8 +220,8 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 		<Grid item xs={12}>
-        <div className="flex flex-col justify-between 2xl:justify-around text-gray-800  md:flex-row p-10">
-            <div className="w-full max-w-lg p-3 md:p-0 2xl:py-20 bg-yellow-50 border border-yellow-100 rounded-lg shadow">
+        <div className="flex flex-col justify-between 2xl:justify-around text-gray-800  md:flex-row p-10 " style={imgStyle}>
+            <div className="md:h-[70vh] w-full max-w-lg p-3 md:p-0 2xl:py-20 bg-yellow-50 border border-yellow-100 rounded-lg shadow">
 			<div className="flex flex-col items-center ">
               <img
                 className="w-24 h-24 mb-3 rounded-full shadow-lg mt-4"
@@ -262,11 +266,10 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 			</div>
             </div>
           <div className="flex flex-col mt-4 md:mt-0">
-            <h2 className="text-center font-bold m-5 md:m-2">
-              {" "}
+            <h2 className="text-center text-lg md:text-2xl 2xl:text-6xl font-bold m-5 md:m-2">
               Match History
             </h2>
-            <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[60vh] ">
+            <div className="relative overflow-x-auto m-3 md:m-0 md:py-2 md:px-2 h-[100vh] ">
               <table className="w-full text-lg text-left text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                   <tr>

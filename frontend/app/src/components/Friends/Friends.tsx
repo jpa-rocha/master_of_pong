@@ -120,30 +120,31 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
         	<NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
-        <Grid item xs={12} style={imgStyle} className="h-[100vh]">
-          <div className="relative w-full relative overflow-x-auto shadow-md sm:rounded-lg px-2 mt-10">
-            <div className="flex items-center justify-end p-4 bg-white">
+        <Grid item xs={12} style={imgStyle} className="h-[100vh] w-full">
+			<div className="flex flex-col justify-center items-center">
+          <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10">
+            <div className="flex items-center justify-end p-4  w-[100%] bg-yellow-50">
               {/* For the search bar */}
-            	<div className="relative">
+            	<div className="relative p-2">
                 	<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 		<svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 		  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                 		</svg>
                 	</div>
                 	<input type="text" placeholder="Search for users"
-                		className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50"
+                		className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-yellow-50"
                 		onChange={handleSearchChange}
 					/>
             	</div>
             </div>
             <div>
-			<table className="w-full text-sm text-left text-gray-500">
-              <thead className="w-full text-xs text-gray-700 uppercase bg-gray-200">
+			<table className="md:text-lg max-w-lg w-[80%] md:w-[100%] md:max-w-[100%] text-sm text-left text-gray-500 bg-yellow-50">
+              <thead className="w-full text-sm md:text-md text-gray-700 uppercase border-b-2 border-b-yellow-100">
                 <tr>
                 	<th scope="col" className="px-20 py-3">
                 	  User
                 	</th>
-                	<th scope="col" className="pl-30 py-3">
+                	<th scope="col" className="px-20 py-3">
                 	  Status
                 	</th>
                 	<th scope="col" className="px-20 py-3">
@@ -151,16 +152,16 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 	</th>
                 </tr>
               </thead>
-			  <tbody>
+			  <tbody className="bg-yellow-50">
 			  {users &&
             	users.map((item, index) => (
-              <tr key={index} className="bg-white border-b hover:bg-gray-50">
+              <tr key={index} className="border-b border-yellow-100 hover:bg-yellow-100">
                 <th
                   scope="row"
                   className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
                 >
                   <img
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover mr-3"
                     src={`http://localhost:5000/api/users/avatars/${item.id}`}
                     alt="user"
                   />
@@ -180,7 +181,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 <td className="px-6 py-4">
                   {!item.isFriend ? (
                     <button
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-medium text-green-800 hover:text-green-950 hover:underline"
                       onClick={() => handleSendFriendRequest(item.id)}
                     >
                       Add as Friend
@@ -201,7 +202,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
             </div>
        
           </div>
-		  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 m-2">
+		  <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center bg-yellow-50 p-3 m-2">
           <div className="px-3 my-6">
             <span className="text-black text-xl font-bold">
               Friend Requests :{" "}
@@ -226,6 +227,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
               </div>
             ))}
         </div>
+		</div>
         </Grid>
 
   
