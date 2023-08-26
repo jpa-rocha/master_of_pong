@@ -28,21 +28,21 @@ const ChatPage: React.FunctionComponent<ChatPageProps> = ({ socket }) => {
 
   return (
     <>
-      <Grid container className="flex h-[100vh]" style={imgStyle}>
+      <Grid container  >
         {/* <div className="flex flex-col justify-center items-center h-[100vh]" style={imgStyle} /> */}
 
         <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
-        <Grid item xs={12}>
-          <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">
+        <Grid item xs={12} className="h-[100vh]" style={imgStyle} >
+          <div className="flex flex-row h-[80vh] text-gray-800 px-[2rem] py-[4rem]">
             <ChatBar socket={socket}></ChatBar>
             <div className="flex flex-col flex-auto px-6">
-              <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-yellow-50 h-full p-4">
+              <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-yellow-50 h-[100%] p-4">
                 <ChatBody socket={socket} />
                 <ChatFooter socket={socket} />
-              </div>
-            </div>
+              </div>       
+			</div>
             <ChatUsers socket={socket}></ChatUsers>
           </div>
         </Grid>

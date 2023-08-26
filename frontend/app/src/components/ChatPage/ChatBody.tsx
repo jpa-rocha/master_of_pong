@@ -154,7 +154,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       </div>
 
       <div
-        className="flex flex-col h-full overflow-x-auto mb-4"
+        className="flex flex-col h-[50%] md:h-full  overflow-y-scroll overflow-x-auto mb-4"
         ref={messageContainerRef}
       >
         <div className="flex flex-col h-full">

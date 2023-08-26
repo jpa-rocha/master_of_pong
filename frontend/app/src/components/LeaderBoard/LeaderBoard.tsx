@@ -66,9 +66,10 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
         </Grid>
         <Grid item md={12}  className="h-[100vh] w-full" style={imgStyle}> 
           <h2 className="text-center text-4xl 2xl:text-6xl 2xl:mt-20 2xl:mb-10 font-bold my-7 md:my-10">Leaderboard</h2>
-          <div className="overflow-x-auto mx-2 flex flex-col justify-center items-center rounded-md">
-            <table className="md:text-lg max-w-md md:w-[80%] md:max-w-[80%] text-left text-gray-500 rounded-lg">
-              <thead className="text-sm border-1 text-gray-700 uppercase bg-yellow-50">
+          <div className="overflow-x-auto mx-2 flex flex-col justify-center items-center">
+            <table className="md:text-lg max-w-md md:w-[80%] md:max-w-[80%] text-left rounded-lg">
+              <thead className="text-sm md:text-lg 2xl:text-xl uppercase 
+			  rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
                 <tr>
                   <th scope="col" className="pl-20 py-3">
                     Player
@@ -92,7 +93,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
               </thead>
               <tbody className="bg-yellow-100">
                 {leaders.map((leader, index) => (
-                  <tr className="border-b border-yellow-50" key={index}>
+                  <tr className="rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400" key={index}>
                     <th scope="row"  className="text-sm md:text-lg px-6 py-3 font-medium text-gray-900" >
                         {userID === leader.id ? (
                             <div className="flex flex-row">

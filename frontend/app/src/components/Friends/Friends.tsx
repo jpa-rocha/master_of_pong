@@ -127,13 +127,13 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       <Grid container>
         <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
-          <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
         <Grid item xs={12} style={imgStyle} className="h-[100vh] w-full">
 			<div className="flex flex-col justify-center items-center">
-          <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10">
-            <div className="flex items-center justify-end p-4  w-[100%] bg-yellow-50">
+          <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10 
+		  rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 ">
+            <div className="flex items-center justify-end p-4 w-[100%]">
               {/* For the search bar */}
             	<div className="relative">
                 	<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -148,8 +148,8 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
             	</div>
             </div>
             <div>
-			<table className="md:text-lg max-w-lg w-[80%] md:w-[100%] md:max-w-[100%] text-sm text-left text-gray-500 bg-yellow-50">
-              <thead className="w-full text-sm md:text-md text-gray-700 uppercase border-b-2 border-b-yellow-100">
+			<table className="md:text-lg max-w-lg w-[80%] md:w-[100%] md:max-w-[100%] text-sm text-left text-gray-500">
+              <thead className="w-full text-sm md:text-md text-gray-700 uppercase">
                 <tr>
                 	<th scope="col" className="px-20 py-3">
                 	  User
@@ -162,10 +162,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 	</th>
                 </tr>
               </thead>
-			  <tbody className="bg-yellow-50">
+			  <tbody className="bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
 			  {users &&
             	users.map((item, index) => (
-              <tr key={index} className="border-b border-yellow-100 hover:bg-yellow-100">
+              <tr key={index} className="hover:bg-gray-100">
                 <th
                   scope="row"
                   className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
@@ -191,14 +191,14 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 <td className="px-6 py-4">
                   {!item.isFriend ? (
                     <button
-                      className="font-medium text-green-800 hover:text-green-950 hover:underline"
+                      className="font-bold text-green-600 hover:text-green-950 hover:underline"
                       onClick={() => handleSendFriendRequest(item.id)}
                     >
                       Add as Friend
                     </button>
                   ) : (
                     <button
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-bold text-red-600 hover:underline"
                       onClick={() => removeFriend(item.id)}
                     >
                       Remove Friend
@@ -211,7 +211,8 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 			</table>
             </div>
           </div>
-		  <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center bg-yellow-50 p-3 m-2">
+		  <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center 
+		 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 rounded-lg shadow-lg p-3 m-2">
           <div className="px-3 my-6">
             <span className="text-black text-xl font-bold">
               Friend Requests :{" "}
