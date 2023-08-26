@@ -17,7 +17,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS, PATCH, DELETE",
       },
     };
     if (UserId !== undefined) {

@@ -36,7 +36,7 @@ services:
     networks:
       - master_of_pong
     # ports:
-      # - "5000:5000"
+    #   - "5000:5000"
       # - "8002:8002"
       # - "4000:4000"
       # - "5050:5050"
@@ -68,6 +68,16 @@ services:
       - .env
     stop_grace_period: 1s
 
+  reverse_proxy:
+    image: nginx:latest
+    container_name: reverse_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - master_of_pong
+    restart: always
 volumes:
   db_volume:
     driver: local
@@ -76,3 +86,4 @@ networks:
   master_of_pong:
     name: master_of_pong
     driver: bridge
+
