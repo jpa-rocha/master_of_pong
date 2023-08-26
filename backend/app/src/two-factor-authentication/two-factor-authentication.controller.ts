@@ -1,14 +1,10 @@
 import {
-  ClassSerializerInterceptor,
   Controller,
-  Header,
   Post,
-  UseInterceptors,
   Res,
   UseGuards,
   Req,
   Param,
-  Get,
   Body,
   UnauthorizedException,
   HttpCode,
@@ -17,9 +13,7 @@ import { TwoFactorAuthenticationService } from './two-factor-authentication.serv
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 import { Request, Response } from 'express';
 import { UsersService } from 'src/users/users.service';
-import { Console } from 'console';
 import { AuthService } from 'src/auth/auth.service';
-import { get } from 'http';
 import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import TwoFactorGuard from './two-factor-authentication.guard';
 import { ConfigService } from '@nestjs/config';
