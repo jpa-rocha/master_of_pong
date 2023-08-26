@@ -3,12 +3,11 @@ import { AppService } from './app.service';
 import TwoFactorGuard from './two-factor-authentication/two-factor-authentication.guard';
 
 @Controller()
-// @UseGuards(TwoFactorGuard)
+@UseGuards(TwoFactorGuard)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @UseGuards(TwoFactorGuard)
   getHello(): string {
     return this.appService.getHello();
   }

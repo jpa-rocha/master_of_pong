@@ -29,7 +29,7 @@ import { ConfigService } from '@nestjs/config';
     TypeOrmModule.forFeature([Message]),
     TypeOrmModule.forFeature([GameData]),
   ],
-  controllers: [ChatController],
+  controllers: [/* ChatController */],
   providers: [
     ChatGateway,
     ChatService,

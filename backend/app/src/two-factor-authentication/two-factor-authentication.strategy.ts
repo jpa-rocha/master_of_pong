@@ -12,31 +12,37 @@ export type JwtPayload = {
 };
 
 @Injectable()
-export class TwoFactorStrategy extends PassportStrategy(Strategy) {
+export class TwoFactorStrategy extends PassportStrategy(
+  Strategy,
+  'two-factor',
+) {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
     const extractJwtFromCookie = (req: any) => {
-      console.log('----- AT JWT-AUTH.STRATEGY -----');
+      console.log('----- AT 2FA JWT-AUTH.STRATEGY -----');
       let token = null;
       if (req && req.cookies) {
         token = req.cookies[configService.get<string>('REACT_APP_JWT_NAME')];
       }
+      console.log('TOKEN =', token);
       return token;
     };
 
     super({
       jwtFromRequest: extractJwtFromCookie,
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('REACT_APP_JWT_NAME'),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
+
   async validate(token: JwtPayload): Promise<User> {
     console.log('----- AT 2FA VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
     if (token.is_2fa_enabled === true) {
       if (token.is_validated === false) {
+        console.log('NO WAY!!!!!');
         return null;
       }
     }
