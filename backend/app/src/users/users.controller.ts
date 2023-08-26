@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService, imageFileFilter } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,8 +20,10 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { of } from 'rxjs';
 import * as fs from 'fs';
+import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
 
 @Controller('users')
+@UseGuards(TwoFactorGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

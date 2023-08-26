@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
 import { UsersModule } from 'src/users/users.module';
 import { TwoFactorAuthenticationService } from './two-factor-authentication.service';
@@ -13,10 +13,13 @@ import { JwtAuthModule } from 'src/auth/jwt-auth/jwt-auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthStrategy } from 'src/auth/jwt-auth/jwt-auth.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { TwoFactorStrategy } from './two-factor-authentication.strategy';
 
 @Module({
   imports: [
     UsersModule,
+    PassportModule.register({ defaultStrategy: 'two-factor' }),
     TypeOrmModule.forFeature([User, Friend]),
     ConfigModule,
     AuthModule,
@@ -41,6 +44,7 @@ import { JwtAuthStrategy } from 'src/auth/jwt-auth/jwt-auth.strategy';
     AuthService,
     JwtAuthService,
     JwtAuthStrategy,
+    TwoFactorStrategy,
   ],
   exports: [TwoFactorAuthenticationModule, TwoFactorAuthenticationService],
 })
