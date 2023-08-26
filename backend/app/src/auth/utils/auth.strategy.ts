@@ -4,7 +4,6 @@ import { Strategy } from 'passport-oauth2';
 import { AuthService } from '../auth.service';
 import { User } from 'src/users/entities/user.entity';
 import { HttpService } from '@nestjs/axios';
-import { AuthDto } from '../dto/auth.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -13,7 +12,6 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
   constructor(
     private readonly configService: ConfigService,
-    private authService: AuthService,
     private usersService: UsersService,
     private http: HttpService,
   ) {
@@ -59,7 +57,6 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
       );
       if (user === null) {
         await this.usersService.create(user_dto);
-        // console.log({ user_dto: user_dto });
         user = await this.usersService.findFortyTwo(user_dto.forty_two_id);
         await this.usersService.recalculateRanks();
       } else {

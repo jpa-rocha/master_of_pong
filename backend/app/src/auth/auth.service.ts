@@ -4,9 +4,6 @@ import { AuthDto } from './dto/auth.dto';
 import { User } from 'src/users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
-import { authenticator } from 'otplib';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
-import { toDataURL } from 'qrcode';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

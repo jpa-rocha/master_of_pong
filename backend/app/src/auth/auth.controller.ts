@@ -2,30 +2,22 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Post,
   Query,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
-import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
-import { User } from 'src/users/entities/user.entity';
-import { encode } from 'punycode';
-import { UsersService } from 'src/users/users.service';
-import { strict } from 'assert';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private usersService: UsersService,
     private jwtService: JwtAuthService,
     private configService: ConfigService,
   ) {}
