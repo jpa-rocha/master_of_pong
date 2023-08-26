@@ -12,7 +12,11 @@ type PopUp2faValidateProps = {
   // off: boolean; // True = turn off 2fa, False = validate 2fa
 };
 
-const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, UserId }) => {
+const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
+  isOpen,
+  onClose,
+  UserId,
+}) => {
   const handleValidation = async (
     twoFactorAuthenticationCode: string,
     event: React.KeyboardEvent<HTMLInputElement>
@@ -33,7 +37,8 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, Us
     };
 
     await axios
-    	.post(`${process.env.REACT_APP_BACKEND}/api/2fa/authenticate/${UserId}`,
+      .post(
+        `${process.env.REACT_APP_BACKEND}/api/2fa/authenticate/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

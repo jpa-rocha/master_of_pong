@@ -3,8 +3,6 @@ import { Outlet, Navigate } from "react-router-dom";
 import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
 
-
-
 const PrivateRoutes = () => {
   const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
@@ -14,28 +12,27 @@ const PrivateRoutes = () => {
 
   useEffect(() => {
     const check_validation = (data: boolean) => {
-      const decoded: Token | null = decodeToken(token)
+      const decoded: Token | null = decodeToken(token);
       if (decoded !== null) {
-        console.log(decoded)
+        console.log(decoded);
         //true
         if (decoded.is_2fa_enabled === false) {
-          setUserInfo(decoded)
+          setUserInfo(decoded);
           setTokenValid(data);
         }
         //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === false) {
-          setUserInfo(decoded)
+          setUserInfo(decoded);
           setTogglePopUp(data);
         }
         //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === true) {
-          setUserInfo(decoded)
+          setUserInfo(decoded);
           setTokenValid(data);
         }
       }
       //false
-      else
-        setTokenValid(data);
+      else setTokenValid(data);
     };
 
     const verifyToken = async () => {
@@ -54,7 +51,6 @@ const PrivateRoutes = () => {
         check_validation(data);
         // setTokenValid(true);
         // this needs to be true after its checked
-
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);

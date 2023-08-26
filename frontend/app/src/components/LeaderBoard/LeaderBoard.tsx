@@ -65,7 +65,9 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
         <Grid item md={12}>
-          <h2 className="text-center text-4xl 2xl:text-6xl font-bold m-5 md:mt-0">Leaderboard</h2>
+          <h2 className="text-center text-4xl 2xl:text-6xl font-bold m-5 md:mt-0">
+            Leaderboard
+          </h2>
           <div className="shadow-md sm:rounded-lg mx-2">
             <table className="text-lg text-left text-gray-500 w-full">
               <thead className="text-sm border-2 text-gray-700 uppercase bg-gray-100 w-full">
@@ -85,7 +87,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
                   <th scope="col" className=" px-6 py-2">
                     Rating
                   </th>
-				  <th scope="col" className=" px-6 py-2">
+                  <th scope="col" className=" px-6 py-2">
                     Rank
                   </th>
                 </tr>
@@ -93,30 +95,32 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
               <tbody>
                 {leaders.map((leader, index) => (
                   <tr className="bg-gray-100" key={index}>
-                    <th scope="row"  className="px-6 py-4 font-medium text-gray-900" >
-                        {userID === leader.id ? (
-                            <div>{leader.username} ⭐</div>
-                          ) : (
-                            <div>{leader.username}</div>
-                        )}
-                      </th>
-                      <td className="px-6 py-4">{leader.wins}</td>
-                      <td className="px-6 py-4">{leader.losses}</td>
-                      <td className="px-6 py-4">
-                        {" "}
-                        {leader.losses === 0
-                          ? leader.wins
-                          : Math.round((leader.wins / leader.losses) * 100) /
-                            100}
-                      </td>
-                      <td className="px-6 py-4">{leader.elo}</td>
-                      <td className="px-6 py-4">{leader.rank}</td>
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900"
+                    >
+                      {userID === leader.id ? (
+                        <div>{leader.username} ⭐</div>
+                      ) : (
+                        <div>{leader.username}</div>
+                      )}
+                    </th>
+                    <td className="px-6 py-4">{leader.wins}</td>
+                    <td className="px-6 py-4">{leader.losses}</td>
+                    <td className="px-6 py-4">
+                      {" "}
+                      {leader.losses === 0
+                        ? leader.wins
+                        : Math.round((leader.wins / leader.losses) * 100) / 100}
+                    </td>
+                    <td className="px-6 py-4">{leader.elo}</td>
+                    <td className="px-6 py-4">{leader.rank}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-       </Grid>
+        </Grid>
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>

@@ -289,8 +289,13 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         dodgeButton.selected
       );
       console.log("Socket:", socket);
-      console.log("TOKEN TEST " + getToken(process.env.REACT_APP_JWT_NAME as string));
-      socket.emit("start", { opt: opt, token: getToken(process.env.REACT_APP_JWT_NAME as string) });
+      console.log(
+        "TOKEN TEST " + getToken(process.env.REACT_APP_JWT_NAME as string)
+      );
+      socket.emit("start", {
+        opt: opt,
+        token: getToken(process.env.REACT_APP_JWT_NAME as string),
+      });
     } catch (error) {
       console.error("Failed to start the game:", error);
     }
@@ -1431,8 +1436,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           if (target === 1) {
             setPlayer1Mirage(AbilityMirage);
             setPlayer2Mirage(!AbilityMirage);
-          }
-          else {
+          } else {
             setPlayer2Mirage(AbilityMirage);
             setPlayer1Mirage(!AbilityMirage);
           }
@@ -1813,10 +1817,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             }
 
             if (abilityMirage) {
-              if ((player1Mirage && player === 1) || (player2Mirage && player === 2))
+              if (
+                (player1Mirage && player === 1) ||
+                (player2Mirage && player === 2)
+              )
                 ctx.globalAlpha = 0.75;
-              else
-                ctx.globalAlpha = 0.3;
+              else ctx.globalAlpha = 0.3;
               for (var i in miragePos) {
                 ctx.beginPath();
                 ctx.arc(
@@ -1916,7 +1922,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             clearInterval(animInterval);
             cnv.removeEventListener("mousemove", handleFinishMove);
             cnv.removeEventListener("mousedown", handleLeaveClick);
-          }
+          };
         } else if (
           isPlayerWaiting ||
           (isGameInit && (player1Name.length === 0 || player2Name.length === 0))
@@ -1943,7 +1949,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
               cnv.removeEventListener("mousemove", handleFinishMove);
               cnv.removeEventListener("mousedown", handleLeaveClick);
             }
-          }
+          };
         } else if (isGameInit) {
           var rotaIndex = 0;
           var endIndex = 0;

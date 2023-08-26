@@ -15,7 +15,6 @@ text-md text-gray-700 text-center
 hover:bg-gray-800 rounded-lg hover:text-white
 `;
 
-
 interface UserProps {
   id: string;
   username: string;
@@ -74,10 +73,14 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   useEffect(() => {
     (async () => {
-      setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
+      setUserID(
+        await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
+      );
     })();
     if (userID) {
-      setProfileImg(`${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`);
+      setProfileImg(
+        `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
+      );
       (async () => {
         const user = await axios.get<UserProps>(
           `${process.env.REACT_APP_BACKEND}/api/users/${userID}`
@@ -87,7 +90,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
       })();
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);
-
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -138,7 +140,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   const handleChat = (e: React.FormEvent) => {
     e.preventDefault();
-	console.log("clicked!");
+    console.log("clicked!");
 
     navigate("/chat");
   };
@@ -181,18 +183,27 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   return (
     <>
-    <nav className="bg-black border-gray-200 w-full">
-        <div ref={dropdownMenuRef} className="relative flex flex-wrap items-center justify-between px-5 py-4">
-        	<div className="flex items-center md:order-2">
-            	<button type="button"
-            		className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0"
-            		id="user-menu-button"
-            		aria-expanded={isDropdownOpen}
-            		onClick={handleDropdownToggle}>
-            		<img className="w-10 h-10 rounded-full object-cover" src={profileImg} alt="user"/>
-            	</button>
-            	{isDropdownOpen && (
-              	<div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
+      <nav className="bg-black border-gray-200 w-full">
+        <div
+          ref={dropdownMenuRef}
+          className="relative flex flex-wrap items-center justify-between px-5 py-4"
+        >
+          <div className="flex items-center md:order-2">
+            <button
+              type="button"
+              className="flex mr-3 text-md bg-gray-200 rounded-full md:mr-0"
+              id="user-menu-button"
+              aria-expanded={isDropdownOpen}
+              onClick={handleDropdownToggle}
+            >
+              <img
+                className="w-10 h-10 rounded-full object-cover"
+                src={profileImg}
+                alt="user"
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute z-50 top-16 md:right-0 sx:left-0 px-6 2xl:px-10 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow">
                 <div className="px-4 py-3">
                   <span className="block text-sm 2xl:text-xl italic text-black">
                     {userInfo?.username}
@@ -244,46 +255,69 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                     </a>
                   </li>
                 </ul>
-              	</div>)}
-        	</div>
-        	<div ref={hamburgerMenuRef}>
-            	<div className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden focus:outline-none">
-            		<img src={logo} alt="logo" className="h-[50px] absolute left-[50%] right-[50%]"/>
-            	</div>
-            	<button
-            		data-collapse-toggle="navbar-user"
-            		type="button"
-            		className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
+              </div>
+            )}
+          </div>
+          <div ref={hamburgerMenuRef}>
+            <div className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden focus:outline-none">
+              <img
+                src={logo}
+                alt="logo"
+                className="h-[50px] absolute left-[50%] right-[50%]"
+              />
+            </div>
+            <button
+              data-collapse-toggle="navbar-user"
+              type="button"
+              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden
 								hover:bg-gray-100 focus:outline-none"
-            		aria-controls="navbar-user"
-            		aria-expanded={hamburgerMenu}
-            		onClick={handleHamburgerMenu}>
-            		<svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-            		  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
-            		</svg>
-            	</button>
-				{hamburgerMenu && (
-				<div className="absolute z-50 top-16 right-0 px-6 2xl:px-10 text-base list-none bg-black rounded-lg shadowght-3 bg-black rounded-lg shadow">
-	  				<HamburgerMenu
-						handleUserMain={handleUserMain}
-						handleGame={handleGame}
-						handleChat={handleChat}
-		  			></HamburgerMenu>
-				</div>)}
-        	</div>
-        	<div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-        		<img src={logo} alt="logo" className="h-[50px] absolute left-5 object-cover" />
-        		<HamburgerMenu
-        		  handleUserMain={handleUserMain}
-        		  handleGame={handleGame}
-        		  handleChat={handleChat}
-        		></HamburgerMenu>
-        	</div>
+              aria-controls="navbar-user"
+              aria-expanded={hamburgerMenu}
+              onClick={handleHamburgerMenu}
+            >
+              <svg
+                className="w-5 h-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
+            </button>
+            {hamburgerMenu && (
+              <div className="absolute z-50 top-16 right-0 px-6 2xl:px-10 text-base list-none bg-black rounded-lg shadowght-3 bg-black rounded-lg shadow">
+                <HamburgerMenu
+                  handleUserMain={handleUserMain}
+                  handleGame={handleGame}
+                  handleChat={handleChat}
+                ></HamburgerMenu>
+              </div>
+            )}
+          </div>
+          <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
+            <img
+              src={logo}
+              alt="logo"
+              className="h-[50px] absolute left-5 object-cover"
+            />
+            <HamburgerMenu
+              handleUserMain={handleUserMain}
+              handleGame={handleGame}
+              handleChat={handleChat}
+            ></HamburgerMenu>
+          </div>
         </div>
-    </nav>
-    {generate2fa && (
+      </nav>
+      {generate2fa && (
         <div
-        style={{
+          style={{
             position: "fixed",
             top: 0,
             left: 0,
@@ -294,27 +328,30 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 999,
-        }}>
-        	<PopUpGenerate2fa
-        	  isOpen={generate2fa}
-        	  onClose={close2faGeneratePopUp}
-        	  userID={userInfo?.id}
-        	/>
-        </div>)}
+          }}
+        >
+          <PopUpGenerate2fa
+            isOpen={generate2fa}
+            onClose={close2faGeneratePopUp}
+            userID={userInfo?.id}
+          />
+        </div>
+      )}
       {toggle2faTurnOff && (
         <div
-        	style={{
-        	  position: "fixed",
-        	  top: 0,
-        	  left: 0,
-        	  width: "100%",
-        	  height: "100%",
-        	  backgroundColor: "rgba(0, 0, 0, 0.5)",
-        	  display: "flex",
-        	  justifyContent: "center",
-        	  alignItems: "center",
-        	  zIndex: 999,
-    	}}>
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
           <PopUpTurnOff2fa
             isOpen={toggle2faTurnOff}
             onClose={close2faTurnOffPopUp}
@@ -335,7 +372,8 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 999,
-          }}>
+          }}
+        >
           <IncomingChallengePopUp
             isOpen={isChallengePopUp}
             onClose={toggleChallengePopUp}

@@ -12,7 +12,7 @@ import { Socket } from "socket.io-client";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import FriendsPage from "./components/Friends/Friends";
 import PageNotFound from "./components/PageNotFound";
-import LeaderBoard from "./components/LeaderBoard/LeaderBoard"
+import LeaderBoard from "./components/LeaderBoard/LeaderBoard";
 import { getToken } from "../src/utils/Utils";
 import axios from "axios";
 
@@ -24,17 +24,17 @@ async function getUserID() {
   console.log("INDEX GET USERID");
   console.log("-----URI: ", URI);
   const token = getToken(process.env.REACT_APP_JWT_NAME as string);
-  console.log(token)
+  console.log(token);
   const response = await axios.post<{ id: string }>(
     `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
     { token }
-    );
-    return response.data;
-  }
-
-  const root = ReactDOM.createRoot(
-    document.getElementById("root") as HTMLElement
   );
+  return response.data;
+}
+
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
 
 (async () => {
   const userID = await getUserID();
@@ -43,15 +43,18 @@ async function getUserID() {
       <BrowserRouter>
         <Routes>
           <Route element={<PrivateRoutes />}>
-            <Route path="/game" element={<Game socket={socket}/>} />
+            <Route path="/game" element={<Game socket={socket} />} />
             <Route path="/main" element={<MainPage socket={socket} />} />
-            <Route path="/profile" element={<ProfilePage socket={socket} profileID={userID} />}/>
+            <Route
+              path="/profile"
+              element={<ProfilePage socket={socket} profileID={userID} />}
+            />
             <Route path="/chat" element={<ChatPage socket={socket} />} />
             <Route path="/friends" element={<FriendsPage socket={socket} />} />
-            <Route path="/leaders" element={<LeaderBoard socket={socket}/>} />
+            <Route path="/leaders" element={<LeaderBoard socket={socket} />} />
           </Route>
           <Route path="/" element={<App />} />
-		  <Route path="*" element={<PageNotFound />} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
     </React.StrictMode>

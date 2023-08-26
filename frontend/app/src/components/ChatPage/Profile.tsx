@@ -106,7 +106,9 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   };
 
   useEffect(() => {
-    setProfileImg(`${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`);
+    setProfileImg(
+      `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
+    );
   }, [userID]);
 
   if (!userName) {
