@@ -1,6 +1,6 @@
 import React from 'react'
-import { useEffect } from 'react';
-import {Link, Navigate} from 'react-router-dom';
+//import { useEffect } from 'react';
+import {Link } from 'react-router-dom';
 
 const btnClass = `
 focus:outline-none text-white bg-red-700 hover:bg-red-800 

@@ -1,7 +1,7 @@
 import React from 'react'
 
 const btnMenuStyle = `
-block py-2 px-3 text-lg 2xl:text-2xl
+py-2 px-3 text-lg 2xl:text-2xl
 text-white rounded md:py-0
 hover:bg-gray-100 hover:text-black md:hover:bg-transparent md:hover:text-white
  transition ease-in-out delay-110 hover:-translate-x-2

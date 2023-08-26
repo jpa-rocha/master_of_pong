@@ -115,117 +115,93 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 
   return (
     <>
-      <Grid container style={imgStyle} direction="column">
-        <Grid item xs={2}>
+      <Grid container>
+        <Grid item xs={12}>
         	<NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
-        <Grid item xs={10} mt={9}>
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg md:px-10">
-            <div className="flex items-center justify-end pb-4 bg-white">
+        <Grid item xs={12} style={imgStyle} className="h-[100vh]">
+          <div className="relative w-full relative overflow-x-auto shadow-md sm:rounded-lg px-2 mt-10">
+            <div className="flex items-center justify-end p-4 bg-white">
               {/* For the search bar */}
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-500"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search for users"
-                  className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 
-									focus:ring-blue-500 focus:border-blue-500"
-                  onChange={handleSearchChange}
-                />
-              </div>
+            	<div className="relative">
+                	<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                		<svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                		  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                		</svg>
+                	</div>
+                	<input type="text" placeholder="Search for users"
+                		className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50"
+                		onChange={handleSearchChange}
+					/>
+            	</div>
             </div>
             <div>
+			<table className="w-full text-sm text-left text-gray-500">
               <thead className="w-full text-xs text-gray-700 uppercase bg-gray-200">
                 <tr>
-                  <th scope="col" className="px-2 py-3 "></th>
-                  <th scope="col" className="px-20 py-3">
-                    User
-                  </th>
-                  <th scope="col" className="pl-30 py-3 w-full">
-                    Status
-                  </th>
-                  <th scope="col" className="px-20 py-3">
-                    Add
-                  </th>
-                  <th scope="col" className="pr-30 py-3"></th>
+                	<th scope="col" className="px-20 py-3">
+                	  User
+                	</th>
+                	<th scope="col" className="pl-30 py-3">
+                	  Status
+                	</th>
+                	<th scope="col" className="px-20 py-3">
+                	  Add
+                	</th>
                 </tr>
               </thead>
-            </div>
-            {users &&
-              users.map((item, index) => (
-                <table
-                  key={index}
-                  className="w-full text-sm text-left text-gray-500 pb-4"
+			  <tbody>
+			  {users &&
+            	users.map((item, index) => (
+              <tr key={index} className="bg-white border-b hover:bg-gray-50">
+                <th
+                  scope="row"
+                  className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
                 >
-                  <tbody>
-                    <tr className="bg-white border-b hover:bg-gray-50">
-                      <th
-                        scope="row"
-                        className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
-                      >
-                        <img
-                          className="w-10 h-10 rounded-full object-cover"
-                          src={`http://localhost:5000/api/users/avatars/${item.id}`}
-                          alt="user"
-                        />
-                        <div className="pl-3">
-                          <div className="text-base font-semibold">
-                            {item.username}
-                          </div>
-                          <div className="font-normal text-gray-500"></div>
-                        </div>
-                      </th>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                          {item.status}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {!item.isFriend ? (
-                          <button
-                            className="font-medium text-blue-600 hover:underline"
-                            onClick={() => handleSendFriendRequest(item.id)}
-                          >
-                            Add as Friend
-                          </button>
-                        ) : (
-                          <button
-                            className="font-medium text-blue-600 hover:underline"
-                            onClick={() => removeFriend(item.id)}
-                          >
-                            Remove Friend
-                          </button>
-                        )}
-                      </td>
+                  <img
+                    className="w-10 h-10 rounded-full object-cover"
+                    src={`http://localhost:5000/api/users/avatars/${item.id}`}
+                    alt="user"
+                  />
+                  <div className="pl-3">
+                    <div className="text-base font-semibold">
+                      {item.username}
+                    </div>
+                    <div className="font-normal text-gray-500"></div>
+                  </div>
+                </th>
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                    {item.status}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  {!item.isFriend ? (
+                    <button
+                      className="font-medium text-blue-600 hover:underline"
+                      onClick={() => handleSendFriendRequest(item.id)}
+                    >
+                      Add as Friend
+                    </button>
+                  ) : (
+                    <button
+                      className="font-medium text-blue-600 hover:underline"
+                      onClick={() => removeFriend(item.id)}
+                    >
+                      Remove Friend
+                    </button>
+                  )}
+                </td>
                     </tr>
-                  </tbody>
-                </table>
               ))}
+			  </tbody>
+			</table>
+            </div>
+       
           </div>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Footer></Footer>
-        </Grid>
-        <div className="flex flex-col justify-center items-center bg-gray-100 p-3 mt-2">
+		  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 m-2">
           <div className="px-3 my-6">
             <span className="text-black text-xl font-bold">
               Friend Requests :{" "}
@@ -250,6 +226,12 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
               </div>
             ))}
         </div>
+        </Grid>
+
+  
+		<Grid item xs={12}>
+          <Footer></Footer>
+        </Grid>
       </Grid>
     </>
   );

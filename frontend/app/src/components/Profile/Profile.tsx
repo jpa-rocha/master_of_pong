@@ -63,7 +63,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       if (userID) {
         const user = await axios.get(`api/users/${userID}`);
         const userData: UserProps = user.data;
-        setUserID(userData.id)
+        setUserID(userData.id);
         setUserName(userData.username);
         setUserName(userData.username);
         setWins(userData.wins);
@@ -105,7 +105,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   //     setUserName(newName);
   //   }
   // };
-  
+
   useEffect(() => {
     setProfileImg(`http://localhost:5000/api/users/avatars/${userID}`);
   }, [userID]);
@@ -133,7 +133,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           alert("File size is less than 50x50 limit");
           return;
         }
-        if (!["image/png", "image/jpeg"].includes(file.type)) {
+        if (!["image/png", "image/jpeg", "image/gif"].includes(file.type)) {
           console.error("File type not supported");
           alert("File type not supported");
           return;
@@ -149,9 +149,13 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           const response = await axios
             .post(`api/users/upload/${userID}`, formData, config)
             .then((res) => {
-              if (res.status === 200)
-                console.log("Profile picture changed successfully");
-            }).catch((err) => {
+              alert(res.data.message);
+              // if (res.status === 200)
+              //   console.log("Profile picture changed successfully");
+              // if (res.status === 403)
+              //   console.log("Profile picture change failed");
+            })
+            .catch((err) => {
               console.log("Profile picture change failed");
             });
           window.location.reload();
@@ -165,8 +169,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 
   const handleUserNameChange = (newName: string) => {
     setIsNameChangedPopUp(!isNameChangedPopUp);
-    if (newName.length > 0)
-    {
+    if (newName.length > 0) {
       setUserName(newName);
     }
   };
@@ -206,73 +209,60 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   //   input.focus();
   // };
 
- 
-
   return (
     <>
       <Grid container>
         <Grid item xs={12}>
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
-
-        <div className="flex flex-col md:h-[80vh] text-gray-800 px-[2rem] py-[4rem] md:flex-row">
-          <Grid item xs={6} md={12}>
-            <div
-              className="flex flex-col items-center justify-around flex-wrap md:flex-row bg-yellow-50 border border-gray-200 rounded-lg shadow
-			my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2 "
-            >
+		<Grid item xs={12}>
+        <div className="flex flex-col justify-between 2xl:justify-around text-gray-800  md:flex-row p-10">
+            <div className="w-full max-w-lg p-3 md:p-0 2xl:py-20 bg-yellow-50 border border-yellow-100 rounded-lg shadow">
+			<div className="flex flex-col items-center ">
               <img
-                className="md:h-auto md:w-[20%] md:rounded-l-lg md:rounded-r-lg"
+                className="w-24 h-24 mb-3 rounded-full shadow-lg mt-4"
                 src={profileImg}
-                alt="profile_picture"
-              />
-              <div className="flex flex-col items-center md:p-4">
-                <h2 className="mb-1 md:text-xl font-medium text-gray-900">
+                alt="profile_picture"/>
+				<h2 className="my-1 text-lg 2xl:text-4xl font-medium text-gray-900">
                   {userName}
                 </h2>
-                <div className="md:text-lg text-gray-500 flex flex-col mt-3">
-                  <p>
-                    <span className="font-bold">Rank:</span> {rank}{" "}
+				<div className="md:text-lg flex flex-row my-10">
+                  <p className="mx-2">
+                    <span className="font-bold text-gray-600">Rank:</span> {rank}{" "}
                   </p>
-                  <p>
-                    <span className="font-bold">Elo:</span> {elo}{" "}
+                  <p className="mx-2">
+                    <span className="font-bold text-gray-600">Elo:</span> {elo}{" "}
                   </p>
-                  <p>
-                    <span className="font-bold">Wins:</span> {wins}{" "}
+                  <p className="mx-2">
+                    <span className="font-bold text-gray-600">Wins:</span> {wins}{" "}
                   </p>
-                  <p>
-                    <span className="font-bold">Losses:</span> {losses}
+                  <p className="mx-2">
+                    <span className="font-bold text-gray-600">Losses:</span> {losses}
                   </p>
-                  <p>
-                    <span className="font-bold">Win Ratio:</span> {ratio}
+                  <p className="mx-2">
+                    <span className="font-bold text-gray-600">Win Ratio:</span> {ratio}
                   </p>
                 </div>
-                <div className="flex mt-1 space-x-3 py-1 md:mt-6 flex-col md:flex-row md:mt-2">
-                  <button
-                    className="items-center px-3 py-2 text-sm text-center
-					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none
-					focus:ring-gray-200"
+				<div className=" mt-2 md:mt-4 md:p-4 2xl:mt-20">
+				<button
+                    className="items-center m-1 px-3 py-2 text-sm text-center
+					text-white bg-red-800 rounded-lg hover:bg-red-600 focus:outline-none"
                     onClick={() => handleUserNameChange("")}
-                    title="must be between 3 and 15 characters"
-                  >
+                    title="must be between 3 and 15 characters">
                     Change Username
                   </button>
                   <button
-                    className="items-center px-4 py-2 text-sm text-center text-white bg-green-800
-					border border-gray-300 rounded-lg
-					hover:bg-green-600 focus:ring-4 focus:outline-none
-					focus:ring-gray-200"
+                    className="items-center m-1 px-4 py-2 text-sm text-center text-white bg-green-800
+					border border-gray-300 rounded-lg hover:bg-green-600 focus:outline-none"
                     onClick={handleProfileImgChange}
-                    title="Upload Image (JPEG/PNG, max 1MB)"
-                  >
+                    title="Upload Image (JPEG/PNG, max 1MB)">
                     Change Profile Picture
                   </button>
-                </div>
-              </div>
+				</div>
+			</div>
             </div>
-          </Grid>
-          <Grid item xs={6} md={12}>
-            <h2 className="text-center font-bold mt-5 md:mt-0">
+          <div className="flex flex-col mt-4 md:mt-0">
+            <h2 className="text-center font-bold m-5 md:m-2">
               {" "}
               Match History
             </h2>
@@ -280,16 +270,16 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
               <table className="w-full text-lg text-left text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-1">
+                    <th scope="col" className="px-6 py-2">
                       Opponent
                     </th>
-                    <th scope="col" className="px-6 py-1">
+                    <th scope="col" className="px-6 py-2">
                       GameMode
                     </th>
-                    <th scope="col" className="px-6 py-1">
+                    <th scope="col" className="px-6 py-2">
                       Options
                     </th>
-                    <th scope="col" className="px-6 py-1">
+                    <th scope="col" className="px-6 py-2">
                       Result
                     </th>
                   </tr>
@@ -336,33 +326,35 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
                 </tbody>
               </table>
             </div>
-          </Grid>
+          </div>
         </div>
+		</Grid>
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
       </Grid>
       {isNameChangedPopUp && (
         <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 999,
-        }}
-      >
-        <NameChangePopUp
-          isOpen={isNameChangedPopUp}
-          onClose={handleUserNameChange}
-          UserId={userID} />
-      </div>
-        )}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
+          <NameChangePopUp
+            isOpen={isNameChangedPopUp}
+            onClose={handleUserNameChange}
+            UserId={userID}
+          />
+        </div>
+      )}
     </>
   );
 };

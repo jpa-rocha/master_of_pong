@@ -10,7 +10,7 @@ import {
   UploadedFile,
   Res,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UsersService, imageFileFilter } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,6 +20,7 @@ import * as path from 'path';
 import { of } from 'rxjs';
 import { User } from './entities/user.entity';
 import { use } from 'passport';
+import * as fs from 'fs';
 
 @Controller('users')
 export class UsersController {
@@ -49,17 +50,19 @@ export class UsersController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const update = this.usersService.update(id, updateUserDto);
-    console.log(update)
     return update;
   }
 
   @Patch('change/name/:id')
-  async changeName(@Param('id') id: string, @Body() data: {username: string}, @Res() res: any) {
+  async changeName(
+    @Param('id') id: string,
+    @Body() data: { username: string },
+    @Res() res: any,
+  ) {
     const result = await this.usersService.changeName(id, data.username);
     if (result) {
       return res.status(200).json({ message: 'Username changed successfully' });
-    }
-    else {
+    } else {
       return res.status(200).json({ message: 'Username already exists' });
     }
   }
@@ -82,12 +85,13 @@ export class UsersController {
   @Post('upload/:id')
   @UseInterceptors(
     FileInterceptor('file', {
+      fileFilter: imageFileFilter,
+      limits: { fileSize: 1024 * 1024 },
       storage: diskStorage({
         destination: './src/assets/avatars',
         filename: (req, file, cb) => {
           const filename: string = req.params.id + '_avatar_' + uuidv4();
           const extension: string = path.parse(file.originalname).ext;
-
           cb(null, `${filename}${extension}`);
         },
       }),
@@ -96,20 +100,27 @@ export class UsersController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Param('id') id: string,
+    @Res() res: any,
   ) {
-    const user = await this.findOne(id);
-
-    /* if there is already an avatar, delete the old one */
-    if (user.avatar && user.avatar !== 'default-avatar.jpg') {
-      const fs = require('fs');
-      const path = require('path');
-      const filePath = path.join('./src/assets/avatars/', user.avatar);
-      fs.unlinkSync(filePath);
+    try {
+      const user = await this.findOne(id);
+      /* if there is already an avatar, delete the old one */
+      if (user.avatar && user.avatar !== 'default-avatar.jpg') {
+        const fs = require('fs');
+        const path = require('path');
+        const filePath = path.join('./src/assets/avatars/', user.avatar);
+        try {
+          fs.unlinkSync(filePath);
+        } catch (e) {}
+      }
+      fs.chmodSync(`./src/assets/avatars/${file.filename}`, 0o444);
+      this.usersService.update(id, { avatar: file.filename });
+      return of({ imagePath: file.filename });
+    } catch (e) {
+      return res
+        .status(200)
+        .json({ message: 'Avatar upload failed, file not supported' });
     }
-
-    this.usersService.update(id, { avatar: file.filename });
-
-    return of({ imagePath: file.filename });
   }
 
   @Post('addFriend/:userId/:friendId')
