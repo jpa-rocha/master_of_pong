@@ -11,6 +11,8 @@ interface UserProps {
   username: string;
   id: string;
   isFriend: boolean;
+  sentFriendRequest: boolean;
+  receivedFriendRequest: boolean;
   status: string;
 }
 
@@ -54,6 +56,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       const id = await axios
         .post("api/auth/getUserID", { token })
         .then((res) => res.data);
+
       if (input === "")
         setUsers(
           await axios.get(`api/users/friends/${id}`).then((res) => res.data)
@@ -71,6 +74,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     getUsers(input);
     setRender(false);
   }, [input, token, render, userID]);
+
+  useEffect(() => {
+    console.log("users =", users);
+  }, [users]);
 
   useEffect(() => {
     function handleRerender() {
@@ -177,52 +184,61 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                   </thead>
                   <tbody className="bg-yellow-50">
                     {users &&
-                      users.map((item, index) => (
-                        <tr
-                          key={index}
-                          className="border-b border-yellow-100 hover:bg-yellow-100"
-                        >
-                          <th
-                            scope="row"
-                            className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+                      users.map((item, index) =>
+                        (item && item.receivedFriendRequest === false) ||
+                        (item && item.isFriend) ? (
+                          <tr
+                            key={index}
+                            className="border-b border-yellow-100 hover:bg-yellow-100"
                           >
-                            <img
-                              className="w-10 h-10 rounded-full object-cover mr-3"
-                              src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${item.id}`}
-                              alt="user"
-                            />
-                            <div className="pl-3">
-                              <div className="text-base font-semibold">
-                                {item.username}
+                            <th
+                              scope="row"
+                              className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+                            >
+                              <img
+                                className="w-10 h-10 rounded-full object-cover mr-3"
+                                src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${item.id}`}
+                                alt="user"
+                              />
+                              <div className="pl-3">
+                                <div className="text-base font-semibold">
+                                  {item.username}
+                                </div>
+                                <div className="font-normal text-gray-500"></div>
                               </div>
-                              <div className="font-normal text-gray-500"></div>
-                            </div>
-                          </th>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center">
-                              <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                              {item.status}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            {!item.isFriend ? (
-                              <button
-                                className="font-medium text-green-800 hover:text-green-950 hover:underline"
-                                onClick={() => handleSendFriendRequest(item.id)}
-                              >
-                                Add as Friend
-                              </button>
-                            ) : (
-                              <button
-                                className="font-medium text-blue-600 hover:underline"
-                                onClick={() => removeFriend(item.id)}
-                              >
-                                Remove Friend
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </th>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center">
+                                <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                                {item.status}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {!item.isFriend &&
+                              item.sentFriendRequest === false ? (
+                                <button
+                                  className="font-medium text-green-800 hover:text-green-950 hover:underline"
+                                  onClick={() =>
+                                    handleSendFriendRequest(item.id)
+                                  }
+                                >
+                                  Add as Friend
+                                </button>
+                              ) : !item.isFriend &&
+                                item.sentFriendRequest === true ? (
+                                <div>Friend Request Pending</div>
+                              ) : (
+                                <button
+                                  className="font-medium text-blue-600 hover:underline"
+                                  onClick={() => removeFriend(item.id)}
+                                >
+                                  Remove Friend
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ) : null
+                      )}
                   </tbody>
                 </table>
               </div>
