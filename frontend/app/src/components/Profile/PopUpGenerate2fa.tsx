@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { getToken } from "../../utils/Utils";
 
-
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
 
@@ -17,10 +16,13 @@ type PopUpGenerate2faProps = {
   username: string;
 } */
 
-const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, userID }) =>
-{
+const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
+  isOpen,
+  onClose,
+  userID,
+}) => {
   const [qrCode, setQrCode] = useState<string>();
-  const generate = useRef(true)
+  const generate = useRef(true);
   // useEffect(() => {
   //   console.log("IM HERE")
   //     if (generate.current) {
@@ -53,9 +55,8 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
             `/api/2fa/generate/${userID}`,
             {},
             { responseType: "arraybuffer" }
-            );
+          );
 
-            console.log("IM HERE");
           const imageBlob = new Blob([response.data], { type: "image/png" });
           const imageSrc = URL.createObjectURL(imageBlob);
 
@@ -65,9 +66,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
         }
       })();
     }
-  }, []);
-
-
+  }, [userID]);
 
   const handle2faTurnOn = async (
     twoFactorAuthenticationCode: string,
@@ -86,7 +85,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
       },
       credentials: "include",
     };
-    const res = await axios
+    await axios
       .post(
         `${process.env.REACT_APP_BACKEND}/api/2fa/turn-on/${userID}`,
         {

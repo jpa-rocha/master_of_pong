@@ -1,5 +1,4 @@
 import axios from "axios";
-import { on } from "events";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -21,7 +20,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
       },
     };
     if (UserId !== undefined) {
-      const response = await axios
+      await axios
         .patch(`api/users/change/name/${UserId}`, data, config)
         .then((res) => {
           alert(res.data.message);

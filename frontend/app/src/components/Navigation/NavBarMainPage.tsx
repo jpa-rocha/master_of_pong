@@ -54,6 +54,9 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const [challengeDetails, setChallengeDetails] = useState<ChallengeDetails>();
 
   useEffect(() => {
+    function toggleChallengePopUp() {
+      setIsChallengePopUp(!isChallengePopUp);
+    }
     function handleIncomingChallenge(result: ChallengeDetails) {
       setChallengeDetails(result);
       toggleChallengePopUp();
@@ -63,7 +66,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     return () => {
       socket.off("challenge", handleIncomingChallenge);
     };
-  }, []);
+  }, [socket, isChallengePopUp]);
 
   function toggleChallengePopUp() {
     setIsChallengePopUp(!isChallengePopUp);

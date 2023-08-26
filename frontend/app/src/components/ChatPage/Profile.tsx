@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import axios from "axios";
-import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -86,20 +85,20 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
     getMatches();
   }, [userID, socket]);
 
-  const setUser = async (newName: string) => {
-    const data = { username: newName };
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
-      },
-    };
-    if (userID !== undefined) {
-      const response = await axios.patch(`api/users/${userID}`, data, config);
-      setUserName(newName);
-    }
-  };
+  // const setUser = async (newName: string) => {
+  //   const data = { username: newName };
+  //   const config = {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
+  //       "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
+  //     },
+  //   };
+  //   if (userID !== undefined) {
+  //     await axios.patch(`api/users/${userID}`, data, config);
+  //     setUserName(newName);
+  //   }
+  // };
 
   const closeProfile = () => {
     setIsOpen(!isOpen);
