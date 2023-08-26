@@ -123,6 +123,7 @@ export class GameService {
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSizeDefault,
     });
+    this.gameObject.checkGameStarted = true;
     this.serve();
     console.log('Setting ball timer...');
     this.ballTimer = setInterval(() => {
@@ -139,6 +140,7 @@ export class GameService {
   stopGame(leftID = ''): void {
     if (this.gameObject.gameEnded === true) return;
     if (!this.gameObject.player2) {
+      console.log('Leave game -> player 2 undefined');
       console.log('Disconnected from queue -> removes game');
       console.log('TODO handle leave queue if the user doesnt disconnect');
       this.chatGateway.removeGame(this.gameObject.gameID);

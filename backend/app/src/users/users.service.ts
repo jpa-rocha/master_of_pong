@@ -42,7 +42,7 @@ export class UsersService {
   async findIDbySocketID(socketID: string) {
     const user = await this.usersRepository.findOne({ where: { socketID } });
     if (!user) {
-      throw new Error("Couldn't find user by socketID");
+      return;
     }
     return user.id;
   }
@@ -395,6 +395,7 @@ export class UsersService {
 
   async removeGameID(userID: string) {
     const user = await this.findOne(userID);
+    if (!user) return;
     user.gameID = null;
     await this.usersRepository.save(user);
   }

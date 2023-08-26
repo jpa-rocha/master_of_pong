@@ -50,6 +50,8 @@ export class GameObject {
   public gameOptions: Options;
   public gameEnded: boolean;
 
+  public checkGameStarted: boolean;
+
   // player1
   public player1: Player;
   // player2= new
@@ -60,6 +62,7 @@ export class GameObject {
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
   ) {
+    this.checkGameStarted = false;
     this.gameEnded = false;
     this.gameService = new GameService(this, this.chatGateway);
     this.allowAbilities = false;
@@ -225,6 +228,7 @@ export class GameObject {
         player2Name: this.player2.user.username,
         score: this.score,
         ballSize: this.ballSize,
+        checkGameStarted: this.checkGameStarted,
       };
       this.server.to(client.id).emit('Game Info', payload);
     } else {
@@ -247,7 +251,7 @@ export class GameObject {
         score: this.score,
         ballSize: this.ballSize,
       };
-      this.server.to(client.id).emit('Game Info', payload);
+      if (!this.gameEnded) this.server.to(client.id).emit('Game Info', payload);
     }
     if (client.id == this.player1.id) {
       this.server.to(this.player1.id).emit('hasAbility', {

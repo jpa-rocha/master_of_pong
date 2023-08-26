@@ -22,7 +22,9 @@ const Game: React.FC<GameComponentProps> = ({ socket }) => {
         {/* This is navigation */}
 
         <Grid item xs={12}>
-          <NavBarMainPage socket={socket}></NavBarMainPage>
+          <div style={{ userSelect: "none" }}>
+            <NavBarMainPage socket={socket}></NavBarMainPage>
+          </div>
         </Grid>
 
         {/* This is main */}
@@ -40,17 +42,6 @@ const Game: React.FC<GameComponentProps> = ({ socket }) => {
               alignItems="center"
               sx={{ height: "87vh", position: "relative" }}
             >
-              <img
-                src={calm}
-                alt="calmScorpion"
-                style={{
-                  objectFit: "cover",
-                  width: "100%",
-                  height: "100%",
-                  opacity: "0.4",
-                }}
-              ></img>
-
               <div
                 style={{
                   display: "flex",
@@ -62,13 +53,6 @@ const Game: React.FC<GameComponentProps> = ({ socket }) => {
                   flexDirection: "row",
                 }}
               >
-                {/* <div style={{ flex: 1, display: 'flex' }}>
-						<Chat />
-					</div> */}
-                {/* <div style={{ flex: 1, display: 'flex'}}>
-						<ChatOnGame socket={socket} />
-					</div> */}
-
                 <div
                   style={{
                     flex: 1,
@@ -83,8 +67,11 @@ const Game: React.FC<GameComponentProps> = ({ socket }) => {
             </Box>
           </Box>
         </Grid>
+
         <Grid item xs={12}>
-          <Footer />
+          <div style={{ userSelect: "none" }}>
+            <Footer />
+          </div>
         </Grid>
       </Grid>
     </>
