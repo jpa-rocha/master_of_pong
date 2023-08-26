@@ -35,11 +35,11 @@ services:
     restart: on-failure
     networks:
       - master_of_pong
-    ports:
-      - "5000:5000"
+    # ports:
+      # - "5000:5000"
       # - "8002:8002"
       # - "4000:4000"
-      - "5050:5050"
+      # - "5050:5050"
     env_file:
       - .env
     volumes:

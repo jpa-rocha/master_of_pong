@@ -39,7 +39,7 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
 
     await axios
       .post(
-        `${process.env.REACT_APP_BACKEND}api/2fa/turn-off/${UserId}`,
+        `${process.env.REACT_APP_BACKEND}/api/2fa/turn-off/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

@@ -20,7 +20,7 @@ const LandingPage: React.FunctionComponent = () => {
 	<div className="flex flex-col justify-center items-center h-[100vh]" style={imgStyle}>
 		<h1 className="text-5xl my-3 text-gray-900 xl:text-7xl 2xl:text-9xl italic">Master of Pong</h1>
 		<button className={btnClass}>
-			<a href={`${process.env.REACT_APP_BACKEND}api/auth/redirect`}>
+			<a href={`${process.env.REACT_APP_BACKEND}/api/auth/redirect`}>
 				Login
 			</a>
 	</button>

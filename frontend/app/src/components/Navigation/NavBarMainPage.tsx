@@ -74,10 +74,10 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
       setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
     })();
     if (userID) {
-      setProfileImg(`${process.env.REACT_APP_BACKEND}api/users/avatars/${userID}`);
+      setProfileImg(`${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`);
       (async () => {
         const user = await axios.get<UserProps>(
-          `${process.env.REACT_APP_BACKEND}api/users/${userID}`
+          `${process.env.REACT_APP_BACKEND}/api/users/${userID}`
         );
         setUserInfo(user.data);
         setToggle2fa(user.data.is_2fa_enabled);
@@ -234,7 +234,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                   </li>
                   <li>
                     <a
-                      href={`${process.env.REACT_APP_BACKEND}api/auth/signout`}
+                      href={`${process.env.REACT_APP_BACKEND}/api/auth/signout`}
                       className={btnToggleStyle}
                     >
                       Sign out

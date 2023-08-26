@@ -42,7 +42,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
     async function getUserID() {
       const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       const response = await axios.post<{ id: string }>(
-        `${process.env.REACT_APP_BACKEND}api/auth/getUserID`,
+        `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
         { token }
       );
       setUserID(response.data);
@@ -50,7 +50,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
     async function getLeaders() {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND}api/users/leaderboardGet/${userID}`
+        `${process.env.REACT_APP_BACKEND}/api/users/leaderboardGet/${userID}`
       );
       setLeaders(response.data);
     }

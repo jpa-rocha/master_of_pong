@@ -18,23 +18,23 @@ import axios from "axios";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 const URI = process.env.REACT_APP_GATEWAY as string;
-console.log("-----URI: ", URI);
 const socket: Socket = socketIO.connect(URI);
-
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
 
 async function getUserID() {
   console.log("INDEX GET USERID");
   console.log("-----URI: ", URI);
   const token = getToken(process.env.REACT_APP_JWT_NAME as string);
+  console.log(token)
   const response = await axios.post<{ id: string }>(
-   `${process.env.REACT_APP_BACKEND}api/auth/getUserID`,
+    `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
     { token }
+    );
+    return response.data;
+  }
+
+  const root = ReactDOM.createRoot(
+    document.getElementById("root") as HTMLElement
   );
-  return response.data;
-}
 
 (async () => {
   const userID = await getUserID();

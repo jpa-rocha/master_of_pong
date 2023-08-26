@@ -182,7 +182,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                       >
                         <img
                           className="w-10 h-10 rounded-full object-cover"
-                          src={`${process.env.REACT_APP_BACKEND}api/users/avatars/${item.id}`}
+                          src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${item.id}`}
                           alt="user"
                         />
                         <div className="pl-3">

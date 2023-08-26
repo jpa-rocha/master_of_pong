@@ -88,7 +88,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
     };
     const res = await axios
       .post(
-        `${process.env.REACT_APP_BACKEND}api/2fa/turn-on/${userID}`,
+        `${process.env.REACT_APP_BACKEND}/api/2fa/turn-on/${userID}`,
         {
           twoFactorAuthenticationCode,
         },

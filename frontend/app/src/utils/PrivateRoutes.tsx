@@ -13,31 +13,35 @@ const PrivateRoutes = () => {
   //const [render, setRender] = useState<boolean>(false);
 
   useEffect(() => {
-    const check_validation = () => {
+    const check_validation = (data: boolean) => {
       const decoded: Token | null = decodeToken(token)
       if (decoded !== null) {
         console.log(decoded)
+        //true
         if (decoded.is_2fa_enabled === false) {
           setUserInfo(decoded)
-          setTokenValid(true);
+          setTokenValid(data);
         }
+        //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === false) {
           setUserInfo(decoded)
-          setTogglePopUp(true);
+          setTogglePopUp(data);
         }
+        //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === true) {
           setUserInfo(decoded)
-          setTokenValid(true);
+          setTokenValid(data);
         }
       }
+      //false
       else
-        setTokenValid(false);
+        setTokenValid(data);
     };
 
     const verifyToken = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND}api/auth/verifyToken`,
+          `${process.env.REACT_APP_BACKEND}/api/auth/verifyToken`,
           {
             method: "POST",
             headers: {
@@ -47,7 +51,7 @@ const PrivateRoutes = () => {
           }
         );
         const data = await response.json();
-        check_validation();
+        check_validation(data);
         // setTokenValid(true);
         // this needs to be true after its checked
 

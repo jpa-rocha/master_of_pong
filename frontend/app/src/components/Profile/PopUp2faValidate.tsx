@@ -33,7 +33,7 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, Us
     };
 
     await axios
-    	.post(`${process.env.REACT_APP_BACKEND}api/2fa/authenticate/${UserId}`,
+    	.post(`${process.env.REACT_APP_BACKEND}/api/2fa/authenticate/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

@@ -170,7 +170,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                         <img
                           className="w-10 h-10 rounded-full object-cover"
-                          src={`${process.env.REACT_APP_BACKEND}api/users/avatars/${message.sender.id}`}
+                          src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${message.sender.id}`}
                           alt="user"
                         />
                       </div>

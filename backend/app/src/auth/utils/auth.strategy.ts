@@ -22,7 +22,7 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
       tokenURL: 'https://api.intra.42.fr/oauth/token',
       clientID: configService.get<string>('API_UID'),
       clientSecret: configService.get<string>('SECRET'),
-      callbackURL: `${process.env.REACT_APP_BACKEND}api/auth/redirect`,
+      callbackURL: `${process.env.REACT_APP_BACKEND}/api/auth/redirect`,
       grant_type: 'authorization_code',
     });
   }
