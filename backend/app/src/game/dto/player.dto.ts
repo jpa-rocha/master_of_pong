@@ -2,14 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { Options } from '../movement.dto';
 import { Mode } from '../enums/Modes';
+import { Character } from '../enums/Characters';
 import { Paddles } from '../enums/Paddles';
-import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 
-interface UserProp {
-  id: string;
-  username: string;
-}
 @Injectable()
 export class Player {
   public id: string;
@@ -67,6 +63,8 @@ export class Player {
           this.width = 32;
           this.speed = 4;
       }
+      if (options.character === 0)
+        options.character = Math.floor(Math.random() * 3) + Character.Venomtail;
     }
     this.getOverHere = false;
     this.freeze = false;

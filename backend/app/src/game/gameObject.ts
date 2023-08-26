@@ -21,6 +21,7 @@ export class GameObject {
   >();
   public readonly gameService: GameService;
   public gameStarted: boolean;
+  public joinTimer: NodeJS.Timeout | null = null;
   public score: { p1: number; p2: number };
 
   public Width: number;

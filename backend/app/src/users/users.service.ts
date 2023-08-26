@@ -61,8 +61,10 @@ export class UsersService {
     if (!user) {
       throw new Error("Couldn't find user (updateSocket)");
     }
+    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    console.log('status : ', updateUserDto.status);
     Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
+    return await this.usersRepository.save(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -84,8 +86,7 @@ export class UsersService {
       const user = await this.findOne(userID);
       user.username = username;
       return await this.usersRepository.save(user);
-    } else
-      return null;
+    } else return null;
   }
 
   async sendFriendRequest(userId: string, friendId: string) {
@@ -232,11 +233,7 @@ export class UsersService {
           ),
         }));
         return extendedAllUsers;
-      } else {
-        console.log('getFriends => No confirmed friends found.');
       }
-    } else {
-      console.log('getFriends => User not found');
     }
     return allUsers;
   }
@@ -247,15 +244,6 @@ export class UsersService {
     );
     return result;
   }
-
-  // createFriend(createFriendDto: CreateFriendDto) {
-  //   const newFriend = this.friendsRepository.create(createFriendDto);
-
-  //   return this.friendsRepository.save(newFriend);
-  // }
-
-  // function (userID)
-  // returns friends[] => ids of all friends
 
   async getUsersWithFriends(userId: string) {
     return this.usersRepository

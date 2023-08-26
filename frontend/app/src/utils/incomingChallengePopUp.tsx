@@ -20,13 +20,16 @@ interface ChallengeDetails {
 type IncomingChallengePopUpProps = {
   isOpen: boolean;
   onClose: () => void;
+  onCloseAll: () => void;
   challengeDetais: ChallengeDetails;
   socket: Socket;
 };
 
 const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
+  isOpen,
   socket,
   onClose,
+  onCloseAll,
   challengeDetais,
 }) => {
   const navigate = useNavigate();
@@ -56,6 +59,8 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
   } else {
     gameOptions = "Default";
   }
+
+  console.log("Popup challengeDetails = ", challengeDetais);
 
   declineTimer = setTimeout(() => {
     declineTimer = null;
@@ -96,13 +101,14 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
 
   useEffect(() => {
     function handleAccepted() {
+      onCloseAll();
       navigate("/game");
     }
     socket.on("challengeAccepted", handleAccepted);
     return () => {
       socket.off("challengeAccepted", handleAccepted);
     };
-  }, [socket]);
+  }, [socket, navigate, onCloseAll]);
 
   const handleCharacterSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -117,6 +123,8 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
     const selectedValue = event.target.value;
     paddle = +selectedValue;
   };
+
+  if (!isOpen) return null;
 
   return (
     <>

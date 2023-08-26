@@ -1182,11 +1182,13 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           player2Size,
           player2X,
           player2Y,
+          BallSize,
         } = event;
         console.log("inside gameoptions handler...");
         console.log("mode: " + mode);
         console.log("hyper: " + hyper);
         setSelectedGamemode(mode);
+        setBallSize(BallSize);
         dodgeButton.selected = dodge;
         hyperButton.selected = hyper;
         if (mode !== Mode.Regular) {
@@ -1865,6 +1867,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           isPlayerWaiting ||
           (isGameInit && (player1Name.length === 0 || player2Name.length === 0))
         ) {
+          console.log("in player waiting");
           var rotIndex = 0;
           const animInterval = setInterval(() => {
             if (canvas.current) {
@@ -1877,11 +1880,13 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           }, 33);
           return () => clearInterval(animInterval);
         } else if (isGameInit) {
+          console.log("in game init");
           var rotaIndex = 0;
           var endIndex = 0;
           if (result) setGameInit(false);
           const animInterval = setInterval(() => {
             if (rotaIndex === Images.YinYangRotate.length && canvas.current) {
+              console.log("inside ending animation...");
               ctx.fillStyle = backgroundColor;
               ctx.fillRect(0, 0, 1200, 800);
               ctx.fillStyle = "white";
@@ -2015,8 +2020,9 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
                 return;
               }
             } else {
-              if (rotaIndex === Images.YinYangRotate.length) rotaIndex = 0;
-              if (canvas.current) {
+              console.log("inside rotating animation");
+              // if (rotaIndex === Images.YinYangRotate.length) rotaIndex = 0;
+              if (rotaIndex !== Images.YinYangRotate.length && canvas.current) {
                 ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, 1200, 800);
                 rotaIndex++;
               }

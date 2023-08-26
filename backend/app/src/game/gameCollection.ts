@@ -127,12 +127,12 @@ export class GameCollection {
     if (this.gameObjects.delete(id)) this.totalGameCount--;
   }
 
-  public createGame(
+  public async createGame(
     client: AuthenticatedSocket,
     options: Options,
     playerID: string,
     premade = false,
-  ): void {
+  ) {
     console.log('GAMES = ', this.gameObjects);
     console.log('PREMADE = ', this.premadeGames);
     if (premade) {
@@ -140,8 +140,14 @@ export class GameCollection {
       const game = new GameObject(this.server, options, this.chatGateway);
       game.setGameID(playerID);
       this.premadeGames.set(playerID, game);
-      // this.userService.saveGameID(playerID, playerID);
+      this.userService.saveGameID(playerID, playerID);
       game.addClient(client, playerID);
+      game.joinTimer = setTimeout(() => {
+        game.removeClient(client);
+        this.removeGame(playerID);
+        this.chatGateway.removeGameID(playerID);
+        this.chatGateway.failedToJoin(playerID);
+      }, 1000);
     } else {
       if (options.gameMode !== Mode.Singleplayer) {
         const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys
@@ -177,7 +183,7 @@ export class GameCollection {
     }
   }
 
-  public joinGame(
+  public async joinGame(
     client: AuthenticatedSocket,
     options: Options,
     playerID: string,
@@ -188,12 +194,22 @@ export class GameCollection {
     console.log('newPlayerID: ' + newPlayerID);
     console.log('game playerID: ' + this.premadeGames[0]);
     const game = this.premadeGames.get(playerID);
+    if (game.joinTimer) {
+      clearTimeout(game.joinTimer);
+      game.joinTimer = null;
+    }
     console.log('Adding client...');
     game.player2 = new Player(this.server, options);
     game.player2.pos.x = 1180 - game.player2.width;
     console.log('Returning an already created game');
-    // this.userService.saveGameID(newPlayerID, playerID);
+    console.log('UPDATING STATUS PREMADE GAME');
+    this.userService.saveGameID(newPlayerID, playerID);
+    await this.userService.updateSocket(client.id, {
+      status: 'in queue',
+      socketID: client.id,
+    });
     game.addClient(client, newPlayerID);
+    console.log('SECOND PLAYER JOINED ---------------------------');
   }
 
   public findGame(client: AuthenticatedSocket, gameID: string) {

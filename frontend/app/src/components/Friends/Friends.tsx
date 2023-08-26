@@ -53,6 +53,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   if (userID !== "") {
     socket.emit("activityStatus", { userID: userID, status: "online" });
   }
+
   useEffect(() => {
     console.log("USERID = ", userID);
     async function getUsers(input: string) {
@@ -77,6 +78,16 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     setRender(false);
   }, [input, token, render, userID]);
 
+  useEffect(() => {
+    function handleRerender() {
+      setRender(!render);
+    }
+    socket.on("updateFriendsPage", handleRerender);
+    return () => {
+      socket.off("updateFriendsPage", handleRerender);
+    };
+  }, [socket, render]);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
   };
@@ -86,6 +97,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       .post("api/auth/getUserID", { token })
       .then((res) => res.data);
     await axios.post(`api/users/addFriend/${userID}/${friendID}`);
+    socket.emit("informFriendsPage", { targetID: friendID });
     setRender(true);
   };
 
@@ -94,6 +106,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       .post("api/auth/getUserID", { token })
       .then((res) => res.data);
     await axios.post(`api/users/acceptFriend/${userID}/${friendID}`);
+    socket.emit("informFriendsPage", { targetID: friendID });
     setRender(true);
   };
 
@@ -102,6 +115,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       .post("api/auth/getUserID", { token })
       .then((res) => res.data);
     await axios.post(`api/users/rejectFriend/${userID}/${friendID}`);
+    socket.emit("informFriendsPage", { targetID: friendID });
     setRender(true);
   };
 
@@ -110,6 +124,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
       .post("api/auth/getUserID", { token })
       .then((res) => res.data);
     await axios.post(`api/users/removeFriend/${userID}/${friendID}`);
+    socket.emit("informFriendsPage", { targetID: friendID });
     setRender(true);
   };
 
@@ -117,119 +132,134 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     <>
       <Grid container>
         <Grid item xs={12}>
-        	<NavBarMainPage socket={socket}></NavBarMainPage>
+          <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
         <Grid item xs={12} style={imgStyle} className="h-[100vh]">
           <div className="relative w-full relative overflow-x-auto shadow-md sm:rounded-lg px-2 mt-10">
             <div className="flex items-center justify-end p-4 bg-white">
               {/* For the search bar */}
-            	<div className="relative">
-                	<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                		<svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                		  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                		</svg>
-                	</div>
-                	<input type="text" placeholder="Search for users"
-                		className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50"
-                		onChange={handleSearchChange}
-					/>
-            	</div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for users"
+                  className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50"
+                  onChange={handleSearchChange}
+                />
+              </div>
             </div>
             <div>
-			<table className="w-full text-sm text-left text-gray-500">
-              <thead className="w-full text-xs text-gray-700 uppercase bg-gray-200">
-                <tr>
-                	<th scope="col" className="px-20 py-3">
-                	  User
-                	</th>
-                	<th scope="col" className="pl-30 py-3">
-                	  Status
-                	</th>
-                	<th scope="col" className="px-20 py-3">
-                	  Add
-                	</th>
-                </tr>
-              </thead>
-			  <tbody>
-			  {users &&
-            	users.map((item, index) => (
-              <tr key={index} className="bg-white border-b hover:bg-gray-50">
-                <th
-                  scope="row"
-                  className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
-                >
-                  <img
-                    className="w-10 h-10 rounded-full object-cover"
-                    src={`http://localhost:5000/api/users/avatars/${item.id}`}
-                    alt="user"
-                  />
-                  <div className="pl-3">
-                    <div className="text-base font-semibold">
-                      {item.username}
-                    </div>
-                    <div className="font-normal text-gray-500"></div>
-                  </div>
-                </th>
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                    {item.status}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  {!item.isFriend ? (
-                    <button
-                      className="font-medium text-blue-600 hover:underline"
-                      onClick={() => handleSendFriendRequest(item.id)}
-                    >
-                      Add as Friend
-                    </button>
-                  ) : (
-                    <button
-                      className="font-medium text-blue-600 hover:underline"
-                      onClick={() => removeFriend(item.id)}
-                    >
-                      Remove Friend
-                    </button>
-                  )}
-                </td>
-                    </tr>
-              ))}
-			  </tbody>
-			</table>
+              <table className="w-full text-sm text-left text-gray-500">
+                <thead className="w-full text-xs text-gray-700 uppercase bg-gray-200">
+                  <tr>
+                    <th scope="col" className="px-20 py-3">
+                      User
+                    </th>
+                    <th scope="col" className="pl-30 py-3">
+                      Status
+                    </th>
+                    <th scope="col" className="px-20 py-3">
+                      Add
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users &&
+                    users.map((item, index) => (
+                      <tr
+                        key={index}
+                        className="bg-white border-b hover:bg-gray-50"
+                      >
+                        <th
+                          scope="row"
+                          className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+                        >
+                          <img
+                            className="w-10 h-10 rounded-full object-cover"
+                            src={`http://localhost:5000/api/users/avatars/${item.id}`}
+                            alt="user"
+                          />
+                          <div className="pl-3">
+                            <div className="text-base font-semibold">
+                              {item.username}
+                            </div>
+                            <div className="font-normal text-gray-500"></div>
+                          </div>
+                        </th>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                            {item.status}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {!item.isFriend ? (
+                            <button
+                              className="font-medium text-blue-600 hover:underline"
+                              onClick={() => handleSendFriendRequest(item.id)}
+                            >
+                              Add as Friend
+                            </button>
+                          ) : (
+                            <button
+                              className="font-medium text-blue-600 hover:underline"
+                              onClick={() => removeFriend(item.id)}
+                            >
+                              Remove Friend
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
-       
           </div>
-		  <div className="flex flex-col justify-center items-center bg-gray-100 p-3 m-2">
-          <div className="px-3 my-6">
-            <span className="text-black text-xl font-bold">
-              Friend Requests :{" "}
-            </span>
+          <div className="flex flex-col justify-center items-center bg-gray-100 p-3 m-2">
+            <div className="px-3 my-6">
+              <span className="text-black text-xl font-bold">
+                Friend Requests :{" "}
+              </span>
+            </div>
+            {requests &&
+              requests.map((item, index) => (
+                <div className="flex justify-start px-3" key={index}>
+                  <span className="ml-2">{item.sender.username}</span>
+                  <button
+                    className="mx-3 font-medium text-blue-600 hover:underline"
+                    onClick={() => handleAccept(item.sender.id)}
+                  >
+                    Accept Friend
+                  </button>
+                  <button
+                    className="mx-3 font-medium text-blue-600 hover:underline"
+                    onClick={() => handleReject(item.sender.id)}
+                  >
+                    Reject Friend
+                  </button>
+                </div>
+              ))}
           </div>
-          {requests &&
-            requests.map((item, index) => (
-              <div className="flex justify-start px-3" key={index}>
-                <span className="ml-2">{item.sender.username}</span>
-                <button
-                  className="mx-3 font-medium text-blue-600 hover:underline"
-                  onClick={() => handleAccept(item.sender.id)}
-                >
-                  Accept Friend
-                </button>
-                <button
-                  className="mx-3 font-medium text-blue-600 hover:underline"
-                  onClick={() => handleReject(item.sender.id)}
-                >
-                  Reject Friend
-                </button>
-              </div>
-            ))}
-        </div>
         </Grid>
 
-  
-		<Grid item xs={12}>
+        <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
       </Grid>

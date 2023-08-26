@@ -128,7 +128,7 @@ export class UsersController {
     @Param('userId') userId: string,
     @Param('friendId') friendId: string,
   ) {
-    return this.usersService.sendFriendRequest(userId, friendId);
+    return await this.usersService.sendFriendRequest(userId, friendId);
   }
 
   @Post('acceptFriend/:userId/:friendId')

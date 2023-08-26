@@ -523,7 +523,6 @@ export class ChatGateway {
 
   @SubscribeMessage('loadWindow')
   loadWindow(client: AuthenticatedSocket): void {
-    console.log('Load window in the backend');
     this.server.to(client.id).emit('loadWindow', true);
   }
 
@@ -545,9 +544,9 @@ export class ChatGateway {
       data.opt,
       this.jwtAuthService.getTokenInformation(data.token),
     );
-    console.log(this.gameCollection.totalGameCount);
-    console.log('TOKEN = ' + data.token);
-    console.log('ID = ' + this.jwtAuthService.getTokenInformation(data.token));
+    // console.log(this.gameCollection.totalGameCount);
+    // console.log('TOKEN = ' + data.token);
+    // console.log('ID = ' + this.jwtAuthService.getTokenInformation(data.token));
     // game.addClient(client);
     // this.gameCollection.joinGame(game.gameID, client);
     // this.gameService.startGame(client.id, options);
@@ -604,7 +603,7 @@ export class ChatGateway {
   ) {
     const user = await this.userService.findOne(data.userID);
     const target = await this.userService.findOne(data.targetID);
-    if (target.status != 'online') {
+    if (target.status !== 'online' || target.gameID !== null) {
       this.server
         .to(client.id)
         .emit('targetUnavailable', { username: target.username });
@@ -646,6 +645,14 @@ export class ChatGateway {
       data.hyper,
       data.dodge,
     );
+    await this.userService.updateSocket(user.socketID, {
+      status: 'in queue',
+      socketID: user.socketID,
+    });
+    await this.userService.updateSocket(challenger.socketID, {
+      status: 'in queue',
+      socketID: challenger.socketID,
+    });
     this.server.to(challenger.socketID).emit('challengeAccepted');
     this.server.to(user.socketID).emit('challengeAccepted');
     this.gameCollection.createGame(client, options, data.userID, true);
@@ -665,13 +672,6 @@ export class ChatGateway {
       paddle: number;
     },
   ) {
-    console.log('SECOND userID = ', data.userID);
-    console.log('SECOND targetID = ', data.targetID);
-    console.log('SECOND mode = ', data.mode);
-    console.log('SECOND hyper = ', data.hyper);
-    console.log('SECOND dodge = ', data.dodge);
-    console.log('SECOND character = ', data.character);
-    console.log('SECOND paddle = ', data.paddle);
     const options = new Options(
       data.mode,
       data.paddle,
@@ -695,13 +695,9 @@ export class ChatGateway {
   async checkOngoingGame(client: Socket) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
-
-    console.log('=======================================================');
-    console.log('User.id = ', user.id);
-    if (user.gameID === null) return;
-    console.log('Game.id = ', user.gameID);
+    console.log('CURRENT STATUS = ', user.status);
+    if (user.gameID === null || user.status === 'in queue') return;
     this.gameCollection.findGame(client, user.gameID);
-    console.log('-------------------------------------------------------');
   }
 
   removeGameID(userID: string) {
@@ -714,5 +710,17 @@ export class ChatGateway {
 
   removeGame(gameID: string) {
     this.gameCollection.removeGame(gameID);
+  }
+
+  async failedToJoin(userID: string) {
+    const user = await this.userService.findOne(userID);
+    this.server.to(user.socketID).emit('failedToJoin');
+  }
+
+  @SubscribeMessage('informFriendsPage')
+  async informFriendsPage(client: Socket, data: { targetID: string }) {
+    const target = await this.userService.findOne(data.targetID);
+    if (target.socketID != null)
+      this.server.to(target.socketID).emit('updateFriendsPage');
   }
 }

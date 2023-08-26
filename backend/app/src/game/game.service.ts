@@ -86,6 +86,7 @@ export class GameService {
       player2Size: number;
       player2X: number;
       player2Y: number;
+      BallSize: number;
     }>('gameOptions', {
       mode: this.gameObject.player1.options.gameMode,
       hyper: this.gameObject.player1.options.hyper,
@@ -98,6 +99,7 @@ export class GameService {
       player2Size: this.gameObject.player2.options.paddle,
       player2X: this.gameObject.player2.pos.x,
       player2Y: this.gameObject.player2.pos.y,
+      BallSize: this.gameObject.ballSize,
     });
   }
 
@@ -812,13 +814,13 @@ export class GameService {
   }
 
   private serve(): void {
-    this.gameObject.ballPos.x = this.gameObject.Width / 2;
-    this.gameObject.ballPos.y = this.gameObject.Height / 2;
-    let angle = Math.random() * 360;
+    this.gameObject.ballPos.x = 600;
+    this.gameObject.ballPos.y = 400;
+    let angle = Math.random() * 359;
     if (angle > 45 && angle < 135) {
-      angle = Math.random() * 45;
+      angle = Math.random() * 90 - 45;
     } else if (angle > 225 && angle < 315) {
-      angle = Math.random() * 45 + 315;
+      angle = Math.random() * 90 + 135;
     }
     angle = angle * (Math.PI / 180);
     this.gameObject.ballVel.x =
