@@ -6,4 +6,5 @@ export enum Mode {
   Reset = 10,
   Hyper,
   Dodge,
+  Leave,
 }

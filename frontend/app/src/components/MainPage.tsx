@@ -15,14 +15,14 @@ const imgStyle = {
     "linear-gradient(to right, #EA4224 0%, #EDC24F 50%, #EA4224 100%)",
 };
 
-
 /* This is the Main Page after User Login */
 const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   let userID: string = "";
 
-  
   (async () => {
-    userID = await getUserID(getToken("jwtToken"));
+    userID = await getUserID(
+      getToken(process.env.REACT_APP_JWT_NAME as string)
+    );
     socket.emit("activityStatus", { userID: userID, status: "online" });
   })();
 

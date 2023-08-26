@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-auth.strategy';
-import { identity } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-// import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class JwtAuthService {

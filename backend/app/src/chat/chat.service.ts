@@ -5,7 +5,6 @@ import { Chat } from './entities/chat.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Message } from './entities/message.entity';
-import { title } from 'process';
 import * as bcrypt from 'bcrypt';
 
 interface ChatMessagesResult {

@@ -1,242 +1,241 @@
-.PopUpContainer{
-	background-color: #fff;
-	border-radius: 8px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+.PopUpContainer {
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .PopHeader {
-	font-weight: bold;
-	padding: 1rem;
-	background-color: #2a2a2b;
-	color: #fff;
-	text-align: center;
-	border-top-left-radius: 8px;
-	border-top-right-radius: 8px;
+  font-weight: bold;
+  padding: 1rem;
+  background-color: #2a2a2b;
+  color: #fff;
+  text-align: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .PopBody {
-	padding: 4rem;
-	background-color: #ffffff;
-	border-bottom-left-radius: 8px;
-	border-bottom-right-radius: 8px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+  padding: 4rem;
+  background-color: #ffffff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.bannedDiv{
-	padding: 2rem;
-	background-color: #fff;
-	position: relative;
-	border-top-left-radius: 8px;
-	border-top-right-radius: 8px;
+.bannedDiv {
+  padding: 2rem;
+  background-color: #fff;
+  position: relative;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-.bannedDiv .PopBody{
-	padding: 7rem;
-	width: 100%;
+.bannedDiv .PopBody {
+  padding: 7rem;
+  width: 100%;
 }
 
-.PopHeader.banned{
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-
+.PopHeader.banned {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 .button-container {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 2rem;
-}
-  
-.create-button, .cancel-button {
-	width: 100%;
-	padding: 0.6rem 0.7rem;
-	border-radius: 5px;
-	font-size: 16px;
-	font-weight: bold;
-	text-align: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
 }
 
+.create-button,
+.cancel-button {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
 
 .create-button {
-	background-color: #1e2227;
-	color: #ffffff;
-	margin-right: 1rem;
+  background-color: #1e2227;
+  color: #ffffff;
+  margin-right: 1rem;
 }
-  
+
 .cancel-button {
-	background-color: #f1f1f1;
-	background-color: #b88e35f0;
+  background-color: #f1f1f1;
+  background-color: #b88e35f0;
 }
 
-.cancel-button.password{
-	padding: 0.5rem 2rem;
-	width: 50%;
-	background-color: #cc3507f0;
-	color: #ffffff;
+.cancel-button.password {
+  padding: 0.5rem 2rem;
+  width: 50%;
+  background-color: #cc3507f0;
+  color: #ffffff;
 }
 
-.create-button.password{
-	background-color: #3c5713f0;
-	color: #ffffff;
+.create-button.password {
+  background-color: #3c5713f0;
+  color: #ffffff;
 }
 
-.cancel-button.join{
-	width:100%;
+.cancel-button.join {
+  width: 100%;
 }
 
-.button-container.join{
-	align-items: center;
-	justify-content: center;
+.button-container.join {
+  align-items: center;
+  justify-content: center;
 }
 
 .join-button {
-	width: 80px;
-	height: 40px;
-	background-color: #29292a;
-	color: #ffffff;
-	border-radius: 5px;
-	font-size: 15px;
-	font-weight: bold;
-}
-  
-.create-button:hover, .cancel-button:hover {
-	opacity: 0.9;
+  width: 80px;
+  height: 40px;
+  background-color: #29292a;
+  color: #ffffff;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: bold;
 }
 
-
+.create-button:hover,
+.cancel-button:hover {
+  opacity: 0.9;
+}
 
 .name-input input {
-	width: 100%;
-	border-radius: 8px;
-	color: #333333;
-	min-width: 400px;
+  width: 100%;
+  border-radius: 8px;
+  color: #333333;
+  min-width: 400px;
 }
 
 .password-input input {
-	margin-top: 1rem;
-	width: 100%;
-	min-width: 400px;
-	border-radius: 8px;
+  margin-top: 1rem;
+  width: 100%;
+  min-width: 400px;
+  border-radius: 8px;
 }
 
 .error {
-	color: red;
+  color: red;
 }
 
 .joinable-chat {
-	margin-top: 5px;
-	margin-bottom: 5px;
-	padding: 10px;
-	border-bottom: 1px solid #007bff;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px;
+  border-bottom: 1px solid #007bff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .room {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .room-title {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .error-message {
-	color: red;
+  color: red;
 }
 
 .interact-container {
-	display: flex;
-	width: 20vw;
-	margin-bottom: 10px;
+  display: flex;
+  width: 20vw;
+  margin-bottom: 10px;
 }
 
 .owner-buttons,
 .admin-buttons,
 .regular-buttons {
-	display: flex;
-	justify-content: center;
-	flex: 1;
+  display: flex;
+  justify-content: center;
+  flex: 1;
 }
 
 .owner-buttons button,
 .admin-buttons button,
 .regular-buttons button {
-	padding: 5px;
-	border-radius: 5px;
-	flex: 1;
-	margin-left: 5px;
-	color: #ffffff;
+  padding: 5px;
+  border-radius: 5px;
+  flex: 1;
+  margin-left: 5px;
+  color: #ffffff;
 }
 
 .owner-buttons button:hover,
 .admin-buttons button:hover,
 .regular-buttons button:hover {
-	opacity: 0.8;
-	font-weight: bold;
+  opacity: 0.8;
+  font-weight: bold;
 }
 
 .red-back {
-	background-color: rgba(204, 23, 23, 0.852);
+  background-color: rgba(204, 23, 23, 0.852);
 }
 
 .green-back {
-	background-color: rgba(8, 131, 8, 0.825);
+  background-color: rgba(8, 131, 8, 0.825);
 }
 
 .blue-back {
-	background-color: #0b64c2ce;
+  background-color: #0b64c2ce;
 }
 
 .user-container {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
-
-
 
 @media (max-width: 768px) {
-	.PopUpContainer{
-		width: 80%;
-	}
-	.PopBody.interact {
-	  padding: 2rem;
-	  flex-direction: row;
-	}
-	.owner-buttons,
-	.admin-buttons,
-	.regular-buttons {
-		flex-direction: column;
-	}
-	.red-back, .green-back, .blue-back{
-		margin: 0.5rem;
-	}
+  .PopUpContainer {
+    width: 80%;
   }
-  
-  @media (min-width: 769px) and (max-width: 1024px) {
-	.PopUpContainer{
-		width: 80%;
-	}
+  .PopBody.interact {
+    padding: 2rem;
+    flex-direction: row;
+  }
+  .owner-buttons,
+  .admin-buttons,
+  .regular-buttons {
+    flex-direction: column;
+  }
+  .red-back,
+  .green-back,
+  .blue-back {
+    margin: 0.5rem;
+  }
+}
 
-	.PopBody.interact {
-	  padding: 3.5rem;
-	  flex-direction: row;
-	}
-	.owner-buttons,
-.admin-buttons,
-.regular-buttons {
-	flex-direction: column;
-}
-.red-back, .green-back, .blue-back{
-	margin: 0.5rem;
-}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .PopUpContainer {
+    width: 80%;
   }
-  
+
+  .PopBody.interact {
+    padding: 3.5rem;
+    flex-direction: row;
+  }
+  .owner-buttons,
+  .admin-buttons,
+  .regular-buttons {
+    flex-direction: column;
+  }
+  .red-back,
+  .green-back,
+  .blue-back {
+    margin: 0.5rem;
+  }
+}

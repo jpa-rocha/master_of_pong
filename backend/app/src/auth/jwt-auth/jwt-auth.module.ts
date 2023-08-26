@@ -5,7 +5,6 @@ import { JwtAuthService } from './jwt-auth.service';
 import { JwtAuthStrategy } from './jwt-auth.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Friend } from 'src/users/entities/friend.entity';

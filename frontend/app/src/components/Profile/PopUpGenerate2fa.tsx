@@ -2,8 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { getToken } from "../../utils/Utils";
 
-
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
 
 type PopUpGenerate2faProps = {
@@ -17,10 +16,13 @@ type PopUpGenerate2faProps = {
   username: string;
 } */
 
-const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, userID }) => 
-{
+const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
+  isOpen,
+  onClose,
+  userID,
+}) => {
   const [qrCode, setQrCode] = useState<string>();
-  const generate = useRef(true)
+  const generate = useRef(true);
   // useEffect(() => {
   //   console.log("IM HERE")
   //     if (generate.current) {
@@ -53,9 +55,8 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
             `/api/2fa/generate/${userID}`,
             {},
             { responseType: "arraybuffer" }
-            );
+          );
 
-            console.log("IM HERE");
           const imageBlob = new Blob([response.data], { type: "image/png" });
           const imageSrc = URL.createObjectURL(imageBlob);
 
@@ -65,9 +66,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
         }
       })();
     }
-  }, []);
-
-
+  }, [userID]);
 
   const handle2faTurnOn = async (
     twoFactorAuthenticationCode: string,
@@ -77,18 +76,18 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({ isOpen, onClose, us
     const config = {
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
         "Access-Control-Allow-Methods":
           "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken("jwtToken"),
+        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
       },
       credentials: "include",
     };
-    const res = await axios
+    await axios
       .post(
-        `http://localhost:5000/api/2fa/turn-on/${userID}`,
+        `${process.env.REACT_APP_BACKEND}/api/2fa/turn-on/${userID}`,
         {
           twoFactorAuthenticationCode,
         },

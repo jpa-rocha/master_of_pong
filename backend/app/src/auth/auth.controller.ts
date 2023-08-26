@@ -2,32 +2,24 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Post,
   Query,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { oauth2Guard } from './utils/auth.guards';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
-import { JwtAuthGuard } from './jwt-auth/jwt-auth.guard';
-import { User } from 'src/users/entities/user.entity';
-import { encode } from 'punycode';
-import { UsersService } from 'src/users/users.service';
-import { strict } from 'assert';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private usersService: UsersService,
     private jwtService: JwtAuthService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   // api/auth/signin
@@ -39,16 +31,17 @@ export class AuthController {
 
     const token = await this.authService.signin(data);
 
-    res.cookie(this.configService.get<string>('JWT_NAME'), token, {
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), token, {
       httpOnly: false,
       sameSite: 'none',
       secure: true,
     });
 
-    return res.redirect('https://localhost:3000/main');
+    return res.redirect(
+      `${this.configService.get<string>('REACT_APP_FRONTEND')}/main`,
+    );
   }
 
-  // TODO secret is hardcoded
   @Post('verifyToken')
   async verifyToken(@Body() body) {
     const token = body.token;
@@ -60,6 +53,7 @@ export class AuthController {
   @Post('getUserID')
   async getUserID(@Body() body) {
     const token = body.token;
+    console.log(token);
     return this.jwtService.getTokenInformation(token);
   }
 
@@ -78,7 +72,9 @@ export class AuthController {
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    res.cookie(this.configService.get<string>('JWT_NAME'), '', { expires: new Date(0) });
-    return res.redirect('https://localhost:3000/');
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), '', {
+      expires: new Date(0),
+    });
+    return res.redirect(this.configService.get<string>('REACT_APP_FRONTEND'));
   }
 }

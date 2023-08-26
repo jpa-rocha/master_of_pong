@@ -2,7 +2,7 @@ import axios from "axios";
 //import { useEffect } from "react";
 import { getToken } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
 
 type PopUp2faValidateProps = {
@@ -12,7 +12,11 @@ type PopUp2faValidateProps = {
   // off: boolean; // True = turn off 2fa, False = validate 2fa
 };
 
-const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, UserId }) => {
+const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
+  isOpen,
+  onClose,
+  UserId,
+}) => {
   const handleValidation = async (
     twoFactorAuthenticationCode: string,
     event: React.KeyboardEvent<HTMLInputElement>
@@ -22,18 +26,19 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({ isOpen, onClose, Us
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "https://localhost:3000",
+        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
         "Access-Control-Allow-Methods":
           "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken("jwtToken"),
+        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
       },
       credentials: "include",
     };
 
     await axios
-    	.post(`http://localhost:5000/api/2fa/authenticate/${UserId}`,
+      .post(
+        `${process.env.REACT_APP_BACKEND}/api/2fa/authenticate/${UserId}`,
         {
           twoFactorAuthenticationCode,
         },

@@ -17,7 +17,6 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import { GameDataModule } from 'src/game-data/game-data.module';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Socket } from 'dgram';
 
 @Module({
   imports: [

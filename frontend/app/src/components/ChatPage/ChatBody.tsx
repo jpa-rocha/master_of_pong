@@ -6,7 +6,7 @@ import BannedUsersPopUp from "./PopUpBannedUsers";
 import PopUpPassword from "./PopUpPassword";
 import { Message, User, Chat } from "./PropUtils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface ChatBodyProps {
   socket: Socket;
@@ -18,8 +18,8 @@ interface ChatMessagesResult {
 }
 
 const btnStyle = `
-my-1 mx-0 md:mx-1 md:ml-3 text-sm bg-red-500 text-gray-50 
-hover:bg-red-800 
+my-1 mx-0 md:mx-1 md:ml-3 text-sm bg-red-500 text-gray-50
+hover:bg-red-800
 py-2 px-4
 shadow rounded-xl
 `;
@@ -44,7 +44,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       const id = await axios
         .post("api/auth/getUserID", { token })
         .then((res) => res.data);
@@ -170,7 +170,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                         <img
                           className="w-10 h-10 rounded-full object-cover"
-                          src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
+                          src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${message.sender.id}`}
                           alt="user"
                         />
                       </div>
@@ -194,7 +194,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
                         <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
                           <img
                             className="w-10 h-10 rounded-full object-cover"
-                            src={`http://localhost:5000/api/users/avatars/${message.sender.id}`}
+                            src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${message.sender.id}`}
                             alt="user"
                           />
                         </div>

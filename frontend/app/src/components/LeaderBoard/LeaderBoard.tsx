@@ -6,7 +6,7 @@ import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 interface UserProps {
   id: string;
@@ -40,9 +40,9 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
   useEffect(() => {
     async function getUserID() {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       const response = await axios.post<{ id: string }>(
-        "http://localhost:5000/api/auth/getUserID",
+        `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
         { token }
       );
       setUserID(response.data);
@@ -50,7 +50,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
     async function getLeaders() {
       const response = await axios.post(
-        `http://localhost:5000/api/users/leaderboardGet/${userID}`
+        `${process.env.REACT_APP_BACKEND}/api/users/leaderboardGet/${userID}`
       );
       setLeaders(response.data);
     }
@@ -95,15 +95,14 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
                   <tr className="border-b border-yellow-50" key={index}>
                     <th scope="row"  className="text-sm md:text-lg px-6 py-3 font-medium text-gray-900" >
                         {userID === leader.id ? (
-					
                             <div className="flex flex-row">
-								<img src={`http://localhost:5000/api/users/avatars/${leader.id}`} alt={leader.username}
+								<img src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${leader.id}`} alt={leader.username}
 								className="w-10 h-10 rounded-full object-cover mr-3" />
 								<p className="text-sm md:text-lg 2xl:text-2xl">{leader.username} ⭐</p>
 								</div>
                           ) : (
                             <div className="flex flex-row">
-								<img src={`http://localhost:5000/api/users/avatars/${leader.id}`} alt={leader.username}
+								<img src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${leader.id}`} alt={leader.username}
 								className="w-10 h-10 rounded-full object-cover mr-3" />
 								<p className="text-center text-sm md:text-lg 2xl:text-2xl">{leader.username}</p>
 								</div>
@@ -125,7 +124,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
               </tbody>
             </table>
           </div>
-       </Grid> 
+        </Grid>
         <Grid item xs={12}>
           <Footer></Footer>
         </Grid>

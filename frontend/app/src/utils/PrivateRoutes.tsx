@@ -3,41 +3,42 @@ import { Outlet, Navigate } from "react-router-dom";
 import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
 
-
-
 const PrivateRoutes = () => {
-  const token: string = getToken("jwtToken");
+  const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
   const [togglePopUp, setTogglePopUp] = useState<boolean>(false);
   const [userInfo, setUserInfo] = useState<Token | null>(null);
   //const [render, setRender] = useState<boolean>(false);
 
   useEffect(() => {
-    const check_validation = () => {
-      const decoded: Token | null = decodeToken(token)
+    const check_validation = (data: boolean) => {
+      const decoded: Token | null = decodeToken(token);
       if (decoded !== null) {
-        console.log(decoded)
+        console.log(decoded);
+        //true
         if (decoded.is_2fa_enabled === false) {
-          setUserInfo(decoded)
-          setTokenValid(true);
+          setUserInfo(decoded);
+          setTokenValid(data);
         }
+        //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === false) {
-          setUserInfo(decoded)
-          setTogglePopUp(true);
+          setUserInfo(decoded);
+          setTogglePopUp(data);
         }
+        //true
         if (decoded.is_2fa_enabled === true && decoded.is_validated === true) {
-          setUserInfo(decoded)
-          setTokenValid(true);
+          setUserInfo(decoded);
+          setTokenValid(data);
         }
       }
-      else
-        setTokenValid(false);
+      //false
+      else setTokenValid(data);
     };
 
     const verifyToken = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/verifyToken",
+          `${process.env.REACT_APP_BACKEND}/api/auth/verifyToken`,
           {
             method: "POST",
             headers: {
@@ -47,10 +48,9 @@ const PrivateRoutes = () => {
           }
         );
         const data = await response.json();
-        check_validation();
+        check_validation(data);
         // setTokenValid(true);
         // this needs to be true after its checked
-       
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);

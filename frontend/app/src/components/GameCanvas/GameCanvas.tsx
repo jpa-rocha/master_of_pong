@@ -18,7 +18,7 @@ import { Character } from "./enums/Characters";
 import { EndScreen } from "./Canvas";
 import { getUserID } from "../../utils/Utils";
 
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 type GameComponentProps = {
   socket: Socket;
@@ -103,6 +103,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   // Regular random abilities
   const [abilityFreeze, setAbilityFreeze] = useState<boolean>(false);
   const [abilityMirage, setAbilityMirage] = useState<boolean>(false);
+  const [player1Mirage, setPlayer1Mirage] = useState<boolean>(false);
+  const [player2Mirage, setPlayer2Mirage] = useState<boolean>(false);
 
   const [miragePos, setMiragePos] = useState([]);
   //   const [timeWarp, setTimeWarp] = useState<boolean>(false);
@@ -287,8 +289,13 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         dodgeButton.selected
       );
       console.log("Socket:", socket);
-      console.log("TOKEN TEST " + getToken("jwtToken"));
-      socket.emit("start", { opt: opt, token: getToken("jwtToken") });
+      console.log(
+        "TOKEN TEST " + getToken(process.env.REACT_APP_JWT_NAME as string)
+      );
+      socket.emit("start", {
+        opt: opt,
+        token: getToken(process.env.REACT_APP_JWT_NAME as string),
+      });
     } catch (error) {
       console.error("Failed to start the game:", error);
     }
@@ -708,6 +715,41 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const mouseY = e.clientY - (canvas.current.offsetTop + 82);
       if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
         setGameSelection(true);
+        setGameInit(false);
+        setGameStarted(false);
+        setPlayerWaiting(false);
+        switch (selectedGamemode) {
+          case Mode.Singleplayer:
+            gamemodeButtons[0].selected = true;
+            break;
+          case Mode.MasterOfPong:
+            gamemodeButtons[1].selected = true;
+            break;
+          case Mode.Regular:
+            gamemodeButtons[2].selected = true;
+            break;
+        }
+        setBallSize(15);
+        setBallPosition({ x: 600, y: 400 });
+        setWinner(0);
+        setResult(0);
+        setAbilities(false);
+      }
+    },
+    [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode]
+  );
+
+  const handleLeaveClick = useCallback(
+    (e: MouseEvent) => {
+      if (!canvas.current || !ctx) return;
+      const mouseX = e.clientX - canvas.current.offsetLeft;
+      const mouseY = e.clientY - (canvas.current.offsetTop + 82);
+      if (checkMouseOnButton(resetButton, mouseX, mouseY)) {
+        socket.emit("leaveQueue");
+        setGameSelection(true);
+        setGameInit(false);
+        setGameStarted(false);
+        setPlayerWaiting(false);
         switch (selectedGamemode) {
           case Mode.Singleplayer:
             gamemodeButtons[0].selected = true;
@@ -899,6 +941,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
 
     function handleRejoin(data: rejoinData) {
       console.log("HANEL REJOIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      setGameSelection(false);
+      if (data.player2Character === 0) {
+        setPlayerWaiting(true);
+      } else {
+        setGameStarted(true);
+      }
       setSelectedGamemode(data.mode);
       dodgeButton.selected = data.dodge;
       hyperButton.selected = data.hyper;
@@ -1053,9 +1101,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             }
         }
       }
-      setGameSelection(false);
-      setGameSelection(false);
-      setGameStarted(true);
     }
 
     socket.on("Game Info", handleRejoin);
@@ -1129,6 +1174,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         setScore(newScore);
         setAbilityFreeze(false);
         setAbilityMirage(false);
+        setPlayer1Mirage(false);
+        setPlayer2Mirage(false);
         setPlayer1Frozen(false);
         setPlayer2Frozen(false);
         setRaivenSpecial(false);
@@ -1183,9 +1230,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           player2X,
           player2Y,
         } = event;
-        console.log("inside gameoptions handler...");
-        console.log("mode: " + mode);
-        console.log("hyper: " + hyper);
         setSelectedGamemode(mode);
         dodgeButton.selected = dodge;
         hyperButton.selected = hyper;
@@ -1210,7 +1254,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             setMaxTimerAnim(10);
           } else if (hyperButton.selected) setMaxTimerAnim(10);
         }
-        if (mode === Mode.MasterOfPong) {
+        if (mode === Mode.MasterOfPong || mode === Mode.Singleplayer) {
           setPlayer1PositionX(player1X);
           setPlayer2PositionX(player2X);
           setPlayer1Position(player1Y);
@@ -1264,8 +1308,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
                   break;
               }
           }
-          console.log("CharacterFromChallange 1 = ", player1Character);
-          console.log("CharacterFromChallange 2 = ", player2Character);
           switch (player1Character) {
             case Character.Venomtail:
               switch (player1Size) {
@@ -1326,7 +1368,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           const { secondsLeft } = event;
           setSecondsLeft(secondsLeft);
           if (hasAbility && secondsLeft > 0) {
-            console.log("LABASSSSSSSSSSSSSSSSSSSSS");
             setHasAbility(false);
             setAbilityCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
@@ -1343,7 +1384,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           const { secondsLeftUlt } = event;
           setSecondsLeftUlt(secondsLeftUlt);
           if (hasUlt && secondsLeft > 0) {
-            console.log("LABASSSSSSSSSSSSSSSSSSSSS");
             setHasUlt(false);
             setUltimateCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
@@ -1391,8 +1431,15 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
 
         // random abilities / powerups
         socket.on("AbilityMirage", (event: any) => {
-          const { AbilityMirage } = event;
+          const { AbilityMirage, target } = event;
           setAbilityMirage(AbilityMirage);
+          if (target === 1) {
+            setPlayer1Mirage(AbilityMirage);
+            setPlayer2Mirage(!AbilityMirage);
+          } else {
+            setPlayer2Mirage(AbilityMirage);
+            setPlayer1Mirage(!AbilityMirage);
+          }
         });
         socket.on("SoundGrenade", (event: any) => {
           soundGrenadeSound.play();
@@ -1532,7 +1579,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   useEffect(() => {
     let cnv = canvas.current;
     async function emitActivityStatus() {
-      const token = getToken("jwtToken");
+      const token = getToken(process.env.REACT_APP_JWT_NAME as string);
       if (token) {
         const userID = await getUserID(token);
         setUserID(userID);
@@ -1770,7 +1817,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             }
 
             if (abilityMirage) {
-              ctx.globalAlpha = 0.75;
+              if (
+                (player1Mirage && player === 1) ||
+                (player2Mirage && player === 2)
+              )
+                ctx.globalAlpha = 0.75;
+              else ctx.globalAlpha = 0.3;
               for (var i in miragePos) {
                 ctx.beginPath();
                 ctx.arc(
@@ -1845,10 +1897,14 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           drawButton(ctx, hyperButton, Mode.Hyper, 5);
           drawButton(ctx, dodgeButton, Mode.Dodge, 5);
         } else if (playerChose) {
+          const cnv = canvas.current;
+          cnv.addEventListener("mousemove", handleFinishMove);
+          cnv.addEventListener("mousedown", handleLeaveClick);
           var startIndex = Images.YinYangEnd.length - 1;
           const animInterval = setInterval(() => {
             if (canvas.current) {
               ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, 1200, 800);
+              drawButton(ctx, resetButton, Mode.Reset);
             }
             console.log("Image : " + startIndex);
             startIndex--;
@@ -1857,25 +1913,43 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
               setPlayerChose(false);
               handleStartGame();
               setPlayerWaiting(true);
+              cnv.removeEventListener("mousemove", handleFinishMove);
+              cnv.removeEventListener("mousedown", handleLeaveClick);
               return;
             }
           }, 15);
-          return () => clearInterval(animInterval);
+          return () => {
+            clearInterval(animInterval);
+            cnv.removeEventListener("mousemove", handleFinishMove);
+            cnv.removeEventListener("mousedown", handleLeaveClick);
+          };
         } else if (
           isPlayerWaiting ||
           (isGameInit && (player1Name.length === 0 || player2Name.length === 0))
         ) {
+          const cnv = canvas.current;
+          if (isPlayerWaiting) {
+            cnv.addEventListener("mousemove", handleFinishMove);
+            cnv.addEventListener("mousedown", handleLeaveClick);
+          }
           var rotIndex = 0;
           const animInterval = setInterval(() => {
             if (canvas.current) {
               ctx.drawImage(Images.YinYangRotate[rotIndex], 0, 0, 1200, 800);
+              drawButton(ctx, resetButton, Mode.Reset);
             }
             rotIndex++;
             if (rotIndex === Images.YinYangRotate.length) {
               rotIndex = 0;
             }
           }, 33);
-          return () => clearInterval(animInterval);
+          return () => {
+            clearInterval(animInterval);
+            if (isPlayerWaiting) {
+              cnv.removeEventListener("mousemove", handleFinishMove);
+              cnv.removeEventListener("mousedown", handleLeaveClick);
+            }
+          };
         } else if (isGameInit) {
           var rotaIndex = 0;
           var endIndex = 0;

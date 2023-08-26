@@ -1,11 +1,9 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
-import { JwtAuthService } from '../auth/jwt-auth/jwt-auth.service';
-import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 
 export type JwtPayload = {
   id: string;
@@ -18,15 +16,12 @@ export class TwoFactorStrategy extends PassportStrategy(Strategy) {
   constructor(
     private configService: ConfigService,
     private usersService: UsersService,
-    private jwtService: JwtService,
-    private jwtAuthService: JwtAuthService,
   ) {
-    // private usersService: UsersService) {
     const extractJwtFromCookie = (req: any) => {
       console.log('----- AT JWT-AUTH.STRATEGY -----');
       let token = null;
       if (req && req.cookies) {
-        token = req.cookies['jwtToken'];
+        token = req.cookies[configService.get<string>('REACT_APP_JWT_NAME')];
       }
       return token;
     };
@@ -34,7 +29,7 @@ export class TwoFactorStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: extractJwtFromCookie,
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>('REACT_APP_JWT_NAME'),
     });
   }
   async validate(token: JwtPayload): Promise<User> {

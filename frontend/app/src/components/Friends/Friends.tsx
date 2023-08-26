@@ -1,11 +1,3 @@
-/* 
-    1. Display all the users in the database
-    2. Allow the user to search for a specific user 
-        - while typing, display all the users that match the search
-    3. Allow the user to add a friend
-		- display if a user is already a friend
-
-*/
 import { Grid } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -36,7 +28,7 @@ const imgStyle = {
     "linear-gradient(to right, #EA4224 0%, #c49b2b 50%, #EA4224 100%)",
 };
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   const [users, setUsers] = useState<UserProps[]>([]);
@@ -44,10 +36,12 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   const [render, setRender] = useState<boolean>(false);
   const [userID, setUserID] = useState<string>("");
   const [requests, setRequests] = useState<RequestProp[]>([]);
-  const token = getToken("jwtToken");
+  const token = getToken(process.env.REACT_APP_JWT_NAME as string);
 
   (async () => {
-    setUserID(await getUserID(getToken("jwtToken")));
+    setUserID(
+      await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
+    );
   })();
 
   if (userID !== "") {
@@ -117,7 +111,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     <>
       <Grid container>
         <Grid item xs={12}>
-        	<NavBarMainPage socket={socket}></NavBarMainPage>
+          <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
 
         <Grid item xs={12} style={imgStyle} className="h-[100vh] w-full">
@@ -162,7 +156,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 >
                   <img
                     className="w-10 h-10 rounded-full object-cover mr-3"
-                    src={`http://localhost:5000/api/users/avatars/${item.id}`}
+                    src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${item.id}`}
                     alt="user"
                   />
                   <div className="pl-3">
@@ -200,7 +194,6 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 			  </tbody>
 			</table>
             </div>
-       
           </div>
 		  <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center bg-yellow-50 p-3 m-2">
           <div className="px-3 my-6">
@@ -230,8 +223,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 		</div>
         </Grid>
 
-  
-		<Grid item xs={12}>
+        <Grid item xs={12}>
           <Footer></Footer>
         </Grid>
       </Grid>
