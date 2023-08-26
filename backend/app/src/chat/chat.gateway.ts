@@ -553,6 +553,12 @@ export class ChatGateway {
     // this.gameService.startGame(client.id, options);
   }
 
+  @SubscribeMessage('leaveQueue')
+  leaveQueue(client: AuthenticatedSocket) {
+    console.log('leaving queue...');
+    this.gameCollection.removeGame(client.data.lobby.gameID);
+  }
+
   async addGameData(
     p1: string,
     p2: string,
