@@ -3,7 +3,6 @@ import { Server } from 'socket.io';
 import { Options } from '../movement.dto';
 import { Mode } from '../enums/Modes';
 import { Paddles } from '../enums/Paddles';
-import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { User } from '../../users/entities/user.entity';
 
 interface UserProp {
