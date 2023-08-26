@@ -24,7 +24,6 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import TwoFactorGuard from './two-factor-authentication.guard';
 import { ConfigService } from '@nestjs/config';
 
-
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
   constructor(
@@ -32,8 +31,8 @@ export class TwoFactorAuthenticationController {
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
     private readonly authService: AuthService,
     private readonly jwtAuthService: JwtAuthService,
-    private readonly configService: ConfigService
-  ){};
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('generate/:id')
   @UseGuards(JwtAuthGuard)
@@ -63,7 +62,8 @@ export class TwoFactorAuthenticationController {
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
     const user = await this.userService.findOne(id);
-    const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+    const isCodeValid =
+      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         user,
       );
@@ -76,11 +76,15 @@ export class TwoFactorAuthenticationController {
     const updatedUser = await this.userService.findOne(user.id);
     const { accessToken } = await this.jwtAuthService.login(updatedUser, true);
 
-    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
-      httpOnly: false,
-      sameSite: 'none',
-      secure: true,
-    });
+    res.cookie(
+      this.configService.get<string>('REACT_APP_JWT_NAME'),
+      accessToken,
+      {
+        httpOnly: false,
+        sameSite: 'none',
+        secure: true,
+      },
+    );
     return res.status(200).json({ message: '2FA turned on' });
   }
 
@@ -104,11 +108,15 @@ export class TwoFactorAuthenticationController {
     await this.userService.turnOffTwoFactorAuthentication(user.id);
     const updatedUser = await this.userService.findOne(user.id);
     const { accessToken } = await this.jwtAuthService.login(updatedUser, false);
-    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
-      httpOnly: false,
-      sameSite: 'none',
-      secure: true,
-    });
+    res.cookie(
+      this.configService.get<string>('REACT_APP_JWT_NAME'),
+      accessToken,
+      {
+        httpOnly: false,
+        sameSite: 'none',
+        secure: true,
+      },
+    );
     return res.status(200).json({ message: '2FA turned off' });
   }
   @Post('authenticate/:id')
@@ -126,16 +134,20 @@ export class TwoFactorAuthenticationController {
         data.twoFactorAuthenticationCode.trim(),
         user,
       );
-      console.log("ISCODEVALID -------", isCodeValid)
+    console.log('ISCODEVALID -------', isCodeValid);
     if (isCodeValid !== true) {
       throw new UnauthorizedException('Wrong authentication code');
     }
     const { accessToken } = await this.jwtAuthService.login(user, true);
-    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), accessToken, {
-      httpOnly: false,
-      sameSite: 'none',
-      secure: true,
-    });
+    res.cookie(
+      this.configService.get<string>('REACT_APP_JWT_NAME'),
+      accessToken,
+      {
+        httpOnly: false,
+        sameSite: 'none',
+        secure: true,
+      },
+    );
     return res.status(200).json({ message: '2FA code accepted' });
   }
 }

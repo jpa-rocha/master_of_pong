@@ -65,17 +65,21 @@ export class GameService {
       player: 1,
       ability: this.gameObject.player1.ability,
     });
-	if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
-		this.gameObject.sendToPlayer2<{
-		player: number;
-		ability: number;
-		}>('gameInit', {
-		player: 2,
-		ability: this.gameObject.player2.ability,
-		});
-	}
-	console.log("player1 character: " + this.gameObject.player1.options.character);
-	console.log("player2 character: " + this.gameObject.player2.options.character);
+    if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
+      this.gameObject.sendToPlayer2<{
+        player: number;
+        ability: number;
+      }>('gameInit', {
+        player: 2,
+        ability: this.gameObject.player2.ability,
+      });
+    }
+    console.log(
+      'player1 character: ' + this.gameObject.player1.options.character,
+    );
+    console.log(
+      'player2 character: ' + this.gameObject.player2.options.character,
+    );
     this.gameObject.sendToClients<{
       mode: number;
       hyper: boolean;
@@ -108,12 +112,12 @@ export class GameService {
       this.gameObject.player1.databaseId,
       this.gameObject.gameID,
     );
-	if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
-		this.chatGateway.addGameID(
-		this.gameObject.player2.databaseId,
-		this.gameObject.gameID,
-		);
-	}
+    if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
+      this.chatGateway.addGameID(
+        this.gameObject.player2.databaseId,
+        this.gameObject.gameID,
+      );
+    }
     this.gameObject.sendToClients<{ ballSize: number }>('BallSize', {
       ballSize: this.gameObject.ballSizeDefault,
     });
@@ -349,15 +353,18 @@ export class GameService {
 
   abMirage(target: number): void {
     this.gameObject.mirage = true;
-    this.gameObject.sendToClients<{ AbilityMirage: boolean, target: number }>('AbilityMirage', {
-      AbilityMirage: true,
-	    target: target,
-    });
+    this.gameObject.sendToClients<{ AbilityMirage: boolean; target: number }>(
+      'AbilityMirage',
+      {
+        AbilityMirage: true,
+        target: target,
+      },
+    );
     if (target === 1 && this.mirageTimerP1) {
       clearTimeout(this.mirageTimerP1);
     } else if (target === 2 && this.mirageTimerP2) {
-		  clearTimeout(this.mirageTimerP2);
-	  }
+      clearTimeout(this.mirageTimerP2);
+    }
     let index = 0;
     while (index < this.gameObject.mirageNumber) {
       this.gameObject.mirageBallsPos.push([
@@ -374,14 +381,14 @@ export class GameService {
     }
     if (!this.gameObject.gameOptions.dodge) {
       if (target === 1) {
-      this.mirageTimerP1 = setTimeout(() => {
-          this.gameObject.sendToClients<{ AbilityMirage: boolean, target: number }>(
-            'AbilityMirage',
-            {
-              AbilityMirage: false,
-              target: target,
-            },
-          );
+        this.mirageTimerP1 = setTimeout(() => {
+          this.gameObject.sendToClients<{
+            AbilityMirage: boolean;
+            target: number;
+          }>('AbilityMirage', {
+            AbilityMirage: false,
+            target: target,
+          });
           this.gameObject.mirage = false;
           this.mirageTimerP1 = null;
           this.gameObject.mirageBallsPos = [];
@@ -389,13 +396,13 @@ export class GameService {
         }, 5000);
       } else {
         this.mirageTimerP2 = setTimeout(() => {
-          this.gameObject.sendToClients<{ AbilityMirage: boolean, target: number }>(
-            'AbilityMirage',
-            {
-              AbilityMirage: false,
-              target: target,
-            },
-          );
+          this.gameObject.sendToClients<{
+            AbilityMirage: boolean;
+            target: number;
+          }>('AbilityMirage', {
+            AbilityMirage: false,
+            target: target,
+          });
           this.gameObject.mirage = false;
           this.mirageTimerP2 = null;
           this.gameObject.mirageBallsPos = [];

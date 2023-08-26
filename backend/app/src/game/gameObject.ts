@@ -224,7 +224,7 @@ export class GameObject {
         player2Name: this.player2.user.username,
         score: this.score,
         ballSize: this.ballSize,
-		  };
+      };
       this.server.to(client.id).emit('Game Info', payload);
     } else {
       const payload = {
@@ -237,15 +237,15 @@ export class GameObject {
         player1Size: this.player1.options.paddle,
         player1X: this.player1.pos.x,
         player1Y: this.player1.pos.y,
-        player1Name: "",
+        player1Name: '',
         player2Character: 0,
         player2Size: 0,
         player2X: 0,
         player2Y: 0,
-        player2Name: "",
+        player2Name: '',
         score: this.score,
         ballSize: this.ballSize,
-		  };
+      };
       this.server.to(client.id).emit('Game Info', payload);
     }
     if (client.id == this.player1.id) {

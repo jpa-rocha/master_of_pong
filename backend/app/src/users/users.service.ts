@@ -84,8 +84,7 @@ export class UsersService {
       const user = await this.findOne(userID);
       user.username = username;
       return await this.usersRepository.save(user);
-    } else
-      return null;
+    } else return null;
   }
 
   async sendFriendRequest(userId: string, friendId: string) {

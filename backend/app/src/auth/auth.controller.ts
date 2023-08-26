@@ -27,7 +27,7 @@ export class AuthController {
     private authService: AuthService,
     private usersService: UsersService,
     private jwtService: JwtAuthService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   // api/auth/signin
@@ -45,7 +45,9 @@ export class AuthController {
       secure: true,
     });
 
-    return res.redirect(`${this.configService.get<string>('REACT_APP_FRONTEND')}/main`);
+    return res.redirect(
+      `${this.configService.get<string>('REACT_APP_FRONTEND')}/main`,
+    );
   }
 
   @Post('verifyToken')
@@ -59,7 +61,7 @@ export class AuthController {
   @Post('getUserID')
   async getUserID(@Body() body) {
     const token = body.token;
-    console.log(token)
+    console.log(token);
     return this.jwtService.getTokenInformation(token);
   }
 
@@ -78,7 +80,9 @@ export class AuthController {
 
   @Get('signout')
   handleSignout(@Res() res: Response) {
-    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), '', { expires: new Date(0) });
+    res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), '', {
+      expires: new Date(0),
+    });
     return res.redirect(this.configService.get<string>('REACT_APP_FRONTEND'));
   }
 }

@@ -11,7 +11,7 @@ export class TwoFactorAuthenticationService {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-  ){};
+  ) {}
 
   public async generateTwoFactorAuthenticationSecret(user: User) {
     const secret: string = authenticator.generateSecret();
@@ -19,7 +19,7 @@ export class TwoFactorAuthenticationService {
       user.email,
       this.configService.get('POSTGRES_DB'),
       secret,
-    )
+    );
     console.log('SECRET', secret);
     await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
 
@@ -37,12 +37,12 @@ export class TwoFactorAuthenticationService {
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
-    console.log('USER SECRET', user.twofa_secret)
+    console.log('USER SECRET', user.twofa_secret);
     const verify = authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twofa_secret,
     });
-    console.log(verify)
+    console.log(verify);
     return verify;
   }
 }
