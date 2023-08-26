@@ -58,8 +58,6 @@ export class UsersService {
     if (!user) {
       throw new Error("Couldn't find user (updateSocket)");
     }
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-    console.log('status : ', updateUserDto.status);
     Object.assign(user, updateUserDto);
     return await this.usersRepository.save(user);
   }

@@ -28,22 +28,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   useEffect(() => {
     const token = getToken(process.env.REACT_APP_JWT_NAME as string);
-    // const getUser = async () => {
-    //   const id = await axios
-    //     .post("api/auth/getUserID", { token })
-    //     .then((res) => res.data);
-    //   const user = await axios.get(`api/users/${id}`);
-
-    //   return user.data;
-    // };
-
-    // const getUserEffect = async () => {
-    //   const temp = await getUser();
-    //   if (temp) {
-    //     setUser(temp);
-    //   }
-    // };
-    // getUserEffect();
 
     const handleReturnChatBar = (data: {
       friends: User[];

@@ -397,8 +397,10 @@ export class ChatService {
 
   async checkMuted(targetID: string, chatID: number) {
     const chat = await this.findOneChat(chatID);
-    const index = chat.muted.findIndex((user) => user.id === targetID);
-    if (index !== -1) return true;
+    if (chat && chat.muted) {
+      const index = chat.muted.findIndex((user) => user.id === targetID);
+      if (index !== -1) return true;
+    }
     return false;
   }
 
