@@ -88,6 +88,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
 
   const [secondsLeft, setSecondsLeft] = useState<number>(15);
   const [secondsLeftUlt, setSecondsLeftUlt] = useState<number>(15);
+  const [abilityCooldown, setAbilityCooldown] = useState<boolean>(false);
+  const [ultimateCooldown, setUltimateCooldown] = useState<boolean>(false);
   const [abilityCooldownImage, setAbilityCooldownImage] =
     useState<HTMLImageElement>(new Image());
   const [ultimateCooldownImage, setUltimateCooldownImage] =
@@ -1212,16 +1214,18 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       socket.on("winnerUpdate", (event: any) => {
         const { winner, result } = event;
         setWinner(winner);
+        setAbilityCooldown(false);
+        setUltimateCooldown(false);
         if (winner === 1) setWinnerName(player1Name);
         else if (winner === 2) setWinnerName(player2Name);
         if (result) setResult(result);
         setScore({ p1: 0, p2: 0 });
-        if (abilTimer) {
-          clearInterval(abilTimer);
-        }
-        if (ultTimer) {
-          clearInterval(ultTimer);
-        }
+        // if (abilTimer) {
+        //   clearInterval(abilTimer);
+        // }
+        // if (ultTimer) {
+        //   clearInterval(ultTimer);
+        // }
       });
       socket.on("gameStatus", (event: any) => {
         const { gameStatus } = event;
@@ -1389,33 +1393,21 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         socket.on("secondsLeft", (event: any) => {
           const { secondsLeft } = event;
           setSecondsLeft(secondsLeft);
+          if (secondsLeft === 0) setHasAbility(true);
           if (hasAbility && secondsLeft > 0) {
             setHasAbility(false);
             setAbilityCooldownImage(Images.Cooldown[0]);
-            var animFrame = 1;
-            abilTimer = setInterval(() => {
-              setAbilityCooldownImage(
-                Images.Cooldown[animFrame % Images.Cooldown.length]
-              );
-              animFrame++;
-              if (animFrame >= maxTimerAnim) clearInterval(abilTimer);
-            }, 500);
+            setAbilityCooldown(true);
           }
         });
         socket.on("secondsLeftUlt", (event: any) => {
           const { secondsLeftUlt } = event;
           setSecondsLeftUlt(secondsLeftUlt);
-          if (hasUlt && secondsLeft > 0) {
+          if (secondsLeftUlt === 0) setHasUlt(true);
+          else if (hasUlt && secondsLeftUlt > 0) {
             setHasUlt(false);
             setUltimateCooldownImage(Images.Cooldown[0]);
-            var animFrame = 1;
-            ultTimer = setInterval(() => {
-              setUltimateCooldownImage(
-                Images.Cooldown[animFrame % Images.Cooldown.length]
-              );
-              animFrame++;
-              if (animFrame >= maxTimerAnim) clearInterval(ultTimer);
-            }, 500);
+            setUltimateCooldown(true);
           }
         });
         // Character special abilities
@@ -1484,14 +1476,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           setHasAbility(hasAbility);
           if (!hasAbility) {
             setAbilityCooldownImage(Images.Cooldown[0]);
-            var animFrame = 1;
-            abilTimer = setInterval(() => {
-              setAbilityCooldownImage(
-                Images.Cooldown[animFrame % Images.Cooldown.length]
-              );
-              animFrame++;
-              if (animFrame >= maxTimerAnim) clearInterval(abilTimer);
-            }, 500);
+            setAbilityCooldown(true);
           }
           switch (ability) {
             case 0:
@@ -1520,14 +1505,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           setHasUlt(hasUlt);
           if (!hasUlt) {
             setUltimateCooldownImage(Images.Cooldown[0]);
-            var animFrame = 1;
-            ultTimer = setInterval(() => {
-              setUltimateCooldownImage(
-                Images.Cooldown[animFrame % Images.Cooldown.length]
-              );
-              animFrame++;
-              if (animFrame >= maxTimerAnim) clearInterval(ultTimer);
-            }, 500);
+            setUltimateCooldown(true);
           }
         });
         return () => {
@@ -1597,6 +1575,44 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     selectedGamemode,
     hasUlt,
   ]);
+
+  useEffect(() => {
+    if (!abilityCooldown) return;
+    var animFrame = 1;
+    const abilTimer = setInterval(() => {
+      console.log("ability timer still going...");
+      setAbilityCooldownImage(
+        Images.Cooldown[animFrame % Images.Cooldown.length]
+      );
+      animFrame++;
+      if (animFrame >= maxTimerAnim) {
+        clearInterval(abilTimer);
+        setAbilityCooldown(false);
+      }
+    }, 500);
+    return () => {
+      clearInterval(abilTimer);
+    };
+  }, [Images.Cooldown, abilityCooldown, maxTimerAnim]);
+
+  useEffect(() => {
+    if (!ultimateCooldown) return;
+    var animFrame = 1;
+    const ultTimer = setInterval(() => {
+      console.log("Ultimate timer still going...");
+      setUltimateCooldownImage(
+        Images.Cooldown[animFrame % Images.Cooldown.length]
+      );
+      animFrame++;
+      if (animFrame >= maxTimerAnim) {
+        clearInterval(ultTimer);
+        setUltimateCooldown(false);
+      }
+    }, 500);
+    return () => {
+      clearInterval(ultTimer);
+    };
+  }, [Images.Cooldown, maxTimerAnim, ultimateCooldown]);
 
   useEffect(() => {
     let cnv = canvas.current;
@@ -1919,6 +1935,31 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           drawButton(ctx, hyperButton, Mode.Hyper, 5);
           drawButton(ctx, dodgeButton, Mode.Dodge, 5);
         } else if (playerChose) {
+          // VenomtailSpecial,
+          // isGameStarted,
+          // abilityMirage,
+          // selectedGamemode,
+          // selectedPaddle,
+          // abilityFreeze,
+          // selectedCharacter,
+          // raivenSpecial,
+          // player1Character,
+          // player2Character,
+          // player1Size,
+          // player2Size.height,
+          // player2Size.width,
+          // VenomtailTarget,
+          // isPlayerWaiting,
+          // isGameSelection,
+          // isGameInit,
+          // player1Frozen,
+          // player2Frozen,
+          // player,
+          // playerChose,
+          // playerScored,
+          // player1Name,
+          // player2Name,
+          console.log("-----------------------------------------------------");
           const cnv = canvas.current;
           cnv.addEventListener("mousemove", handleFinishMove);
           cnv.addEventListener("mousedown", handleLeaveClick);

@@ -179,6 +179,13 @@ export class GameObject {
     }
   }
 
+  // removeGame() {
+  //   this.clients.forEach((client) => client.leave(this.gameID));
+  //   // for (let client = 0; client < this.clients.size; client++) {
+  //   //   this.clients[client].leave(this.gameID);
+  //   // }
+  // }
+
   removeClient(client: AuthenticatedSocket) {
     this.clients.delete(client.id);
     // if (this.player1.user.id === client.id) {
