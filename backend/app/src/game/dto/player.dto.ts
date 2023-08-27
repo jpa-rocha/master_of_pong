@@ -35,6 +35,10 @@ export class Player {
   public useSpecial: boolean;
   public useAbility: boolean;
   public abilityCount: number;
+  public abilityTimer: NodeJS.Timeout | null = null;
+  public specialAbilityTimer: NodeJS.Timeout | null = null;
+  public abilityTimer2: NodeJS.Timeout | null = null;
+  public specialAbilityTimer2: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly server: Server,
@@ -128,18 +132,18 @@ export class Player {
     this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
       secondsLeft: seconds + 1,
     });
-    const abilityTimer = setInterval(() => {
+    this.abilityTimer = setInterval(() => {
       this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
         secondsLeft: seconds,
       });
       if (seconds === 1) {
-        clearInterval(abilityTimer);
+        clearInterval(this.abilityTimer);
         return;
       }
       seconds--;
     }, 1000);
     this.ability = Math.floor(Math.random() * this.abilityCount);
-    setTimeout(() => {
+    this.abilityTimer2 = setTimeout(() => {
       this.hasAbility = true;
       this.sendToClient<{ hasAbility: boolean; ability: number }>(
         'hasAbility',
@@ -157,17 +161,18 @@ export class Player {
     this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
       secondsLeftUlt: seconds + 1,
     });
-    const ultimateTimer = setInterval(() => {
+    this.specialAbilityTimer = setInterval(() => {
+      console.log('AAAAAAAAAAAAAAAAAA TIMER IS BEING CALLED EACH SECOND');
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,
       });
       if (seconds === 1) {
-        clearInterval(ultimateTimer);
+        clearInterval(this.specialAbilityTimer);
         return;
       }
       seconds--;
     }, 1000);
-    setTimeout(() => {
+    this.specialAbilityTimer2 = setTimeout(() => {
       this.hasSpecial = true;
       this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
         hasUlt: true,

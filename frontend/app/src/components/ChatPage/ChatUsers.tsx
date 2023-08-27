@@ -223,7 +223,14 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         <div className="ml-2 mb-2 font-bold text-2xl">Users</div>
         {userME ? (
           <div className="user-container">
-            {userME.username} 🟢
+            {userME.username}
+            {userME.status === "online" ? (
+              <span>🟢</span>
+            ) : userME.status === "offline" ? (
+              <span>🔴</span>
+            ) : (
+              <span>🟢🎮</span>
+            )}
             {adminMe ? <div>👮</div> : null}
             {mutedMe ? <div>🔇</div> : null}
           </div>
@@ -232,7 +239,14 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         {userOwner ? (
           <div className="user-container">
             {userOwner.username}{" "}
-            {userOwner.status === "online" ? <>🟢</> : <>🔴</>}👑
+            {userOwner.status === "online" ? (
+              <span>🟢</span>
+            ) : userOwner.status === "offline" ? (
+              <span>🔴</span>
+            ) : (
+              <span>🟢🎮</span>
+            )}
+            👑
             {blockedOwner ? <div>⛔</div> : null}
             {userME ? (
               <button
@@ -256,7 +270,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
                   <span>🔴</span>
                 ) : (
                   <span>🟢🎮</span>
-                )}👮
+                )}
+                👮
               </div>
               {mutedAdmins[index] ? <div>🔇</div> : null}
               {blockedAdmins[index] ? <div>⛔</div> : null}

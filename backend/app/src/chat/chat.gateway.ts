@@ -615,6 +615,10 @@ export class ChatGateway {
   ) {
     const user = await this.userService.findOne(data.userID);
     const target = await this.userService.findOne(data.targetID);
+    if (!user || user.status !== 'online' || user.gameID !== null) {
+      this.server.to(client.id).emit('userUnavailable');
+      return;
+    }
     if (target.status !== 'online' || target.gameID !== null) {
       this.server
         .to(client.id)
@@ -710,6 +714,9 @@ export class ChatGateway {
     console.log('CURRENT STATUS = ', user.status);
     if (user.gameID === null || user.status === 'in queue') return;
     this.gameCollection.findGame(client, user.gameID);
+    await this.userService.updateSocket(client.id, {
+      status: 'in game',
+    });
   }
 
   removeGameID(userID: string) {

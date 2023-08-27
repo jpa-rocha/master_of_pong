@@ -210,6 +210,9 @@ export class GameObject {
       playerAbility = this.player2.ability;
     }
     if (this.player2) {
+      let username2;
+      if (this.gameOptions.gameMode === Mode.Singleplayer) username2 = 'Bot';
+      else username2 = this.player2.user.username;
       const payload = {
         mode: this.gameOptions.gameMode,
         hyper: this.gameOptions.hyper,
@@ -225,7 +228,7 @@ export class GameObject {
         player2Size: this.player2.options.paddle,
         player2X: this.player2.pos.x,
         player2Y: this.player2.pos.y,
-        player2Name: this.player2.user.username,
+        player2Name: username2,
         score: this.score,
         ballSize: this.ballSize,
         checkGameStarted: this.checkGameStarted,
