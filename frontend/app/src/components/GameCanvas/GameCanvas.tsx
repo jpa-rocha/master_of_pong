@@ -1146,6 +1146,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   ]);
 
   useEffect(() => {
+    let abilTimer: NodeJS.Timer | undefined;
+    let ultTimer: NodeJS.Timer | undefined;
     if (socket) {
       socket.on("gameInit", (event: any) => {
         const { player, ability } = event;
@@ -1214,6 +1216,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         else if (winner === 2) setWinnerName(player2Name);
         if (result) setResult(result);
         setScore({ p1: 0, p2: 0 });
+        if (abilTimer) {
+          clearInterval(abilTimer);
+        }
+        if (ultTimer) {
+          clearInterval(ultTimer);
+        }
       });
       socket.on("gameStatus", (event: any) => {
         const { gameStatus } = event;
@@ -1385,7 +1393,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             setHasAbility(false);
             setAbilityCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
-            const abilTimer = setInterval(() => {
+            abilTimer = setInterval(() => {
               setAbilityCooldownImage(
                 Images.Cooldown[animFrame % Images.Cooldown.length]
               );
@@ -1401,7 +1409,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             setHasUlt(false);
             setUltimateCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
-            let ultTimer = setInterval(() => {
+            ultTimer = setInterval(() => {
               setUltimateCooldownImage(
                 Images.Cooldown[animFrame % Images.Cooldown.length]
               );
@@ -1477,7 +1485,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           if (!hasAbility) {
             setAbilityCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
-            const abilTimer = setInterval(() => {
+            abilTimer = setInterval(() => {
               setAbilityCooldownImage(
                 Images.Cooldown[animFrame % Images.Cooldown.length]
               );
@@ -1513,7 +1521,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           if (!hasUlt) {
             setUltimateCooldownImage(Images.Cooldown[0]);
             var animFrame = 1;
-            let ultTimer = setInterval(() => {
+            ultTimer = setInterval(() => {
               setUltimateCooldownImage(
                 Images.Cooldown[animFrame % Images.Cooldown.length]
               );
