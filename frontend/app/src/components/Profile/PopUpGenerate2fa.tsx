@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { getToken } from "../../utils/Utils";
+import { getToken, AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
@@ -23,28 +23,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
 }) => {
   const [qrCode, setQrCode] = useState<string>();
   const generate = useRef(true);
-  // useEffect(() => {
-  //   console.log("IM HERE")
-  //     if (generate.current) {
-  //       generate.current = false;
-  //       (async () => {
-  //         const getQrCode = await axios.post(
-  //           `/api/2fa/generate/${userID}`,
-  //           {},
-  //           { responseType: "arraybuffer" }
-  //         );
-  //         const imageSrc = `data:image/png;base64,${btoa(
-  //           new Uint8Array(getQrCode.data).reduce(
-  //             (data, byte) => data + String.fromCharCode(byte),
-  //             ""
-  //           )
-  //         )}`;
 
-  //         setQrCode(imageSrc);
-  //       })();
-  //     }
-
-  // }, []);
   useEffect(() => {
     if (generate.current) {
       generate.current = false;
@@ -73,25 +52,14 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     event.preventDefault();
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
-      },
-      credentials: "include",
-    };
+
     await axios
       .post(
         `${process.env.REACT_APP_BACKEND}/api/2fa/turn-on/${userID}`,
         {
           twoFactorAuthenticationCode,
         },
-        config
+        AxiosConfig
       )
       .then((data) => {
         if (data.status === 200) {
