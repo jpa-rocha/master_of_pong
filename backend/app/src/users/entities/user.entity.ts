@@ -94,4 +94,13 @@ export class User {
   /* Channel Relations */
   @OneToMany(() => Channel, (channel) => channel.owner)
   channels: Channel[];
+
+  @Column({ type: 'boolean', default: false, select: false })
+  isFriend: boolean;
+
+  @Column({ type: 'boolean', default: false, select: false })
+  sentFriendRequest: boolean;
+
+  @Column({ type: 'boolean', default: false, select: false })
+  receivedFriendRequest: boolean;
 }

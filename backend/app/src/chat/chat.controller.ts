@@ -12,7 +12,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
 
 @Controller('chat')
-// @UseGuards(TwoFactorGuard)
+@UseGuards(TwoFactorGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
@@ -25,5 +25,4 @@ export class ChatController {
   getAll() {
     return this.chatService.findAllChat();
   }
-
 }

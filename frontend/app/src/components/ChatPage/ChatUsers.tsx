@@ -250,7 +250,13 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
             <div key={user.id} className="user-container">
               <div>
                 {user.username}{" "}
-                {user.status === "online" ? <span>🟢</span> : <span>🔴</span>}{" "}
+                {user.status === "online" ? (
+                  <span>🟢</span>
+                ) : user.status === "offline" ? (
+                  <span>🔴</span>
+                ) : (
+                  <span>🟢🎮</span>
+                )}{" "}
                 👮
               </div>
               {mutedAdmins[index] ? <div>&nbsp;🔇</div> : null}
@@ -267,7 +273,14 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         {userRegular &&
           userRegular.map((user, index) => (
             <div key={user.id} className="user-container">
-              {user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}
+              {user.username}{" "}
+              {user.status === "online" ? (
+                <span>🟢</span>
+              ) : user.status === "offline" ? (
+                <span>🔴</span>
+              ) : (
+                <span>🟢🎮</span>
+              )}
               {mutedUsers[index] ? <div>&nbsp;🔇</div> : null}
               {blockedUsers[index] ? <div>&nbsp;⛔</div> : null}
               <button

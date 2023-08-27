@@ -4,7 +4,7 @@ import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
-import { getToken } from "../../utils/Utils";
+import { getToken, AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -50,7 +50,8 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
 
     async function getLeaders() {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND}/api/users/leaderboardGet/${userID}`
+        `${process.env.REACT_APP_BACKEND}/api/users/leaderboardGet/${userID}`,
+        AxiosConfig
       );
       setLeaders(response.data);
     }
@@ -86,7 +87,7 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
                   <th scope="col" className=" px-6 py-3">
                     Rating
                   </th>
-				  <th scope="col" className=" px-6 py-3">
+                  <th scope="col" className=" px-6 py-3">
                     Rank
                   </th>
                 </tr>

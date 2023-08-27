@@ -42,7 +42,7 @@ export class UsersService {
   async findIDbySocketID(socketID: string) {
     const user = await this.usersRepository.findOne({ where: { socketID } });
     if (!user) {
-      throw new Error("Couldn't find user by socketID");
+      return;
     }
     return user.id;
   }
@@ -58,8 +58,6 @@ export class UsersService {
     if (!user) {
       throw new Error("Couldn't find user (updateSocket)");
     }
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-    console.log('status : ', updateUserDto.status);
     Object.assign(user, updateUserDto);
     return await this.usersRepository.save(user);
   }
@@ -167,28 +165,26 @@ export class UsersService {
     return null;
   }
 
-  async removeFriend(userId, friendId) {
-    const friendRequest1 = await this.friendsRepository.findOne({
-      where: {
-        sender: { id: friendId },
-        receiver: { id: userId },
-      },
+  async removeFriend(userId: string, friendId: string) {
+    const friendRequests = await this.friendsRepository.find({
+      where: [
+        {
+          sender: { id: friendId },
+          receiver: { id: userId },
+        },
+        {
+          sender: { id: userId },
+          receiver: { id: friendId },
+        },
+      ],
     });
-    const friendRequest2 = await this.friendsRepository.findOne({
-      where: {
-        sender: { id: userId },
-        receiver: { id: friendId },
-      },
-    });
-    if (friendRequest1) await this.friendsRepository.remove(friendRequest1);
-    if (friendRequest2) await this.friendsRepository.remove(friendRequest2);
+
+    await this.friendsRepository.remove(friendRequests);
+
     return null;
   }
 
   async getFriends(userID: string) {
-    interface ExtendedUser extends User {
-      isFriend?: boolean;
-    }
     const allUsers = (await this.usersRepository.find()).filter(
       (user) => user.id !== userID,
     );
@@ -205,32 +201,42 @@ export class UsersService {
       .getOne();
 
     if (user) {
-      const friends = [
-        ...user.sentFriendRequests.map((friend) => ({
-          ...friend,
-          isFriend: friend.isFriend,
-          friendUser: friend.receiver,
+      const friendRequests = [
+        ...user.sentFriendRequests.map((friendRequest) => ({
+          ...friendRequest,
+          isFriend: friendRequest.isFriend,
+          friendUser: friendRequest.receiver,
+          sentFriendRequest: true,
+          receivedFriendRequest: false,
         })),
-        ...user.receivedFriendRequests.map((friend) => ({
-          ...friend,
-          isFriend: friend.isFriend,
-          friendUser: friend.sender,
+        ...user.receivedFriendRequests.map((friendRequest) => ({
+          ...friendRequest,
+          isFriend: friendRequest.isFriend,
+          friendUser: friendRequest.sender,
+          sentFriendRequest: false,
+          receivedFriendRequest: true,
         })),
       ];
 
-      const confirmedFriends = friends.filter(
-        (friend) => friend.isFriend === true,
-      );
-
-      if (confirmedFriends.length > 0) {
-        const extendedAllUsers: ExtendedUser[] = allUsers.map((user) => ({
-          ...user,
-          isFriend: confirmedFriends.some(
-            (friend) => friend.friendUser.id === user.id,
-          ),
-        }));
-        return extendedAllUsers;
-      }
+      const extendedAllUsers = allUsers.map((user) => ({
+        ...user,
+        isFriend: friendRequests.some(
+          (friendRequest) =>
+            friendRequest.friendUser.id === user.id &&
+            friendRequest.isFriend === true,
+        ),
+        sentFriendRequest: friendRequests.some(
+          (friendRequest) =>
+            friendRequest.friendUser.id === user.id &&
+            friendRequest.sentFriendRequest === true,
+        ),
+        receivedFriendRequest: friendRequests.some(
+          (friendRequest) =>
+            friendRequest.friendUser.id === user.id &&
+            friendRequest.receivedFriendRequest === true,
+        ),
+      }));
+      return extendedAllUsers;
     }
     return allUsers;
   }
@@ -395,6 +401,7 @@ export class UsersService {
 
   async removeGameID(userID: string) {
     const user = await this.findOne(userID);
+    if (!user) return;
     user.gameID = null;
     await this.usersRepository.save(user);
   }

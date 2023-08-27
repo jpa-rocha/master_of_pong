@@ -118,16 +118,17 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   return (
     <>
       {isOpen && (
-        <div className="flex relative justify-between bg-gray-100  py-10 w-[90%] 2xl:p-20">
+        <div className=" flex relative justify-center gap-10 2-[90%] 2xl:gap-20 bg-gray-100 py-10 2xl:w-[80%] 2xl:p-20 
+		bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 rounded-lg shadow-lg">
           <button
-            className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900
+            className="absolute top-3 right-2.5 text-black bg-transparent hover:bg-black hover:text-gray-50
 					rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
             onClick={closeProfile}
           >
             x
           </button>
           <div
-            className="flex flex-col items-center bg-yellow-50 border border-gray-200 rounded-lg shadow
+            className="flex flex-col items-center rounded-lg shadow-lg
 							my-10 mx-4 p-10 md:my-7 md:mx-8 md:p-2"
           >
             <img
@@ -159,13 +160,14 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
             </div>
           </div>
 
-          <div className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-4 h-[60vh] ">
+          <div className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-10 2xl:px-0 h-[60vh] 
+		  bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 rounded-lg shadow-lg ">
             <h2 className="text-center font-bold my-5 md:mt-0">
               {" "}
               Match History
             </h2>
-            <table className="w-full text-md text-left text-gray-500 ">
-              <thead className="text-xs text-gray-700 uppercase bg-yellow-100">
+            <table className="w-full text-md text-left">
+              <thead className="text-xs text-black  uppercase">
                 <tr>
                   <th scope="col" className="px-6 py-1">
                     Opponent
@@ -186,25 +188,25 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
               </thead>
               <tbody>
                 {match.map((match, index) => (
-                  <tr className="bg-yellow-50 border-b" key={index}>
+                  <tr className="" key={index}>
                     {userID === match.userOne.id ? (
-                      <td className="px-6 py-1">{match.userTwo.username}</td>
+                      <td className="px-6 py-1 font-bold">{match.userTwo.username}</td>
                     ) : (
-                      <td className="px-6 py-1">{match.userOne.username}</td>
+                      <td className="px-6 py-1 font-bold">{match.userOne.username}</td>
                     )}
-                    <td className="px-6 py-1">{match.gameMode}</td>
-                    <td className="px-6 py-1">{match.gameModeOptions}</td>
+                    <td className="px-6 py-1 italic">{match.gameMode}</td>
+                    <td className="px-6 py-1 italic">{match.gameModeOptions}</td>
                     {userID === match.winner.id ? (
-                      <td className="px-6 py-1 text-green-600">WIN</td>
+                      <td className="px-6 py-1  text-green-600 font-bold">WIN</td>
                     ) : (
-                      <td className="px-6 py-1 text-red-800">LOSS</td>
+                      <td className="px-6 py-1 text-red-600 font-bold">LOSS</td>
                     )}
                     {match.score1 !== 11 && match.score2 !== 11 ? (
-                      <td className="px-6 py-1 text-red-800 text-center">
+                      <td className="px-6 py-1 text-red-600 font-bold text-center">
                         (Disconnection)
                       </td>
                     ) : (
-                      <td className="px-6 py-1 text-green-800">
+                      <td className="px-6 py-1 text-green-600 font-bold">
                         {match.score1}-{match.score2}
                       </td>
                     )}

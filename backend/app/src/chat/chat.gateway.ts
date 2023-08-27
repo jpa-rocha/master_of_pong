@@ -48,6 +48,8 @@ export class ChatGateway {
 
   async handleDisconnect(client: Socket) {
     console.log('user disconnected');
+    const id = await this.userService.findIDbySocketID(client.id);
+    this.userService.removeGameID(id);
     try {
       await this.userService.updateSocket(client.id, {
         status: 'offline',
@@ -555,7 +557,7 @@ export class ChatGateway {
   @SubscribeMessage('leaveQueue')
   leaveQueue(client: AuthenticatedSocket) {
     console.log('leaving queue...');
-	this.removeGameID(client.data.lobby.player1.databaseId);
+    this.removeGameID(client.data.lobby.player1.databaseId);
     this.gameCollection.removeGame(client.data.lobby.gameID);
   }
 

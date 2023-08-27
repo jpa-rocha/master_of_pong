@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { ConfigService } from '@nestjs/config';
+import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -71,6 +72,7 @@ export class AuthController {
   }
 
   @Get('signout')
+  @UseGuards(TwoFactorGuard)
   handleSignout(@Res() res: Response) {
     res.cookie(this.configService.get<string>('REACT_APP_JWT_NAME'), '', {
       expires: new Date(0),

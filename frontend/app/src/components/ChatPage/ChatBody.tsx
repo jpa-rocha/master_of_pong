@@ -59,7 +59,9 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       }
     };
     getUserEffect();
+  }, []);
 
+  useEffect(() => {
     const handleReturnChatBody = (chat: Chat) => {
       if (chat && chat.id) {
         setChat(chat);
@@ -83,7 +85,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
       socket.off("message", handleReturnMessages);
       socket.off("returnChat", handleReturnChatBody);
     };
-  }, [user, messages, user?.username, socket, chat]);
+  }, [socket, chat, user]);
 
   useEffect(() => {
     if (chat?.id && user?.username && chat.title === "direct") {
@@ -91,7 +93,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
         chat.title = chat.users[1].username;
       else if (chat.users[0].username) chat.title = chat.users[0].username;
     }
-  }, [chat, user]);
+  }, [chat, user?.username]);
 
   useEffect(() => {
     if (messageContainerRef.current) {

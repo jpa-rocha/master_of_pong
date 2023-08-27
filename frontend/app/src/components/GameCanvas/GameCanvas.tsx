@@ -118,6 +118,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   const [selectedPaddle, setSelectedPaddle] = useState<number>(-1);
   const [selectedCharacter, setSelectedCharacter] = useState<number>(-1);
   const [regular, setRegular] = useState<boolean>(false);
+  const [chooseText, setChooseText] = useState<boolean>(false);
   const [render, setRender] = useState<boolean>(false);
 
   const backgroundColor = "rgb(100, 100, 100)";
@@ -446,8 +447,13 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       ctx.drawImage(Images.headGamemode, 450, 20, 300, 75);
       ctx.drawImage(Images.headPaddle, 450, 190, 300, 75);
       ctx.drawImage(Images.headCharacter, 450, 420, 300, 75);
+      if (chooseText) {
+        ctx.fillStyle = "black";
+        ctx.font = "30px Arial"; //ITC Zapf Chancery
+        ctx.fillText("Choose game settings to continue", 600, 770);
+      }
       const mouseX = e.clientX - canvas.current.offsetLeft;
-      const mouseY = e.clientY - (canvas.current.offsetTop + 82);
+      const mouseY = e.clientY - (canvas.current.offsetTop + 72);
       if (checkMouseOnButton(startButton, mouseX, mouseY))
         startButton.isFocused = true;
       else if (startButton.isFocused) startButton.isFocused = false;
@@ -519,6 +525,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       Images.headCharacter,
       Images.headGamemode,
       Images.headPaddle,
+      chooseText,
     ]
   );
 
@@ -539,7 +546,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       console.log("Handle mouse click");
       if (!canvas.current || !ctx) return;
       const mouseX = e.clientX - canvas.current.offsetLeft;
-      const mouseY = e.clientY - (canvas.current.offsetTop + 82);
+      const mouseY = e.clientY - (canvas.current.offsetTop + 72);
       if (checkMouseOnButton(startButton, mouseX, mouseY)) {
         if (
           (selectedGamemode !== -1 &&
@@ -571,6 +578,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           canvas.current.removeEventListener("click", handleMouseClick);
           return;
         } else {
+          setChooseText(true);
           ctx.font = "30px Arial"; //ITC Zapf Chancery
           ctx.fillText("Choose game settings to continue", 600, 770);
           return;
@@ -596,6 +604,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       }
       for (var index in gamemodeButtons) {
         if (checkMouseOnButton(gamemodeButtons[index], mouseX, mouseY)) {
+          setChooseText(false);
           if (selectedGamemode !== -1) {
             if (gamemodeButtons[index].selected) {
               gamemodeButtons[index].selected = false;
@@ -633,6 +642,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       }
       for (index in paddleButtons) {
         if (checkMouseOnButton(paddleButtons[index], mouseX, mouseY)) {
+          setChooseText(false);
           if (!regular) {
             if (selectedPaddle !== -1) {
               if (paddleButtons[index].selected) {
@@ -660,6 +670,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       }
       for (index in characterButtons) {
         if (checkMouseOnButton(characterButtons[index], mouseX, mouseY)) {
+          setChooseText(false);
           if (!regular) {
             if (selectedCharacter !== -1) {
               if (characterButtons[index].selected) {
@@ -768,7 +779,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         setAbilities(false);
       }
     },
-    [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode]
+    [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode, socket]
   );
 
   const handleFinishMove = useCallback(
@@ -933,19 +944,21 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     player2Name: string;
     score: { p1: number; p2: number };
     ballSize: number;
+    checkGameStarted: boolean;
   }
 
   useEffect(() => {
     socket.emit("loadWindow");
     socket.emit("checkOngoingGame");
-
     function handleRejoin(data: rejoinData) {
       console.log("HANEL REJOIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       setGameSelection(false);
-      if (data.player2Character === 0) {
+      if (data.player2Name.length === 0) {
         setPlayerWaiting(true);
-      } else {
+      } else if (data.checkGameStarted) {
         setGameStarted(true);
+      } else {
+        setGameInit(true);
       }
       setSelectedGamemode(data.mode);
       dodgeButton.selected = data.dodge;
@@ -959,7 +972,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       setPlayer1Name(data.player1Name);
       setPlayer2Name(data.player2Name);
       setBallSize(data.ballSize);
-
       if (data.mode !== Mode.Regular) {
         setAbilities(true);
         switch (data.ability) {
@@ -2177,6 +2189,9 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     player1Name,
     player2Name,
     socket,
+    handleLeaveClick,
+    player1Mirage,
+    player2Mirage,
   ]);
 
   useEffect(() => {
@@ -2435,14 +2450,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   ]);
 
   return (
-    <div>
-      <canvas
-        ref={canvasRef}
-        width={1200}
-        height={800}
-        style={{ backgroundColor: "black", marginRight: "50" }}
-      ></canvas>
-    </div>
+    <canvas
+      ref={canvasRef}
+      width={1200}
+      height={800}
+      style={{ backgroundColor: "black" }}
+    ></canvas>
   );
 };
 

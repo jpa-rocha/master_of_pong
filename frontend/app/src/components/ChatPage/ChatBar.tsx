@@ -28,22 +28,6 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
   useEffect(() => {
     const token = getToken(process.env.REACT_APP_JWT_NAME as string);
-    // const getUser = async () => {
-    //   const id = await axios
-    //     .post("api/auth/getUserID", { token })
-    //     .then((res) => res.data);
-    //   const user = await axios.get(`api/users/${id}`);
-
-    //   return user.data;
-    // };
-
-    // const getUserEffect = async () => {
-    //   const temp = await getUser();
-    //   if (temp) {
-    //     setUser(temp);
-    //   }
-    // };
-    // getUserEffect();
 
     const handleReturnChatBar = (data: {
       friends: User[];
@@ -169,7 +153,14 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
                 className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
               >
                 <div className="ml-2 text-sm font-semibold">
-                  {user.username} {user.status === "online" ? <>🟢</> : <>🔴</>}{" "}
+                  {user.username}{" "}
+                  {user.status === "online" ? (
+                    <span>🟢</span>
+                  ) : user.status === "offline" ? (
+                    <span>🔴</span>
+                  ) : (
+                    <span>🟢🎮</span>
+                  )}{" "}
                 </div>
               </button>
             ) : null}
