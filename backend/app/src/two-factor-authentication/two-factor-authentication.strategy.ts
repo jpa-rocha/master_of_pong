@@ -25,6 +25,11 @@ export class TwoFactorStrategy extends PassportStrategy(
       let token = null;
       if (req && req.cookies) {
         token = req.cookies[configService.get<string>('REACT_APP_JWT_NAME')];
+      } else if (req && req.handshake && req.handshake.headers) {
+        token =
+          req.handshake.headers[
+            configService.get<string>('REACT_APP_JWT_NAME').toLowerCase()
+          ];
       }
       // console.log('TOKEN =', token);
       return token;
