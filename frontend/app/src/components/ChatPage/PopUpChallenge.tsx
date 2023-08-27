@@ -47,6 +47,12 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
       setMessage(msg);
     }
 
+    function handleUnavailableUser() {
+      setMessage(
+        "You're unable to send a challenge (you're probably still in a game)"
+      );
+    }
+
     function handleJoinGame() {
       socket.emit("joinChallengeGame", {
         userID: userID,
@@ -59,11 +65,13 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
       });
     }
     socket.on("targetUnavailable", handleUnavailable);
+    socket.on("userUnavailable", handleUnavailableUser);
     socket.on("pleaseJoinGame", handleJoinGame);
     socket.on("challengeAccepted", handleAccepted);
     socket.on("challengeDeclined", handleDeclined);
     return () => {
       socket.off("targetUnavailable", handleUnavailable);
+      socket.off("userUnavailable", handleUnavailableUser);
       socket.off("challengeAccepted", handleAccepted);
       socket.off("challengeDeclined", handleDeclined);
       socket.off("pleaseJoinGame", handleJoinGame);
@@ -94,14 +102,12 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
   const handleHyperSelectionChange = (
     event: React.MouseEvent<HTMLInputElement>
   ) => {
-    console.log("CHANGE HYPER");
     setHyper(!hyper);
   };
 
   const handleDodgeSelectionChange = (
     event: React.MouseEvent<HTMLInputElement>
   ) => {
-    console.log("CHANGE DODGE");
     setDodge(!dodge);
   };
 
