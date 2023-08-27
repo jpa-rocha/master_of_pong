@@ -77,11 +77,26 @@ export const AxiosConfig = {
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-    "Access-Control-Allow-Methods":
-      "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Credentials": "true",
-    jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
+    [process.env.REACT_APP_JWT_NAME as string]: getToken(
+      process.env.REACT_APP_JWT_NAME as string
+    ),
   },
   credentials: "include",
 };
+
+// const config = {
+//   withCredentials: true,
+//   headers: {
+//     "Content-Type": "application/json",
+//     "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
+//     "Access-Control-Allow-Methods":
+//       "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+//     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+//     "Access-Control-Allow-Credentials": "true",
+//     [process.env.REACT_APP_JWT_NAME as string] : getToken(process.env.REACT_APP_JWT_NAME as string),
+//   },
+//   credentials: "include",
+// };

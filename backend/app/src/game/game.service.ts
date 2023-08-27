@@ -151,12 +151,72 @@ export class GameService {
     if (this.gameObject.player2.databaseId)
       this.chatGateway.removeGameID(this.gameObject.player2.databaseId);
     this.gameObject.gameEnded = true;
+
+    // cleanup ability timers
+    if (this.gameObject.player1.abilityTimer) {
+      clearInterval(this.gameObject.player1.abilityTimer);
+      this.gameObject.player1.abilityTimer = null;
+    }
+    if (this.gameObject.player1.specialAbilityTimer) {
+      clearInterval(this.gameObject.player1.specialAbilityTimer);
+      this.gameObject.player1.specialAbilityTimer = null;
+    }
+    if (this.gameObject.player2.abilityTimer) {
+      clearInterval(this.gameObject.player2.abilityTimer);
+      this.gameObject.player2.abilityTimer = null;
+    }
+    if (this.gameObject.player2.specialAbilityTimer) {
+      clearInterval(this.gameObject.player2.specialAbilityTimer);
+      this.gameObject.player2.specialAbilityTimer = null;
+    }
+    if (this.gameObject.player1.abilityTimer2) {
+      clearInterval(this.gameObject.player1.abilityTimer2);
+      this.gameObject.player1.abilityTimer2 = null;
+    }
+    if (this.gameObject.player1.specialAbilityTimer2) {
+      clearInterval(this.gameObject.player1.specialAbilityTimer2);
+      this.gameObject.player1.specialAbilityTimer2 = null;
+    }
+    if (this.gameObject.player2.abilityTimer2) {
+      clearInterval(this.gameObject.player2.abilityTimer2);
+      this.gameObject.player2.abilityTimer2 = null;
+    }
+    if (this.gameObject.player2.specialAbilityTimer2) {
+      clearInterval(this.gameObject.player2.specialAbilityTimer2);
+      this.gameObject.player2.specialAbilityTimer2 = null;
+    }
+    if (this.freezeTimer) {
+      clearInterval(this.freezeTimer);
+      this.freezeTimer = null;
+    }
+    if (this.mirageTimerP1) {
+      clearInterval(this.mirageTimerP1);
+      this.mirageTimerP1 = null;
+    }
+    if (this.mirageTimerP2) {
+      clearInterval(this.mirageTimerP2);
+      this.mirageTimerP2 = null;
+    }
+    if (this.shrinkTimer) {
+      clearInterval(this.shrinkTimer);
+      this.shrinkTimer = null;
+    }
+    if (this.lightningSlowTimer) {
+      clearInterval(this.lightningSlowTimer);
+      this.lightningSlowTimer = null;
+    }
+    if (this.lightningTimer) {
+      clearInterval(this.lightningTimer);
+      this.lightningTimer = null;
+    }
+    if (this.ventailTimer) {
+      clearInterval(this.ventailTimer);
+      this.ventailTimer = null;
+    }
     if (this.ballTimer) {
       clearInterval(this.ballTimer);
       this.ballTimer = null;
     }
-
-    // Stops calling the moveBot function
     if (this.botTimer) {
       clearInterval(this.botTimer);
       this.botTimer = null;

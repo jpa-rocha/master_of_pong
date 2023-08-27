@@ -33,7 +33,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
               this.configService.get<string>('REACT_APP_JWT_NAME')
           ) {
             token = keyValuePairs[1];
-            console.log('TOKEN =', token);
+            // console.log('TOKEN =', token);
           }
         }
       }
@@ -48,7 +48,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(token: JwtPayload): Promise<User> {
-    console.log('----- AT VALIDATE JWT -----', token);
+    // console.log('----- AT VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
     return userInfo;
   }
