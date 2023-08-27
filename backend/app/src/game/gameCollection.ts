@@ -147,7 +147,7 @@ export class GameCollection {
         this.removeGame(playerID);
         this.chatGateway.removeGameID(playerID);
         this.chatGateway.failedToJoin(playerID);
-      }, 1000);
+      }, 2000);
     } else {
       if (options.gameMode !== Mode.Singleplayer) {
         const keys = Array.from(this.gameObjects.keys()); // Retrieve all keys

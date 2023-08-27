@@ -143,7 +143,7 @@ export class GameService {
       console.log('Leave game -> player 2 undefined');
       console.log('Disconnected from queue -> removes game');
       console.log('TODO handle leave queue if the user doesnt disconnect');
-      this.chatGateway.removeGame(this.gameObject.gameID);
+      // this.gameObject.removeGame();
       return;
     }
     if (this.gameObject.player1.databaseId)
@@ -169,6 +169,7 @@ export class GameService {
       clearInterval(this.gameObject.player2.specialAbilityTimer);
       this.gameObject.player2.specialAbilityTimer = null;
     }
+
     if (this.gameObject.player1.abilityTimer2) {
       clearInterval(this.gameObject.player1.abilityTimer2);
       this.gameObject.player1.abilityTimer2 = null;
@@ -221,7 +222,7 @@ export class GameService {
       clearInterval(this.botTimer);
       this.botTimer = null;
     }
-    if (!this.gameObject.player2) return;
+    // if (!this.gameObject.player2) return;
     let result: number;
     let winningPlayer: number;
     let winningPlayerId: string;
@@ -254,6 +255,7 @@ export class GameService {
         result: result,
       },
     );
+    console.log('after winner update...');
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
       let gameMode: string;
       let gameModeOptions: string;
@@ -279,6 +281,7 @@ export class GameService {
         gameMode,
         gameModeOptions,
       );
+      // this.gameObject.removeGame();
     }
 
     this.gameObject.default();

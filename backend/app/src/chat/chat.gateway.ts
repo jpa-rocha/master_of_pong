@@ -742,4 +742,8 @@ export class ChatGateway {
     if (target.socketID != null)
       this.server.to(target.socketID).emit('updateFriendsPage');
   }
+
+  // exitLobby(socketID: string) {
+  //   this.gameCollection.terminateSocket(socketID);
+  // }
 }

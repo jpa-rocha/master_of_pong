@@ -122,7 +122,7 @@ export class Player {
     this.server.to(this.id).emit(event, payload);
   }
 
-  public setAbility(): void {
+  setAbility(): void {
     this.hasAbility = false;
     this.sendToClient<{ hasAbility: boolean }>('hasAbility', {
       hasAbility: false,
@@ -136,20 +136,18 @@ export class Player {
       this.sendToClient<{ secondsLeft: number }>('secondsLeft', {
         secondsLeft: seconds,
       });
-      if (seconds === 1) {
+      if (seconds === 0) {
         clearInterval(this.abilityTimer);
+        this.ability = Math.floor(Math.random() * this.abilityCount);
+        this.hasAbility = true;
+        this.sendToClient<{ hasAbility: boolean; ability: number }>(
+          'hasAbility',
+          { hasAbility: true, ability: this.ability },
+        );
         return;
       }
       seconds--;
     }, 1000);
-    this.ability = Math.floor(Math.random() * this.abilityCount);
-    this.abilityTimer2 = setTimeout(() => {
-      this.hasAbility = true;
-      this.sendToClient<{ hasAbility: boolean; ability: number }>(
-        'hasAbility',
-        { hasAbility: true, ability: this.ability },
-      );
-    }, this.abilityCooldown);
   }
 
   setSpecial(): void {
@@ -161,23 +159,25 @@ export class Player {
     this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
       secondsLeftUlt: seconds + 1,
     });
+    console.log('special interval being set...');
     this.specialAbilityTimer = setInterval(() => {
       console.log('AAAAAAAAAAAAAAAAAA TIMER IS BEING CALLED EACH SECOND');
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,
       });
-      if (seconds === 1) {
+      if (seconds === 0) {
         clearInterval(this.specialAbilityTimer);
+        this.hasSpecial = true;
         return;
       }
       seconds--;
     }, 1000);
-    this.specialAbilityTimer2 = setTimeout(() => {
-      this.hasSpecial = true;
-      this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
-        hasUlt: true,
-      });
-    }, this.abilityCooldown);
+    // this.specialAbilityTimer2 = setTimeout(() => {
+    //   this.hasSpecial = true;
+    //   this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
+    //     hasUlt: true,
+    //   });
+    // }, this.abilityCooldown);
   }
 
   SoundGrenade(): void {
