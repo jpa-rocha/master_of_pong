@@ -26,7 +26,7 @@ export class TwoFactorStrategy extends PassportStrategy(
       if (req && req.cookies) {
         token = req.cookies[configService.get<string>('REACT_APP_JWT_NAME')];
       }
-      console.log('TOKEN =', token);
+      // console.log('TOKEN =', token);
       return token;
     };
 
@@ -38,7 +38,7 @@ export class TwoFactorStrategy extends PassportStrategy(
   }
 
   async validate(token: JwtPayload): Promise<User> {
-    console.log('----- AT 2FA VALIDATE JWT -----', token);
+    // console.log('----- AT 2FA VALIDATE JWT -----', token);
     const userInfo = await this.usersService.findOne(token.id);
     if (token.is_2fa_enabled === true) {
       if (token.is_validated === false) {

@@ -54,7 +54,7 @@ export class AuthController {
   @Post('getUserID')
   async getUserID(@Body() body) {
     const token = body.token;
-    console.log(token);
+    // console.log(token);
     return this.jwtService.getTokenInformation(token);
   }
 

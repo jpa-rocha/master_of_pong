@@ -7,7 +7,7 @@ import MainPage from "./components/MainPage";
 import Game from "./components/GameCanvas/Game";
 import ProfilePage from "./components/Profile/Profile";
 import ChatPage from "./components/ChatPage/ChatPage";
-import * as socketIO from "socket.io-client";
+import socketIO from "socket.io-client";
 import { Socket } from "socket.io-client";
 import PrivateRoutes from "./utils/PrivateRoutes";
 import FriendsPage from "./components/Friends/Friends";
@@ -18,7 +18,6 @@ import axios from "axios";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 const URI = process.env.REACT_APP_GATEWAY as string;
-const socket: Socket = socketIO.connect(URI);
 
 async function getUserID() {
   console.log("INDEX GET USERID");
@@ -30,6 +29,14 @@ async function getUserID() {
   );
   return response.data;
 }
+
+const socket: Socket = socketIO(URI, {
+  extraHeaders: {
+    [process.env.REACT_APP_JWT_NAME as string]: getToken(
+      process.env.REACT_APP_JWT_NAME as string
+    ),
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
