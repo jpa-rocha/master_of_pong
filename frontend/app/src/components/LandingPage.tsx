@@ -23,11 +23,11 @@ const LandingPage: React.FunctionComponent = () => {
         <h1 className="text-5xl my-3 text-gray-900 xl:text-7xl 2xl:text-9xl italic">
           Master of Pong
         </h1>
-        <button className={btnClass}>
           <a href={`${process.env.REACT_APP_BACKEND}/api/auth/redirect`}>
+        <button className={btnClass}>
             Login
-          </a>
         </button>
+          </a>
       </div>
     </>
   );

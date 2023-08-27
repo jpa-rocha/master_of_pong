@@ -1,6 +1,6 @@
 import axios from "axios";
 //import { useEffect } from "react";
-import { getToken } from "../../utils/Utils";
+import { getToken, AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
@@ -22,19 +22,6 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     event.preventDefault();
-    const config = {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
-      },
-      credentials: "include",
-    };
 
     await axios
       .post(
@@ -42,7 +29,7 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
         {
           twoFactorAuthenticationCode,
         },
-        config
+        AxiosConfig
       )
       .then((res) => {
         // console.log(res);

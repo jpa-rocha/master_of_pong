@@ -281,10 +281,10 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
                 Match History
               </h2>
               <div className="relative overflow-x-auto m-3 md:py-2 md:px-20 h-[50vh] md:h-[100vh]">
-                <table className="w-full  text-sm md:text-md 2xl:text-lg rounded-lg shadow-lg text-left text-black">
+                <table className="w-full  text-sm md:text-md 2xl:text-lg rounded-lg shadow-xl text-left text-black">
                   <thead className="text-sm md:text-md 2xl:text-lg 
 				  	text-black  uppercase border-1 py-2
-					bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
+					bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
                     <tr>
                       <th scope="col" className="px-6 py-2">
                         Opponent
@@ -303,7 +303,7 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="w-full bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
+                  <tbody className="w-full bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
                     {match.map((match, index) => (
                       <tr className=" border-1 text-black" key={index}>
                         {userID === match.userOne.id ? (

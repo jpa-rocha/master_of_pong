@@ -1,5 +1,5 @@
 .PopUpContainer {
-  background-color: #fff;
+  background-color: #f8f2f0e2;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -9,8 +9,8 @@
 .PopHeader {
   font-weight: bold;
   padding: 1rem;
-  background-color: #2a2a2b;
-  color: #fff;
+  background-color: #242425;
+  color: #edebeb;
   text-align: center;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
@@ -18,7 +18,7 @@
 
 .PopBody {
   padding: 4rem;
-  background-color: #ffffff;
+  background-color: #f8f2f0e2;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   display: flex;
@@ -64,14 +64,25 @@
 }
 
 .create-button {
-  background-color: #1e2227;
-  color: #ffffff;
+  background-color: #07460a;
+  color: #e6e2e2;
   margin-right: 1rem;
 }
 
+.create-button:hover{
+	background-color: #0b7110;
+	color: #e6e2e2;
+}
+
 .cancel-button {
-  background-color: #f1f1f1;
-  background-color: #b88e35f0;
+  background-color: #0b0c0d;
+  color: #e6e2e2;
+
+}
+
+.cancel-button:hover{
+	background-color: #cc3507f0;
+	color: #e6e2e2;
 }
 
 .cancel-button.password {
@@ -81,9 +92,18 @@
   color: #ffffff;
 }
 
+.cancel-button.password:hover{
+	background-color: #0b0c0d;
+	color: #e6e2e2;
+}
+
 .create-button.password {
-  background-color: #3c5713f0;
-  color: #ffffff;
+	background-color: #0b7110;
+	color: #e6e2e2;
+}
+
+.create-button.password:hover{
+	background-color: #11a018;
 }
 
 .cancel-button.join {
@@ -187,11 +207,22 @@
 }
 
 .green-back {
-  background-color: rgba(8, 131, 8, 0.825);
+  background-color: #cc3507f0;
+}
+
+.green-back:hover{
+	background-color: #131414;
+	color: #e6e2e2;
 }
 
 .blue-back {
-  background-color: #0b64c2ce;
+  background-color: #0b7110;
+  color: #e6e2e2;
+
+}
+
+.blue-back:hover{
+	background-color: #cc3507f0;
 }
 
 .user-container {

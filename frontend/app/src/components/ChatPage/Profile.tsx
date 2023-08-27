@@ -119,7 +119,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
     <>
       {isOpen && (
         <div className=" flex relative justify-center gap-10 2-[90%] 2xl:gap-20 bg-gray-100 py-10 2xl:w-[80%] 2xl:p-20 
-		bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 rounded-lg shadow-lg">
+		bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-400 rounded-lg shadow-lg">
           <button
             className="absolute top-3 right-2.5 text-black bg-transparent hover:bg-black hover:text-gray-50
 					rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
@@ -161,7 +161,7 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
           </div>
 
           <div className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-10 2xl:px-0 h-[60vh] 
-		  bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 rounded-lg shadow-lg ">
+		  bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg ">
             <h2 className="text-center font-bold my-5 md:mt-0">
               {" "}
               Match History

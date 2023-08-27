@@ -1,6 +1,6 @@
 import axios from "axios";
 //import { useEffect } from "react";
-import { getToken } from "../../utils/Utils";
+import { AxiosConfig, getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
@@ -23,19 +23,6 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
     event.preventDefault();
-    const config = {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": process.env.REACT_APP_FRONTEND,
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        jwtToken: getToken(process.env.REACT_APP_JWT_NAME as string),
-      },
-      credentials: "include",
-    };
 
     await axios
       .post(
@@ -43,7 +30,7 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
         {
           twoFactorAuthenticationCode,
         },
-        config
+        AxiosConfig
       )
       .then((res) => {
         console.log(res);
