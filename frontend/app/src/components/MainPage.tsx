@@ -27,7 +27,7 @@ const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
   })();
 
   return (
-    <Grid container>
+    <Grid container className="scroll-none">
       <Grid item xs={12}>
         <NavBarMainPage socket={socket}></NavBarMainPage>
       </Grid>

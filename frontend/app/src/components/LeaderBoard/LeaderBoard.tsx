@@ -68,9 +68,9 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
         <Grid item md={12}  className="h-[100vh] w-full" style={imgStyle}> 
           <h2 className="text-center text-4xl 2xl:text-6xl 2xl:mt-20 2xl:mb-10 font-bold my-7 md:my-10">Leaderboard</h2>
           <div className="overflow-x-auto mx-2 flex flex-col justify-center items-center">
-            <table className="md:text-lg max-w-md md:w-[80%] md:max-w-[80%] text-left rounded-lg">
+            <table className="md:text-lg max-w-md md:w-[80%] md:max-w-[80%] text-left rounded-lg shadow-xl">
               <thead className="text-sm md:text-lg 2xl:text-xl uppercase 
-			  rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
+			  rounded-lg shadow-xl bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
                 <tr>
                   <th scope="col" className="pl-20 py-3">
                     Player
@@ -94,19 +94,19 @@ const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
               </thead>
               <tbody className="bg-yellow-100">
                 {leaders.map((leader, index) => (
-                  <tr className="rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400" key={index}>
+                  <tr className="rounded-lg shadow-lg bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300" key={index}>
                     <th scope="row"  className="text-sm md:text-lg px-6 py-3 font-medium text-gray-900" >
                         {userID === leader.id ? (
                             <div className="flex flex-row">
 								<img src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${leader.id}`} alt={leader.username}
 								className="w-10 h-10 rounded-full object-cover mr-3" />
-								<p className="text-sm md:text-lg 2xl:text-2xl">{leader.username} ⭐</p>
+								<p className="text-sm md:text-lg 2xl:text-2xl italic">{leader.username} ⭐</p>
 								</div>
                           ) : (
                             <div className="flex flex-row">
 								<img src={`${process.env.REACT_APP_BACKEND}/api/users/avatars/${leader.id}`} alt={leader.username}
 								className="w-10 h-10 rounded-full object-cover mr-3" />
-								<p className="text-center text-sm md:text-lg 2xl:text-2xl">{leader.username}</p>
+								<p className="text-center text-sm md:text-lg 2xl:text-2xl italic">{leader.username}</p>
 								</div>
                         )}
                       </th>

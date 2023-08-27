@@ -139,7 +139,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
         <Grid item xs={12} style={imgStyle} className="h-[100vh] w-full">
           <div className="flex flex-col justify-center items-center">
             <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10 
-		  rounded-lg shadow-lg bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 ">
+		  rounded-lg shadow-lg bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 ">
               <div className="flex items-center justify-end p-4 w-[100%]">
                 {/* For the search bar */}
                 <div className="relative">
@@ -163,14 +163,14 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                   <input
                     type="text"
                     placeholder="Search for users"
-                    className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50"
+                    className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-100"
                     onChange={handleSearchChange}
                   />
                 </div>
               </div>
               <div>
                 <table className="md:text-lg max-w-lg w-[80%] md:w-[100%] md:max-w-[100%] text-sm text-left text-gray-500">
-                  <thead className="w-full text-sm md:text-md text-gray-700 uppercase">
+                  <thead className="w-full text-sm md:text-md text-black uppercase">
                     <tr>
                       <th scope="col" className="px-20 py-3">
                         User
@@ -183,18 +183,18 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400">
+                  <tbody className="bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
                     {users &&
                       users.map((item, index) =>
                         (item && item.receivedFriendRequest === false) ||
                         (item && item.isFriend) ? (
                           <tr
                             key={index}
-                            className="hover:bg-gray-100"
+                            className="hover:bg-gray-200 hover:shadow-xl"
                           >
                             <th
                               scope="row"
-                              className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap"
+                              className="flex items-center px-6 py-4 text-black whitespace-nowrap"
                             >
                               <img
                                 className="w-10 h-10 rounded-full object-cover mr-3"
@@ -203,15 +203,15 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                               />
                               <div className="pl-3">
                                 <div className="text-base font-semibold">
-                                  {item.username}
+                                 <span className="text-black">{item.username}</span> 
                                 </div>
-                                <div className="font-normal text-gray-500"></div>
+                                <div className="font-normal"></div>
                               </div>
                             </th>
                             <td className="px-6 py-4">
                               <div className="flex items-center">
-                                <div className="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                                {item.status}
+                                <div className="h-2.5 w-2.5 rounded-full mr-2"></div>
+                               <span className="text-black italic ml-7">{item.status}</span> 
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -227,10 +227,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                                 </button>
                               ) : !item.isFriend &&
                                 item.sentFriendRequest === true ? (
-                                <div>Friend Request Pending</div>
+                                <div><span className="text-black italic">Friend Request Pending</span></div>
                               ) : (
                                 <button
-                                  className="font-bold text-red-600 hover:underline"
+                                  className="font-bold text-black hover:underline hover:text-red-600"
                                   onClick={() => removeFriend(item.id)}
                                 >
                                   Remove Friend
@@ -245,7 +245,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
               </div>
             </div>
             <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center 
-		 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-400 rounded-lg shadow-lg p-3 m-2">
+		 bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg p-3 m-2">
               <div className="px-3 my-6">
                 <span className="text-black text-xl font-bold">
                   Friend Requests :{" "}

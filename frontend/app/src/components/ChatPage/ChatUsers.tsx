@@ -223,7 +223,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         <div className="ml-2 mb-2 font-bold text-2xl">Users</div>
         {userME ? (
           <div className="user-container">
-            {userME.username}
+            <span className="italic ml-2 mr-1">{userME.username}</span>
             {userME.status === "online" ? (
               <span>🟢</span>
             ) : userME.status === "offline" ? (
@@ -238,7 +238,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
 
         {userOwner ? (
           <div className="user-container">
-            {userOwner.username}{" "}
+            <span className="italic ml-2 mr-1">{userOwner.username}</span>
             {userOwner.status === "online" ? (
               <span>🟢</span>
             ) : userOwner.status === "offline" ? (
@@ -250,7 +250,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
             {blockedOwner ? <div>⛔</div> : null}
             {userME ? (
               <button
-                className="relative ml-3 text-sm bg-white shadow rounded-xl"
+                className="relative text-sm  p-1 ml-3 text-sm bg-gray-50 
+				hover:bg-gray-700 hover:text-gray-50 shadow rounded-xl"
                 onClick={() => interactWithUser(userOwner, "Owner")}
               >
                 interact
@@ -263,7 +264,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
           userAdmin.map((user, index) => (
             <div key={user.id} className="user-container">
               <div>
-                {user.username}{" "}
+                <span className="italic ml-2 mr-1">{user.username}</span>
                 {user.status === "online" ? (
                   <span>🟢</span>
                 ) : user.status === "offline" ? (
@@ -276,7 +277,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
               {mutedAdmins[index] ? <div>🔇</div> : null}
               {blockedAdmins[index] ? <div>⛔</div> : null}
               <button
-                className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl"
+                className="relative text-sm p-1 ml-3 text-sm bg-gray-50 
+				hover:bg-gray-700 hover:text-gray-50 shadow rounded-xl"
                 onClick={() => interactWithUser(user, "Admin")}
               >
                 interact
@@ -287,7 +289,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         {userRegular &&
           userRegular.map((user, index) => (
             <div key={user.id} className="user-container">
-              {user.username}{" "}
+              <span className="italic ml-2 mr-1">{user.username}</span>
               {user.status === "online" ? (
                 <span>🟢</span>
               ) : user.status === "offline" ? (
@@ -298,7 +300,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
               {mutedUsers[index] ? <div>🔇</div> : null}
               {blockedUsers[index] ? <div>⛔</div> : null}
               <button
-                className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl"
+                className="relative p-1 ml-3 text-sm bg-gray-50 
+				hover:bg-gray-700 hover:text-gray-50 shadow rounded-lg"
                 onClick={() => interactWithUser(user, "Regular")}
               >
                 interact
