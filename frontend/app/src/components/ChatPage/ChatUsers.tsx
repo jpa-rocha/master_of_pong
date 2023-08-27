@@ -180,21 +180,21 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
       }
     };
 
-    // const handleStatusRender = () => {
-    // 	socket.emit('getChatRoom', {chatID: chat?.id})
-    // };
+    const handleStatusRender = () => {
+      if (chat && chat.id) socket.emit("getChatRoom", { chatID: chat?.id });
+    };
 
     socket.on("returnChatUsers", handleReturnChat);
     socket.on("returnChatUsersOnly", handleReturnChatUsers);
-    // socket.on("user connected users", handleStatusRender);
-    // socket.on("user disconnected users", handleStatusRender);
+    socket.on("user connected users", handleStatusRender);
+    socket.on("user disconnected users", handleStatusRender);
     return () => {
       socket.off("returnChatUsers", handleReturnChat);
       socket.off("returnChatUsersOnly", handleReturnChatUsers);
-      // socket.off("user connected users", handleStatusRender);
-      // socket.off("user disconnected users", handleStatusRender);
+      socket.off("user connected users", handleStatusRender);
+      socket.off("user disconnected users", handleStatusRender);
     };
-  }, [socket, chat, users, admins, userOwner?.id, userCurrent]);
+  }, [chat, socket, admins, users, userCurrent, userOwner]);
 
   const togglePopup = () => {
     setInteractTarget(undefined);
@@ -224,16 +224,16 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
         {userME ? (
           <div className="user-container">
             {userME.username} 🟢
-            {adminMe ? <div>&nbsp;👮</div> : null}
-            {mutedMe ? <div>&nbsp;🔇</div> : null}
+            {adminMe ? <div>👮</div> : null}
+            {mutedMe ? <div>🔇</div> : null}
           </div>
         ) : null}
 
         {userOwner ? (
           <div className="user-container">
             {userOwner.username}{" "}
-            {userOwner.status === "online" ? <>🟢</> : <>🔴</>} 👑
-            {blockedOwner ? <div>&nbsp;⛔</div> : null}
+            {userOwner.status === "online" ? <>🟢</> : <>🔴</>}👑
+            {blockedOwner ? <div>⛔</div> : null}
             {userME ? (
               <button
                 className="relative ml-3 text-sm bg-white shadow rounded-xl"
@@ -256,11 +256,10 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
                   <span>🔴</span>
                 ) : (
                   <span>🟢🎮</span>
-                )}{" "}
-                👮
+                )}👮
               </div>
-              {mutedAdmins[index] ? <div>&nbsp;🔇</div> : null}
-              {blockedAdmins[index] ? <div>&nbsp;⛔</div> : null}
+              {mutedAdmins[index] ? <div>🔇</div> : null}
+              {blockedAdmins[index] ? <div>⛔</div> : null}
               <button
                 className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl"
                 onClick={() => interactWithUser(user, "Admin")}
@@ -281,8 +280,8 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
               ) : (
                 <span>🟢🎮</span>
               )}
-              {mutedUsers[index] ? <div>&nbsp;🔇</div> : null}
-              {blockedUsers[index] ? <div>&nbsp;⛔</div> : null}
+              {mutedUsers[index] ? <div>🔇</div> : null}
+              {blockedUsers[index] ? <div>⛔</div> : null}
               <button
                 className="relative ml-3 px-4 py-1 text-sm bg-white shadow rounded-xl"
                 onClick={() => interactWithUser(user, "Regular")}

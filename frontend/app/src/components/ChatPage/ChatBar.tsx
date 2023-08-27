@@ -180,7 +180,13 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
             >
               <div className="ml-2 text-sm font-semibold">
                 {chat.title}{" "}
-                {chat.users[0].status === "online" ? <>🟢</> : <>🔴</>}
+                {chat.users[0].status === "online" ? (
+                  <span>🟢</span>
+                ) : chat.users[0].status === "offline" ? (
+                  <span>🔴</span>
+                ) : (
+                  <span>🟢🎮</span>
+                )}
               </div>
             </button>
           </div>
