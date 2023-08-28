@@ -103,4 +103,7 @@ export class User {
 
   @Column({ type: 'boolean', default: false, select: false })
   receivedFriendRequest: boolean;
+
+  @Column({ type: 'boolean', default: true })
+  isNew: boolean;
 }

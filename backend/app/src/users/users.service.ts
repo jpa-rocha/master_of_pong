@@ -412,6 +412,12 @@ export class UsersService {
     user.gameID = gameID;
     await this.usersRepository.save(user);
   }
+  
+  async setIsNew(userID: string) {
+    const user = await this.findOne(userID);
+    user.isNew = false;
+    await this.usersRepository.save(user);
+  }
 }
 
 export const imageFileFilter = (req, file, callback) => {

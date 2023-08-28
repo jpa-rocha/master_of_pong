@@ -51,7 +51,6 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   }
 
   useEffect(() => {
-    console.log("USERID = ", userID);
     async function getUsers(input: string) {
       const id = await axios
         .post("api/auth/getUserID", { token })
@@ -74,10 +73,6 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
     getUsers(input);
     setRender(false);
   }, [input, token, render, userID]);
-
-  useEffect(() => {
-    console.log("users =", users);
-  }, [users]);
 
   useEffect(() => {
     function handleRerender() {
@@ -138,8 +133,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 
         <Grid item xs={12} style={imgStyle} className="h-[100vh] w-full">
           <div className="flex flex-col justify-center items-center">
-            <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10 
-		  rounded-lg shadow-lg bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 ">
+            <div
+              className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] relative overflow-x-auto p-2 mt-10 
+		  rounded-lg shadow-lg bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 "
+            >
               <div className="flex items-center justify-end p-4 w-[100%]">
                 {/* For the search bar */}
                 <div className="relative">
@@ -203,7 +200,9 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                               />
                               <div className="pl-3">
                                 <div className="text-base font-semibold">
-                                 <span className="text-black">{item.username}</span> 
+                                  <span className="text-black">
+                                    {item.username}
+                                  </span>
                                 </div>
                                 <div className="font-normal"></div>
                               </div>
@@ -211,7 +210,9 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                             <td className="px-6 py-4">
                               <div className="flex items-center">
                                 <div className="h-2.5 w-2.5 rounded-full mr-2"></div>
-                               <span className="text-black italic ml-7">{item.status}</span> 
+                                <span className="text-black italic ml-7">
+                                  {item.status}
+                                </span>
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -227,7 +228,11 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                                 </button>
                               ) : !item.isFriend &&
                                 item.sentFriendRequest === true ? (
-                                <div><span className="text-black italic">Friend Request Pending</span></div>
+                                <div>
+                                  <span className="text-black italic">
+                                    Friend Request Pending
+                                  </span>
+                                </div>
                               ) : (
                                 <button
                                   className="font-bold text-black hover:underline hover:text-red-600"
@@ -244,8 +249,10 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                 </table>
               </div>
             </div>
-            <div className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center 
-		 bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg p-3 m-2">
+            <div
+              className="md:text-lg max-w-lg md:w-[80%] md:max-w-[80%] flex flex-col justify-center items-center 
+		 bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg p-3 m-2"
+            >
               <div className="px-3 my-6">
                 <span className="text-black text-xl font-bold">
                   Friend Requests :{" "}

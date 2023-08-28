@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { getToken, AxiosConfig } from "../../utils/Utils";
+import { AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
@@ -29,7 +29,6 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
       generate.current = false;
       (async () => {
         try {
-          console.log("IM at the begining");
           const response = await axios.post(
             `/api/2fa/generate/${userID}`,
             {},
@@ -79,7 +78,6 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
       event.currentTarget.value = "";
     }
   };
-  console.log(qrCode);
   if (!isOpen) return null;
 
   return (

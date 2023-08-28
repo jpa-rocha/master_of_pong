@@ -50,11 +50,9 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
   const [ratio, setRatio] = useState(1);
-  // const [matches, setMatches] = useState([{ result: "10-0", opponent: "Joe" }]);
   const [match, setMatch] = useState<MatchProps[]>([]);
   const [profileImg, setProfileImg] = useState("");
-  //const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
-  const [userID, setUserID] = useState<{ id: string } | string>(profileID);
+  const [userID] = useState<{ id: string } | string>(profileID);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {

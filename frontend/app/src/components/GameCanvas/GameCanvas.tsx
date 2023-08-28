@@ -25,7 +25,7 @@ type GameComponentProps = {
 };
 
 const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
-  const [userID, setUserID] = useState<string>("");
+  const [, setUserID] = useState<string>("");
 
   const VenomtailSpecialSound = useMemo(() => new Audio(GetOverHere), []);
   const BelowZeroSpecialSound = useMemo(() => new Audio(IceSound), []);
@@ -109,7 +109,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   const [player2Mirage, setPlayer2Mirage] = useState<boolean>(false);
 
   const [miragePos, setMiragePos] = useState([]);
-  //   const [timeWarp, setTimeWarp] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // const socket = useRef<Socket | null>(null);
@@ -121,7 +120,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<number>(-1);
   const [regular, setRegular] = useState<boolean>(false);
   const [chooseText, setChooseText] = useState<boolean>(false);
-  const [render, setRender] = useState<boolean>(false);
+  const [, setRender] = useState<boolean>(false);
 
   const backgroundColor = "rgb(100, 100, 100)";
 
@@ -290,10 +289,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         selectedCharacter,
         hyperButton.selected,
         dodgeButton.selected
-      );
-      console.log("Socket:", socket);
-      console.log(
-        "TOKEN TEST " + getToken(process.env.REACT_APP_JWT_NAME as string)
       );
       socket.emit("start", {
         opt: opt,
@@ -545,7 +540,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
 
   const handleMouseClick = useCallback(
     (e: MouseEvent) => {
-      console.log("Handle mouse click");
       if (!canvas.current || !ctx) return;
       const mouseX = e.clientX - canvas.current.offsetLeft;
       const mouseY = e.clientY - (canvas.current.offsetTop + 72);
@@ -821,7 +815,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const stopPressUp = async () => {
         try {
           socket.emit("moveUpDisable");
-          console.log("stopMoveUp");
         } catch (error) {
           console.error("Failed to stop moving the paddle up:", error);
         }
@@ -829,7 +822,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const stopPressDown = async () => {
         try {
           socket.emit("moveDownDisable");
-          console.log("stopMoveDown");
         } catch (error) {
           console.error("Failed to stop moving the paddle down:", error);
         }
@@ -845,14 +837,12 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         try {
           socket.emit("moveDisable", 1);
           setArrowLeft(false);
-          console.log("stopMoveLeft");
         } catch (error) {
           console.error("Failed to stop moving the paddle left:", error);
         }
       } else if (dodgeButton.selected && event.key === "ArrowRight") {
         try {
           socket.emit("moveDisable", 2);
-          console.log("stopMoveRight");
           setArrowRight(false);
         } catch (error) {
           console.error("Failed to stop moving the paddle right:", error);
@@ -867,7 +857,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const moveUp = async () => {
         try {
           socket.emit("moveUpEnable");
-          console.log("moveUpEnable");
         } catch (error) {
           console.error("Failed to move the paddle up:", error);
         }
@@ -876,7 +865,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
       const moveDown = async () => {
         try {
           socket.emit("moveDownEnable");
-          console.log("moveDown");
         } catch (error) {
           console.error("Failed to move the paddle down:", error);
         }
@@ -896,7 +884,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         setArrowLeft(true);
         try {
           socket.emit("moveEnable", 1);
-          console.log("moveLeftEnable");
         } catch (error) {
           console.error("Failed to move the paddle left:", error);
         }
@@ -908,7 +895,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         setArrowRight(true);
         try {
           socket.emit("moveEnable", 2);
-          console.log("moveRightEnable");
         } catch (error) {
           console.error("Failed to move the paddle right:", error);
         }
@@ -953,7 +939,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     socket.emit("loadWindow");
     socket.emit("checkOngoingGame");
     function handleRejoin(data: rejoinData) {
-      console.log("HANEL REJOIN !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       setGameSelection(false);
       if (data.player2Name.length === 0) {
         setPlayerWaiting(true);
@@ -1148,8 +1133,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   ]);
 
   useEffect(() => {
-    let abilTimer: NodeJS.Timer | undefined;
-    let ultTimer: NodeJS.Timer | undefined;
     if (socket) {
       socket.on("gameInit", (event: any) => {
         const { player, ability } = event;
@@ -1580,7 +1563,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     if (!abilityCooldown) return;
     var animFrame = 1;
     const abilTimer = setInterval(() => {
-      console.log("ability timer still going...");
       setAbilityCooldownImage(
         Images.Cooldown[animFrame % Images.Cooldown.length]
       );
@@ -1599,7 +1581,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
     if (!ultimateCooldown) return;
     var animFrame = 1;
     const ultTimer = setInterval(() => {
-      console.log("Ultimate timer still going...");
       setUltimateCooldownImage(
         Images.Cooldown[animFrame % Images.Cooldown.length]
       );
@@ -1959,7 +1940,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           // playerScored,
           // player1Name,
           // player2Name,
-          console.log("-----------------------------------------------------");
           const cnv = canvas.current;
           cnv.addEventListener("mousemove", handleFinishMove);
           cnv.addEventListener("mousedown", handleLeaveClick);
@@ -1969,7 +1949,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
               ctx.drawImage(Images.YinYangEnd[startIndex], 0, 0, 1200, 800);
               drawButton(ctx, resetButton, Mode.Reset);
             }
-            console.log("Image : " + startIndex);
             startIndex--;
             if (startIndex < 0) {
               clearInterval(animInterval);
@@ -2014,13 +1993,11 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             }
           };
         } else if (isGameInit) {
-          console.log("in game init");
           var rotaIndex = 0;
           var endIndex = 0;
           if (result) setGameInit(false);
           const animInterval = setInterval(() => {
             if (rotaIndex === Images.YinYangRotate.length && canvas.current) {
-              console.log("inside ending animation...");
               ctx.fillStyle = backgroundColor;
               ctx.fillRect(0, 0, 1200, 800);
               ctx.fillStyle = "white";
@@ -2154,7 +2131,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
                 return;
               }
             } else {
-              console.log("inside rotating animation");
               // if (rotaIndex === Images.YinYangRotate.length) rotaIndex = 0;
               if (rotaIndex !== Images.YinYangRotate.length && canvas.current) {
                 ctx.drawImage(Images.YinYangRotate[rotaIndex], 0, 0, 1200, 800);

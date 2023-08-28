@@ -10,7 +10,6 @@ type Prop = {
 
 const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
   const setUser = async (newName: string) => {
-    console.log("SetUser function called");
     const data = { username: newName };
     const config = {
       headers: {
