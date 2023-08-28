@@ -10,6 +10,8 @@ import {
   UploadedFile,
   Res,
   UseGuards,
+  ParseFilePipe,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UsersService, imageFileFilter } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -99,7 +101,11 @@ export class UsersController {
     }),
   )
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(new ParseFilePipe({
+      validators: [
+        new FileTypeValidator({ fileType: 'image/*' }),
+      ],
+    }),) file: Express.Multer.File,
     @Param('id') id: string,
     @Res() res: any,
   ) {
@@ -116,7 +122,9 @@ export class UsersController {
       }
       fs.chmodSync(`./src/assets/avatars/${file.filename}`, 0o444);
       this.usersService.update(id, { avatar: file.filename });
-      return of({ imagePath: file.filename });
+      return res
+        .status(200)
+        .json({ message: 'Avatar upload' });
     } catch (e) {
       return res
         .status(200)
