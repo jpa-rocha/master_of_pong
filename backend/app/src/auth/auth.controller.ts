@@ -14,6 +14,7 @@ import { Request, Response } from 'express';
 import { JwtAuthService } from './jwt-auth/jwt-auth.service';
 import { ConfigService } from '@nestjs/config';
 import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
     private authService: AuthService,
     private jwtService: JwtAuthService,
     private configService: ConfigService,
+    private userService: UsersService,
   ) {}
 
   // api/auth/signin
@@ -38,9 +40,20 @@ export class AuthController {
       secure: true,
     });
 
-    return res.redirect(
-      `${this.configService.get<string>('REACT_APP_FRONTEND')}/main`,
-    );
+    const user = await this.userService.findOne(data.id);
+    
+    let redirectUrl = '';
+    if (user.isNew === true) {
+      redirectUrl = `${this.configService.get<string>(
+        'REACT_APP_FRONTEND',
+        )}/profile`;
+        await this.userService.setIsNew(user.id);
+      } else {
+      redirectUrl = `${this.configService.get<string>(
+        'REACT_APP_FRONTEND',
+      )}/main`;
+    }
+    return res.redirect(redirectUrl);
   }
 
   @Post('verifyToken')
