@@ -56,11 +56,11 @@ export class TwoFactorAuthenticationController {
   ) {
     const user = await this.userService.findOne(id);
     const isCodeValid =
-      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+      await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         user,
       );
-    if (!isCodeValid) {
+    if (isCodeValid !== true) {
       throw new UnauthorizedException('Wrong authentication code');
     }
     const turnON = await this.userService.turnOnTwoFactorAuthentication(
