@@ -3,10 +3,8 @@ import { GameObject } from './gameObject';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
 import { Inject, forwardRef } from '@nestjs/common';
-// import { GameGateway } from './game.gateway';
 import { ChatGateway } from 'src/chat/chat.gateway';
 
-// @Injectable()
 export class GameService {
   private ballTimer: NodeJS.Timeout | null = null;
   private botTimer: NodeJS.Timeout | null = null;
@@ -27,7 +25,7 @@ export class GameService {
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
   ) {
-    console.log('new gameservice class created');
+
   }
 
   async getUsernames() {
@@ -74,12 +72,6 @@ export class GameService {
         ability: this.gameObject.player2.ability,
       });
     }
-    console.log(
-      'player1 character: ' + this.gameObject.player1.options.character,
-    );
-    console.log(
-      'player2 character: ' + this.gameObject.player2.options.character,
-    );
     this.gameObject.sendToClients<{
       mode: number;
       hyper: boolean;
@@ -125,11 +117,9 @@ export class GameService {
     });
     this.gameObject.checkGameStarted = true;
     this.serve();
-    console.log('Setting ball timer...');
     this.ballTimer = setInterval(() => {
       this.moveBall();
     }, 10);
-    console.log('Setting bot timer...');
     if (this.gameObject.gameOptions.gameMode === Mode.Singleplayer) {
       this.botTimer = setInterval(() => {
         this.moveBot();
@@ -140,10 +130,6 @@ export class GameService {
   stopGame(leftID = ''): void {
     if (this.gameObject.gameEnded === true) return;
     if (!this.gameObject.player2) {
-      console.log('Leave game -> player 2 undefined');
-      console.log('Disconnected from queue -> removes game');
-      console.log('TODO handle leave queue if the user doesnt disconnect');
-      // this.gameObject.removeGame();
       return;
     }
     if (this.gameObject.player1.databaseId)
@@ -255,7 +241,6 @@ export class GameService {
         result: result,
       },
     );
-    console.log('after winner update...');
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
       let gameMode: string;
       let gameModeOptions: string;
@@ -526,7 +511,6 @@ export class GameService {
 
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
-      console.log('Random ability');
       switch (player.ability) {
         case 0:
           this.ballReset();
@@ -557,7 +541,6 @@ export class GameService {
 
   specialAbility(player: Player, opponent: Player): void {
     if (player.hasSpecial) {
-      console.log('Special ability');
       if (
         player.options.character === Character.Raiven ||
         this.gameObject.gameOptions.dodge

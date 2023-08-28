@@ -531,35 +531,17 @@ export class ChatGateway {
     this.server.to(client.id).emit('loadWindow', true);
   }
 
-  // Start move up
-  // Stop move up
-  // Start move down
-  // Stop move down
-  // Character Special abilities
-  // Random abilities
-
-  // handleEvent(client: Socket, data: string): string {
-  //   return data;
-  // }
   @SubscribeMessage('start')
   initGame(client: AuthenticatedSocket, data: { opt: Options; token: string }) {
-    console.log('start message received...');
     this.gameCollection.createGame(
       client,
       data.opt,
       this.jwtAuthService.getTokenInformation(data.token),
     );
-    // console.log(this.gameCollection.totalGameCount);
-    // console.log('TOKEN = ' + data.token);
-    // console.log('ID = ' + this.jwtAuthService.getTokenInformation(data.token));
-    // game.addClient(client);
-    // this.gameCollection.joinGame(game.gameID, client);
-    // this.gameService.startGame(client.id, options);
   }
 
   @SubscribeMessage('leaveQueue')
   leaveQueue(client: AuthenticatedSocket) {
-    console.log('leaving queue...');
     this.removeGameID(client.data.lobby.player1.databaseId);
     this.gameCollection.removeGame(client.data.lobby.gameID);
   }
@@ -711,7 +693,6 @@ export class ChatGateway {
   async checkOngoingGame(client: Socket) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
-    console.log('CURRENT STATUS = ', user.status);
     if (user.gameID === null || user.status === 'in queue') return;
     this.gameCollection.findGame(client, user.gameID);
     await this.userService.updateSocket(client.id, {

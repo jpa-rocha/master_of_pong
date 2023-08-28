@@ -29,19 +29,4 @@ export class GameDataController {
   getUserMatches(@Param('id') id: string) {
     return this.gameDataService.getUserMatches(id);
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.gameDataService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
-  //   return this.gameDataService.update(+id, updateGameDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.gameDataService.remove(+id);
-  // }
 }

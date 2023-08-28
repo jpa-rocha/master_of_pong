@@ -159,9 +159,7 @@ export class Player {
     this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
       secondsLeftUlt: seconds + 1,
     });
-    console.log('special interval being set...');
     this.specialAbilityTimer = setInterval(() => {
-      console.log('AAAAAAAAAAAAAAAAAA TIMER IS BEING CALLED EACH SECOND');
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,
       });
@@ -172,12 +170,6 @@ export class Player {
       }
       seconds--;
     }, 1000);
-    // this.specialAbilityTimer2 = setTimeout(() => {
-    //   this.hasSpecial = true;
-    //   this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
-    //     hasUlt: true,
-    //   });
-    // }, this.abilityCooldown);
   }
 
   SoundGrenade(): void {
