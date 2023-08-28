@@ -92,7 +92,6 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
       userID: challengeDetais.userID,
       challengerID: challengeDetais.challengerID,
     });
-    // emit decline message
     onClose();
   }
 

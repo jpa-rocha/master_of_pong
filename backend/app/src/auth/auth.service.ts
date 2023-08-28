@@ -17,11 +17,8 @@ export class AuthService {
 
   async signin(user: AuthDto): Promise<string> {
     // const user: User = await this.usersService.findOne(user_dto.forty_two_id);
-
-    console.log('----- AT SERVICE -----');
     const { accessToken } = await this.jwtAuthService.login(user, false);
     // if (!user) return undefined;
-
     return accessToken;
   }
 

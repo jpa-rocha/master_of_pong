@@ -348,7 +348,7 @@ export class GameService {
         },
       );
     }
-    this.revertLightningSlow();
+    this.revertLightningSlow(false);
     this.revertLightning(false);
     this.gameObject.ballMagnitude = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
@@ -366,9 +366,17 @@ export class GameService {
     }, 500);
   }
 
-  revertLightningSlow(): void {
+  revertLightningSlow(contact: boolean): void {
     if (this.lightningSlowTimer) {
       clearTimeout(this.lightningSlowTimer);
+	  if (contact) {
+        this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
+          'RaivenSpecial',
+          {
+            RaivenSpecial: false,
+          },
+        );
+      }
       this.gameObject.ballVel.x *= 4;
       this.gameObject.ballVel.y *= 4;
       this.lightningSlowTimer = null;
@@ -646,7 +654,8 @@ export class GameService {
         case Character.Raiven:
           if (
             this.gameObject.ballVel.x < 0 &&
-            this.gameObject.ballPos.x < 100 &&
+            this.gameObject.ballPos.x < 200 &&
+			this.gameObject.ballPos.x > 100 &&
             Math.abs(
               this.gameObject.ballPos.y -
                 (this.gameObject.player1.pos.y +
@@ -771,7 +780,7 @@ export class GameService {
       if (this.freezeTimer) {
         clearTimeout(this.freezeTimer);
       } else {
-        this.revertLightningSlow();
+        this.revertLightningSlow(true);
         this.revertLightning(true);
         this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
         this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
@@ -913,7 +922,8 @@ export class GameService {
   private resetEffects(): void {
     this.gameObject.player1.freeze = false;
     this.gameObject.player2.freeze = false;
-    this.revertLightningSlow();
+    this.revertLightningSlow(true);
+	this.revertLightning(true);
     this.gameObject.lightning = false;
     this.gameObject.freeze = false;
     this.gameObject.player1.getOverHere = false;

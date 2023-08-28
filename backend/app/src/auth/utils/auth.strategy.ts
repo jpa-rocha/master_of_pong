@@ -32,8 +32,6 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
       })
       .toPromise();
 
-    console.log('AT AUTH STRATEGY');
-
     if (data) {
       const user_dto: CreateUserDto = {
         forty_two_id: data.id,

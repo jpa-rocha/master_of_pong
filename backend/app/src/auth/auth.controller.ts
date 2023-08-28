@@ -28,7 +28,6 @@ export class AuthController {
   // api/auth/signin
   @Get('signin')
   async handleLogin(@Query('param') param: string, @Res() res: Response) {
-    console.log('-------------------AT SIGNIN-------------------');
 
     const data = JSON.parse(decodeURIComponent(param));
 
@@ -67,18 +66,12 @@ export class AuthController {
   @Post('getUserID')
   async getUserID(@Body() body) {
     const token = body.token;
-    // console.log(token);
     return this.jwtService.getTokenInformation(token);
   }
 
   @Get('redirect')
   @UseGuards(oauth2Guard)
   handleRedirect(@Req() req: Request, @Res() res: Response) {
-    // TODO: require Bearer token, validate token
-    // res.set('Access-Control-Allow-Origin', 'localhost:3000');
-    console.log('AT REDIRECT');
-
-    // Send the response.
     const encodedData = encodeURIComponent(JSON.stringify(req.user));
     const redirectUrl = `signin?param=${encodedData}`;
     return res.redirect(redirectUrl);
