@@ -65,8 +65,7 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
   declineTimer = setTimeout(() => {
     declineTimer = null;
     handleDecline();
-  }, 200000000);
-  // }, 20000);
+  }, 20000);
 
   function handleAccept() {
     if (declineTimer) {
