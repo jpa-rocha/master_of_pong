@@ -146,6 +146,15 @@ export class ChatGateway {
     client: Socket,
     data: { title: string; password: string },
   ) {
+    if (
+      !(await this.chatService.checkName(data.title)) ||
+      data.title.length <= 0 ||
+      data.title.length > 20 ||
+      !/^[a-zA-Z0-9]+$/.test(data.title) ||
+      data.password.length > 50
+    ) {
+      return;
+    }
     const creatorID = await this.userService.findIDbySocketID(client.id);
     const result = await this.chatService.createChatRoom(
       data.title,
@@ -358,6 +367,7 @@ export class ChatGateway {
     client: Socket,
     data: { password: string; chatID: number },
   ) {
+    if (data.password.length > 50) return;
     return await this.chatService.changePassword(data.password, data.chatID);
   }
 

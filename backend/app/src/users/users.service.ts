@@ -77,6 +77,14 @@ export class UsersService {
     const options: FindOneOptions<User> = {
       where: { username },
     };
+
+    if (
+      username.length < 3 ||
+      username.length > 15 ||
+      !/^[a-zA-Z0-9]+$/.test(username)
+    ) {
+      return;
+    }
     const check = await this.usersRepository.findOne(options);
     if (!check) {
       const user = await this.findOne(userID);
@@ -412,7 +420,7 @@ export class UsersService {
     user.gameID = gameID;
     await this.usersRepository.save(user);
   }
-  
+
   async setIsNew(userID: string) {
     const user = await this.findOne(userID);
     user.isNew = false;
