@@ -46,6 +46,9 @@ export class Player {
     public player: number = 2,
   ) {
     this.pos = { x: 20, y: 350 };
+	if (options.dodge) {
+		options.paddle = Paddles.AverageJoe;
+	}
     if (options.gameMode === Mode.Regular) {
       this.height = 100;
       this.width = 20;

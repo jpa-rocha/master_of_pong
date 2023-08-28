@@ -1840,7 +1840,7 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
                 (player1Mirage && player === 1) ||
                 (player2Mirage && player === 2)
               )
-                ctx.globalAlpha = 0.75;
+                ctx.globalAlpha = 0.8;
               else ctx.globalAlpha = 0.3;
               for (var i in miragePos) {
                 ctx.beginPath();

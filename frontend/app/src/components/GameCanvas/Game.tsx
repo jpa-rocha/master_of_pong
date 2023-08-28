@@ -33,7 +33,7 @@ const Game: React.FC<GameComponentProps> = ({ socket }) => {
               display="flex"
               justifyContent="center"
               alignItems="center"
-              sx={{ height: "87vh", position: "relative" }}
+              sx={{ height: "88vh", position: "relative" }}
             >
               <div
                 style={{

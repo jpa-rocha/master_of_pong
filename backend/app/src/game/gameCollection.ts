@@ -132,6 +132,8 @@ export class GameCollection {
     playerID: string,
     premade = false,
   ) {
+    console.log("game map size: " + this.gameObjects.size);
+    console.log("premade game map size: " + this.premadeGames.size);
     if (premade) {
       const game = new GameObject(this.server, options, this.chatGateway);
       game.setGameID(playerID);
