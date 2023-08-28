@@ -1154,7 +1154,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             setPlayerAbility(Images.MirageAbility);
             break;
           case 5:
-            setPlayerAbility(Images.DeflectAbility);
+            if (dodgeButton.selected) setPlayerAbility(Images.HomingAbility);
+            else setPlayerAbility(Images.DeflectAbility);
             break;
           case 6:
             break;
@@ -1916,30 +1917,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
           drawButton(ctx, hyperButton, Mode.Hyper, 5);
           drawButton(ctx, dodgeButton, Mode.Dodge, 5);
         } else if (playerChose) {
-          // VenomtailSpecial,
-          // isGameStarted,
-          // abilityMirage,
-          // selectedGamemode,
-          // selectedPaddle,
-          // abilityFreeze,
-          // selectedCharacter,
-          // raivenSpecial,
-          // player1Character,
-          // player2Character,
-          // player1Size,
-          // player2Size.height,
-          // player2Size.width,
-          // VenomtailTarget,
-          // isPlayerWaiting,
-          // isGameSelection,
-          // isGameInit,
-          // player1Frozen,
-          // player2Frozen,
-          // player,
-          // playerChose,
-          // playerScored,
-          // player1Name,
-          // player2Name,
           const cnv = canvas.current;
           cnv.addEventListener("mousemove", handleFinishMove);
           cnv.addEventListener("mousedown", handleLeaveClick);
