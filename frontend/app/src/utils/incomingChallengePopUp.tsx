@@ -60,8 +60,6 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
     gameOptions = "Default";
   }
 
-  console.log("Popup challengeDetails = ", challengeDetais);
-
   declineTimer = setTimeout(() => {
     declineTimer = null;
     handleDecline();
@@ -94,7 +92,6 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
       userID: challengeDetais.userID,
       challengerID: challengeDetais.challengerID,
     });
-    // emit decline message
     onClose();
   }
 

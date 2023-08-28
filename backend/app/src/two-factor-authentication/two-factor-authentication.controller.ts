@@ -35,7 +35,6 @@ export class TwoFactorAuthenticationController {
     @Req() request: Request,
     @Param('id') id: string,
   ) {
-    console.log('---- 2FA generate ----');
     const user = await this.userService.findOne(id);
     const otpauthUrl =
       await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
@@ -115,7 +114,6 @@ export class TwoFactorAuthenticationController {
   }
   @Post('authenticate/:id')
   @UseGuards(JwtAuthGuard)
-  // @HttpCode(200)
   async authenticate(
     @Req() request: Request,
     @Res() res: Response,
@@ -128,7 +126,6 @@ export class TwoFactorAuthenticationController {
         data.twoFactorAuthenticationCode.trim(),
         user,
       );
-    console.log('ISCODEVALID -------', isCodeValid);
     if (isCodeValid !== true) {
       throw new UnauthorizedException('Wrong authentication code');
     }

@@ -46,6 +46,9 @@ export class Player {
     public player: number = 2,
   ) {
     this.pos = { x: 20, y: 350 };
+	if (options.dodge) {
+		options.paddle = Paddles.AverageJoe;
+	}
     if (options.gameMode === Mode.Regular) {
       this.height = 100;
       this.width = 20;
@@ -159,9 +162,7 @@ export class Player {
     this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
       secondsLeftUlt: seconds + 1,
     });
-    console.log('special interval being set...');
     this.specialAbilityTimer = setInterval(() => {
-      console.log('AAAAAAAAAAAAAAAAAA TIMER IS BEING CALLED EACH SECOND');
       this.sendToClient<{ secondsLeftUlt: number }>('secondsLeftUlt', {
         secondsLeftUlt: seconds,
       });
@@ -172,12 +173,6 @@ export class Player {
       }
       seconds--;
     }, 1000);
-    // this.specialAbilityTimer2 = setTimeout(() => {
-    //   this.hasSpecial = true;
-    //   this.sendToClient<{ hasUlt: boolean }>('hasUlt', {
-    //     hasUlt: true,
-    //   });
-    // }, this.abilityCooldown);
   }
 
   SoundGrenade(): void {

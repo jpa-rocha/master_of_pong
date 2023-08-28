@@ -5,7 +5,6 @@ import { Options } from './movement.dto';
 import { Mode } from './enums/Modes';
 import { Player } from './dto/player.dto';
 import { Inject, forwardRef } from '@nestjs/common';
-// import { GameGateway } from './game.gateway';
 import { UsersService } from '../users/users.service';
 import { ChatGateway } from 'src/chat/chat.gateway';
 
@@ -133,10 +132,9 @@ export class GameCollection {
     playerID: string,
     premade = false,
   ) {
-    console.log('GAMES = ', this.gameObjects);
-    console.log('PREMADE = ', this.premadeGames);
+    console.log("game map size: " + this.gameObjects.size);
+    console.log("premade game map size: " + this.premadeGames.size);
     if (premade) {
-      console.log('TARGET SOCKET = ', client.id);
       const game = new GameObject(this.server, options, this.chatGateway);
       game.setGameID(playerID);
       this.premadeGames.set(playerID, game);
@@ -162,18 +160,14 @@ export class GameCollection {
           ) {
             current.player2 = new Player(this.server, options);
             current.player2.pos.x = 1180 - current.player2.width;
-            console.log('Returning an already created game');
-            // this.userService.saveGameID(playerID, current.gameID);
             current.addClient(client, playerID);
             return;
           }
         }
       }
-      console.log('creating a new game');
       const game = new GameObject(this.server, options, this.chatGateway);
       this.gameObjects.set(game.gameID, game);
       this.totalGameCount++;
-      // this.userService.saveGameID(playerID, game.gameID);
       game.addClient(client, playerID);
       this.userService.updateSocket(client.id, {
         status: 'in queue',
@@ -190,37 +184,26 @@ export class GameCollection {
     playerID: string,
     newPlayerID: string,
   ) {
-    console.log('CHALLENGER SOCKET = ', client.id);
-    console.log('playerID: ' + playerID);
-    console.log('newPlayerID: ' + newPlayerID);
-    console.log('game playerID: ' + this.premadeGames[0]);
     const game = this.premadeGames.get(playerID);
     if (game.joinTimer) {
       clearTimeout(game.joinTimer);
       game.joinTimer = null;
     }
-    console.log('Adding client...');
     game.player2 = new Player(this.server, options);
     game.player2.pos.x = 1180 - game.player2.width;
-    console.log('Returning an already created game');
-    console.log('UPDATING STATUS PREMADE GAME');
     this.userService.saveGameID(newPlayerID, playerID);
     await this.userService.updateSocket(client.id, {
       status: 'in queue',
       socketID: client.id,
     });
     game.addClient(client, newPlayerID);
-    console.log('SECOND PLAYER JOINED ---------------------------');
   }
 
   public findGame(client: AuthenticatedSocket, gameID: string) {
     let game: GameObject;
-    console.log('GameObject = ', this.gameObjects);
-    console.log('PremadeGames = ', this.premadeGames);
     game = this.gameObjects.get(gameID);
     if (!game) game = this.premadeGames.get(gameID);
     if (!game) return false;
-    console.log('4');
     game.rejoin(client);
   }
 
@@ -235,19 +218,4 @@ export class GameCollection {
       if (game) this.gameObjects.delete(gameID);
     }
   }
-
-  // public addGameObject(game: gameObject): void {
-  //   this.gameObjects.set(game.gameID, game);
-  //   this.totalGameCount++;
-  // }
-
-  // public checkAvailability(player: Player, i: number): boolean {
-  //   if (player.options.gameMode === this.gameObjects[i].gameOptions.gameMode) {
-  //     if (!this.gameObjects[i].player2) {
-  //       this.gameObjects[i].setPlayer2(player);
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 }

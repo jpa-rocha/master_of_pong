@@ -3,10 +3,8 @@ import { GameObject } from './gameObject';
 import { Character } from './enums/Characters';
 import { Mode } from './enums/Modes';
 import { Inject, forwardRef } from '@nestjs/common';
-// import { GameGateway } from './game.gateway';
 import { ChatGateway } from 'src/chat/chat.gateway';
 
-// @Injectable()
 export class GameService {
   private ballTimer: NodeJS.Timeout | null = null;
   private botTimer: NodeJS.Timeout | null = null;
@@ -27,7 +25,7 @@ export class GameService {
     @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
   ) {
-    console.log('new gameservice class created');
+
   }
 
   async getUsernames() {
@@ -74,12 +72,6 @@ export class GameService {
         ability: this.gameObject.player2.ability,
       });
     }
-    console.log(
-      'player1 character: ' + this.gameObject.player1.options.character,
-    );
-    console.log(
-      'player2 character: ' + this.gameObject.player2.options.character,
-    );
     this.gameObject.sendToClients<{
       mode: number;
       hyper: boolean;
@@ -125,11 +117,9 @@ export class GameService {
     });
     this.gameObject.checkGameStarted = true;
     this.serve();
-    console.log('Setting ball timer...');
     this.ballTimer = setInterval(() => {
       this.moveBall();
     }, 10);
-    console.log('Setting bot timer...');
     if (this.gameObject.gameOptions.gameMode === Mode.Singleplayer) {
       this.botTimer = setInterval(() => {
         this.moveBot();
@@ -140,10 +130,6 @@ export class GameService {
   stopGame(leftID = ''): void {
     if (this.gameObject.gameEnded === true) return;
     if (!this.gameObject.player2) {
-      console.log('Leave game -> player 2 undefined');
-      console.log('Disconnected from queue -> removes game');
-      console.log('TODO handle leave queue if the user doesnt disconnect');
-      // this.gameObject.removeGame();
       return;
     }
     if (this.gameObject.player1.databaseId)
@@ -255,7 +241,6 @@ export class GameService {
         result: result,
       },
     );
-    console.log('after winner update...');
     if (this.gameObject.gameOptions.gameMode !== Mode.Singleplayer) {
       let gameMode: string;
       let gameModeOptions: string;
@@ -363,7 +348,7 @@ export class GameService {
         },
       );
     }
-    this.revertLightningSlow();
+    this.revertLightningSlow(false);
     this.revertLightning(false);
     this.gameObject.ballMagnitude = Math.sqrt(
       this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
@@ -381,9 +366,17 @@ export class GameService {
     }, 500);
   }
 
-  revertLightningSlow(): void {
+  revertLightningSlow(contact: boolean): void {
     if (this.lightningSlowTimer) {
       clearTimeout(this.lightningSlowTimer);
+	  if (contact) {
+        this.gameObject.sendToClients<{ RaivenSpecial: boolean }>(
+          'RaivenSpecial',
+          {
+            RaivenSpecial: false,
+          },
+        );
+      }
       this.gameObject.ballVel.x *= 4;
       this.gameObject.ballVel.y *= 4;
       this.lightningSlowTimer = null;
@@ -526,7 +519,6 @@ export class GameService {
 
   randomAbility(player: Player, opponent: Player): void {
     if (player.hasAbility) {
-      console.log('Random ability');
       switch (player.ability) {
         case 0:
           this.ballReset();
@@ -557,7 +549,6 @@ export class GameService {
 
   specialAbility(player: Player, opponent: Player): void {
     if (player.hasSpecial) {
-      console.log('Special ability');
       if (
         player.options.character === Character.Raiven ||
         this.gameObject.gameOptions.dodge
@@ -663,7 +654,8 @@ export class GameService {
         case Character.Raiven:
           if (
             this.gameObject.ballVel.x < 0 &&
-            this.gameObject.ballPos.x < 100 &&
+            this.gameObject.ballPos.x < 200 &&
+			this.gameObject.ballPos.x > 100 &&
             Math.abs(
               this.gameObject.ballPos.y -
                 (this.gameObject.player1.pos.y +
@@ -788,7 +780,7 @@ export class GameService {
       if (this.freezeTimer) {
         clearTimeout(this.freezeTimer);
       } else {
-        this.revertLightningSlow();
+        this.revertLightningSlow(true);
         this.revertLightning(true);
         this.gameObject.ballVelOld.x = this.gameObject.ballVel.x;
         this.gameObject.ballVelOld.y = this.gameObject.ballVel.y;
@@ -930,7 +922,8 @@ export class GameService {
   private resetEffects(): void {
     this.gameObject.player1.freeze = false;
     this.gameObject.player2.freeze = false;
-    this.revertLightningSlow();
+    this.revertLightningSlow(true);
+	this.revertLightning(true);
     this.gameObject.lightning = false;
     this.gameObject.freeze = false;
     this.gameObject.player1.getOverHere = false;

@@ -42,8 +42,6 @@ export class TwoFactorAuthenticationService {
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
-    console.log('USER SECRET', user.twofa_secret);
-
     var CryptoJS = require('crypto-js');
     var bytes = CryptoJS.AES.decrypt(
       user.twofa_secret,
@@ -55,7 +53,6 @@ export class TwoFactorAuthenticationService {
       token: twoFactorAuthenticationCode,
       secret: twofa_secret,
     });
-    console.log(verify);
     return verify;
   }
 }
