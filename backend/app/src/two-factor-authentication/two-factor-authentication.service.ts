@@ -20,9 +20,9 @@ export class TwoFactorAuthenticationService {
       this.configService.get('POSTGRES_DB'),
       secret,
     );
-
-    var CryptoJS = require('crypto-js');
-    var hash = CryptoJS.AES.encrypt(
+    console.log('secret -------------', secret);
+    const CryptoJS = require('crypto-js');
+    const hash = CryptoJS.AES.encrypt(
       secret,
       this.configService.get<string>('TWOFA_SECRET'),
     ).toString();
@@ -42,16 +42,16 @@ export class TwoFactorAuthenticationService {
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
-    var CryptoJS = require('crypto-js');
-    var bytes = CryptoJS.AES.decrypt(
+    const CryptoJS = require('crypto-js');
+    const bytes = CryptoJS.AES.decrypt(
       user.twofa_secret,
       this.configService.get<string>('TWOFA_SECRET'),
     );
-    var twofa_secret = await bytes.toString(CryptoJS.enc.Utf8);
-
+    const twofa_secret = await bytes.toString(CryptoJS.enc.Utf8);
+    console.log('decrypted secret ------------------', twofa_secret);
     const verify = authenticator.verify({
       token: twoFactorAuthenticationCode,
-      secret: twofa_secret,
+      secret: twofa_secret.trim(),
     });
     return verify;
   }

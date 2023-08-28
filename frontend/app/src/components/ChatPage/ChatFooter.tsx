@@ -44,6 +44,7 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     type="text"
+                    maxLength={255}
                     className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
                   />
                 </div>

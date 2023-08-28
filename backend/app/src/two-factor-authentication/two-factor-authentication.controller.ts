@@ -90,8 +90,8 @@ export class TwoFactorAuthenticationController {
     @Body() data: { twoFactorAuthenticationCode: string },
   ) {
     const user = await this.userService.findOne(id);
-    const isCodeValid = await
-      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+    const isCodeValid =
+      await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         user,
       );

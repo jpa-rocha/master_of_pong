@@ -49,11 +49,17 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         rank: 0,
         elo: 1000,
       };
-
+      // TODO fix repeated user name
       let user: User = await this.usersService.findFortyTwo(
         user_dto.forty_two_id,
       );
       if (user === null) {
+        const nameAvailable = await this.usersService.checkUsernameStatus(
+          user_dto.username,
+        );
+        if (nameAvailable === false) {
+          user_dto.username = (Math.random() + 1).toString(32).substring(2);
+        }
         await this.usersService.create(user_dto);
         user = await this.usersService.findFortyTwo(user_dto.forty_two_id);
         await this.usersService.recalculateRanks();

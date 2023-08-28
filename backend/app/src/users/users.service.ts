@@ -73,6 +73,15 @@ export class UsersService {
     return this.usersRepository.remove(user);
   }
 
+  async checkUsernameStatus(username: string) {
+    const options: FindOneOptions<User> = {
+      where: { username },
+    };
+    const check = await this.usersRepository.findOne(options);
+    if (!check) return true;
+    return false;
+  }
+
   async changeName(userID: string, username: string) {
     const options: FindOneOptions<User> = {
       where: { username },

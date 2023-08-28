@@ -270,6 +270,7 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
     const target = await this.userService.findOne(data.userID);
+    if (!user || !target) return;
     const chat = await this.chatService.kickUser(
       userID,
       data.userID,

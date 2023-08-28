@@ -20,8 +20,6 @@ axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 const URI = process.env.REACT_APP_GATEWAY as string;
 
 async function getUserID() {
-  console.log("INDEX GET USERID");
-  console.log("-----URI: ", URI);
   const token = getToken(process.env.REACT_APP_JWT_NAME as string);
   const response = await axios.post<{ id: string }>(
     `${process.env.REACT_APP_BACKEND}/api/auth/getUserID`,
