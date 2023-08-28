@@ -90,31 +90,15 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
     socket.emit("activityStatus", { userID: userID, status: "online" });
   }, [userID, socket, isNameChangedPopUp]);
 
-  // const setUser = async (newName: string) => {
-  //   console.log("SetUser function called");
-  //   const data = { username: newName };
-  //   const config = {
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "Access-Control-Allow-Origin": "https://localhost:3000",
-  //       "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE",
-  //     },
-  //   };
-  //   if (userID !== undefined) {
-  //     const response = await axios.patch(`api/users/${userID}`, data, config);
-  //     setUserName(newName);
-  //   }
-  // };
-
   useEffect(() => {
-    setProfileImg(
-      `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
-    );
+    const update = `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`;
+    setProfileImg(update);
   }, [userID]);
 
   if (!userName) {
     return <div>Loading...</div>;
   }
+
   const handleProfileImgChange = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -150,19 +134,24 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
         try {
           await axios
             .post(`api/users/upload/${userID}`, formData, config)
-            .then((res) => {
-              alert(res.data.message);
-              // if (res.status === 200)
-              //   console.log("Profile picture changed successfully");
-              // if (res.status === 403)
-              //   console.log("Profile picture change failed");
-            })
             .catch((err) => {
-              console.log("Profile picture change failed");
+              console.log("Profile picture change failed: " + err);
             });
-          window.location.reload();
+          setProfileImg(
+            `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
+          );
+          var reader = new FileReader();
+          var imgtag = document.getElementById(
+            "profile_pic"
+          ) as HTMLImageElement;
+          if (imgtag) imgtag.title = file.name;
+          reader.onload = function (event) {
+            if (imgtag && event.target && event.target.result)
+              imgtag.src = event.target.result as string;
+          };
+          reader.readAsDataURL(file);
         } catch (error: any) {
-          console.error((error as Error).message);
+          console.log((error as Error).message);
         }
       }
     };
@@ -175,41 +164,6 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       setUserName(newName);
     }
   };
-  // const handleUserNameChange = (
-  //   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  // ) => {
-  //   e.preventDefault();
-  //   const dialog = document.createElement("div");
-  //   dialog.classList.add("dialog");
-  //   const input = document.createElement("input");
-  //   input.maxLength = 15;
-  //   input.type = "text";
-  //   input.placeholder = "Enter new username";
-  //   const okButton = document.createElement("button");
-  //   okButton.textContent = "OK";
-  //   okButton.addEventListener("click", () => {
-  //     const newUserName = input.value;
-  //     if (newUserName) {
-  //       // update database
-  //       setUser(newUserName);
-  //       document.body.removeChild(dialog);
-  //     }
-  //   });
-  //   const cancelButton = document.createElement("button");
-  //   cancelButton.textContent = "Cancel";
-  //   cancelButton.addEventListener("click", () => {
-  //     document.body.removeChild(dialog);
-  //   });
-  //   dialog.appendChild(input);
-  //   dialog.appendChild(okButton);
-  //   dialog.appendChild(cancelButton);
-  //   document.body.appendChild(dialog);
-  //   const rect = e.currentTarget.getBoundingClientRect();
-  //   dialog.style.position = "absolute";
-  //   dialog.style.top = `${rect.bottom}px`;
-  //   dialog.style.left = `${rect.left}px`;
-  //   input.focus();
-  // };
 
   return (
     <>
@@ -218,132 +172,136 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
           <NavBarMainPage socket={socket}></NavBarMainPage>
         </Grid>
         <Grid item xs={12} style={imgStyle}>
-         {/*  <div
+          {/*  <div
             className="flex flex-col justify-center text-gray-800 p-10 "
             style={imgStyle}
           > */}
-            <div className="flex flex-col items-center justify-center md:h-[70vh]  
-			md:max-w-[100%] p-3 md:p-2 2xl:py-20">
-             {/*  <div className=" "> */}
-                <img
-                  className="w-24 h-24 mb-3 rounded-full shadow-lg mt-4 object-cover"
-                  src={profileImg}
-                  alt="profile_picture"
-                />
-                <h2 className="my-1 text-lg 2xl:text-4xl font-medium text-gray-900">
-                  {userName}
-                </h2>
-                <div className="md:text-lg flex flex-row my-5 2xl:my-10">
-                  <p className="mx-2">
-                    <span className="font-bold text-gray-900">Rank:</span>{" "}
-                    {rank}{" "}
-                  </p>
-                  <p className="mx-2">
-                    <span className="font-bold text-gray-900">Elo:</span> {elo}{" "}
-                  </p>
-                  <p className="mx-2">
-                    <span className="font-bold text-gray-900">Wins:</span>{" "}
-                    {wins}{" "}
-                  </p>
-                  <p className="mx-2">
-                    <span className="font-bold text-gray-900">Losses:</span>{" "}
-                    {losses}
-                  </p>
-                  <p className="mx-2">
-                    <span className="font-bold text-gray-900">Win Ratio:</span>{" "}
-                    {ratio}
-                  </p>
-                </div>
-                <div className=" mt-2 md:mt-4 md:p-4 2xl:mt-10">
-                  <button
-                    className="items-center m-1 px-3 py-2 text-sm 2xl:text-lg text-center
-					text-white bg-orange-800 rounded-lg hover:bg-black focus:outline-none"
-                    onClick={() => handleUserNameChange("")}
-                    title="must be between 3 and 15 characters"
-                  >
-                    Change Username
-                  </button>
-                  <button
-                    className="items-center m-1 px-4 py-2 text-sm 2xl:text-lg text-center text-white bg-green-800
-					 rounded-lg hover:bg-white hover:text-black focus:outline-none"
-                    onClick={handleProfileImgChange}
-                    title="Upload Image (JPEG/PNG, max 1MB)"
-                  >
-                    Change Profile Picture
-                  </button>
-                </div>
-              </div>
-           {/*  </div> */}
-			</Grid>
-			<Grid item xs={12} style={imgStyle}>
-            <div className="flex flex-col mt-4 2xl:mt-0">
-              <h2 className="text-center text-lg md:text-2xl 2xl:text-6xl font-bold m-5 md:m-10">
-                Match History
-              </h2>
-              <div className="relative overflow-x-auto m-3 md:py-2 md:px-20 h-[50vh] md:h-[100vh]">
-                <table className="w-full  text-sm md:text-md 2xl:text-lg rounded-lg shadow-xl text-left text-black">
-                  <thead className="text-sm md:text-md 2xl:text-lg 
-				  	text-black  uppercase border-1 py-2
-					bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
-                    <tr>
-                      <th scope="col" className="px-6 py-2">
-                        Opponent
-                      </th>
-                      <th scope="col" className="px-6 py-2">
-                        GameMode
-                      </th>
-                      <th scope="col" className="px-6 py-2">
-                        Options
-                      </th>
-                      <th scope="col" className="px-6 py-2">
-                        Result
-                      </th>
-                      <th scope="col" className="px-6 py-2">
-                        Score
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="w-full bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
-                    {match.map((match, index) => (
-                      <tr className=" border-1 text-black" key={index}>
-                        {userID === match.userOne.id ? (
-                          <td className="px-6 py-1 font-bold">
-                            {match.userTwo.username}
-                          </td>
-                        ) : (
-                          <td className="px-6 py-1 font-bold">
-                            {match.userOne.username}
-                          </td>
-                        )}
-                        <td className="px-6 py-1 italic ">{match.gameMode}</td>
-                        <td className="px-6 py-1 italic">{match.gameModeOptions}</td>
+          <div
+            className="flex flex-col items-center justify-center md:h-[70vh]  
+			md:max-w-[100%] p-3 md:p-2 2xl:py-20"
+          >
+            {/*  <div className=" "> */}
+            <img
+              className="w-24 h-24 mb-3 rounded-full shadow-lg mt-4 object-cover"
+              src={profileImg}
+              alt="profile_picture"
+              id="profile_pic"
+            />
 
-                        {userID === match.winner.id ? (
-                          <td
-                            className="px-6 py-1 text-green-600 font-bold"
-                          >
-                            WIN
-                          </td>
-                        ) : (
-                          <td
-                            className="px-6 py-1 text-red-600 font-bold"
-                          >
-                            LOSS
-                          </td>
-                        )}
-                        {match.score1 !== 11 && match.score2 !== 11 ? (
-                          <td className="px-6 py-1 text-red-600 font-bold">(Disconnection)</td>
-                        ) : (
-                          <td className="px-6 py-1 text-green-600 font-bold">
-                            {match.score1}-{match.score2}
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <h2 className="my-1 text-lg 2xl:text-4xl font-medium text-gray-900">
+              {userName}
+            </h2>
+            <div className="md:text-lg flex flex-row my-5 2xl:my-10">
+              <p className="mx-2">
+                <span className="font-bold text-gray-900">Rank:</span> {rank}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-900">Elo:</span> {elo}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-900">Wins:</span> {wins}{" "}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-900">Losses:</span>{" "}
+                {losses}
+              </p>
+              <p className="mx-2">
+                <span className="font-bold text-gray-900">Win Ratio:</span>{" "}
+                {ratio}
+              </p>
             </div>
+            <div className=" mt-2 md:mt-4 md:p-4 2xl:mt-10">
+              <button
+                className="items-center m-1 px-3 py-2 text-sm 2xl:text-lg text-center
+					text-white bg-orange-800 rounded-lg hover:bg-black focus:outline-none"
+                onClick={() => handleUserNameChange("")}
+                title="must be between 3 and 15 characters"
+              >
+                Change Username
+              </button>
+              <button
+                className="items-center m-1 px-4 py-2 text-sm 2xl:text-lg text-center text-white bg-green-800
+					 rounded-lg hover:bg-white hover:text-black focus:outline-none"
+                onClick={handleProfileImgChange}
+                title="Upload Image (JPEG/PNG, max 1MB)"
+              >
+                Change Profile Picture
+              </button>
+            </div>
+          </div>
+          {/*  </div> */}
+        </Grid>
+        <Grid item xs={12} style={imgStyle}>
+          <div className="flex flex-col mt-4 2xl:mt-0">
+            <h2 className="text-center text-lg md:text-2xl 2xl:text-6xl font-bold m-5 md:m-10">
+              Match History
+            </h2>
+            <div className="relative overflow-x-auto m-3 md:py-2 md:px-20 h-[50vh] md:h-[100vh]">
+              <table className="w-full  text-sm md:text-md 2xl:text-lg rounded-lg shadow-xl text-left text-black">
+                <thead
+                  className="text-sm md:text-md 2xl:text-lg 
+				  	text-black  uppercase border-1 py-2
+					bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300"
+                >
+                  <tr>
+                    <th scope="col" className="px-6 py-2">
+                      Opponent
+                    </th>
+                    <th scope="col" className="px-6 py-2">
+                      GameMode
+                    </th>
+                    <th scope="col" className="px-6 py-2">
+                      Options
+                    </th>
+                    <th scope="col" className="px-6 py-2">
+                      Result
+                    </th>
+                    <th scope="col" className="px-6 py-2">
+                      Score
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="w-full bg-gradient-to-r from-orange-300 via-yellow-400 to-orange-300">
+                  {match.map((match, index) => (
+                    <tr className=" border-1 text-black" key={index}>
+                      {userID === match.userOne.id ? (
+                        <td className="px-6 py-1 font-bold">
+                          {match.userTwo.username}
+                        </td>
+                      ) : (
+                        <td className="px-6 py-1 font-bold">
+                          {match.userOne.username}
+                        </td>
+                      )}
+                      <td className="px-6 py-1 italic ">{match.gameMode}</td>
+                      <td className="px-6 py-1 italic">
+                        {match.gameModeOptions}
+                      </td>
+
+                      {userID === match.winner.id ? (
+                        <td className="px-6 py-1 text-green-600 font-bold">
+                          WIN
+                        </td>
+                      ) : (
+                        <td className="px-6 py-1 text-red-600 font-bold">
+                          LOSS
+                        </td>
+                      )}
+                      {match.score1 !== 11 && match.score2 !== 11 ? (
+                        <td className="px-6 py-1 text-red-600 font-bold">
+                          (Disconnection)
+                        </td>
+                      ) : (
+                        <td className="px-6 py-1 text-green-600 font-bold">
+                          {match.score1}-{match.score2}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </Grid>
         <Grid item xs={12}>
           <Footer></Footer>
