@@ -3,12 +3,11 @@ import logo from "../../images/logo.png";
 import { useNavigate } from "react-router-dom";
 import { getToken, getUserID, AxiosConfig } from "../../utils/Utils";
 import HamburgerMenu from "./HamburgerMenu";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 import { Socket } from "socket.io-client";
 import IncomingChallengePopUp from "../../utils/incomingChallengePopUp";
-import { arrayBuffer } from "stream/consumers";
 
 const btnToggleStyle = `
 block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2
@@ -59,25 +58,17 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
   const [challenges, setChallenges] = useState<ChallengeProp[]>([]);
 
   useEffect(() => {
-    function toggleChallengePopUp() {
-      setIsChallengePopUp(!isChallengePopUp);
-    }
     function handleIncomingChallenge(result: ChallengeDetails) {
       const newChallenge = {
         challengeDetails: result,
         isChallengePopUp: true,
       };
-      console.log(
-        "challenger id: ",
-        newChallenge.challengeDetails.challengerUsername
-      );
       challenges.push(newChallenge);
       setChallenges(challenges);
       setIsChallengePopUp(true);
     }
 
     function handleFailedToJoin() {
-      console.log("Opponent failed to join");
       alert("Opponent failed to join");
     }
 
@@ -89,18 +80,10 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
     };
   }, [socket, challenges]);
 
-  function toggleChallengePopUp() {
-    setIsChallengePopUp(!isChallengePopUp);
-  }
-
   function removeChallenge() {
     setIsChallengePopUp(false);
-    console.log("BEFORE => ", challenges);
     const updatedChallenges = challenges.slice(1);
     setChallenges(updatedChallenges);
-    // challenges.shift();
-    // setChallenges(challenges);
-    console.log("AFTER => ", challenges);
     if (updatedChallenges.length !== 0) setIsChallengePopUp(true);
   }
 
@@ -179,10 +162,6 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   const handleChat = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("clicked!");
-
-    console.log("clicked!");
-
     navigate("/chat");
   };
 

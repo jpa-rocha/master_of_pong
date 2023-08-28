@@ -140,7 +140,9 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
       <div className="flex flex-col mt-8 flex-1">
         <div className="flex flex-row items-center justify-between text-xs">
-          <span className="font-bold underline text-md 2xl:text-lg">Friends</span>
+          <span className="font-bold underline text-md 2xl:text-lg">
+            Friends
+          </span>
         </div>
         {friendsChat.map((user) => (
           <div
@@ -167,7 +169,9 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
           </div>
         ))}
         <div className="flex flex-row items-center justify-between text-xs">
-          <span className="font-bold underline text-md 2xl:text-lg">Non-Friends</span>
+          <span className="font-bold underline text-md 2xl:text-lg">
+            Non-Friends
+          </span>
         </div>
         {directChat.map((chat) => (
           <div
@@ -195,7 +199,9 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
 
       <div className="flex flex-col mt-2 flex-1">
         <div className="flex flex-row items-center justify-between text-xs">
-          <span className="font-bold underline text-md 2xl:text-lg">Chat Rooms</span>
+          <span className="font-bold underline text-md 2xl:text-lg">
+            Chat Rooms
+          </span>
         </div>
         <div className="flex flex-col space-y-1 mt-2 overflow-y-auto">
           <ul>
@@ -205,8 +211,10 @@ const ChatBar: React.FunctionComponent<ChatBarProps> = ({ socket }) => {
                   key={chat.id}
                   className="flex justify-between items-center"
                 >
-                  <button  className="hover:text-red-600 hover:underline text-semibold"
-				   onClick={() => handleGetChatRoom(chat.id)}>
+                  <button
+                    className="hover:text-red-600 hover:underline text-semibold"
+                    onClick={() => handleGetChatRoom(chat.id)}
+                  >
                     {chat.title}
                   </button>
                 </div>

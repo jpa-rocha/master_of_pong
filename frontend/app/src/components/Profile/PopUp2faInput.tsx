@@ -1,6 +1,6 @@
 import axios from "axios";
 //import { useEffect } from "react";
-import { AxiosConfig, getToken } from "../../utils/Utils";
+import { AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
@@ -35,7 +35,6 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
       .then((res) => {
         console.log(res);
         if (res.status === 200) {
-          // data
           onClose();
         }
       })

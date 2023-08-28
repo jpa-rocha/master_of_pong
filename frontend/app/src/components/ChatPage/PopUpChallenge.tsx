@@ -93,8 +93,6 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
   ) => {
     const selectedValue = event.target.value;
     setMode(+selectedValue);
-    console.log("+SelectedValue = ", +selectedValue);
-    console.log("Mode.MasterOfPong = ", Mode.MasterOfPong);
     if (+selectedValue === Mode.MasterOfPong) setMasterToggle(true);
     else setMasterToggle(false);
   };

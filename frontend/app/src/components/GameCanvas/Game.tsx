@@ -1,5 +1,4 @@
 import { Grid, Box } from "@mui/material";
-import calm from "../../images/CalmScorpion.gif";
 import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
@@ -10,12 +9,6 @@ type GameComponentProps = {
 };
 
 const Game: React.FC<GameComponentProps> = ({ socket }) => {
-  // const [userID, setUserID] = useState<string>("");
-  // (async () => {
-  //   setUserID(await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string)));
-  //   socket.emit("activityStatus", { userID: userID, status: "online" });
-  // })();
-
   return (
     <>
       <Grid container>
