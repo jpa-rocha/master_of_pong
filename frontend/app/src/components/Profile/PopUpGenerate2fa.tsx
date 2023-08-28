@@ -11,11 +11,6 @@ type PopUpGenerate2faProps = {
   userID: string | undefined;
 };
 
-/* interface User {
-  id: string;
-  username: string;
-} */
-
 const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
   isOpen,
   onClose,
@@ -40,7 +35,7 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
 
           setQrCode(imageSrc);
         } catch (error) {
-          console.error("Error generating QR code:", error);
+          console.error("Error 441: please contact us if this persists");
         }
       })();
     }
@@ -62,12 +57,11 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
       )
       .then((data) => {
         if (data.status === 200) {
-          // data
           onClose();
         }
       })
-      .catch((err) => {
-        console.log("err: ", err);
+      .catch(() => {
+        alert("Wrong code!");
       });
   };
 
