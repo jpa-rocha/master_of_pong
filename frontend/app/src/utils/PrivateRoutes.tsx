@@ -14,7 +14,6 @@ const PrivateRoutes = () => {
     const check_validation = (data: boolean) => {
       const decoded: Token | null = decodeToken(token);
       if (decoded !== null) {
-        console.log(decoded);
         //true
         if (decoded.is_2fa_enabled === false) {
           setUserInfo(decoded);
