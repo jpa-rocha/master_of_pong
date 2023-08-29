@@ -186,17 +186,28 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('sendMessage')
-  async sendMessage(client: Socket, data: { chatID: number; message: string }) {
-    const userID = await this.userService.findIDbySocketID(client.id);
-    await this.chatService.sendMessage(userID, data.chatID, data.message);
+  async sendMessage(
+    client: Socket,
+    data: { userID: string; chatID: number; message: string },
+  ) {
+    const user = await this.userService.findOne(data.userID);
+    if (!user) {
+      console.log('COULDNT FIND USER');
+      return;
+    }
+    await this.chatService.sendMessage(user.id, data.chatID, data.message);
     const chat = await this.chatService.findOneChat(data.chatID);
-    chat.users.forEach(async (user) => {
-      const messages = await this.chatService.getChatMessages(
-        data.chatID,
-        user.id,
-      );
-      this.server.to(user.socketID).emit('message', messages);
-    });
+    if (chat && chat.users) {
+      chat.users.forEach(async (user) => {
+        const messages = await this.chatService.getChatMessages(
+          data.chatID,
+          user.id,
+        );
+        this.server.to(user.socketID).emit('message', messages);
+      });
+    } else {
+      console.log('COULDNT FIND CHAT');
+    }
   }
 
   @SubscribeMessage('checkChatRoomName')

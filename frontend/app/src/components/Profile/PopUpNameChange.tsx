@@ -80,6 +80,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
             className="m-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-900
 			focus:border-blue-500 block p-2.5"
             title="must be between 3 and 15 characters"
+            id="changename"
           />
         </form>
       </div>

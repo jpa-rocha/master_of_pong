@@ -5,8 +5,6 @@ import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import { getUserID, getToken } from "../../utils/Utils";
-import socketIO from "socket.io-client";
-//import UserTable from './UserTable'
 
 interface UserProps {
   username: string;

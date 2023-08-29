@@ -37,9 +37,10 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
             configService.get<string>('REACT_APP_JWT_NAME').toLowerCase()
           ];
       }
-      if (token === null) {
-        throw new UnauthorizedException();
-      }
+      // console.log('----------------token', token);
+      // if (token === null) {
+      //   throw new UnauthorizedException();
+      // }
       return token;
     };
 
@@ -53,7 +54,8 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   async validate(token: JwtPayload): Promise<User> {
     const userInfo = await this.usersService.findOne(token.id);
     if (!userInfo) {
-      throw new UnauthorizedException();
+      // throw new UnauthorizedException();
+      return null;
     }
     return userInfo;
   }

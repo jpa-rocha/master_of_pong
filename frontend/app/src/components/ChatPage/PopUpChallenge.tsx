@@ -165,9 +165,7 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
                   <option value={Mode.MasterOfPong}>Master of Pong</option>
                 </select>
               </div>
-              <div>
-                <label htmlFor="options">Choose options:</label>
-              </div>
+              <div>Choose options:</div>
               <div>
                 <input
                   type="checkbox"

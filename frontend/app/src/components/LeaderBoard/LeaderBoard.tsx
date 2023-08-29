@@ -5,7 +5,6 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken, AxiosConfig } from "../../utils/Utils";
-import socketIO from "socket.io-client";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 

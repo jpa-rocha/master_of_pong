@@ -3,8 +3,6 @@ import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
-import socketIO from "socket.io-client";
-import { getToken } from "../../utils/Utils";
 
 type GameComponentProps = {
   socket: Socket;

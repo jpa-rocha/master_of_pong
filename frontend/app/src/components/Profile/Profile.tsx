@@ -5,8 +5,6 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import NameChangePopUp from "./PopUpNameChange";
-import socketIO from "socket.io-client";
-import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 

@@ -3,6 +3,7 @@ import { Socket } from "socket.io-client";
 import { useEffect } from "react";
 import axios from "axios";
 import { Chat } from "./PropUtils";
+import { getToken, getUserID } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -13,11 +14,23 @@ interface ChatFooterProps {
 const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
   const [message, setMessage] = useState("");
   const [chatID, setChatID] = useState<number>(0);
+  const [userID, setUserID] = useState<string>("");
+
+  (async () => {
+    const userIDtmp = await getUserID(
+      getToken(process.env.REACT_APP_JWT_NAME as string)
+    );
+    setUserID(userIDtmp);
+  })();
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (message !== "")
-      socket.emit("sendMessage", { chatID: chatID, message: message });
+      socket.emit("sendMessage", {
+        userID: userID,
+        chatID: chatID,
+        message: message,
+      });
     setMessage("");
   };
 
@@ -46,6 +59,8 @@ const ChatFooter: React.FunctionComponent<ChatFooterProps> = ({ socket }) => {
                     type="text"
                     maxLength={255}
                     className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
+                    id="message"
+                    autoComplete="off"
                   />
                 </div>
               </div>

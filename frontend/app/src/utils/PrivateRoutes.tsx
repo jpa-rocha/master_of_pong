@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
-import { Socket } from "socket.io-client";
-import socketIO from "socket.io-client";
 
 // interface privateRoutesProp {
 //   updateSocket: () => void;

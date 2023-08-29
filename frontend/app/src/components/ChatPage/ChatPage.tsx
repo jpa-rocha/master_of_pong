@@ -8,7 +8,6 @@ import ChatFooter from "./ChatFooter";
 import { Grid } from "@mui/material";
 import { getUserID, getToken } from "../../utils/Utils";
 import ChatUsers from "./ChatUsers";
-import socketIO from "socket.io-client";
 
 interface ChatPageProps {
   socket: Socket;
