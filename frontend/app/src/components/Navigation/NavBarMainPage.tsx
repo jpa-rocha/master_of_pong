@@ -240,7 +240,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
                   </li>
                   <li>
                     <button onClick={handleLeaders} className={btnToggleStyle}>
-                      Leaders Board
+                      Leaderboard
                     </button>
                   </li>
                   <li>

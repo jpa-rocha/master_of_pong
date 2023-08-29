@@ -104,7 +104,7 @@ const IncomingChallengePopUp: React.FC<IncomingChallengePopUpProps> = ({
     return () => {
       socket.off("challengeAccepted", handleAccepted);
     };
-  }, [socket, navigate]);
+  }, [socket, navigate, onCloseAll]);
 
   const handleCharacterSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
