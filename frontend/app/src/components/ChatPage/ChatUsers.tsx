@@ -118,7 +118,10 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
       return user.data;
     };
     const getUserSET = async () => {
-      const tempUser = await getUserGET();
+      const tempUser = await getUserGET().catch((err) => {
+        window.location.reload();
+        return;
+      });
       if (tempUser) setUserCurrent(tempUser);
     };
     getUserSET();

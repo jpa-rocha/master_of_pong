@@ -69,7 +69,7 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
         >
           X
         </button>
-        <form>
+        <form id="newname">
           <input
             required
             maxLength={15}

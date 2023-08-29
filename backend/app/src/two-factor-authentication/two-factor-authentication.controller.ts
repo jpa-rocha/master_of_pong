@@ -61,8 +61,8 @@ export class TwoFactorAuthenticationController {
         user,
       );
     if (isCodeValid !== true) {
-      // throw new UnauthorizedException('Wrong authentication code');
-      return null
+      throw new UnauthorizedException('Wrong authentication code');
+      return null;
     }
     const turnON = await this.userService.turnOnTwoFactorAuthentication(
       user.id,
@@ -97,8 +97,8 @@ export class TwoFactorAuthenticationController {
         user,
       );
     if (!isCodeValid) {
-      return null
-      // throw new UnauthorizedException('Wrong authentication code');
+      throw new UnauthorizedException('Wrong authentication code');
+      // return null
     }
     await this.userService.turnOffTwoFactorAuthentication(user.id);
     const updatedUser = await this.userService.findOne(user.id);
@@ -129,8 +129,8 @@ export class TwoFactorAuthenticationController {
         user,
       );
     if (isCodeValid !== true) {
-      return null
-      // throw new UnauthorizedException('Wrong authentication code');
+      throw new UnauthorizedException('Wrong authentication code');
+      // return null
     }
     const { accessToken } = await this.jwtAuthService.login(user, true);
     res.cookie(

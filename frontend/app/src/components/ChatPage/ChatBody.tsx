@@ -53,7 +53,10 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
     };
 
     const getUserEffect = async () => {
-      const temp = await getUser();
+      const temp = await getUser().catch((err) => {
+        window.location.reload();
+        return { id: "", username: "", is_2fa_enabled: false };
+      });
       if (temp) {
         setUser(temp);
       }

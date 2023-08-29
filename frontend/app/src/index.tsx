@@ -28,7 +28,7 @@ async function getUserID() {
   return response.data;
 }
 
-const socket: Socket = socketIO(URI, {
+let socket: Socket = socketIO(URI, {
   extraHeaders: {
     [process.env.REACT_APP_JWT_NAME as string]: getToken(
       process.env.REACT_APP_JWT_NAME as string
@@ -40,13 +40,27 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
+const updateSocket = async () => {
+  socket.disconnect();
+  socket = socketIO(URI, {
+    extraHeaders: {
+      [process.env.REACT_APP_JWT_NAME as string]: getToken(
+        process.env.REACT_APP_JWT_NAME as string
+      ),
+    },
+    reconnection: false,
+  });
+  console.log("TOKEN = ", getToken(process.env.REACT_APP_JWT_NAME as string));
+  console.log("Socket HEADERS = ", socket.io.opts.extraHeaders);
+};
+
 (async () => {
   const userID = await getUserID();
   root.render(
     <React.StrictMode>
       <BrowserRouter>
         <Routes>
-          <Route element={<PrivateRoutes />}>
+          <Route element={<PrivateRoutes updateSocket={updateSocket} />}>
             <Route path="/game" element={<Game socket={socket} />} />
             <Route path="/main" element={<MainPage socket={socket} />} />
             <Route

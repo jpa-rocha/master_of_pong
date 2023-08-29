@@ -62,9 +62,11 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
         >
           X
         </button> */}
-        <form>
+        <form id="2faValid">
           <input
             type="text"
+            maxLength={6}
+            minLength={6}
             placeholder="Enter 2fa code"
             onKeyDown={handleKeyDown}
             className="m-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-900

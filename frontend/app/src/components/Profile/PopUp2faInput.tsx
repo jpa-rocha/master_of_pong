@@ -63,9 +63,11 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
         >
           X
         </button>
-        <form>
+        <form id="2fainput">
           <input
             type="text"
+            maxLength={6}
+            minLength={6}
             placeholder="Enter code"
             onKeyDown={handleKeyDown}
             className="m-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-900
