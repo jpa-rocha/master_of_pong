@@ -98,8 +98,8 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
   // Character special abilities
   const [VenomtailSpecial, setVenomtailSpecial] = useState<boolean>(false);
   const [VenomtailTarget, setVenomtailTarget] = useState<number>();
-  const [player1Frozen, setPlayer1Frozen] = useState<boolean>();
-  const [player2Frozen, setPlayer2Frozen] = useState<boolean>();
+  const [player1Frozen, setPlayer1Frozen] = useState<boolean>(false);
+  const [player2Frozen, setPlayer2Frozen] = useState<boolean>(false);
   const [raivenSpecial, setRaivenSpecial] = useState<boolean>(false);
 
   // Regular random abilities
@@ -736,11 +736,19 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             gamemodeButtons[2].selected = true;
             break;
         }
+		setPlayer1Position(350);
+		setPlayer2Position(350);
+		setPlayer1PositionX(20);
+		setPlayer2PositionX(1160);
         setBallSize(15);
         setBallPosition({ x: 600, y: 400 });
         setWinner(0);
         setResult(0);
         setAbilities(false);
+		setHasAbility(true);
+		setHasUlt(true);
+		setPlayer1Frozen(false);
+		setPlayer2Frozen(false);
       }
     },
     [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode]
@@ -1204,12 +1212,6 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
         else if (winner === 2) setWinnerName(player2Name);
         if (result) setResult(result);
         setScore({ p1: 0, p2: 0 });
-        // if (abilTimer) {
-        //   clearInterval(abilTimer);
-        // }
-        // if (ultTimer) {
-        //   clearInterval(ultTimer);
-        // }
       });
       socket.on("gameStatus", (event: any) => {
         const { gameStatus } = event;
