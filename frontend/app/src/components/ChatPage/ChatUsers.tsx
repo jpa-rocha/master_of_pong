@@ -119,7 +119,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
     };
     const getUserSET = async () => {
       const tempUser = await getUserGET().catch((err) => {
-        window.location.reload();
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
         return;
       });
       if (tempUser) setUserCurrent(tempUser);

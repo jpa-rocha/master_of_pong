@@ -79,8 +79,12 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
         setMatch(userMatches.data);
       }
     }
-    getUserName();
-    getMatches();
+    try {
+      getUserName();
+      getMatches();
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   }, [userID, socket]);
 
   // const setUser = async (newName: string) => {
@@ -116,8 +120,10 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
   return (
     <>
       {isOpen && (
-        <div className=" flex relative justify-center gap-10 2-[90%] 2xl:gap-20 bg-gray-100 py-10 2xl:w-[80%] 2xl:p-20 
-		bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-400 rounded-lg shadow-lg">
+        <div
+          className=" flex relative justify-center gap-10 2-[90%] 2xl:gap-20 bg-gray-100 py-10 2xl:w-[80%] 2xl:p-20 
+		bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-400 rounded-lg shadow-lg"
+        >
           <button
             className="absolute top-3 right-2.5 text-black bg-transparent hover:bg-black hover:text-gray-50
 					rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
@@ -158,8 +164,10 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
             </div>
           </div>
 
-          <div className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-10 2xl:px-0 h-[60vh] 
-		  bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg ">
+          <div
+            className="relative overflow-x-auto m-3 md:m-1 md:py-2 md:px-10 2xl:px-0 h-[60vh] 
+		  bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-300 rounded-lg shadow-lg "
+          >
             <h2 className="text-center font-bold my-5 md:mt-0">
               {" "}
               Match History
@@ -188,14 +196,22 @@ const ProfilePageChat: React.FunctionComponent<ProfilePageProps> = ({
                 {match.map((match, index) => (
                   <tr className="" key={index}>
                     {userID === match.userOne.id ? (
-                      <td className="px-6 py-1 font-bold">{match.userTwo.username}</td>
+                      <td className="px-6 py-1 font-bold">
+                        {match.userTwo.username}
+                      </td>
                     ) : (
-                      <td className="px-6 py-1 font-bold">{match.userOne.username}</td>
+                      <td className="px-6 py-1 font-bold">
+                        {match.userOne.username}
+                      </td>
                     )}
                     <td className="px-6 py-1 italic">{match.gameMode}</td>
-                    <td className="px-6 py-1 italic">{match.gameModeOptions}</td>
+                    <td className="px-6 py-1 italic">
+                      {match.gameModeOptions}
+                    </td>
                     {userID === match.winner.id ? (
-                      <td className="px-6 py-1  text-green-600 font-bold">WIN</td>
+                      <td className="px-6 py-1  text-green-600 font-bold">
+                        WIN
+                      </td>
                     ) : (
                       <td className="px-6 py-1 text-red-600 font-bold">LOSS</td>
                     )}

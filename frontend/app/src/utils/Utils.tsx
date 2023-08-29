@@ -55,7 +55,7 @@ export async function getUser(token: string): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error getting user", error);
-    window.location.reload();
+    window.location.href = process.env.REACT_APP_FRONTEND as string;
     return (user = { id: "", username: "", is_2fa_enabled: false });
   }
 }

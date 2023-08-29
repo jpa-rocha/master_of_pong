@@ -48,9 +48,13 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   const token = getToken(process.env.REACT_APP_JWT_NAME as string);
 
   (async () => {
-    setUserID(
-      await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
-    );
+    try {
+      setUserID(
+        await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
+      );
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   })();
 
   if (userID !== "") {
@@ -59,23 +63,27 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
 
   useEffect(() => {
     async function getUsers(input: string) {
-      const id = await axios
-        .post("api/auth/getUserID", { token })
-        .then((res) => res.data);
+      try {
+        const id = await axios
+          .post("api/auth/getUserID", { token })
+          .then((res) => res.data);
 
-      if (input === "")
-        setUsers(
-          await axios.get(`api/users/friends/${id}`).then((res) => res.data)
+        if (input === "")
+          setUsers(
+            await axios.get(`api/users/friends/${id}`).then((res) => res.data)
+          );
+        else
+          setUsers(
+            await axios
+              .get(`api/users/friends/name/${id}/${input}`)
+              .then((res) => res.data)
+          );
+        setRequests(
+          await axios.get(`api/users/requests/${id}`).then((res) => res.data)
         );
-      else
-        setUsers(
-          await axios
-            .get(`api/users/friends/name/${id}/${input}`)
-            .then((res) => res.data)
-        );
-      setRequests(
-        await axios.get(`api/users/requests/${id}`).then((res) => res.data)
-      );
+      } catch {
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
+      }
     }
     getUsers(input);
     setRender(false);
@@ -96,39 +104,55 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
   };
 
   const handleSendFriendRequest = async (friendID: string) => {
-    const userID = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    await axios.post(`api/users/addFriend/${userID}/${friendID}`);
-    socket.emit("informFriendsPage", { targetID: friendID });
-    setRender(true);
+    try {
+      const userID = await axios
+        .post("api/auth/getUserID", { token })
+        .then((res) => res.data);
+      await axios.post(`api/users/addFriend/${userID}/${friendID}`);
+      socket.emit("informFriendsPage", { targetID: friendID });
+      setRender(true);
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   };
 
   const handleAccept = async (friendID: string) => {
-    const userID = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    await axios.post(`api/users/acceptFriend/${userID}/${friendID}`);
-    socket.emit("informFriendsPage", { targetID: friendID });
-    setRender(true);
+    try {
+      const userID = await axios
+        .post("api/auth/getUserID", { token })
+        .then((res) => res.data);
+      await axios.post(`api/users/acceptFriend/${userID}/${friendID}`);
+      socket.emit("informFriendsPage", { targetID: friendID });
+      setRender(true);
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   };
 
   const handleReject = async (friendID: string) => {
-    const userID = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    await axios.post(`api/users/rejectFriend/${userID}/${friendID}`);
-    socket.emit("informFriendsPage", { targetID: friendID });
-    setRender(true);
+    try {
+      const userID = await axios
+        .post("api/auth/getUserID", { token })
+        .then((res) => res.data);
+      await axios.post(`api/users/rejectFriend/${userID}/${friendID}`);
+      socket.emit("informFriendsPage", { targetID: friendID });
+      setRender(true);
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   };
 
   const removeFriend = async (friendID: string) => {
-    const userID = await axios
-      .post("api/auth/getUserID", { token })
-      .then((res) => res.data);
-    await axios.post(`api/users/removeFriend/${userID}/${friendID}`);
-    socket.emit("informFriendsPage", { targetID: friendID });
-    setRender(true);
+    try {
+      const userID = await axios
+        .post("api/auth/getUserID", { token })
+        .then((res) => res.data);
+      await axios.post(`api/users/removeFriend/${userID}/${friendID}`);
+      socket.emit("informFriendsPage", { targetID: friendID });
+      setRender(true);
+    } catch {
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
+    }
   };
 
   return (
@@ -169,6 +193,7 @@ const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
                     placeholder="Search for users"
                     className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-100"
                     onChange={handleSearchChange}
+                    id="usersearch"
                   />
                 </div>
               </div>

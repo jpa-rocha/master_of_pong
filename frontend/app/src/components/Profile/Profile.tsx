@@ -69,28 +69,36 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
 
   useEffect(() => {
     async function getUserName() {
-      if (userID) {
-        const user = await axios.get(`api/users/${userID}`);
-        const userData: UserProps = user.data;
-        setUserID(userData.id);
-        setUserName(userData.username);
-        setUserName(userData.username);
-        setWins(userData.wins);
-        setLosses(userData.losses);
-        setRank(userData.rank);
-        setElo(userData.elo);
-        if (userData.losses === 0) setRatio(userData.wins);
-        else {
-          const temp = userData.wins / userData.losses;
-          setRatio(Math.round(temp * 100) / 100);
+      try {
+        if (userID) {
+          const user = await axios.get(`api/users/${userID}`);
+          const userData: UserProps = user.data;
+          setUserID(userData.id);
+          setUserName(userData.username);
+          setUserName(userData.username);
+          setWins(userData.wins);
+          setLosses(userData.losses);
+          setRank(userData.rank);
+          setElo(userData.elo);
+          if (userData.losses === 0) setRatio(userData.wins);
+          else {
+            const temp = userData.wins / userData.losses;
+            setRatio(Math.round(temp * 100) / 100);
+          }
         }
+      } catch {
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
       }
     }
 
     async function getMatches() {
-      if (userID) {
-        const userMatches = await axios.get(`api/game-data/${userID}`);
-        setMatch(userMatches.data);
+      try {
+        if (userID) {
+          const userMatches = await axios.get(`api/game-data/${userID}`);
+          setMatch(userMatches.data);
+        }
+      } catch {
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
       }
     }
     getUserName();

@@ -37,7 +37,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   const handleCheckKick = (compare: Chat) => {
     if (chat && chat.id === compare.id) {
-      window.location.reload();
+      window.location.href = process.env.REACT_APP_FRONTEND as string;
     }
   };
   socket.on("checkKick", handleCheckKick);
@@ -54,7 +54,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
     const getUserEffect = async () => {
       const temp = await getUser().catch((err) => {
-        window.location.reload();
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
         return { id: "", username: "", is_2fa_enabled: false };
       });
       if (temp) {

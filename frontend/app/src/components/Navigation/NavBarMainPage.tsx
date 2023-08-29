@@ -99,7 +99,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
           await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
         );
       } catch (error) {
-        window.location.reload();
+        window.location.href = process.env.REACT_APP_FRONTEND as string;
       }
     })();
     if (userID && userID !== "") {
@@ -115,7 +115,7 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
           setUserInfo(user.data);
           setToggle2fa(user.data.is_2fa_enabled);
         } catch {
-          window.location.reload();
+          window.location.href = process.env.REACT_APP_FRONTEND as string;
         }
       })();
     }
