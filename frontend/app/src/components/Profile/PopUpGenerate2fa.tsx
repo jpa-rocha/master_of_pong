@@ -56,7 +56,6 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
         AxiosConfig
       )
       .then((data) => {
-        console.log("data: ", data);
         if (data.status === 200) {
           if (data.data === null) {
             alert("Wrong code!");

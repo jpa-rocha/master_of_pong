@@ -37,10 +37,6 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
             configService.get<string>('REACT_APP_JWT_NAME').toLowerCase()
           ];
       }
-      // console.log('----------------token', token);
-      // if (token === null) {
-      //   throw new UnauthorizedException();
-      // }
       return token;
     };
 

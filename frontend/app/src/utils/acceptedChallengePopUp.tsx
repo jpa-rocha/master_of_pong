@@ -21,8 +21,6 @@ const ChallengeRoomPopup: React.FC<ChallengePopupProps> = ({
 }) => {
   const [masterToggle, setMasterToggle] = useState<boolean>(false);
 
-  console.log(userID);
-
   const handleModeSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {

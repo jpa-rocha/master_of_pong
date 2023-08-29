@@ -37,7 +37,7 @@ const ChatBody: React.FunctionComponent<ChatBodyProps> = ({ socket }) => {
 
   const handleCheckKick = (compare: Chat) => {
     if (chat && chat.id === compare.id) {
-      window.location.href = process.env.REACT_APP_FRONTEND as string;
+      window.location.reload();
     }
   };
   socket.on("checkKick", handleCheckKick);

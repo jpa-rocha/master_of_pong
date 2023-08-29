@@ -126,17 +126,14 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
         if (file.size > 1024 * 1024) {
-          console.error("File size exceeds 1MB limit");
           alert("File size exceeds 1MB limit");
           return;
         }
         if (file.size < 50 * 50) {
-          console.error("File size is less than 50x50 limit");
           alert("File size is less than 50x50 limit");
           return;
         }
         if (!["image/png", "image/jpeg", "image/gif"].includes(file.type)) {
-          console.error("File type not supported");
           alert("File type not supported");
           return;
         }

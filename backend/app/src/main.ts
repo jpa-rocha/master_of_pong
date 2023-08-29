@@ -7,7 +7,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const frontendOrigin = configService.get<string>('REACT_APP_FRONTEND');
-  console.log('Frontend Origin:', frontendOrigin);
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: frontendOrigin,

@@ -31,9 +31,7 @@ const PopUp2faValidate: React.FC<PopUp2faValidateProps> = ({
         AxiosConfig
       )
       .then((res) => {
-        // console.log(res);
         if (res.status === 200) {
-          // data
           onClose();
         }
       })

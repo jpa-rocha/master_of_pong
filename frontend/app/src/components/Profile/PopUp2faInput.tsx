@@ -33,7 +33,6 @@ const PopUpTurnOff2fa: React.FC<PopUpTurnOff2faProps> = ({
         AxiosConfig
       )
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           onClose();
         }

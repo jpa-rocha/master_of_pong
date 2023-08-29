@@ -130,11 +130,7 @@ export class UsersService {
     friendRequest.receiver = receiver;
     friendRequest.isFriend = false;
 
-    // console.log('sendFriendRequest => Friend request sent');
     return await this.friendsRepository.save(friendRequest);
-
-    // console.log('sendFriendRequest => Automatically accepting friend request');
-    // return this.acceptFriendRequest(userId, friendId);
   }
 
   async acceptFriendRequest(userId: string, friendId: string) {
@@ -151,7 +147,6 @@ export class UsersService {
 
     friendRequest.isFriend = true;
     await this.friendsRepository.save(friendRequest);
-    console.log('acceptFriendRequest => Updated friend instance');
 
     const sender = await this.usersRepository.findOne({
       where: { id: friendId },
@@ -166,7 +161,6 @@ export class UsersService {
     newFriendRequest.receiver = receiver;
     newFriendRequest.isFriend = true;
     await this.friendsRepository.save(newFriendRequest);
-    console.log('acceptFriendRequest => Second instance of friend created');
 
     return friendRequest;
   }
@@ -178,7 +172,7 @@ export class UsersService {
         receiver: { id: userId },
       },
     });
-    console.log(friendRequest);
+
     if (friendRequest) await this.friendsRepository.remove(friendRequest);
     return null;
   }

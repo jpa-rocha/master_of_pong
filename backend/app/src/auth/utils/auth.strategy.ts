@@ -63,8 +63,6 @@ export class OAuth2Strategy extends PassportStrategy(Strategy, 'oauth2') {
         await this.usersService.create(user_dto);
         user = await this.usersService.findFortyTwo(user_dto.forty_two_id);
         await this.usersService.recalculateRanks();
-      } else {
-        console.log('USER ALREADY EXISTS');
       }
       return user;
     }

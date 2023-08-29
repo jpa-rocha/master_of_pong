@@ -26,7 +26,6 @@ const NameChangePopUp: React.FC<Prop> = ({ isOpen, onClose, UserId }) => {
           onClose(newName);
         })
         .catch((err) => {
-          console.log(err);
           if (err.response.status === 400) {
             alert("User name already exists");
             onClose("");

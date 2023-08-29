@@ -13,8 +13,7 @@ import { JwtAuthService } from 'src/auth/jwt-auth/jwt-auth.service';
 import { AuthenticatedSocket } from 'src/game/dto/types';
 import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
 import { Options } from 'src/game/movement.dto';
-import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
-import { UseGuards } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 
 const userTimers: { [userID: string]: { [chatID: number]: NodeJS.Timeout } } =
@@ -35,7 +34,6 @@ export class ChatGateway {
   ) {}
 
   async handleConnection(client: Socket) {
-    console.log('user connected');
     this.gameCollection.initialiseSocket(client as AuthenticatedSocket);
     try {
       await this.userService.updateSocket(client.id, {
@@ -51,7 +49,6 @@ export class ChatGateway {
   }
 
   async handleDisconnect(client: Socket) {
-    console.log('user disconnected');
     const id = await this.userService.findIDbySocketID(client.id);
     this.userService.removeGameID(id);
     try {
@@ -179,10 +176,12 @@ export class ChatGateway {
       chat.id,
       data.password,
     );
-    result.users.forEach((user) => {
-      this.server.to(user.socketID).emit('renderChatBar');
-      this.server.to(user.socketID).emit('returnChatUsersOnly', result);
-    });
+    if (result && result.users) {
+      result.users.forEach((user) => {
+        this.server.to(user.socketID).emit('renderChatBar');
+        this.server.to(user.socketID).emit('returnChatUsersOnly', result);
+      });
+    }
   }
 
   @SubscribeMessage('sendMessage')
@@ -192,8 +191,10 @@ export class ChatGateway {
   ) {
     const user = await this.userService.findOne(data.userID);
     if (!user) {
-      console.log('COULDNT FIND USER');
       return;
+    }
+    if (data.message.length > 255) {
+      throw new BadRequestException();
     }
     await this.chatService.sendMessage(user.id, data.chatID, data.message);
     const chat = await this.chatService.findOneChat(data.chatID);
@@ -205,8 +206,6 @@ export class ChatGateway {
         );
         this.server.to(user.socketID).emit('message', messages);
       });
-    } else {
-      console.log('COULDNT FIND CHAT');
     }
   }
 
@@ -562,9 +561,13 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('leaveQueue')
-  leaveQueue(client: AuthenticatedSocket) {
-    this.removeGameID(client.data.lobby.player1.databaseId);
-    this.gameCollection.removeGame(client.data.lobby.gameID);
+  async leaveQueue(client: AuthenticatedSocket) {
+    const userID = await this.userService.findIDbySocketID(client.id);
+    if (!userID) return;
+    const user = await this.userService.findOne(userID);
+    if (!user) return;
+    this.gameCollection.removeGame(user.gameID);
+    this.removeGameID(userID);
   }
 
   async addGameData(
