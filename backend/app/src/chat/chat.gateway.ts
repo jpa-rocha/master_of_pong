@@ -188,17 +188,13 @@ export class ChatGateway {
   async sendMessage(client: Socket, data: { chatID: number; message: string }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     await this.chatService.sendMessage(userID, data.chatID, data.message);
-    const messages = await this.chatService.getChatMessages(
-      data.chatID,
-      userID,
-    );
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach(async (user) => {
-      let index = -1;
-      const tmp = await this.userService.findOne(user.id);
-      if (tmp.blocked)
-        index = tmp.blocked.findIndex((user) => user.id === userID);
-      if (index === -1) this.server.to(user.socketID).emit('message', messages);
+      const messages = await this.chatService.getChatMessages(
+        data.chatID,
+        user.id,
+      );
+      this.server.to(user.socketID).emit('message', messages);
     });
   }
 

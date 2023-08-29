@@ -259,6 +259,55 @@ const InteractPopUp: React.FC<InteractPopUpProps> = ({
                       Mute
                     </button>
                   )}
+                  {showTimeoutOptions && (
+                    <div className="absolute z-50 top-[50%] right-[50%] left-70 bottom-50 list-none px-4 2xl:px-10 bg-black rounded-lg shadow">
+                      <ul className="py-2">
+                        <li>
+                          <button onClick={() => handleTimedMute(60 * 1000)}>
+                            For 1 Minute
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => handleTimedMute(5 * 60 * 1000)}
+                          >
+                            For 5 Minutes
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => handleTimedMute(15 * 60 * 1000)}
+                          >
+                            For 15 Minutes
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => handleTimedMute(30 * 60 * 1000)}
+                          >
+                            For 30 Minutes
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => handleTimedMute(60 * 60 * 1000)}
+                          >
+                            For 1 Hour
+                          </button>
+                        </li>
+                        <li>
+                          <button onClick={handleManually}>
+                            Until manually unmuted
+                          </button>
+                        </li>
+                        <li>
+                          <button onClick={() => setShowTimeoutOptions(false)}>
+                            Cancel
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
                   <button className="red-back" onClick={() => handleKick()}>
                     Kick
                   </button>
