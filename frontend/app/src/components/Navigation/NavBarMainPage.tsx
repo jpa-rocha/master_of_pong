@@ -8,6 +8,7 @@ import PopUpGenerate2fa from "../Profile/PopUpGenerate2fa";
 import PopUpTurnOff2fa from "../Profile/PopUp2faInput";
 import { Socket } from "socket.io-client";
 import IncomingChallengePopUp from "../../utils/incomingChallengePopUp";
+import socketIO from "socket.io-client";
 
 const btnToggleStyle = `
 block px-4 py-2  2xl:text-xl 2xl:px-6 2xl:py-2
@@ -94,21 +95,29 @@ const NavBarTest: React.FunctionComponent<NavBarProps> = ({ socket }) => {
 
   useEffect(() => {
     (async () => {
-      setUserID(
-        await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
-      );
+      try {
+        setUserID(
+          await getUserID(getToken(process.env.REACT_APP_JWT_NAME as string))
+        );
+      } catch (error) {
+        window.location.reload();
+      }
     })();
-    if (userID) {
+    if (userID && userID !== "") {
       setProfileImg(
         `${process.env.REACT_APP_BACKEND}/api/users/avatars/${userID}`
       );
       (async () => {
-        const user = await axios.get<UserProps>(
-          `${process.env.REACT_APP_BACKEND}/api/users/${userID}`,
-          AxiosConfig
-        );
-        setUserInfo(user.data);
-        setToggle2fa(user.data.is_2fa_enabled);
+        try {
+          const user = await axios.get<UserProps>(
+            `${process.env.REACT_APP_BACKEND}/api/users/${userID}`,
+            AxiosConfig
+          );
+          setUserInfo(user.data);
+          setToggle2fa(user.data.is_2fa_enabled);
+        } catch {
+          window.location.reload();
+        }
       })();
     }
   }, [userID, profileImg, toggle2fa, generate2fa, toggle2faTurnOff]);

@@ -8,7 +8,7 @@ start_up:
 run:
 	$(RUN_SCRIPT)setup.py;
 	$(RUN_SCRIPT)create_images.py;
-	docker compose up;
+	docker compose up --build;
 
 docker fclean:
 	docker system prune -a;

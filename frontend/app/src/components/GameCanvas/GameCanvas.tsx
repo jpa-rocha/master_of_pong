@@ -736,19 +736,19 @@ const GameComponent: React.FC<GameComponentProps> = ({ socket }) => {
             gamemodeButtons[2].selected = true;
             break;
         }
-		setPlayer1Position(350);
-		setPlayer2Position(350);
-		setPlayer1PositionX(20);
-		setPlayer2PositionX(1160);
+        setPlayer1Position(350);
+        setPlayer2Position(350);
+        setPlayer1PositionX(20);
+        setPlayer2PositionX(1160);
         setBallSize(15);
         setBallPosition({ x: 600, y: 400 });
         setWinner(0);
         setResult(0);
         setAbilities(false);
-		setHasAbility(true);
-		setHasUlt(true);
-		setPlayer1Frozen(false);
-		setPlayer2Frozen(false);
+        setHasAbility(true);
+        setHasUlt(true);
+        setPlayer1Frozen(false);
+        setPlayer2Frozen(false);
       }
     },
     [canvas, ctx, resetButton, gamemodeButtons, selectedGamemode]

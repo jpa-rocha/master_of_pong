@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { getToken, decodeToken, Token } from "./Utils";
 import PopUp2faValidate from "../components/Profile/PopUp2faValidate";
+import { Socket } from "socket.io-client";
+import socketIO from "socket.io-client";
 
-const PrivateRoutes = () => {
+interface privateRoutesProp {
+  updateSocket: () => void;
+}
+
+const PrivateRoutes: React.FunctionComponent<privateRoutesProp> = ({
+  updateSocket,
+}) => {
   const token: string = getToken(process.env.REACT_APP_JWT_NAME as string);
   const [isTokenValid, setTokenValid] = useState<boolean | null>(null);
   const [togglePopUp, setTogglePopUp] = useState<boolean>(false);
@@ -50,6 +58,8 @@ const PrivateRoutes = () => {
         check_validation(data);
         // setTokenValid(true);
         // this needs to be true after its checked
+        // socket.disconnect();
+        updateSocket();
       } catch (error) {
         console.error("Error verifying token:", error);
         setTokenValid(false);
