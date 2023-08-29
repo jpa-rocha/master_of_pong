@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
@@ -30,6 +30,9 @@ export class TwoFactorStrategy extends PassportStrategy(
             configService.get<string>('REACT_APP_JWT_NAME').toLowerCase()
           ];
       }
+      if (token === null) {
+        throw new UnauthorizedException();
+      }
       return token;
     };
 
@@ -44,7 +47,7 @@ export class TwoFactorStrategy extends PassportStrategy(
     const userInfo = await this.usersService.findOne(token.id);
     if (token.is_2fa_enabled === true) {
       if (token.is_validated === false) {
-        return null;
+        throw new UnauthorizedException();
       }
     }
     return userInfo;

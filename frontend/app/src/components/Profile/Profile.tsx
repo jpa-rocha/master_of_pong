@@ -50,14 +50,14 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   socket,
   profileID,
 }) => {
-  const URI = process.env.REACT_APP_GATEWAY as string;
-  socket = socketIO(URI, {
-    extraHeaders: {
-      [process.env.REACT_APP_JWT_NAME as string]: getToken(
-        process.env.REACT_APP_JWT_NAME as string
-      ),
-    },
-  });
+  // const URI = process.env.REACT_APP_GATEWAY as string;
+  // socket = socketIO(URI, {
+  //   extraHeaders: {
+  //     [process.env.REACT_APP_JWT_NAME as string]: getToken(
+  //       process.env.REACT_APP_JWT_NAME as string
+  //     ),
+  //   },
+  // });
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(0);
   const [elo, setElo] = useState(0);

@@ -11,14 +11,14 @@ type GameComponentProps = {
 };
 
 const Game: React.FC<GameComponentProps> = ({ socket }) => {
-  const URI = process.env.REACT_APP_GATEWAY as string;
-  socket = socketIO(URI, {
-    extraHeaders: {
-      [process.env.REACT_APP_JWT_NAME as string]: getToken(
-        process.env.REACT_APP_JWT_NAME as string
-      ),
-    },
-  });
+  // const URI = process.env.REACT_APP_GATEWAY as string;
+  // socket = socketIO(URI, {
+  //   extraHeaders: {
+  //     [process.env.REACT_APP_JWT_NAME as string]: getToken(
+  //       process.env.REACT_APP_JWT_NAME as string
+  //     ),
+  //   },
+  // });
   return (
     <>
       <Grid container>

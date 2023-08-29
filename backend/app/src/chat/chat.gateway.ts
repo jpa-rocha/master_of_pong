@@ -15,12 +15,13 @@ import { CreateGameDto } from 'src/game-data/dto/create-game.dto';
 import { Options } from 'src/game/movement.dto';
 import TwoFactorGuard from 'src/two-factor-authentication/two-factor-authentication.guard';
 import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth/jwt-auth.guard';
 
 const userTimers: { [userID: string]: { [chatID: number]: NodeJS.Timeout } } =
   {};
 
 @WebSocketGateway(5050, { cors: '*' })
-@UseGuards(TwoFactorGuard)
+@UseGuards(JwtAuthGuard)
 export class ChatGateway {
   @WebSocketServer()
   server: Server;

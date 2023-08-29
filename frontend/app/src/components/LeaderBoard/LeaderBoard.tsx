@@ -36,14 +36,14 @@ const imgStyle = {
 const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
   socket,
 }) => {
-  const URI = process.env.REACT_APP_GATEWAY as string;
-  socket = socketIO(URI, {
-    extraHeaders: {
-      [process.env.REACT_APP_JWT_NAME as string]: getToken(
-        process.env.REACT_APP_JWT_NAME as string
-      ),
-    },
-  });
+  // const URI = process.env.REACT_APP_GATEWAY as string;
+  // socket = socketIO(URI, {
+  //   extraHeaders: {
+  //     [process.env.REACT_APP_JWT_NAME as string]: getToken(
+  //       process.env.REACT_APP_JWT_NAME as string
+  //     ),
+  //   },
+  // });
   const [leaders, setLeaders] = useState<UserProps[]>([]);
   const [userID, setUserID] = useState<{ id: string } | string>();
 

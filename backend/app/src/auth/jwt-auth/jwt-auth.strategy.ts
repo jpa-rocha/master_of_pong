@@ -1,12 +1,9 @@
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
-import { JwtAuthService } from './jwt-auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 
 export type JwtPayload = {
   id: string;
@@ -20,9 +17,9 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private usersService: UsersService,
   ) {
-    const extractJwtFromCookie = (req: Request) => {
+    const extractJwtFromCookie = (req: any) => {
       let token = null;
-      if (req && req.headers.cookie) {
+      if (req && req.headers && req.headers.cookie) {
         const cookies = req.headers.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
           const keyValuePairs = cookies[i].split('=');
@@ -34,6 +31,14 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
             token = keyValuePairs[1];
           }
         }
+      } else if (req && req.handshake && req.handshake.headers) {
+        token =
+          req.handshake.headers[
+            configService.get<string>('REACT_APP_JWT_NAME').toLowerCase()
+          ];
+      }
+      if (token === null) {
+        throw new UnauthorizedException();
       }
       return token;
     };
@@ -47,6 +52,9 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
 
   async validate(token: JwtPayload): Promise<User> {
     const userInfo = await this.usersService.findOne(token.id);
+    if (!userInfo) {
+      throw new UnauthorizedException();
+    }
     return userInfo;
   }
 }

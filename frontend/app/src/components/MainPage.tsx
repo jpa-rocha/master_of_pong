@@ -18,14 +18,14 @@ const imgStyle = {
 
 /* This is the Main Page after User Login */
 const MainPage: React.FunctionComponent<MainPageProps> = ({ socket }) => {
-  const URI = process.env.REACT_APP_GATEWAY as string;
-  socket = socketIO(URI, {
-    extraHeaders: {
-      [process.env.REACT_APP_JWT_NAME as string]: getToken(
-        process.env.REACT_APP_JWT_NAME as string
-      ),
-    },
-  });
+  // const URI = process.env.REACT_APP_GATEWAY as string;
+  // socket = socketIO(URI, {
+  //   extraHeaders: {
+  //     [process.env.REACT_APP_JWT_NAME as string]: getToken(
+  //       process.env.REACT_APP_JWT_NAME as string
+  //     ),
+  //   },
+  // });
   let userID: string = "";
 
   (async () => {
