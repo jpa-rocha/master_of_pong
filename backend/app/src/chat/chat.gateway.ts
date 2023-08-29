@@ -255,10 +255,12 @@ export class ChatGateway {
   async leaveChat(client: Socket, data: { chatID: number }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     const chat = await this.chatService.leaveChat(userID, data.chatID);
-    chat.users.forEach((user) => {
-      this.server.to(user.socketID).emit('renderChatBar');
-      this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
-    });
+    if (chat && chat.users && chat.users.length > 0) {
+      chat.users.forEach((user) => {
+        this.server.to(user.socketID).emit('renderChatBar');
+        this.server.to(user.socketID).emit('returnChatUsersOnly', chat);
+      });
+    }
   }
 
   @SubscribeMessage('kickUser')

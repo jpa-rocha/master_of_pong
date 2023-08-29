@@ -56,8 +56,13 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
         AxiosConfig
       )
       .then((data) => {
+        console.log("data: ", data);
         if (data.status === 200) {
-          onClose();
+          if (data.data === null) {
+            alert("Wrong code!");
+          } else {
+            onClose();
+          }
         }
       })
       .catch(() => {
@@ -90,9 +95,12 @@ const PopUpGenerate2fa: React.FC<PopUpGenerate2faProps> = ({
         <div className="font-bold text-lg tracking-wide uppercase text-center">
           <img src={qrCode} alt="QR Code" />
         </div>
-        <form>
+        <form name="2faCode">
           <input
+            name="2faCode"
             type="text"
+            maxLength={6}
+            minLength={6}
             placeholder="Enter 2fa Code"
             onKeyDown={handleKeyDown}
             className="m-6 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-900

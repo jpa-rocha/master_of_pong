@@ -5,6 +5,8 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import NameChangePopUp from "./PopUpNameChange";
+import socketIO from "socket.io-client";
+import { getToken } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -48,6 +50,14 @@ const ProfilePage: React.FunctionComponent<ProfilePageProps> = ({
   socket,
   profileID,
 }) => {
+  const URI = process.env.REACT_APP_GATEWAY as string;
+  socket = socketIO(URI, {
+    extraHeaders: {
+      [process.env.REACT_APP_JWT_NAME as string]: getToken(
+        process.env.REACT_APP_JWT_NAME as string
+      ),
+    },
+  });
   const [userName, setUserName] = useState("");
   const [rank, setRank] = useState(0);
   const [elo, setElo] = useState(0);

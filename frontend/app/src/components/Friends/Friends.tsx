@@ -5,6 +5,7 @@ import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import { getUserID, getToken } from "../../utils/Utils";
+import socketIO from "socket.io-client";
 //import UserTable from './UserTable'
 
 interface UserProps {
@@ -33,6 +34,14 @@ const imgStyle = {
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
 const FriendsPage: React.FunctionComponent<FriendsPageProps> = ({ socket }) => {
+  const URI = process.env.REACT_APP_GATEWAY as string;
+  socket = socketIO(URI, {
+    extraHeaders: {
+      [process.env.REACT_APP_JWT_NAME as string]: getToken(
+        process.env.REACT_APP_JWT_NAME as string
+      ),
+    },
+  });
   const [users, setUsers] = useState<UserProps[]>([]);
   const [input, setInput] = useState<string>("");
   const [render, setRender] = useState<boolean>(false);

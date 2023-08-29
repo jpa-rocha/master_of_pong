@@ -55,6 +55,7 @@ export async function getUser(token: string): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error getting user", error);
+    window.location.reload();
     return (user = { id: "", username: "", is_2fa_enabled: false });
   }
 }

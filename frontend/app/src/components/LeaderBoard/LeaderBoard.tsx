@@ -5,6 +5,7 @@ import Footer from "../Footer";
 import { Socket } from "socket.io-client";
 import axios from "axios";
 import { getToken, AxiosConfig } from "../../utils/Utils";
+import socketIO from "socket.io-client";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 
@@ -35,6 +36,14 @@ const imgStyle = {
 const LeaderBoard: React.FunctionComponent<LeaderBoardPageProps> = ({
   socket,
 }) => {
+  const URI = process.env.REACT_APP_GATEWAY as string;
+  socket = socketIO(URI, {
+    extraHeaders: {
+      [process.env.REACT_APP_JWT_NAME as string]: getToken(
+        process.env.REACT_APP_JWT_NAME as string
+      ),
+    },
+  });
   const [leaders, setLeaders] = useState<UserProps[]>([]);
   const [userID, setUserID] = useState<{ id: string } | string>();
 

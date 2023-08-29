@@ -3,12 +3,22 @@ import GameCanvas from "./GameCanvas";
 import NavBarMainPage from "../Navigation/NavBarMainPage";
 import Footer from "../Footer";
 import { Socket } from "socket.io-client";
+import socketIO from "socket.io-client";
+import { getToken } from "../../utils/Utils";
 
 type GameComponentProps = {
   socket: Socket;
 };
 
 const Game: React.FC<GameComponentProps> = ({ socket }) => {
+  const URI = process.env.REACT_APP_GATEWAY as string;
+  socket = socketIO(URI, {
+    extraHeaders: {
+      [process.env.REACT_APP_JWT_NAME as string]: getToken(
+        process.env.REACT_APP_JWT_NAME as string
+      ),
+    },
+  });
   return (
     <>
       <Grid container>
