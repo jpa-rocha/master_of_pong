@@ -1,6 +1,5 @@
 import axios from "axios";
-//import { useEffect } from "react";
-import { getToken, AxiosConfig } from "../../utils/Utils";
+import { AxiosConfig } from "../../utils/Utils";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND;
 axios.defaults.withCredentials = true;
