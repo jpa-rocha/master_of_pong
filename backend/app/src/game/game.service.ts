@@ -1079,15 +1079,6 @@ export class GameService {
       }
       this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
       this.gameObject.ballVel.y += change;
-      if (this.gameObject.player1.getOverHere) {
-        this.gameObject.player1.getOverHere = false;
-        this.gameObject.sendToClients<{
-          VenomtailSpecial: boolean;
-        }>('VenomtailSpecial', {
-          VenomtailSpecial: false,
-        });
-      }
-      this.gameObject.freeze = false;
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
@@ -1095,6 +1086,16 @@ export class GameService {
       scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
+      if (this.gameObject.player1.getOverHere) {
+        this.gameObject.player1.getOverHere = false;
+        this.gameObject.ballVel.x += Math.abs(this.gameObject.ballVel.y);
+        this.gameObject.ballVel.y = 0;
+        this.gameObject.sendToClients<{
+          VenomtailSpecial: boolean;
+        }>('VenomtailSpecial', {
+          VenomtailSpecial: false,
+        });
+      }
     }
     // Ball interaction with player 2
     if (
@@ -1117,14 +1118,6 @@ export class GameService {
       }
       this.gameObject.ballVel.x = this.gameObject.ballVel.x * -1;
       this.gameObject.ballVel.y += change;
-      if (this.gameObject.player2.getOverHere) {
-        this.gameObject.player2.getOverHere = false;
-        this.gameObject.sendToClients<{
-          VenomtailSpecial: boolean;
-        }>('VenomtailSpecial', {
-          VenomtailSpecial: false,
-        });
-      }
       const lengthNew = Math.sqrt(
         this.gameObject.ballVel.x ** 2 + this.gameObject.ballVel.y ** 2,
       );
@@ -1132,9 +1125,19 @@ export class GameService {
       scaleFactor *= 1.02;
       this.gameObject.ballVel.x *= scaleFactor;
       this.gameObject.ballVel.y *= scaleFactor;
+      if (this.gameObject.player2.getOverHere) {
+        this.gameObject.player2.getOverHere = false;
+        this.gameObject.ballVel.x -= Math.abs(this.gameObject.ballVel.y);
+        this.gameObject.ballVel.y = 0;
+        this.gameObject.sendToClients<{
+          VenomtailSpecial: boolean;
+        }>('VenomtailSpecial', {
+          VenomtailSpecial: false,
+        });
+      }
     }
   }
-
+  
   private moveBall(): void {
     if (this.gameObject.gameStarted == false) return;
     if (!this.readyToServe) {
