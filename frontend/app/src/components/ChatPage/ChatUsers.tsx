@@ -147,7 +147,7 @@ const ChatUsers: React.FunctionComponent<ChatUsersProps> = ({ socket }) => {
           setUserCurrentRole("Owner");
         }
         const checkADMIN = admins.filter((user) => user.id === userCurrent.id);
-        if (checkADMIN && userCurrent.id !== userOwner?.id)
+        if (checkADMIN.length > 0 && userCurrent.id !== userOwner?.id)
           setUserCurrentRole("Admin");
         const chatPolice = admins.filter(
           (user) => user.id !== userCurrent.id && user.id !== userOwner?.id

@@ -41,7 +41,9 @@ const PopUpCreateChat: React.FC<PopUpCreateChatProps> = ({
         setNameError("* Name must be 20 characters or shorter");
       else if (chatRoomName.length <= 0)
         setNameError("* Please input a chat room name");
-      else setNameError("");
+      else if (!/^[a-zA-Z0-9]+$/.test(chatRoomName)) {
+        setNameError("* Chat Rooms name must be alphanumeric");
+      } else setNameError("");
     };
     getAvailability();
   }, [chatRoomName, socket]);

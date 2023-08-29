@@ -146,6 +146,15 @@ export class ChatGateway {
     client: Socket,
     data: { title: string; password: string },
   ) {
+    if (
+      !(await this.chatService.checkName(data.title)) ||
+      data.title.length <= 0 ||
+      data.title.length > 20 ||
+      !/^[a-zA-Z0-9]+$/.test(data.title) ||
+      data.password.length > 50
+    ) {
+      return;
+    }
     const creatorID = await this.userService.findIDbySocketID(client.id);
     const result = await this.chatService.createChatRoom(
       data.title,
@@ -179,17 +188,13 @@ export class ChatGateway {
   async sendMessage(client: Socket, data: { chatID: number; message: string }) {
     const userID = await this.userService.findIDbySocketID(client.id);
     await this.chatService.sendMessage(userID, data.chatID, data.message);
-    const messages = await this.chatService.getChatMessages(
-      data.chatID,
-      userID,
-    );
     const chat = await this.chatService.findOneChat(data.chatID);
     chat.users.forEach(async (user) => {
-      let index = -1;
-      const tmp = await this.userService.findOne(user.id);
-      if (tmp.blocked)
-        index = tmp.blocked.findIndex((user) => user.id === userID);
-      if (index === -1) this.server.to(user.socketID).emit('message', messages);
+      const messages = await this.chatService.getChatMessages(
+        data.chatID,
+        user.id,
+      );
+      this.server.to(user.socketID).emit('message', messages);
     });
   }
 
@@ -261,6 +266,7 @@ export class ChatGateway {
     const userID = await this.userService.findIDbySocketID(client.id);
     const user = await this.userService.findOne(userID);
     const target = await this.userService.findOne(data.userID);
+    if (!user || !target) return;
     const chat = await this.chatService.kickUser(
       userID,
       data.userID,
@@ -358,6 +364,7 @@ export class ChatGateway {
     client: Socket,
     data: { password: string; chatID: number },
   ) {
+    if (data.password.length > 50) return;
     return await this.chatService.changePassword(data.password, data.chatID);
   }
 

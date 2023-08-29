@@ -15,21 +15,21 @@ export class TwoFactorAuthenticationService {
 
   public async generateTwoFactorAuthenticationSecret(user: User) {
     const secret: string = authenticator.generateSecret();
+    const trimSecret = secret.trim()
     const otpauthurl = authenticator.keyuri(
       user.email,
       this.configService.get('POSTGRES_DB'),
-      secret,
+      trimSecret,
     );
-
-    var CryptoJS = require('crypto-js');
-    var hash = CryptoJS.AES.encrypt(
-      secret,
+    const CryptoJS = require('crypto-js');
+    const hash = CryptoJS.AES.encrypt(
+      trimSecret,
       this.configService.get<string>('TWOFA_SECRET'),
     ).toString();
     await this.usersService.setTwoFactorAuthenticationSecret(hash, user.id);
 
     return {
-      secret,
+      trimSecret,
       otpauthurl,
     };
   }
@@ -42,16 +42,16 @@ export class TwoFactorAuthenticationService {
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
-    var CryptoJS = require('crypto-js');
-    var bytes = CryptoJS.AES.decrypt(
+    const CryptoJS = require('crypto-js');
+    const bytes = CryptoJS.AES.decrypt(
       user.twofa_secret,
       this.configService.get<string>('TWOFA_SECRET'),
     );
-    var twofa_secret = await bytes.toString(CryptoJS.enc.Utf8);
-
+    const twofa_secret = await bytes.toString(CryptoJS.enc.Utf8);
+    let trimSecret = twofa_secret.trim()
     const verify = authenticator.verify({
       token: twoFactorAuthenticationCode,
-      secret: twofa_secret,
+      secret: trimSecret,
     });
     return verify;
   }

@@ -35,7 +35,7 @@ import { JwtAuthService } from './auth/jwt-auth/jwt-auth.service';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         entities: ['dist/**/*.entity{.ts,.js}'],
-        synchronize: true, /* TODO */
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
